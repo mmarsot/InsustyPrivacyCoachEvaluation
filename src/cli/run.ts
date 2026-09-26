@@ -74,6 +74,9 @@ const extRepo = resolveExtRepo(opt("ext-repo"));
 const ext = await materializeExtRef(extRepo, resolveExtRefName(opt("ref")));
 const api = await loadExtApi(ext.bundle);
 for (const m of models) if (!api.modelIds.includes(m.id)) console.warn(`warning: ${m.id} is not bundled by ${ext.ref}`);
+const installedTransformers = (JSON.parse(readFileSync(join(ROOT, "node_modules/@huggingface/transformers/package.json"), "utf8")) as { version: string }).version;
+if (ext.transformersRange && ext.transformersRange.replace(/^[\^~=]/, "") !== installedTransformers)
+  console.warn(`warning: the ref declares @huggingface/transformers ${ext.transformersRange}; the bench runs ${installedTransformers}`);
 
 let cases: CompiledCase[] = selectCases(dataset, tier, splitArg);
 if (profilesArg.length) cases = cases.filter((c) => profilesArg.includes(c.profile));
