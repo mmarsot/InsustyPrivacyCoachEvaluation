@@ -4,12 +4,12 @@
  * the runs, so it can watch a bench run without affecting it.
  */
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { compileDataset } from "../dataset/load.ts";
 import type { CompiledCase, CompiledDataset } from "../dataset/schema.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo, type ExtApi, type ExtRef } from "../ext/ref.ts";
-import { EXT_CACHE_DIR, MODELS_FILE } from "../paths.ts";
+import { EXT_CACHE_DIR, MODELS_FILE, ROOT } from "../paths.ts";
 import { DEFAULT_QUICK_CASES_PER_PROFILE, rulesFor, selectCases, type Job, type ResultRecord } from "../run/jobs.ts";
 import { MODELS, parseBenchArgs, planJobs, secondsPerCase, splitLabel, type Plan } from "../run/plan.ts";
 import { compareRows, COMPARE_METRICS } from "../report/compare-data.ts";
@@ -332,6 +332,23 @@ const parseFilters = (params: URLSearchParams): Filters => {
   return filters;
 };
 
+/** Lab runs (npm run lab) are small JSON files under experiments/runs/. */
+const LAB_RUNS_DIR = join(ROOT, "experiments", "runs");
+const labRuns = () =>
+  existsSync(LAB_RUNS_DIR)
+    ? readdirSync(LAB_RUNS_DIR)
+        .filter((f) => f.endsWith(".json"))
+        .map((f) => {
+          const run = JSON.parse(readFileSync(join(LAB_RUNS_DIR, f), "utf8")) as { name: string; at: string; set: unknown; summary: unknown[] };
+          return { name: run.name, at: run.at, set: run.set, summary: run.summary };
+        })
+        .sort((a, b) => a.at.localeCompare(b.at))
+    : [];
+const labRun = (name: string) => {
+  if (!/^[\w.-]+$/.test(name)) throw new Error("bad run name");
+  return JSON.parse(readFileSync(join(LAB_RUNS_DIR, `${name}.json`), "utf8")) as unknown;
+};
+
 const send = (res: ServerResponse, status: number, body: unknown, type = "application/json") => {
   res.writeHead(status, { "content-type": `${type}; charset=utf-8`, "cache-control": "no-store" });
   res.end(typeof body === "string" ? body : JSON.stringify(body));
@@ -375,6 +392,10 @@ export async function handle(dash: Dashboard, req: IncomingMessage, res: ServerR
       }
       case "/api/case":
         return send(res, 200, await dash.caseDetail(p.get("run") ?? "", p.get("config") ?? "", p.get("case") ?? ""));
+      case "/api/lab/runs":
+        return send(res, 200, { runs: labRuns() });
+      case "/api/lab/run":
+        return send(res, 200, labRun(p.get("name") ?? ""));
       case "/api/compare": {
         const [a, b] = await Promise.all([dash.rows(p.get("a") ?? ""), dash.rows(p.get("b") ?? "")]);
         return send(res, 200, compareRows(a, b));

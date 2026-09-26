@@ -55,6 +55,12 @@ export interface LabConfig {
   /** null = the model's generation_config default, like the extension (Qwen2.5 ships 1.1). */
   repetitionPenalty: number | null;
   noRepeatNgram: number | null;
+  /**
+   * `lines` = the ref's line protocol, parsed as is. `json` = the model writes a
+   * JSON object {LABEL: [passages]} that is converted to lines before the
+   * ref's parser (what an extension-side adapter would do).
+   */
+  output: "lines" | "json";
   /** Extra variables for the chat template (e.g. enable_thinking: false). */
   templateKwargs: Record<string, unknown>;
 }
@@ -89,6 +95,7 @@ export const REF_CONFIG: LabConfig = {
   deadlineMs: 30_000,
   repetitionPenalty: null,
   noRepeatNgram: null,
+  output: "lines",
   templateKwargs: {},
 };
 
@@ -194,4 +201,33 @@ export function buildMessages(config: LabConfig, profile: Profile, ref: RefTexts
 
 export function withOverrides(base: LabConfig, id: string, overrides: Partial<LabConfig>): LabConfig {
   return { ...base, ...overrides, id };
+}
+
+/** Converts a JSON reply ({LABEL: passage | [passages]}, or [{label, text}]) to protocol lines. */
+export function jsonToLines(raw: string): string {
+  const start = raw.indexOf("{") >= 0 && (raw.indexOf("[") < 0 || raw.indexOf("{") < raw.indexOf("[")) ? raw.indexOf("{") : raw.indexOf("[");
+  if (start < 0) return /\bNONE\b/i.test(raw) ? "NONE" : raw;
+  let value: unknown;
+  for (let end = raw.length; end > start; end--) {
+    try {
+      value = JSON.parse(raw.slice(start, end));
+      break;
+    } catch {
+      // Trim trailing text until the JSON parses.
+    }
+  }
+  if (value === undefined) return raw;
+  const lines: string[] = [];
+  const push = (label: unknown, passage: unknown) => {
+    if (typeof label !== "string") return;
+    if (Array.isArray(passage)) passage.forEach((p) => push(label, p));
+    else if (typeof passage === "string" && passage.trim()) lines.push(`${label}: ${passage}`);
+  };
+  if (Array.isArray(value))
+    for (const item of value) {
+      const o = (item ?? {}) as Record<string, unknown>;
+      push(o.label ?? o.category, o.text ?? o.passage ?? o.value);
+    }
+  else if (value && typeof value === "object") for (const [k, v] of Object.entries(value)) push(k, v);
+  return lines.length ? lines.join("\n") : "NONE";
 }

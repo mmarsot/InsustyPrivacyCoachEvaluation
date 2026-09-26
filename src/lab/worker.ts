@@ -21,6 +21,8 @@ export interface LabGen {
   /** null = the model's generation_config default (what the extension gets). */
   repetitionPenalty: number | null;
   noRepeatNgram: number | null;
+  /** Stop with the ref's line-protocol tracker (off for JSON output). */
+  lineStop: boolean;
 }
 export interface LabJob {
   key: string;
@@ -38,6 +40,8 @@ export interface LabWorkerSpec {
   dtype: "q8" | "q4" | "q4f16" | "fp16" | "fp32";
   resultFile: string;
   groups: LabGroup[];
+  /** Run every request from scratch (checks that prefix KV reuse does not change outputs). */
+  noPrefixCache?: boolean;
 }
 export type LabFinish = "eos" | "line" | "length" | "deadline" | "context";
 export interface LabRecord {
@@ -87,8 +91,11 @@ async function main() {
   for (const group of spec.groups) {
     const p0 = performance.now();
     const prefixIds = encode(group.prefix);
-    const outputs = await model.forward({ input_ids: idsTensor(prefixIds), attention_mask: ones([1, prefixIds.length]) });
-    const pkv = (model as unknown as { getPastKeyValues(o: unknown, p: null): unknown }).getPastKeyValues(outputs, null);
+    let pkv: unknown;
+    if (!spec.noPrefixCache) {
+      const outputs = await model.forward({ input_ids: idsTensor(prefixIds), attention_mask: ones([1, prefixIds.length]) });
+      pkv = (model as unknown as { getPastKeyValues(o: unknown, p: null): unknown }).getPastKeyValues(outputs, null);
+    }
     emit({ type: "prefix", tokens: prefixIds.length, ms: Math.round(performance.now() - p0) });
     for (const job of group.jobs) {
       const ids = [...prefixIds, ...encode(job.suffix)];
@@ -104,7 +111,7 @@ async function main() {
           if (generated.length > checked) {
             const fresh = generated.slice(checked);
             checked = generated.length;
-            if (tracker.feed(decode(fresh))) return (lineDone = true);
+            if (job.gen.lineStop && tracker.feed(decode(fresh))) return (lineDone = true);
           }
           return false;
         }),
@@ -114,7 +121,7 @@ async function main() {
       const output = (await model.generate({
         input_ids: idsTensor(ids),
         attention_mask: ones([1, ids.length]),
-        past_key_values: pkv,
+        ...(pkv === undefined ? {} : { past_key_values: pkv }),
         max_new_tokens: Math.max(1, cap),
         do_sample: false,
         ...(job.gen.repetitionPenalty === null ? {} : { repetition_penalty: job.gen.repetitionPenalty }),

@@ -162,7 +162,7 @@ process registers in `cache/active-runs/`, and on Linux the dashboard also
 scans `/proc`. It then rebuilds the run's exact plan from its arguments and
 compares it with the cache.
 
-It has five views:
+It has six views:
 
 - **Live.** One card per bench run in progress, refreshed every 5 s. It shows
   overall done/total and ETA. For each model it shows status
@@ -187,6 +187,8 @@ It has five views:
 - **Compare.** Any two runs, committed or live, on their shared (configuration,
   case) results, overall and by language.
 - **Playground.** Talk to one bundled model to see its limits (below).
+- **Lab.** Every `npm run lab` result (`experiments/runs/`), sortable by any
+  metric and by language; tick two rows to compare their outputs case by case.
 
 ### Chat playground
 
@@ -218,6 +220,35 @@ Rough RSS on this laptop: SmolLM2-135M about 1 GB. Qwen2.5-0.5B can peak above
   ground truth when the text is an unedited example.
 
 The playground calls the model only when you click; it writes no files.
+
+## Prompt-engineering lab
+
+```bash
+npm run lab -- --configs ref,shots-labelex --models smollm2-360m   # iter32 set by default
+npm run lab -- --configs ref --models qwen2.5-0.5b --show-prompt --dry-run
+```
+
+`npm run lab` (`src/lab/`) is for fast iteration on everything the extension
+could change beyond the user's own text: instruction wording and layout,
+system vs user placement, few-shot demonstrations as prior chat turns, the
+assistant prefill, token cap, repetition settings, JSON vs line output, and
+candidate models (`models/candidates.json`). Each named configuration in
+`src/lab/configs.ts` is the shipped `ref` configuration plus overrides. The
+`ref` configuration renders byte-identical prompts to the extension engine
+(checked with `src/lab/parity.ts`).
+
+- Runs on a small fixed dev set (`experiments/sets/`), never on the test split.
+- Renders prompts in the parent with the tokenizer only, and caches each
+  generation by a hash of (model, dtype, rendered prompt, generation
+  settings) in `cache/lab/`.
+- One model process at a time: it waits until `MemAvailable` covers the
+  model's peak RSS plus `--min-free-mb` (1500), and kills the worker above
+  `--max-rss-mb` (3500) or when the system drops below 600 MB available.
+- Parses with the ref's own `validateModelOutput` and scores with the bench
+  scorer; `--by-lang` and `--cases` print more detail.
+- Writes `experiments/runs/<name>.json`. The experiment log is
+  `experiments/LOG.md`, and the current best configuration with its evidence
+  is `experiments/REPORT.md`.
 
 ## How it runs the extension's code
 
@@ -307,7 +338,7 @@ Other commands:
 
 ```
 dataset/        profiles, cases, style guides
-models/         bundled model metadata (sizes, dtypes, advertised languages + sources)
+models/         bundled and candidate model metadata (sizes, dtypes, advertised languages + sources)
 src/dataset/    schema, loader/validator
 src/ext/        extension ref materialization and API surface
 src/run/        jobs, tiers, cache, per-model worker, Node Transformers.js loader
@@ -315,6 +346,8 @@ src/score/      per-case scoring and aggregation
 src/report/     HTML report, run comparison
 src/dashboard/  local dashboard (read-only server + static page)
 src/playground/ chat playground: request logic, model host process, its manager
+src/lab/        prompt-engineering lab: configurations, renderer, worker, parity check
+experiments/    lab iteration sets, run summaries, LOG.md, REPORT.md, RESEARCH.md
 src/cli/        validate, split, bench, report, compare
 runs/           committed run outputs
 cache/          (untracked) model weights, extracted refs, result cache

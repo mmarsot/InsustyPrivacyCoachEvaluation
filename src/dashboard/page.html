@@ -72,7 +72,7 @@ textarea{font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--
 <header>
   <h1>Review Bench</h1>
   <nav id="nav">
-    <a href="#live">Live</a><a href="#matrix">Experiments</a><a href="#results">Results</a><a href="#compare">Compare</a><a href="#playground">Playground</a>
+    <a href="#live">Live</a><a href="#matrix">Experiments</a><a href="#results">Results</a><a href="#compare">Compare</a><a href="#playground">Playground</a><a href="#lab">Lab</a>
   </nav>
   <div id="meta"></div>
 </header>
@@ -491,8 +491,44 @@ function renderReviewPreset() {
   };
 }
 
+// ------------------------------------------------------------------ lab
+// Read-only view of `npm run lab` runs (experiments/runs/*.json): every
+// model/config result (latest run wins), then per-case outputs of two
+// selected rows side by side.
+const lab = { rows: [], sort: "f1", pick: [], lang: "overall" };
+async function renderLab() {
+  const { runs } = await api("/api/lab/runs");
+  const latest = new Map();
+  for (const run of runs) for (const s of run.summary) latest.set(`${s.model}|${s.dtype}|${s.config}|${JSON.stringify(run.set)}`, { ...s, run: run.name, at: run.at, set: typeof run.set === "string" ? run.set : "custom" });
+  lab.rows = [...latest.values()];
+  drawLab();
+}
+function drawLab() {
+  const key = lab.sort;
+  const val = (r) => r[lab.lang]?.[key];
+  const rows = [...lab.rows].sort((a, b) => (key === "fpr" ? (val(a) ?? 9) - (val(b) ?? 9) : (val(b) ?? -1) - (val(a) ?? -1)));
+  const col = (k, t) => `<th class="num"><a href="#lab" data-sort="${k}">${t}${lab.sort === k ? " ▾" : ""}</a></th>`;
+  const id = (r) => `${r.run}|${r.model}|${r.config}`;
+  $("#view").innerHTML = `<h2>Lab runs</h2>
+  <p>Prompt and model experiments from <code>npm run lab</code> (see <code>experiments/LOG.md</code>). Pick two rows to compare their outputs case by case.</p>
+  <div class="row"><label class="f">Language<select id="labLang">${["overall", "en", "fr"].map((l) => `<option ${l === lab.lang ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+  <button id="labCmp" ${lab.pick.length === 2 ? "" : "disabled"}>Compare selected (${lab.pick.length}/2)</button></div>
+  <div class="card scroll"><table><tr><th></th><th>Set</th><th>Model</th><th>Config</th>${col("f1", "F1")}${col("precision", "P")}${col("recall", "R")}${col("detection", "Detect")}${col("fpr", "FP rate")}${col("compliance", "Format")}<th class="num">p50</th><th class="num">tok</th><th>Failures</th><th>Run</th></tr>
+  ${rows.map((r) => { const m = r[lab.lang] ?? {}; return `<tr><td><input type="checkbox" data-pick="${esc(id(r))}" ${lab.pick.includes(id(r)) ? "checked" : ""}></td><td>${esc(r.set)}</td><td>${esc(r.model)} <span class="muted">${esc(r.dtype)}</span></td><td title="${esc(r.note ?? "")}">${esc(r.config)}</td>${meter(m.f1)}${meter(m.precision)}${meter(m.recall)}${meter(m.detection)}${meter(m.fpr, true)}${meter(m.compliance)}<td class="num">${ms(m.p50ms)}</td><td class="num">${m.tokens ?? "–"}</td><td>${Object.entries(m.failures ?? {}).filter(([k]) => k !== "ok").map(([k, v]) => `<span class="chip">${esc(k)} ${v}</span>`).join("")}</td><td class="muted">${esc(r.run)}</td></tr>`; }).join("")}</table></div><div id="labDiff"></div>`;
+  for (const a of document.querySelectorAll("[data-sort]")) a.onclick = (e) => { e.preventDefault(); lab.sort = a.dataset.sort; drawLab(); };
+  $("#labLang").onchange = (e) => { lab.lang = e.target.value; drawLab(); };
+  for (const c of document.querySelectorAll("[data-pick]")) c.onchange = () => { lab.pick = c.checked ? [...lab.pick, c.dataset.pick].slice(-2) : lab.pick.filter((x) => x !== c.dataset.pick); drawLab(); };
+  $("#labCmp").onclick = () => labCompare();
+}
+async function labCompare() {
+  const sides = await Promise.all(lab.pick.map(async (p) => { const [run, model, config] = p.split("|"); const data = await api(`/api/lab/run?name=${encodeURIComponent(run)}`); return { label: `${model} / ${config}`, cases: new Map(data.cases.filter((c) => c.model === model && c.config === config).map((c) => [c.caseId, c])) }; }));
+  const ids = [...new Set(sides.flatMap((s) => [...s.cases.keys()]))];
+  const cell = (c) => !c ? '<td class="muted">–</td>' : `<td><span class="chip ${c.failure === "ok" ? "ok" : "bad"}">${esc(c.failure)}</span> ${c.found}/${c.expected} found<br>${c.predicted.map((p) => `<span class="chip ${p.startsWith("+") ? "TP" : "FP"}">${esc(p.slice(1))}</span>`).join("")}<pre>${esc(c.output)}</pre></td>`;
+  $("#labDiff").innerHTML = `<h3>Case by case</h3><div class="card scroll"><table style="table-layout:fixed"><tr><th style="width:140px">Case</th>${sides.map((s) => `<th>${esc(s.label)}</th>`).join("")}</tr>${ids.map((id) => `<tr><td>${esc(id)}</td>${sides.map((s) => cell(s.cases.get(id))).join("")}</tr>`).join("")}</table></div>`;
+}
+
 // ------------------------------------------------------------------ routing
-const VIEWS = { live: renderLive, matrix: renderMatrix, results: renderResults, compare: renderCompare, playground: renderPlayground };
+const VIEWS = { live: renderLive, matrix: renderMatrix, results: renderResults, compare: renderCompare, playground: renderPlayground, lab: renderLab };
 async function route() {
   const tab = (location.hash.slice(1) || "live").split("?")[0];
   for (const a of document.querySelectorAll("#nav a")) a.classList.toggle("on", a.getAttribute("href") === "#" + tab);

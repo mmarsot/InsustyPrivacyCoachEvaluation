@@ -27,7 +27,7 @@ import { CACHE_DIR, MODEL_CACHE_DIR, ROOT } from "../paths.ts";
 import type { ResultRecord } from "../run/jobs.ts";
 import { metrics, type Metrics } from "../score/aggregate.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
-import { buildMessages, configCategories, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
+import { buildMessages, configCategories, jsonToLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
 import type { LabEvent, LabGroup, LabJob, LabRecord, LabWorkerSpec } from "./worker.ts";
@@ -101,7 +101,8 @@ interface Planned {
 }
 
 const slug = (s: string) => s.replace(/^.*\//, "").replace(/[^A-Za-z0-9.-]+/g, "_");
-const cacheFileFor = (model: string, dtype: string) => join(LAB_DIR, `${slug(model)}-${dtype}.jsonl`);
+const noPrefixCache = flag("no-prefix-cache");
+const cacheFileFor = (model: string, dtype: string) => join(LAB_DIR, `${slug(model)}-${dtype}${noPrefixCache ? "-nopkv" : ""}.jsonl`);
 const loadLabCache = (file: string) => {
   const map = new Map<string, LabRecord>();
   if (existsSync(file))
@@ -132,8 +133,10 @@ async function plan(model: LabModel): Promise<Planned[]> {
       const userContent = built.userContent(c.text);
       const suffix = `${userContent}${tail}${config.prefill}`;
       const prefix = rendered.slice(0, at);
-      const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram };
-      const key = createHash("sha256").update(JSON.stringify({ model: model.id, dtype, prefix, suffix, gen })).digest("hex").slice(0, 32);
+      const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" };
+      // Keys omit defaults added after the first runs, so cached results stay valid.
+      const { lineStop, ...keyGen } = gen;
+      const key = createHash("sha256").update(JSON.stringify({ model: model.id, dtype, prefix, suffix, gen: lineStop ? keyGen : gen })).digest("hex").slice(0, 32);
       out.push({ model, dtype, config, c, profile, prefix, suffix, key, gen, instructions });
     }
   }
@@ -176,7 +179,7 @@ async function runWorker(model: LabModel, dtype: string, pending: Planned[]): Pr
     if (!g.jobs.some((j) => j.key === p.key)) g.jobs.push({ key: p.key, caseId: p.c.id, suffix: p.suffix, gen: p.gen });
     groups.set(p.prefix, g);
   }
-  const spec: LabWorkerSpec = { bundle: ext.bundle, model: model.id, dtype: dtype as LabWorkerSpec["dtype"], resultFile: cacheFileFor(model.id, dtype), groups: [...groups.values()] };
+  const spec: LabWorkerSpec = { bundle: ext.bundle, model: model.id, dtype: dtype as LabWorkerSpec["dtype"], resultFile: cacheFileFor(model.id, dtype), groups: [...groups.values()], noPrefixCache };
   const specFile = join(CACHE_DIR, "tmp", `lab-${process.pid}-${model.short}.json`);
   mkdirSync(join(CACHE_DIR, "tmp"), { recursive: true });
   mkdirSync(LAB_DIR, { recursive: true });
@@ -234,7 +237,8 @@ interface Row extends Scored {
 function score(p: Planned, r: LabRecord): Row {
   const deadline = r.finishReason === "deadline";
   const categories = configCategories(p.config, p.profile, refTexts);
-  const findings = deadline ? [] : validateModelOutput(r.output, { text: p.c.text, offset: 0 }, 0, categories);
+  const parsed = p.config.output === "json" ? jsonToLines(r.output) : r.output;
+  const findings = deadline ? [] : validateModelOutput(parsed, { text: p.c.text, offset: 0 }, 0, categories);
   const record: ResultRecord = {
     key: p.key,
     extSha: ext.sha,
@@ -243,7 +247,7 @@ function score(p: Planned, r: LabRecord): Row {
     labelVariant: p.config.labelVariant,
     caseId: p.c.id,
     findings: findings.map(({ category, start, end, value }) => ({ category, start, end, value })),
-    chunks: [{ output: r.output, ms: r.ms, runtime: { backend: "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } }],
+    chunks: [{ output: parsed, ms: r.ms, runtime: { backend: "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } }],
     ...(deadline ? { error: "deadline", errorKind: "deadline" as const } : {}),
     reviewMs: r.ms,
     at: r.at,
@@ -336,7 +340,7 @@ if (!flag("dry-run") && summary.length) {
           fr: compact(s.fr),
         })),
         cases: allRows.map((r) => ({
-          model: r.model.replace(/^.*\//, ""),
+          model: findLabModel(r.model)?.short ?? r.model,
           config: r.config.split(" | ")[1],
           caseId: r.caseId,
           failure: r.failure,
