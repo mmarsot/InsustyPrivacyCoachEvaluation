@@ -221,10 +221,11 @@ function compileCase(c: Case, profile: Profile | undefined, issues: Issue[], req
 }
 
 /** Loads, validates and compiles the whole dataset. `dataset` is undefined when any error exists. */
-export function compileDataset(options: { requireSplit?: boolean; profile?: string } = {}): LoadResult {
+export function compileDataset(options: { requireSplit?: boolean; profiles?: string[] } = {}): LoadResult {
   const issues: Issue[] = [];
-  const profiles = loadProfiles(issues).filter((p) => !options.profile || p.id === options.profile);
-  const raw = loadRawCases(issues).filter((c) => !options.profile || c.profile === options.profile);
+  const wanted = (id: string) => !options.profiles?.length || options.profiles.includes(id);
+  const profiles = loadProfiles(issues).filter((p) => wanted(p.id));
+  const raw = loadRawCases(issues).filter((c) => wanted(c.profile));
   const byId = new Map(profiles.map((p) => [p.id, p]));
   const ids = new Set<string>();
   const texts = new Map<string, string>();

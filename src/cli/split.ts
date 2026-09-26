@@ -3,7 +3,7 @@
  * one, so the held-out test set stays fixed as the dataset grows. Within each
  * (profile, lang, type) group, cases are ordered by a hash of their id and
  * test cases are added until the group reaches ~30% test.
- *   npm run split
+ *   npm run split [-- --profile <id>]
  */
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -13,8 +13,9 @@ import type { Case } from "../dataset/schema.ts";
 
 const TEST_SHARE = 0.3;
 const hash = (id: string) => createHash("sha256").update(id).digest("hex");
+const only = process.argv.includes("--profile") ? process.argv[process.argv.indexOf("--profile") + 1] : undefined;
 let assigned = 0;
-for (const file of readdirSync(CASES_DIR).filter((f) => f.endsWith(".jsonl")).sort()) {
+for (const file of readdirSync(CASES_DIR).filter((f) => f.endsWith(".jsonl") && (!only || f.startsWith(`${only}.`))).sort()) {
   const path = join(CASES_DIR, file);
   const cases = readFileSync(path, "utf8").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l) as Case);
   const groups = new Map<string, Case[]>();

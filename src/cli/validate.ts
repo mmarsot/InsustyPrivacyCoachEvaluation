@@ -9,7 +9,7 @@ import { CASE_TYPES, LANGS, TYPE_TARGET_SHARE } from "../dataset/schema.ts";
 const argv = process.argv.slice(2);
 const args = new Set(argv);
 const only = argv.includes("--profile") ? argv[argv.indexOf("--profile") + 1] : undefined;
-const { dataset, issues } = compileDataset({ requireSplit: !args.has("--allow-missing-split"), profile: only });
+const { dataset, issues } = compileDataset({ requireSplit: !args.has("--allow-missing-split"), profiles: only ? [only] : undefined });
 const errors = issues.filter((i) => i.level === "error");
 const warnings = issues.filter((i) => i.level === "warning");
 for (const issue of [...errors, ...(args.has("--quiet") ? [] : warnings)])
