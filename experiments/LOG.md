@@ -282,3 +282,28 @@ confirm48 (54 positive, 42 negative, half EN half FR).
 - Every demo-order tweak trades recall against false positives; none moves
   F1 beyond noise except downwards. Two NONE demos in a row make the model
   answer NONE too often.
+
+### T2. Confidence gate and language-matched demonstrations, SmolLM2-360M, tune96 (`t2-smol360`)
+
+Note: the extension's `main` moved to ec11443 during this run (review-dialog
+UI only, no change to the SLM modules), so results stay comparable.
+
+| config | F1o | P | R | F1x | det | FPR | p50s | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|---|
+| raw-pl (= gate off) | 30 | 32 | 29 | 18 | 39 | 36 | 2.6 | 38 | 23 |
+| raw-pl-gate0.3 | 30 | 32 | 29 | 18 | 39 | 36 | 2.6 | | |
+| raw-pl-gate0.2 | 23 | 25 | 20 | 12 | 30 | 31 | 2.6 | | |
+| raw-pl-gate0.1 | 18 | 25 | 14 | 8 | 20 | 26 | 2.6 | | |
+| raw-pl-gate0.05 | 10 | 17 | 7 | 5 | 9 | 21 | 2.6 | | |
+| **raw-pl-lang** | **33** | 37 | 30 | 26 | 46 | 48 | 3.1 | 35 | **31** |
+| raw-pl + relaxed anchoring | 29 | 28 | 31 | 16 | 41 | 50 | | | |
+| raw-pl-lang + relaxed anchoring | 31 | 33 | 30 | 25 | 46 | 60 | | | |
+
+- Confidence gate (drop a label's answer when P(first token = NONE) >= t):
+  anti-informative. Lower thresholds remove true positives faster than false
+  ones, so precision falls too. The model's NONE probability does not track
+  correctness. Dropped.
+- Demonstrations in the scanned text's language (`raw-pl-lang`, language
+  guessed from stop words, 564/567 correct on dev): French F1 23 -> 31,
+  exact-match F1 18 -> 26, English about flat. New best.
+- Relaxed anchoring confirmed harmful (FPR +12-14 points).

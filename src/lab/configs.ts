@@ -136,4 +136,7 @@ add("raw-pl", "raw-pl-lang", "raw-pl with demonstrations in the scanned text's l
 for (const g of [0.05, 0.1, 0.2, 0.3, 0.5]) add("raw-pl", `raw-pl-gate${g}`, `raw-pl, drop a label's answer when P(NONE first) >= ${g}`, { noneGate: g });
 add("raw-pl", "raw-pl-gate1", "raw-pl recording P(NONE) with a gate that never fires (reference for the gated rows)", { noneGate: 1.01 });
 
+add("raw-pl-lang", "raw-pl-lang-dx3", "raw-pl-lang with description + 3 examples in the instruction", { labelVariant: "desc_ex3" });
+add("raw-pl-lang", "raw-pl-lang-xc", "raw-pl-lang with examples + counter-examples (no description) in the instruction", { labelVariant: "ex_counter" });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));
