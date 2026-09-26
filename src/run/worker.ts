@@ -27,6 +27,12 @@ export type WorkerEvent =
   | { type: "done"; maxRssMb: number; wallMs: number }
   | { type: "fatal"; error: string };
 
+// Die with the parent run: never keep a model loaded without its RSS guard.
+const parentPid = process.ppid;
+setInterval(() => {
+  if (process.ppid !== parentPid) process.exit(3);
+}, 2000).unref();
+
 const emit = (event: WorkerEvent) => process.stdout.write(`@@${JSON.stringify(event)}\n`);
 const describe = (error: unknown) => (error instanceof Error ? error.message : String(error));
 

@@ -78,6 +78,13 @@ export type LabEvent =
   | { type: "done"; maxRssMb: number }
   | { type: "fatal"; error: string };
 
+// Die with the parent: a worker whose CLI was killed must not keep a model
+// loaded unsupervised (no RSS guard, no watchdog).
+const parentPid = process.ppid;
+setInterval(() => {
+  if (process.ppid !== parentPid) process.exit(3);
+}, 2000).unref();
+
 const emit = (event: LabEvent) => process.stdout.write(`@@${JSON.stringify(event)}\n`);
 
 class Stop extends StoppingCriteria {

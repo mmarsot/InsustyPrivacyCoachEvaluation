@@ -357,3 +357,35 @@ give sensible (and, for Gemma, identical) outputs with reuse.
   v4) as well as the newer onnxruntime-web.
 - Granite 4.0 H 350M is not runnable on Transformers.js 3.8.1: its Mamba
   state inputs (`past_conv.*`, `past_ssm.*`) are never initialized. Dropped.
+
+## 2026-09-27
+
+### G1. Reaching the NVIDIA GPU from WebGPU on this laptop
+
+Hardware: Intel UHD 620 (iGPU) + NVIDIA GeForce GTX 1050 Max-Q (Pascal,
+4 GB, driver 580.178.04, PRIME on-demand), Chrome 153 on a Wayland session.
+Probe: a page calling `navigator.gpu.requestAdapter()` with
+`powerPreference` high-performance / low-power / default and printing
+`adapter.info` (script kept out of the repo; commands below).
+
+| launch | adapters exposed |
+|---|---|
+| headless Chrome, default flags | SwiftShader only (CPU fallback) |
+| headless + `--enable-features=Vulkan` (with or without `--use-angle=vulkan`, PRIME env) | GPU process crashes (exit 139) or `vkCreateInstance() failed: -7` (no surface extensions without a display); SwiftShader or nothing |
+| headless + `--use-angle=gl-egl` | `requestAdapter` never resolves |
+| headful Chrome, default flags | SwiftShader only |
+| **headful Chrome + `--enable-features=Vulkan`** | **high-performance and default: NVIDIA Pascal; low-power: Intel gen-9 (with shader-f16)** |
+| Node + Dawn (`webgpu` npm), `backend=vulkan` | high-performance: NVIDIA Pascal (no shader-f16); low-power: Intel |
+
+- What works: a normal (headful) Chrome started with
+  `--enable-features=Vulkan`; nothing else is needed (no PRIME variables, no
+  ANGLE flag, `--enable-unsafe-webgpu` not required). Chrome warns that the
+  Wayland ozone platform is "not compatible with Vulkan" but WebGPU compute
+  still gets the adapter.
+- What does not: any headless Chrome (no Vulkan instance), and Chrome
+  without the Vulkan feature (WebGPU falls back to SwiftShader on Linux).
+- The GTX 1050 has no `shader-f16`, so fp16/q4f16 WebGPU kernels are not
+  available on it; the Intel iGPU has f16.
+- The extension probes `requestAdapter()` with no power preference and uses
+  q4 weights on WebGPU; with the Vulkan feature the default adapter is the
+  NVIDIA GPU here.
