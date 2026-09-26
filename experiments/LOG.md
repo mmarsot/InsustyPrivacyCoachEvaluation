@@ -66,3 +66,35 @@ Conclusions:
 - Next: screen the other bundled models and the candidates
   (experiments/RESEARCH.md) on a few configurations, instead of tuning the
   135M further.
+
+### E2b. Candidate models need a newer runtime
+
+- All four candidate exports (LFM2.5-350M, LFM2-350M-Extract, Gemma 3 270M,
+  Granite 4.0 H 350M) fail to create a session on the onnxruntime-web build
+  the extension pins (1.22.0-dev.20250409, via Transformers.js 3.8.1): a raw
+  WASM exception number, no message. They are IR 10 / opset 21 exports with
+  `com.microsoft` ops and external `.onnx_data` weights.
+- onnxruntime-web 1.24.3 loads them. The lab runs candidates on it through a
+  module-resolution hook in the worker only (`src/lab/ort-next-hooks.mjs`,
+  package alias `onnxruntime-web-next`); bundled models stay on the pinned build.
+- Two more gaps in Transformers.js 3.8.1 for these exports, patched in the lab:
+  in Node it never hands external data to onnxruntime-web (the loader now
+  reads the `.onnx_data` file and passes `session_options.externalData`, as
+  the browser build does), and the newer exports take a `num_logits_to_keep`
+  input that only Transformers.js v4 feeds (the lab worker feeds 1).
+- **Consequence for the extension:** adopting any candidate model means
+  upgrading onnxruntime-web (Transformers.js v4.3 ships 1.31.0-dev) or
+  re-exporting the model for the old runtime.
+- LFM2.5-350M q8 peaks at about 2.1 GB RSS, far below Qwen2.5-0.5B (3.45 GB).
+
+### E2c. Prefix KV reuse changes greedy outputs (numerics, not a bug)
+
+Running the same requests without the prefix cache (`--no-prefix-cache`,
+whole prompt in one forward pass) changed the raw output of 4/4 cases on both
+SmolLM2-135M and LFM2.5-350M. q8 models quantize activations dynamically with
+one scale per forward call, so prefilling the instructions separately from the
+text changes the numbers slightly, and greedy decoding amplifies that. The
+lab keeps prefix reuse on by default because that is what the extension does
+(its engine prepares the instruction prefix once). Practical consequence:
+single-case differences between configurations are noisy; only aggregate
+metrics over many cases mean anything.

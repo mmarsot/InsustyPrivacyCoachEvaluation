@@ -14,8 +14,12 @@
  */
 import { availableParallelism } from "node:os";
 import { pathToFileURL } from "node:url";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { createWriteStream, existsSync, mkdirSync, readFileSync, renameSync } from "node:fs";
+import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import {
+  AutoConfig,
   AutoModelForCausalLM,
   AutoTokenizer,
   env,
@@ -33,7 +37,9 @@ export const WASM_THREADS = Math.min(4, Math.max(1, availableParallelism()));
 env.cacheDir = MODEL_CACHE_DIR;
 env.allowLocalModels = false;
 if (env.backends.onnx.wasm) {
-  env.backends.onnx.wasm.wasmPaths = pathToFileURL(join(ROOT, "node_modules", "onnxruntime-web", "dist") + "/").href;
+  // `LAB_ORT=next`: lab worker running a candidate on the newer onnxruntime-web (src/lab/ort-next-hooks.mjs).
+  const ortPackage = process.env.LAB_ORT === "next" ? "onnxruntime-web-next" : "onnxruntime-web";
+  env.backends.onnx.wasm.wasmPaths = pathToFileURL(join(ROOT, "node_modules", ortPackage, "dist") + "/").href;
   env.backends.onnx.wasm.numThreads = WASM_THREADS;
 }
 
@@ -118,12 +124,48 @@ export function adaptModel(model: PreTrainedModel) {
 /** Loaded models, so the worker can dispose them explicitly. */
 const loaded: PreTrainedModel[] = [];
 
+const DTYPE_SUFFIX: Record<string, string> = { q8: "_quantized", q4: "_q4", q4f16: "_q4f16", fp16: "_fp16", fp32: "" };
+
+/**
+ * Weights stored as an external `.onnx_data` file (newer onnx-community
+ * exports). In Node, Transformers.js 3.8.1 leaves external data to
+ * onnxruntime-node, which the bench aliases to onnxruntime-web, so the file
+ * would never reach the session. Read it here and pass it the way the
+ * browser build does (`session_options.externalData`). This is not a graph
+ * optimization option: inference stays on the default session options.
+ */
+async function externalDataOptions(model: string, dtype: string) {
+  const config = (await AutoConfig.from_pretrained(model)) as unknown as { "transformers.js_config"?: { use_external_data_format?: unknown } };
+  const flag = config["transformers.js_config"]?.use_external_data_format;
+  const base = `model${DTYPE_SUFFIX[dtype] ?? ""}.onnx`;
+  const chunks = typeof flag === "object" && flag !== null ? Number((flag as Record<string, unknown>)[base] ?? 0) : Number(Boolean(flag));
+  if (!chunks) return {};
+  const externalData = [];
+  for (let i = 0; i < chunks; i++) {
+    const path = `${base}_data${i === 0 ? "" : `_${i}`}`;
+    const file = join(MODEL_CACHE_DIR, model, "onnx", path);
+    if (!existsSync(file)) await download(`${env.remoteHost}${model}/resolve/main/onnx/${path}`, file);
+    externalData.push({ path, data: new Uint8Array(readFileSync(file)) });
+  }
+  return { use_external_data_format: false, session_options: { externalData } };
+}
+
+/** Streams a file to disk (weights can be several hundred MB; never buffered whole). */
+async function download(url: string, file: string) {
+  const response = await fetch(url);
+  if (!response.ok || !response.body) throw new Error(`download failed (${response.status}): ${url}`);
+  mkdirSync(dirname(file), { recursive: true });
+  await pipeline(Readable.fromWeb(response.body as never), createWriteStream(`${file}.part`));
+  renameSync(`${file}.part`, file);
+}
+
 /** Loads a tokenizer and q8/q4 model on the WASM backend. */
 export async function loadPretrained(model: string, dtype: "q8" | "q4" = "q8") {
+  const external = await externalDataOptions(model, dtype);
   const [tokenizer, instance] = await Promise.all([
     AutoTokenizer.from_pretrained(model),
     // "cpu" is how Transformers.js names the (aliased) onnxruntime-web WASM backend in Node.
-    AutoModelForCausalLM.from_pretrained(model, { device: "cpu", dtype }),
+    AutoModelForCausalLM.from_pretrained(model, { device: "cpu", dtype, ...external } as never),
   ]);
   loaded.push(instance);
   return { tokenizer, model: instance };

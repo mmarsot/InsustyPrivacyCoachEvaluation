@@ -12,8 +12,15 @@
  */
 import { appendFileSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
-import { ones, StoppingCriteria, StoppingCriteriaList, type PreTrainedModel, type Tensor } from "@huggingface/transformers";
-import { eosIds, idsTensor, loadPretrained, WASM_THREADS, transformersVersion } from "../run/transformers-loader.ts";
+import { register } from "node:module";
+import type { PreTrainedModel, Tensor } from "@huggingface/transformers";
+
+// Candidate models whose ONNX exports need a newer onnxruntime-web run with
+// `LAB_ORT=next` (set by the lab CLI); the hook must be registered before
+// Transformers.js is imported.
+if (process.env.LAB_ORT === "next") register(new URL("./ort-next-hooks.mjs", import.meta.url));
+const { ones, StoppingCriteria, StoppingCriteriaList, Tensor: TensorClass } = await import("@huggingface/transformers");
+const { eosIds, idsTensor, loadPretrained, WASM_THREADS, transformersVersion } = await import("../run/transformers-loader.ts");
 
 export interface LabGen {
   maxNewTokens: number;
@@ -57,7 +64,7 @@ export interface LabRecord {
   at: string;
 }
 export type LabEvent =
-  | { type: "loaded"; loadMs: number; threads: number; transformers: string; contextLength: number }
+  | { type: "loaded"; loadMs: number; threads: number; transformers: string; ort: string; contextLength: number }
   | { type: "prefix"; tokens: number; ms: number }
   | { type: "result"; caseId: string; ms: number; tokens: number; finish: LabFinish; done: number; total: number }
   | { type: "done"; maxRssMb: number }
@@ -81,9 +88,20 @@ async function main() {
   if (!Tracker) throw new Error("the extension ref does not export LineOutputTracker");
   const t0 = performance.now();
   const { tokenizer, model } = await loadPretrained(spec.model, spec.dtype as "q8");
+  // Exports made for Transformers.js v4 (LFM2.5, Gemma 3, Granite 4) take a
+  // `num_logits_to_keep` input that 3.8.1 never feeds. Only the last position's
+  // logits are used by greedy decoding (and none by the prefix prefill).
+  const session = (model as unknown as { sessions: Record<string, { inputNames: string[] }> }).sessions.model;
+  if (session?.inputNames.includes("num_logits_to_keep")) {
+    const forward = model.forward.bind(model);
+    (model as unknown as { forward: (inputs: Record<string, unknown>) => unknown }).forward = (inputs) =>
+      forward({ ...inputs, num_logits_to_keep: new TensorClass("int64", BigInt64Array.from([1n]), []) });
+  }
   const contextLength = Number((model.config as { max_position_embeddings?: number }).max_position_embeddings ?? 2048);
   const eos = eosIds(model);
-  emit({ type: "loaded", loadMs: Math.round(performance.now() - t0), threads: WASM_THREADS, transformers: transformersVersion, contextLength });
+  const common = (await import("onnxruntime-common" as string)) as { env: { versions?: { web?: string } } };
+  const ort = String(common.env.versions?.web ?? "?");
+  emit({ type: "loaded", loadMs: Math.round(performance.now() - t0), threads: WASM_THREADS, transformers: transformersVersion, ort, contextLength });
   const encode = (text: string) => tokenizer.encode(text, { add_special_tokens: false });
   const decode = (ids: readonly number[]) => tokenizer.decode([...ids], { skip_special_tokens: true });
   const total = spec.groups.reduce((a, g) => a + g.jobs.length, 0);

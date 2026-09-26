@@ -1,5 +1,5 @@
 {
-  "$comment": "Candidate models for the local review, evaluated in the lab (npm run lab), not bundled by the extension. All have transformers.js-compatible ONNX weights whose architecture loads on @huggingface/transformers 3.8.1 (checked 2026-09-26). File sizes are the ONNX weights for the listed dtype (external .onnx_data included), from the Hugging Face API. peakRssMb is measured in the lab when known, else estimated as 300 MB + 6x the weights. Research notes and sources: experiments/RESEARCH.md.",
+  "$comment": "Candidate models for the local review, evaluated in the lab (npm run lab), not bundled by the extension. All have transformers.js-compatible ONNX weights whose architecture loads on @huggingface/transformers 3.8.1 (checked 2026-09-26). File sizes are the ONNX weights for the listed dtype (external .onnx_data included), from the Hugging Face API. peakRssMb is measured in the lab when known (LFM2.5-350M: 2.1 GB on onnxruntime-web 1.24.3), else a rough estimate. 'ort': 'next' means the export needs onnxruntime-web 1.24.3 (the extension pins 1.22.0-dev, which fails to create a session for these opset-21 / external-data exports) and feeds num_logits_to_keep (added for Transformers.js v4). Research notes and sources: experiments/RESEARCH.md.",
   "models": [
     {
       "id": "onnx-community/LFM2.5-350M-ONNX",
@@ -14,8 +14,9 @@
         "fr": "advertised",
         "source": "https://huggingface.co/LiquidAI/LFM2.5-350M"
       },
-      "peakRssMb": 3360,
-      "secondsPerCase": 6
+      "peakRssMb": 2100,
+      "secondsPerCase": 6,
+      "ort": "next"
     },
     {
       "id": "onnx-community/LFM2-350M-Extract-ONNX",
@@ -30,8 +31,9 @@
         "fr": "advertised",
         "source": "https://huggingface.co/LiquidAI/LFM2-350M-Extract"
       },
-      "peakRssMb": 2620,
-      "secondsPerCase": 6
+      "peakRssMb": 2300,
+      "secondsPerCase": 6,
+      "ort": "next"
     },
     {
       "id": "onnx-community/gemma-3-270m-it-ONNX",
@@ -46,8 +48,9 @@
         "fr": "advertised (multilingual)",
         "source": "https://huggingface.co/google/gemma-3-270m-it"
       },
-      "peakRssMb": 3570,
-      "secondsPerCase": 5
+      "peakRssMb": 2600,
+      "secondsPerCase": 5,
+      "ort": "next"
     },
     {
       "id": "onnx-community/granite-4.0-h-350m-ONNX",
@@ -62,8 +65,9 @@
         "fr": "advertised",
         "source": "https://huggingface.co/ibm-granite/granite-4.0-h-350m"
       },
-      "peakRssMb": 3140,
-      "secondsPerCase": 7
+      "peakRssMb": 2600,
+      "secondsPerCase": 7,
+      "ort": "next"
     },
     {
       "id": "onnx-community/Qwen3-0.6B-ONNX",
@@ -79,7 +83,8 @@
         "source": "https://huggingface.co/Qwen/Qwen3-0.6B"
       },
       "peakRssMb": 4000,
-      "secondsPerCase": 14
+      "secondsPerCase": 14,
+      "ort": "next"
     }
   ]
 }

@@ -102,7 +102,11 @@ interface Planned {
 
 const slug = (s: string) => s.replace(/^.*\//, "").replace(/[^A-Za-z0-9.-]+/g, "_");
 const noPrefixCache = flag("no-prefix-cache");
-const cacheFileFor = (model: string, dtype: string) => join(LAB_DIR, `${slug(model)}-${dtype}${noPrefixCache ? "-nopkv" : ""}.jsonl`);
+/** onnxruntime-web build: `pinned` (the extension's, default) or `next` (1.24.3, needed by newer ONNX exports). */
+const ortOverride = opt("ort");
+const ortFor = (model: LabModel) => ortOverride ?? model.ort;
+const cacheFileFor = (model: LabModel, dtype: string) =>
+  join(LAB_DIR, `${slug(model.id)}-${dtype}${ortFor(model) === "next" ? "-ortnext" : ""}${noPrefixCache ? "-nopkv" : ""}.jsonl`);
 const loadLabCache = (file: string) => {
   const map = new Map<string, LabRecord>();
   if (existsSync(file))
@@ -179,7 +183,7 @@ async function runWorker(model: LabModel, dtype: string, pending: Planned[]): Pr
     if (!g.jobs.some((j) => j.key === p.key)) g.jobs.push({ key: p.key, caseId: p.c.id, suffix: p.suffix, gen: p.gen });
     groups.set(p.prefix, g);
   }
-  const spec: LabWorkerSpec = { bundle: ext.bundle, model: model.id, dtype: dtype as LabWorkerSpec["dtype"], resultFile: cacheFileFor(model.id, dtype), groups: [...groups.values()], noPrefixCache };
+  const spec: LabWorkerSpec = { bundle: ext.bundle, model: model.id, dtype: dtype as LabWorkerSpec["dtype"], resultFile: cacheFileFor(model, dtype), groups: [...groups.values()], noPrefixCache };
   const specFile = join(CACHE_DIR, "tmp", `lab-${process.pid}-${model.short}.json`);
   mkdirSync(join(CACHE_DIR, "tmp"), { recursive: true });
   mkdirSync(LAB_DIR, { recursive: true });
@@ -188,7 +192,11 @@ async function runWorker(model: LabModel, dtype: string, pending: Planned[]): Pr
   console.log(`[${model.short}] ${total} generations in ${spec.groups.length} prefix group(s); ${readMem()} MB available`);
   const t0 = performance.now();
   await new Promise<void>((resolveRun) => {
-    const child = spawn(process.execPath, ["--import", "tsx", join(ROOT, "src/lab/worker.ts"), specFile], { cwd: ROOT, stdio: ["ignore", "pipe", "inherit"] });
+    const child = spawn(process.execPath, ["--import", "tsx", join(ROOT, "src/lab/worker.ts"), specFile], {
+      cwd: ROOT,
+      stdio: ["ignore", "pipe", "inherit"],
+      env: { ...process.env, LAB_ORT: ortFor(model) },
+    });
     let peak = 0;
     const kill = (why: string) => {
       console.error(`[${model.short}] ${why}; killing the worker.`);
@@ -210,7 +218,7 @@ async function runWorker(model: LabModel, dtype: string, pending: Planned[]): Pr
         buffer = buffer.slice(nl + 1);
         if (!line.startsWith("@@")) continue;
         const e = JSON.parse(line.slice(2)) as LabEvent;
-        if (e.type === "loaded") console.log(`[${model.short}] loaded in ${(e.loadMs / 1000).toFixed(1)} s, context ${e.contextLength}, rss ${readRss(child.pid!, "VmRSS")} MB (peak ${peak})`);
+        if (e.type === "loaded") console.log(`[${model.short}] loaded in ${(e.loadMs / 1000).toFixed(1)} s, ort-web ${e.ort}, context ${e.contextLength}, rss ${readRss(child.pid!, "VmRSS")} MB (peak ${peak})`);
         else if (e.type === "result") {
           const now = performance.now();
           if (now - last > 20_000 || e.done === e.total) {
@@ -280,7 +288,7 @@ if (flag("show-prompt")) {
 for (const ps of planned) {
   const model = ps[0]!.model;
   const dtype = ps[0]!.dtype;
-  const cache = loadLabCache(cacheFileFor(model.id, dtype));
+  const cache = loadLabCache(cacheFileFor(model, dtype));
   const pending = ps.filter((p) => !cache.has(p.key));
   const unique = new Set(pending.map((p) => p.key)).size;
   console.log(`[${model.short} ${dtype}] ${ps.length} jobs, ${unique} to compute (~${Math.round((unique * model.secondsPerCase) / 60)} min)`);
@@ -292,7 +300,7 @@ for (const ps of planned) {
 for (const ps of planned) {
   const model = ps[0]!.model;
   const dtype = ps[0]!.dtype;
-  const cache = loadLabCache(cacheFileFor(model.id, dtype));
+  const cache = loadLabCache(cacheFileFor(model, dtype));
   for (const cfg of configs) {
     const rows = ps.filter((p) => p.config.id === cfg.id && cache.has(p.key)).map((p) => score(p, cache.get(p.key)!));
     allRows.push(...rows);
