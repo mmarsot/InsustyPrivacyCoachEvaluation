@@ -125,4 +125,9 @@ add("raw-pl-name", "raw-pl-pair", "raw-pl-name with shots: one example, a two-pa
 add("raw-pl", "raw-pl-noinstr", "raw-pl without the instruction line: demonstrations only", { instruction: "" });
 add("raw-pl", "raw-pl-delim", "raw-pl with the text between triple quotes (multi-line texts stay delimited)", { user: 'Text: """{text}"""\n' });
 
+// --- false positives and French (after E6)
+add("raw-pl", "raw-pl-mix", "raw-pl with a counter-example NONE demo between the two positives", { shots: ["ex-one", "ex-neg", "ex-two", "clean-neg"] });
+add("raw-pl", "raw-pl-negfr", "raw-pl ending on a French clean NONE demo", { shots: ["ex-pos", "clean-neg-fr"] });
+add("raw-pl", "raw-pl-neg2", "raw-pl ending on an English then a French clean NONE demo", { shots: ["ex-pos", "clean-neg", "clean-neg-fr"] });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));

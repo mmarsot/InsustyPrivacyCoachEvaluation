@@ -103,7 +103,11 @@ export type ShotSource =
   /** Bare-answer positive shot from the first label's first example. */
   | "ex-one"
   /** One text holding the first label's 2nd and 3rd examples, answered "b | c". */
-  | "ex-pair";
+  | "ex-pair"
+  /** Bare-answer positive shot from the first label's second example (French carrier sentence). */
+  | "ex-two"
+  /** Bare-answer NONE shot on a clean French text. */
+  | "clean-neg-fr";
 
 const REF_USER =
   "<text_to_scan>\n{text}\n</text_to_scan>\nTask: scan only the text above. List findings in the required format.\n";
@@ -206,7 +210,12 @@ function buildShots(config: LabConfig, profile: Profile): Shot[] {
     } else if (source === "ex-one") {
       const ex = profile.labels[0]!.examples[0]!;
       shots.push({ text: fill(LABEL_EX_SENTENCES[0]!, { ex }), answer: ex });
-    } else if (source === "ex-pair") {
+    } else if (source === "ex-two") {
+      const ex = profile.labels[0]!.examples[1] ?? profile.labels[0]!.examples[0]!;
+      shots.push({ text: fill(LABEL_EX_SENTENCES[1]!, { ex }), answer: ex });
+    } else if (source === "clean-neg-fr")
+      shots.push({ text: "Tu peux corriger les fautes ? Merci pour votre patience, on revient vers vous tres vite avec une reponse.", answer: "NONE" });
+    else if (source === "ex-pair") {
       const [, b, c] = profile.labels[0]!.examples;
       if (b && c) shots.push({ text: fill(PAIR_SENTENCE, { a: b, b: c }), answer: `${b} | ${c}` });
     } else if (source === "ex-neg") {

@@ -232,3 +232,33 @@ Conclusions:
 - French stays weak (F1 14-20 vs 39-55 in English) for all three models.
 - Qwen still paraphrases, capitalizes or translates some passages, and the
   upper-case label cue sometimes leaks into its answer (`KEYCLOAK_CORP_QMK_...`).
+
+### C1. Confirmation of raw-pl on the disjoint 48-case set (`c1-confirm48`)
+
+`experiments/sets/confirm48.json` (32 positive, 16 negative, 24 EN / 24 FR,
+disjoint from iter32). Qwen2.5-0.5B was skipped: only about 3 GB of RAM was
+available (other processes on the machine), below its 3.45 GB peak plus margin.
+
+| model | config | F1o | P | R | F1x | det | FPR | comp | p50s | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| SmolLM2-135M | ref | 3 | 33 | 2 | 3 | 3 | 6 | 21 | 4.4 | | 8 |
+| SmolLM2-135M | raw-pl | **29** | 31 | 27 | 24 | 44 | 81 | 100 | 1.7 | 34 | 22 |
+| SmolLM2-360M | ref | 30 | 58 | 20 | 28 | 22 | 19 | 27 | 10.5 | 36 | 20 |
+| SmolLM2-360M | raw-pl | 32 | 42 | 25 | 23 | 38 | 44 | 100 | 3.5 | 37 | 23 |
+
+- SmolLM2-135M: the gain replicates (F1 3 -> 29).
+- SmolLM2-360M: the F1 gain does **not** replicate (30 -> 32; on iter32 it
+  was 19 -> 38). What replicates is format compliance (27% -> 100%), latency
+  (10.5 s -> 3.5 s) and case detection (22% -> 38%), at the cost of the
+  false-positive rate on negatives (19% -> 44%).
+- Lesson: 32 cases is too few to rank configurations that are within ~15
+  points. Next tuning runs use a larger dev set.
+
+### Ops: lab runs that looked hung
+
+Twice a lab run sat at 0% CPU with no worker (LFM2.5 screen, first C1 run):
+the parent was in `waitForMemory`, polling every 30 s for up to 10 min with a
+single log line. Fixed in `src/lab/runtime.ts`: a heartbeat line on every
+15 s poll, a 180 s default limit (`LAB_MEM_WAIT_S`) ending in an explicit
+`SKIPPED` line, and worker watchdogs (spawn error resolves at once; no
+`loaded` event after 300 s or no event for 120 s kills the worker).
