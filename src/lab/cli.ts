@@ -141,7 +141,7 @@ async function plan(model: LabModel): Promise<Planned[]> {
         let suffix: string;
         let instructions: string;
         if (cfg.raw) {
-          const raw = buildRaw(cfg, scope, refTexts);
+          const raw = buildRaw(cfg, scope, refTexts, c.text);
           ({ prefix, instructions } = raw);
           suffix = raw.suffix(c.text);
         } else {
@@ -156,7 +156,7 @@ async function plan(model: LabModel): Promise<Planned[]> {
           prefix = rendered.slice(0, at);
           instructions = built.instructions;
         }
-        const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" && !config.stopAtNewline, ...(config.stopAtNewline ? { stopAtNewline: true } : {}) };
+        const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" && !config.stopAtNewline, ...(config.stopAtNewline ? { stopAtNewline: true } : {}), ...(config.noneGate !== null ? { scoreNone: true } : {}) };
         // Keys omit defaults added after the first runs, so cached results stay valid.
         const { lineStop, ...keyGen } = gen;
         const key = createHash("sha256").update(JSON.stringify({ model: model.id, dtype, prefix, suffix, gen: lineStop ? keyGen : gen })).digest("hex").slice(0, 32);
@@ -212,7 +212,8 @@ function score(parts: Planned[], cache: Map<string, LabRecord>): Row {
   const findings: ReturnType<typeof validateModelOutput> = [];
   parts.forEach((part, i) => {
     const r = records[i]!;
-    const json = part.config.output === "json" ? jsonToLines(r.output) : r.output;
+    const gated = part.config.noneGate !== null && (r.pNone ?? 0) >= part.config.noneGate;
+    const json = gated ? "NONE" : part.config.output === "json" ? jsonToLines(r.output) : r.output;
     const lines = part.part && part.config.passageOnly ? passagesToLines(json, part.part) : json;
     const parsed = relaxedAnchor ? relaxLines(lines, p.c.text) : lines;
     const categories = configCategories(part.config, part.scope, refTexts);

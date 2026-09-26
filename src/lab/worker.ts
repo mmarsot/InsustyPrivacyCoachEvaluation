@@ -19,7 +19,7 @@ import type { PreTrainedModel, Tensor } from "@huggingface/transformers";
 // `LAB_ORT=next` (set by the lab CLI); the hook must be registered before
 // Transformers.js is imported.
 if (process.env.LAB_ORT === "next") register(new URL("./ort-next-hooks.mjs", import.meta.url));
-const { ones, StoppingCriteria, StoppingCriteriaList, Tensor: TensorClass } = await import("@huggingface/transformers");
+const { ones, StoppingCriteria, StoppingCriteriaList, LogitsProcessor, LogitsProcessorList, Tensor: TensorClass } = await import("@huggingface/transformers");
 const { eosIds, idsTensor, loadPretrained, WASM_THREADS, transformersVersion } = await import("../run/transformers-loader.ts");
 
 export interface LabGen {
@@ -32,6 +32,8 @@ export interface LabGen {
   lineStop: boolean;
   /** Stop at the first line break after some output. */
   stopAtNewline?: boolean;
+  /** Record P(answer starts with NONE) at the first generated token (for confidence gating). */
+  scoreNone?: boolean;
 }
 export interface LabJob {
   key: string;
@@ -62,6 +64,8 @@ export interface LabRecord {
   promptTokens: number;
   generatedTokens: number;
   finishReason: LabFinish;
+  /** P(first generated token starts "NONE"), when the job asked for it. */
+  pNone?: number;
   ms: number;
   at: string;
 }
@@ -80,6 +84,27 @@ class Stop extends StoppingCriteria {
   }
   override _call(input_ids: number[][]): boolean[] {
     return input_ids.map((seq) => this.check((seq as (number | bigint)[]).slice(this.promptLength).map(Number)));
+  }
+}
+
+/** Records the probability mass of the given token ids at the first generation step; logits pass through unchanged. */
+class FirstStepProbe extends LogitsProcessor {
+  p: number | undefined;
+  constructor(private readonly ids: number[]) {
+    super();
+  }
+  override _call(_inputIds: unknown, logits: Tensor): Tensor {
+    if (this.p === undefined) {
+      const row = logits.data as Float32Array;
+      const vocab = logits.dims.at(-1)!;
+      const scores = row.subarray(row.length - vocab);
+      let max = -Infinity;
+      for (const v of scores) if (v > max) max = v;
+      let z = 0;
+      for (const v of scores) z += Math.exp(v - max);
+      this.p = this.ids.reduce((a, id) => a + Math.exp(scores[id]! - max), 0) / z;
+    }
+    return logits;
   }
 }
 
@@ -105,6 +130,7 @@ async function main() {
   const ort = String(common.env.versions?.web ?? "?");
   emit({ type: "loaded", loadMs: Math.round(performance.now() - t0), threads: WASM_THREADS, transformers: transformersVersion, ort, contextLength });
   const encode = (text: string) => tokenizer.encode(text, { add_special_tokens: false });
+  const noneIds = [...new Set([" NONE", "NONE", " None", "None"].map((w) => encode(w)[0]).filter((id): id is number => id !== undefined))];
   const decode = (ids: readonly number[]) => tokenizer.decode([...ids], { skip_special_tokens: true });
   const total = spec.groups.reduce((a, g) => a + g.jobs.length, 0);
   let done = 0;
@@ -141,6 +167,9 @@ async function main() {
           return false;
         }),
       );
+      const probe = job.gen.scoreNone ? new FirstStepProbe(noneIds) : undefined;
+      const processors = probe ? new LogitsProcessorList() : undefined;
+      if (probe) processors!.push(probe);
       const room = contextLength - ids.length;
       const cap = job.gen.maxNewTokens > 0 ? Math.min(job.gen.maxNewTokens, room) : room;
       const output = (await model.generate({
@@ -152,6 +181,7 @@ async function main() {
         ...(job.gen.repetitionPenalty === null ? {} : { repetition_penalty: job.gen.repetitionPenalty }),
         ...(job.gen.noRepeatNgram === null ? {} : { no_repeat_ngram_size: job.gen.noRepeatNgram }),
         stopping_criteria: criteria,
+        ...(processors ? { logits_processor: processors } : {}),
       } as unknown as Parameters<PreTrainedModel["generate"]>[0])) as Tensor;
       const generated = ((output.tolist() as (number | bigint)[][])[0] ?? []).slice(ids.length).map(Number);
       const last = generated.at(-1);
@@ -166,6 +196,7 @@ async function main() {
         promptTokens: ids.length,
         generatedTokens: generated.length,
         finishReason,
+        ...(probe?.p === undefined ? {} : { pNone: probe.p }),
         ms: Math.round(performance.now() - started),
         at: new Date().toISOString(),
       };

@@ -77,6 +77,12 @@ export interface LabConfig {
   raw: boolean;
   /** Stop at the first line break after some output (one-line answers). */
   stopAtNewline: boolean;
+  /**
+   * Confidence gate (scoring-time): drop a pass's findings when P(answer
+   * starts with NONE) at the first token is at least this. null = no gate.
+   * Configs with a gate record that probability (same cache for every threshold).
+   */
+  noneGate: number | null;
   /** Extra variables for the chat template (e.g. enable_thinking: false). */
   templateKwargs: Record<string, unknown>;
 }
@@ -107,7 +113,11 @@ export type ShotSource =
   /** Bare-answer positive shot from the first label's second example (French carrier sentence). */
   | "ex-two"
   /** Bare-answer NONE shot on a clean French text. */
-  | "clean-neg-fr";
+  | "clean-neg-fr"
+  /** Two positives from the first label's examples, carrier sentences in the scanned text's language. */
+  | "ex-pos-auto"
+  /** Clean NONE shot in the scanned text's language. */
+  | "clean-neg-auto";
 
 const REF_USER =
   "<text_to_scan>\n{text}\n</text_to_scan>\nTask: scan only the text above. List findings in the required format.\n";
@@ -135,6 +145,7 @@ export const REF_CONFIG: LabConfig = {
   passageOnly: false,
   raw: false,
   stopAtNewline: false,
+  noneGate: null,
   templateKwargs: {},
 };
 
@@ -190,9 +201,45 @@ const LABEL_EX_SENTENCES = [
 const PAIR_SENTENCE = "Notes de la réunion : {a} avance bien, par contre {b} a encore du retard, on en reparle lundi.";
 const COUNTER_SENTENCE = "Can you explain in simple terms how {ex} is usually used?";
 
-function buildShots(config: LabConfig, profile: Profile): Shot[] {
+const CARRIERS: Record<"en" | "fr", string[]> = {
+  en: [
+    "Quick update before the call: {ex} is still on the list for next week, can you tidy up this paragraph?",
+    "Reminder for tomorrow: we need to go over {ex} with the team, keep it short.",
+  ],
+  fr: [
+    "Petit point avant la réunion : on reparle de {ex} jeudi, tu peux reformuler ce message ?",
+    "Rappel pour demain : il faut qu'on voie {ex} avec l'équipe, fais court stp.",
+  ],
+};
+const CLEAN: Record<"en" | "fr", string> = {
+  en: "Can you rewrite this so it sounds friendlier? Thanks for your patience, we will get back to you shortly.",
+  fr: "Tu peux corriger les fautes ? Merci pour votre patience, on revient vers vous tres vite avec une reponse.",
+};
+
+const FR_WORDS = new Set("le la les des du de un une et est pour pas que qui sur avec dans au aux ce cette ces on nous vous je tu il elle mais ou donc merci bonjour stp svp".split(" "));
+const EN_WORDS = new Set("the a an and is are for not that who on with in to of this these we you i it but or so thanks hi please".split(" "));
+/** Cheap language guess a content script can afford: French vs English stop words and accents. */
+export function detectLang(text: string): "en" | "fr" {
+  let fr = (text.match(/[éèêàçùâîôû]/giu) ?? []).length / 3;
+  let en = 0;
+  for (const w of text.toLowerCase().split(/[^\p{L}']+/u)) {
+    if (FR_WORDS.has(w)) fr++;
+    if (EN_WORDS.has(w)) en++;
+  }
+  return fr > en ? "fr" : "en";
+}
+
+function buildShots(config: LabConfig, profile: Profile, lang: "en" | "fr" = "en"): Shot[] {
   const shots: Shot[] = [];
   for (const source of config.shots) {
+    if (source === "ex-pos-auto") {
+      profile.labels[0]!.examples.slice(0, 2).forEach((ex, i) => shots.push({ text: fill(CARRIERS[lang][i]!, { ex }), answer: ex }));
+      continue;
+    }
+    if (source === "clean-neg-auto") {
+      shots.push({ text: CLEAN[lang], answer: "NONE" });
+      continue;
+    }
     if (source === "none-clean")
       shots.push({ text: "Can you rewrite this so it sounds friendlier? Thanks for your patience, we will get back to you shortly.", answer: "NONE" });
     else if (source === "none-request")
@@ -262,13 +309,13 @@ export function buildMessages(config: LabConfig, profile: Profile, ref: RefTexts
 }
 
 /** Completion-framed request (config.raw): a reusable prefix and the per-case suffix. */
-export function buildRaw(config: LabConfig, profile: Profile, ref: RefTexts) {
+export function buildRaw(config: LabConfig, profile: Profile, ref: RefTexts, text = "") {
   const instructions = composeInstructions(config, profile, ref);
   const label = profile.labels[0]?.label ?? "";
   const vars = { label, name: label.toLowerCase().replace(/_/g, " ") };
   const user = (text: string) => fill(config.user, { ...vars, text, instructions: "" });
   const prefill = fill(config.prefill, vars);
-  const shots = buildShots(config, profile)
+  const shots = buildShots(config, profile, detectLang(text))
     .map((shot) => `${user(shot.text)}${prefill}${prefill.endsWith(":") ? " " : ""}${shot.answer}\n\n`)
     .join("");
   return {

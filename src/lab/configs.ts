@@ -130,4 +130,10 @@ add("raw-pl", "raw-pl-mix", "raw-pl with a counter-example NONE demo between the
 add("raw-pl", "raw-pl-negfr", "raw-pl ending on a French clean NONE demo", { shots: ["ex-pos", "clean-neg-fr"] });
 add("raw-pl", "raw-pl-neg2", "raw-pl ending on an English then a French clean NONE demo", { shots: ["ex-pos", "clean-neg", "clean-neg-fr"] });
 
+add("raw-pl", "raw-pl-lang", "raw-pl with demonstrations in the scanned text's language (detected by stop words)", { shots: ["ex-pos-auto", "clean-neg-auto"] });
+
+// --- confidence gate on P(NONE) at the first answer token (one cached run, thresholds at scoring time)
+for (const g of [0.05, 0.1, 0.2, 0.3, 0.5]) add("raw-pl", `raw-pl-gate${g}`, `raw-pl, drop a label's answer when P(NONE first) >= ${g}`, { noneGate: g });
+add("raw-pl", "raw-pl-gate1", "raw-pl recording P(NONE) with a gate that never fires (reference for the gated rows)", { noneGate: 1.01 });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));

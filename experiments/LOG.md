@@ -262,3 +262,23 @@ single log line. Fixed in `src/lab/runtime.ts`: a heartbeat line on every
 15 s poll, a 180 s default limit (`LAB_MEM_WAIT_S`) ending in an explicit
 `SKIPPED` line, and worker watchdogs (spawn error resolves at once; no
 `loaded` event after 300 s or no event for 120 s kills the worker).
+
+### T1. raw-pl variants on the 96-case tuning set, SmolLM2-360M (`t1-smol360`)
+
+`experiments/sets/tune96.json`: iter32 plus 64 dev cases disjoint from
+confirm48 (54 positive, 42 negative, half EN half FR).
+
+| config | F1o | P | R | F1x | det | FPR | comp | p50s | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ref | 17 | 42 | 11 | 12 | 17 | 14 | 29 | 9.3 | 20 | 14 |
+| **raw-pl** | **30** | 32 | 29 | 18 | 39 | 36 | 100 | 2.8 | 38 | 23 |
+| raw-pl-mix (counter-example demo between positives) | 19 | 32 | 14 | 16 | 24 | 17 | 100 | 2.6 | 15 | 22 |
+| raw-pl-negfr (ends on a French NONE demo) | 33 | 33 | 33 | 22 | 46 | 52 | 100 | 2.8 | 41 | 22 |
+| raw-pl-neg2 (EN then FR NONE demos) | 16 | 23 | 13 | 11 | 19 | 33 | 100 | 2.5 | 19 | 13 |
+| raw-pl-noinstr | 28 | 29 | 27 | 18 | 37 | 43 | 100 | 2.6 | 40 | 18 |
+
+- The raw-pl gain over ref holds on 96 cases (+13 F1, recall x2.6, format
+  100%, latency /3), with a higher false-positive rate (36% vs 14%).
+- Every demo-order tweak trades recall against false positives; none moves
+  F1 beyond noise except downwards. Two NONE demos in a row make the model
+  answer NONE too often.
