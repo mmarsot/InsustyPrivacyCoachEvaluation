@@ -1,0 +1,683 @@
+{
+ "name": "cls-q1-smol360",
+ "set": "iter32",
+ "ext": {
+  "ref": "main",
+  "sha": "dc91f3677c07f95776f8c0f0cddb97e08a3170d5"
+ },
+ "at": "2026-09-26T18:14:34.221Z",
+ "summary": [
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "cls-q1@0.5",
+   "note": "Text in the user turn, then 'is \"X\" one of these: <description>? yes or no'",
+   "overall": {
+    "cases": 32,
+    "f1": 0.181,
+    "precision": 0.127,
+    "recall": 0.316,
+    "exactF1": 0.078,
+    "detection": 0.455,
+    "fpr": 0.8,
+    "compliance": 1,
+    "p50ms": 5597,
+    "p95ms": 23531,
+    "tokens": 0,
+    "failures": {
+     "ok": 31,
+     "hallucinated": 1
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.231,
+    "precision": 0.158,
+    "recall": 0.429,
+    "exactF1": 0.103,
+    "detection": 0.636,
+    "fpr": 0.6,
+    "compliance": 1,
+    "p50ms": 5597,
+    "p95ms": 29703,
+    "tokens": 0,
+    "failures": {
+     "ok": 15,
+     "hallucinated": 1
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.094,
+    "precision": 0.064,
+    "recall": 0.176,
+    "exactF1": 0.031,
+    "detection": 0.273,
+    "fpr": 1,
+    "compliance": 1,
+    "p50ms": 5143,
+    "p95ms": 21039,
+    "tokens": 0,
+    "failures": {
+     "ok": 16
+    }
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "cls-q1@0.6",
+   "note": "Text in the user turn, then 'is \"X\" one of these: <description>? yes or no'",
+   "overall": {
+    "cases": 32,
+    "f1": 0.175,
+    "precision": 0.149,
+    "recall": 0.211,
+    "exactF1": 0.08,
+    "detection": 0.273,
+    "fpr": 0.4,
+    "compliance": 1,
+    "p50ms": 5597,
+    "p95ms": 23531,
+    "tokens": 0,
+    "failures": {
+     "ok": 31,
+     "hallucinated": 1
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.215,
+    "precision": 0.172,
+    "recall": 0.286,
+    "exactF1": 0.118,
+    "detection": 0.364,
+    "fpr": 0.2,
+    "compliance": 1,
+    "p50ms": 5597,
+    "p95ms": 29703,
+    "tokens": 0,
+    "failures": {
+     "ok": 15,
+     "hallucinated": 1
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.1,
+    "precision": 0.087,
+    "recall": 0.118,
+    "exactF1": 0,
+    "detection": 0.182,
+    "fpr": 0.6,
+    "compliance": 1,
+    "p50ms": 5143,
+    "p95ms": 21039,
+    "tokens": 0,
+    "failures": {
+     "ok": 16
+    }
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "cls-q1@0.7",
+   "note": "Text in the user turn, then 'is \"X\" one of these: <description>? yes or no'",
+   "overall": {
+    "cases": 32,
+    "f1": 0.101,
+    "precision": 0.139,
+    "recall": 0.079,
+    "exactF1": 0.054,
+    "detection": 0.045,
+    "fpr": 0.2,
+    "compliance": 1,
+    "p50ms": 5597,
+    "p95ms": 23531,
+    "tokens": 0,
+    "failures": {
+     "ok": 31,
+     "hallucinated": 1
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.149,
+    "precision": 0.156,
+    "recall": 0.143,
+    "exactF1": 0.075,
+    "detection": 0.091,
+    "fpr": 0.2,
+    "compliance": 1,
+    "p50ms": 5597,
+    "p95ms": 29703,
+    "tokens": 0,
+    "failures": {
+     "ok": 15,
+     "hallucinated": 1
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0,
+    "precision": 0,
+    "recall": 0,
+    "exactF1": 0,
+    "detection": 0,
+    "fpr": 0.2,
+    "compliance": 1,
+    "p50ms": 5143,
+    "p95ms": 21039,
+    "tokens": 0,
+    "failures": {
+     "ok": 16
+    }
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "cls-q1@0.8",
+   "note": "Text in the user turn, then 'is \"X\" one of these: <description>? yes or no'",
+   "overall": {
+    "cases": 32,
+    "f1": 0.089,
+    "precision": 0.286,
+    "recall": 0.053,
+    "exactF1": 0.044,
+    "detection": 0.045,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 5597,
+    "p95ms": 23531,
+    "tokens": 0,
+    "failures": {
+     "ok": 32
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.143,
+    "precision": 0.286,
+    "recall": 0.095,
+    "exactF1": 0.071,
+    "detection": 0.091,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 5597,
+    "p95ms": 29703,
+    "tokens": 0,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 5143,
+    "p95ms": 21039,
+    "tokens": 0,
+    "failures": {
+     "ok": 16
+    }
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "cls-q1@0.9",
+   "note": "Text in the user turn, then 'is \"X\" one of these: <description>? yes or no'",
+   "overall": {
+    "cases": 32,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 5597,
+    "p95ms": 23531,
+    "tokens": 0,
+    "failures": {
+     "ok": 32
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 5597,
+    "p95ms": 29703,
+    "tokens": 0,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 5143,
+    "p95ms": 21039,
+    "tokens": 0,
+    "failures": {
+     "ok": 16
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4843,
+   "output": "CLIENT_NAME \"Halvard Cycles\" 0.60\nCAMPAIGN_CODENAME \"Halvard Cycles\" 0.45\nCLIENT_NAME \"Halvard\" 0.65\nCAMPAIGN_CODENAME \"Halvard\" 0.51\nCLIENT_NAME \"Cycles\" 0.29\nCAMPAIGN_CODENAME \"Cycles\" 0.66\nCLIENT_NAME \"They're\" 0.55\nCAMPAIGN_CODENAME \"They're\" 0.51\nCLIENT_NAME \"e-bike\" 0.39\nCAMPAIGN_CODENAME \"e-bike\" 0.66\nCLIENT_NAME \"Tone\" 0.54\nCAMPAIGN_CODENAME \"Tone\" 0.65"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8925,
+   "output": "CLIENT_NAME \"Objet\" 0.38\nCAMPAIGN_CODENAME \"Objet\" 0.39\nCLIENT_NAME \"Point\" 0.43\nCAMPAIGN_CODENAME \"Point\" 0.11\nCLIENT_NAME \"Sophie\" 0.43\nCAMPAIGN_CODENAME \"Sophie\" 0.55\nCLIENT_NAME \"Opération Grand Nord\" 0.29\nCAMPAIGN_CODENAME \"Opération Grand Nord\" 0.21\nCLIENT_NAME \"Opération\" 0.55\nCAMPAIGN_CODENAME \"Opération\" 0.32\nCLIENT_NAME \"Grand\" 0.59\nCAMPAIGN_CODENAME \"Grand\" 0.33\nCLIENT_NAME \"Nord\" 0.34\nCAMPAIGN_CODENAME \"Nord\" 0.24\nCLIENT_NAME \"PPM\" 0.30\nCAMPAIGN_CODENAME \"PPM\" 0.43\nCLIENT_NAME \"Pas\" 0.53\nCAMPAIGN_CODENAME \"Pas\" 0.26\nCLIENT_NAME \"Bien\" 0.46\nCAMPAIGN_CODENAME \"Bien\" 0.34\nCLIENT_NAME \"Louis\" 0.22\nCAMPAIGN_CODENAME \"Louis\" 0.30"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1698,
+   "output": "CLIENT_NAME \"DTC\" 0.40\nCAMPAIGN_CODENAME \"DTC\" 0.15"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 555,
+   "output": ""
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1867,
+   "output": "INTERNAL_HOST \"bastion-eu1.int.quillmark.net\" 0.42\nINTERNAL_SERVICE \"bastion-eu1.int.quillmark.net\" 0.46\nCUSTOMER_ID \"bastion-eu1.int.quillmark.net\" 0.55"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2893,
+   "output": "INTERNAL_HOST \"keycloak.corp.qmk\" 0.41\nINTERNAL_SERVICE \"keycloak.corp.qmk\" 0.31\nCUSTOMER_ID \"keycloak.corp.qmk\" 0.45\nINTERNAL_HOST \"401\" 0.49\nINTERNAL_SERVICE \"401\" 0.60\nCUSTOMER_ID \"401\" 0.32"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5940,
+   "output": "INTERNAL_HOST \"Uber\" 0.38\nINTERNAL_SERVICE \"Uber\" 0.68\nCUSTOMER_ID \"Uber\" 0.54\nINTERNAL_HOST \"open-sourcé\" 0.66\nINTERNAL_SERVICE \"open-sourcé\" 0.51\nCUSTOMER_ID \"open-sourcé\" 0.45\nINTERNAL_HOST \"Cadence\" 0.44\nINTERNAL_SERVICE \"Cadence\" 0.57\nCUSTOMER_ID \"Cadence\" 0.49\nINTERNAL_HOST \"Temporal\" 0.58\nINTERNAL_SERVICE \"Temporal\" 0.57\nCUSTOMER_ID \"Temporal\" 0.50\nINTERNAL_HOST \"Temporal\" 0.58\nINTERNAL_SERVICE \"Temporal\" 0.57\nCUSTOMER_ID \"Temporal\" 0.50"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [
+    "-CUSTOMER_ID: hooks.slack.com",
+    "-INTERNAL_HOST: webhook.site",
+    "-INTERNAL_SERVICE: org_4f1c9a2e",
+    "-INTERNAL_SERVICE: hooks.zapier.com"
+   ],
+   "ms": 23531,
+   "output": "INTERNAL_HOST \"Here's\" 0.50\nINTERNAL_SERVICE \"Here's\" 0.61\nCUSTOMER_ID \"Here's\" 0.53\nINTERNAL_HOST \"CSV\" 0.49\nINTERNAL_SERVICE \"CSV\" 0.63\nCUSTOMER_ID \"CSV\" 0.66\nINTERNAL_HOST \"endpoint_host\" 0.49\nINTERNAL_SERVICE \"endpoint_host\" 0.35\nCUSTOMER_ID \"endpoint_host\" 0.56\nINTERNAL_HOST \"cus_mP02zzLc\" 0.64\nINTERNAL_SERVICE \"cus_mP02zzLc\" 0.52\nCUSTOMER_ID \"cus_mP02zzLc\" 0.56\nINTERNAL_HOST \"hooks.slack.com\" 0.63\nINTERNAL_SERVICE \"hooks.slack.com\" 0.63\nCUSTOMER_ID \"hooks.slack.com\" 0.71\nINTERNAL_HOST \"acct-40051-AR\" 0.47\nINTERNAL_SERVICE \"acct-40051-AR\" 0.65\nCUSTOMER_ID \"acct-40051-AR\" 0.45\nINTERNAL_HOST \"40051\" 0.40\nINTERNAL_SERVICE \"40051\" 0.49\nCUSTOMER_ID \"40051\" 0.67\nINTERNAL_HOST \"webhook.site\" 0.73\nINTERNAL_SERVICE \"webhook.site\" 0.61\nCUSTOMER_ID \"webhook.site\" 0.52\nINTERNAL_HOST \"cus_mP02zzLc\" 0.64\nINTERNAL_SERVICE \"cus_mP02zzLc\" 0.52\nCUSTOMER_ID \"cus_mP02zzLc\" 0.56\nINTERNAL_HOST \"hooks.slack.com\" 0.63\nINTERNAL_SERVICE \"hooks.slack.com\" 0.63\nCUSTOMER_ID \"hooks.slack.com\" 0.71\nINTERNAL_HOST \"org_4f1c9a2e\" 0.50\nINTERNAL_SERVICE \"org_4f1c9a2e\" 0.71\nCUSTOMER_ID \"org_4f1c9a2e\" 0.44\nINTERNAL_HOST \"hooks.zapier.com\" 0.59\nINTERNAL_SERVICE \"hooks.zapier.com\" 0.76\nCUSTOMER_ID \"hooks.zapier.com\" 0.55\nINTERNAL_HOST \"cus_mP02zzLc\" 0.64\nINTERNAL_SERVICE \"cus_mP02zzLc\" 0.52\nCUSTOMER_ID \"cus_mP02zzLc\" 0.56\nINTERNAL_HOST \"hooks.slack.com\" 0.63\nINTERNAL_SERVICE \"hooks.slack.com\" 0.63\nCUSTOMER_ID \"hooks.slack.com\" 0.71\nINTERNAL_HOST \"acct-40051-AR\" 0.47\nINTERNAL_SERVICE \"acct-40051-AR\" 0.65\nCUSTOM"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 6042,
+   "output": "UNPUBLISHED_FIGURE \"MDs\" 0.43\nINTERNAL_FORECAST \"MDs\" 0.41\nUNPUBLISHED_FIGURE \"Europe\" 0.51\nINTERNAL_FORECAST \"Europe\" 0.66\nUNPUBLISHED_FIGURE \"H2\" 0.50\nINTERNAL_FORECAST \"H2\" 0.38\nUNPUBLISHED_FIGURE \"Europe\" 0.51\nINTERNAL_FORECAST \"Europe\" 0.66\nUNPUBLISHED_FIGURE \"8.1%\" 0.16\nINTERNAL_FORECAST \"8.1%\" 0.44\nUNPUBLISHED_FIGURE \"8.1\" 0.52\nINTERNAL_FORECAST \"8.1\" 0.35\nUNPUBLISHED_FIGURE \"9%\" 0.32\nINTERNAL_FORECAST \"9%\" 0.48"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 5143,
+   "output": "UNPUBLISHED_FIGURE \"CA\" 0.52\nINTERNAL_FORECAST \"CA\" 0.57\nUNPUBLISHED_FIGURE \"452M\" 0.13\nINTERNAL_FORECAST \"452M\" 0.69\nUNPUBLISHED_FIGURE \"EBIT\" 0.43\nINTERNAL_FORECAST \"EBIT\" 0.57\nUNPUBLISHED_FIGURE \"11,7\" 0.32\nINTERNAL_FORECAST \"11,7\" 0.38\nUNPUBLISHED_FIGURE \"82%\" 0.63\nINTERNAL_FORECAST \"82%\" 0.30"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1319,
+   "output": "UNPUBLISHED_FIGURE \"38.2p\" 0.24\nINTERNAL_FORECAST \"38.2p\" 0.55"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_FORECAST: ci-joint",
+    "-INTERNAL_FORECAST: Clôture"
+   ],
+   "ms": 4196,
+   "output": "UNPUBLISHED_FIGURE \"ci-joint\" 0.31\nINTERNAL_FORECAST \"ci-joint\" 0.73\nUNPUBLISHED_FIGURE \"T3\" 0.63\nINTERNAL_FORECAST \"T3\" 0.64\nUNPUBLISHED_FIGURE \"Clôture\" 0.24\nINTERNAL_FORECAST \"Clôture\" 0.80\nUNPUBLISHED_FIGURE \"Claire\" 0.59\nINTERNAL_FORECAST \"Claire\" 0.57"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3992,
+   "output": "CANDIDATE_NAME \"Kofi\" 0.56\nSOURCE_COMPANY \"Kofi\" 0.32\nCOMPENSATION \"Kofi\" 0.28\nCANDIDATE_NAME \"I'm\" 0.55\nSOURCE_COMPANY \"I'm\" 0.49\nCOMPENSATION \"I'm\" 0.25\nCANDIDATE_NAME \"two-hour\" 0.26\nSOURCE_COMPANY \"two-hour\" 0.37\nCOMPENSATION \"two-hour\" 0.35"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12443,
+   "output": "CANDIDATE_NAME \"Thibault Ferrand\" 0.41\nSOURCE_COMPANY \"Thibault Ferrand\" 0.42\nCOMPENSATION \"Thibault Ferrand\" 0.47\nCANDIDATE_NAME \"Thibault\" 0.38\nSOURCE_COMPANY \"Thibault\" 0.17\nCOMPENSATION \"Thibault\" 0.32\nCANDIDATE_NAME \"Ferrand\" 0.29\nSOURCE_COMPANY \"Ferrand\" 0.40\nCOMPENSATION \"Ferrand\" 0.29\nCANDIDATE_NAME \"ROS\" 0.31\nSOURCE_COMPANY \"ROS\" 0.18\nCOMPENSATION \"ROS\" 0.33\nCANDIDATE_NAME \"Norvik Dynamics\" 0.28\nSOURCE_COMPANY \"Norvik Dynamics\" 0.26\nCOMPENSATION \"Norvik Dynamics\" 0.29\nCANDIDATE_NAME \"Norvik\" 0.59\nSOURCE_COMPANY \"Norvik\" 0.28\nCOMPENSATION \"Norvik\" 0.35\nCANDIDATE_NAME \"Dynamics\" 0.33\nSOURCE_COMPANY \"Dynamics\" 0.24\nCOMPENSATION \"Dynamics\" 0.24\nCANDIDATE_NAME \"4ans\" 0.29\nSOURCE_COMPANY \"4ans\" 0.48\nCOMPENSATION \"4ans\" 0.47\nCANDIDATE_NAME \"75K€\" 0.26\nSOURCE_COMPANY \"75K€\" 0.24\nCOMPENSATION \"75K€\" 0.33\nCANDIDATE_NAME \"75K\" 0.41\nSOURCE_COMPANY \"75K\" 0.45\nCOMPENSATION \"75K\" 0.39"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4258,
+   "output": "CANDIDATE_NAME \"D'après\" 0.38\nSOURCE_COMPANY \"D'après\" 0.40\nCOMPENSATION \"D'après\" 0.21\nCANDIDATE_NAME \"Où\" 0.42\nSOURCE_COMPANY \"Où\" 0.31\nCOMPENSATION \"Où\" 0.21\nCANDIDATE_NAME \"est-ce\" 0.53\nSOURCE_COMPANY \"est-ce\" 0.24\nCOMPENSATION \"est-ce\" 0.42"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 7678,
+   "output": "CANDIDATE_NAME \"Signed\" 0.34\nSOURCE_COMPANY \"Signed\" 0.54\nCOMPENSATION \"Signed\" 0.29\nCANDIDATE_NAME \"Lindqvist\" 0.46\nSOURCE_COMPANY \"Lindqvist\" 0.44\nCOMPENSATION \"Lindqvist\" 0.26\nCANDIDATE_NAME \"IC5\" 0.39\nSOURCE_COMPANY \"IC5\" 0.38\nCOMPENSATION \"IC5\" 0.36\nCANDIDATE_NAME \"188\" 0.40\nSOURCE_COMPANY \"188\" 0.45\nCOMPENSATION \"188\" 0.39\nCANDIDATE_NAME \"12%\" 0.43\nSOURCE_COMPANY \"12%\" 0.39\nCOMPENSATION \"12%\" 0.25\nCANDIDATE_NAME \"HM\" 0.49\nSOURCE_COMPANY \"HM\" 0.41\nCOMPENSATION \"HM\" 0.51"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 5597,
+   "output": "DEAL_CODENAME \"$1.1bn\" 0.32\nDEAL_TARGET \"$1.1bn\" 0.27\nDEAL_VALUE \"$1.1bn\" 0.20\nDEAL_CODENAME \"1.1bn\" 0.60\nDEAL_TARGET \"1.1bn\" 0.41\nDEAL_VALUE \"1.1bn\" 0.09\nDEAL_CODENAME \"Vessant\" 0.40\nDEAL_TARGET \"Vessant\" 0.24\nDEAL_VALUE \"Vessant\" 0.33\nDEAL_CODENAME \"EBITDA\" 0.18\nDEAL_TARGET \"EBITDA\" 0.51\nDEAL_VALUE \"EBITDA\" 0.15\nDEAL_CODENAME \"70m\" 0.33\nDEAL_TARGET \"70m\" 0.21\nDEAL_VALUE \"70m\" 0.20"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8237,
+   "output": "DEAL_CODENAME \"Rédige\" 0.51\nDEAL_TARGET \"Rédige\" 0.54\nDEAL_VALUE \"Rédige\" 0.51\nDEAL_CODENAME \"Harrowgate Industries et Sorvane Industrie\" 0.45\nDEAL_TARGET \"Harrowgate Industries et Sorvane Industrie\" 0.43\nDEAL_VALUE \"Harrowgate Industries et Sorvane Industrie\" 0.44\nDEAL_CODENAME \"Harrowgate\" 0.44\nDEAL_TARGET \"Harrowgate\" 0.55\nDEAL_VALUE \"Harrowgate\" 0.37\nDEAL_CODENAME \"Industries\" 0.57\nDEAL_TARGET \"Industries\" 0.28\nDEAL_VALUE \"Industries\" 0.58\nDEAL_CODENAME \"Sorvane\" 0.55\nDEAL_TARGET \"Sorvane\" 0.62\nDEAL_VALUE \"Sorvane\" 0.54\nDEAL_CODENAME \"Industrie\" 0.36\nDEAL_TARGET \"Industrie\" 0.62\nDEAL_VALUE \"Industrie\" 0.62\nDEAL_CODENAME \"Droit\" 0.35\nDEAL_TARGET \"Droit\" 0.46\nDEAL_VALUE \"Droit\" 0.41"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 10305,
+   "output": "DEAL_CODENAME \"For\" 0.27\nDEAL_TARGET \"For\" 0.31\nDEAL_VALUE \"For\" 0.38\nDEAL_CODENAME \"Fellbeck Tooling\" 0.15\nDEAL_TARGET \"Fellbeck Tooling\" 0.28\nDEAL_VALUE \"Fellbeck Tooling\" 0.22\nDEAL_CODENAME \"Fellbeck\" 0.21\nDEAL_TARGET \"Fellbeck\" 0.35\nDEAL_VALUE \"Fellbeck\" 0.25\nDEAL_CODENAME \"Tooling\" 0.29\nDEAL_TARGET \"Tooling\" 0.27\nDEAL_VALUE \"Tooling\" 0.18\nDEAL_CODENAME \"2023\" 0.34\nDEAL_TARGET \"2023\" 0.14\nDEAL_VALUE \"2023\" 0.32\nDEAL_CODENAME \"£41m\" 0.30\nDEAL_TARGET \"£41m\" 0.20\nDEAL_VALUE \"£41m\" 0.35\nDEAL_CODENAME \"41m\" 0.38\nDEAL_TARGET \"41m\" 0.47\nDEAL_VALUE \"41m\" 0.35\nDEAL_CODENAME \"locked-box\" 0.35\nDEAL_TARGET \"locked-box\" 0.34\nDEAL_VALUE \"locked-box\" 0.28\nDEAL_CODENAME \"12-month\" 0.16\nDEAL_TARGET \"12-month\" 0.22\nDEAL_VALUE \"12-month\" 0.42"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 21039,
+   "output": "DEAL_CODENAME \"Excel\" 0.48\nDEAL_TARGET \"Excel\" 0.37\nDEAL_VALUE \"Excel\" 0.54\nDEAL_CODENAME \"code_projet\" 0.32\nDEAL_TARGET \"code_projet\" 0.51\nDEAL_VALUE \"code_projet\" 0.30\nDEAL_CODENAME \"valeur_entreprise\" 0.30\nDEAL_TARGET \"valeur_entreprise\" 0.33\nDEAL_VALUE \"valeur_entreprise\" 0.33\nDEAL_CODENAME \"Belvédère\" 0.43\nDEAL_TARGET \"Belvédère\" 0.44\nDEAL_VALUE \"Belvédère\" 0.48\nDEAL_CODENAME \"Sorvane Industrie\" 0.34\nDEAL_TARGET \"Sorvane Industrie\" 0.33\nDEAL_VALUE \"Sorvane Industrie\" 0.45\nDEAL_CODENAME \"Sorvane\" 0.18\nDEAL_TARGET \"Sorvane\" 0.39\nDEAL_VALUE \"Sorvane\" 0.32\nDEAL_CODENAME \"Industrie\" 0.29\nDEAL_TARGET \"Industrie\" 0.43\nDEAL_VALUE \"Industrie\" 0.44\nDEAL_CODENAME \"31,5 M€\" 0.20\nDEAL_TARGET \"31,5 M€\" 0.36\nDEAL_VALUE \"31,5 M€\" 0.37\nDEAL_CODENAME \"31,5\" 0.30\nDEAL_TARGET \"31,5\" 0.40\nDEAL_VALUE \"31,5\" 0.49\nDEAL_CODENAME \"LOI\" 0.28\nDEAL_TARGET \"LOI\" 0.48\nDEAL_VALUE \"LOI\" 0.31\nDEAL_CODENAME \"Phare\" 0.56\nDEAL_TARGET \"Phare\" 0.28\nDEAL_VALUE \"Phare\" 0.35\nDEAL_CODENAME \"SI\" 0.28\nDEAL_TARGET \"SI\" 0.30\nDEAL_VALUE \"SI\" 0.50\nDEAL_CODENAME \"Archive-2023\" 0.18\nDEAL_TARGET \"Archive-2023\" 0.33\nDEAL_VALUE \"Archive-2023\" 0.22\nDEAL_CODENAME \"2023\" 0.43\nDEAL_TARGET \"2023\" 0.25\nDEAL_VALUE \"2023\" 0.39\nDEAL_CODENAME \"Fellbeck Tooling\" 0.40\nDEAL_TARGET \"Fellbeck Tooling\" 0.31\nDEAL_VALUE \"Fellbeck Tooling\" 0.24\nDEAL_CODENAME \"Fellbeck\" 0.44\nDEAL_TARGET \"Fellbeck\" 0.33\nDEAL_VALUE \"Fellbeck\" 0.31\nDEAL_CODENAME \"Tooling\" 0.49\nDEAL_TARGET \"Tooling\" 0.45\nDEAL_VALUE \"Tooling\" 0.16\nDEAL_CODENAME \"41 M\" 0.38\nDEAL_TAR"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "research-en-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PARTNER_LAB: b4"
+   ],
+   "ms": 12626,
+   "output": "STUDY_NAME \"Sam\" 0.54\nPARTNER_LAB \"Sam\" 0.64\nEARLY_RESULT \"Sam\" 0.50\nSTUDY_NAME \"Il6\" 0.54\nPARTNER_LAB \"Il6\" 0.66\nEARLY_RESULT \"Il6\" 0.39\nSTUDY_NAME \"KO\" 0.51\nPARTNER_LAB \"KO\" 0.45\nEARLY_RESULT \"KO\" 0.59\nSTUDY_NAME \"SOP\" 0.48\nPARTNER_LAB \"SOP\" 0.67\nEARLY_RESULT \"SOP\" 0.28\nSTUDY_NAME \"Quillon Biosciences\" 0.47\nPARTNER_LAB \"Quillon Biosciences\" 0.70\nEARLY_RESULT \"Quillon Biosciences\" 0.49\nSTUDY_NAME \"Quillon\" 0.50\nPARTNER_LAB \"Quillon\" 0.52\nEARLY_RESULT \"Quillon\" 0.52\nSTUDY_NAME \"Biosciences\" 0.56\nPARTNER_LAB \"Biosciences\" 0.68\nEARLY_RESULT \"Biosciences\" 0.65\nSTUDY_NAME \"b4\" 0.61\nPARTNER_LAB \"b4\" 0.73\nEARLY_RESULT \"b4\" 0.65\nSTUDY_NAME \"Hanna\" 0.48\nPARTNER_LAB \"Hanna\" 0.43\nEARLY_RESULT \"Hanna\" 0.60\nSTUDY_NAME \"RIPA\" 0.53\nPARTNER_LAB \"RIPA\" 0.57\nEARLY_RESULT \"RIPA\" 0.48"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 14330,
+   "output": "STUDY_NAME \"04/02\" 0.39\nPARTNER_LAB \"04/02\" 0.24\nEARLY_RESULT \"04/02\" 0.27\nSTUDY_NAME \"Julien\" 0.29\nPARTNER_LAB \"Julien\" 0.22\nEARLY_RESULT \"Julien\" 0.27\nSTUDY_NAME \"Il6\" 0.30\nPARTNER_LAB \"Il6\" 0.25\nEARLY_RESULT \"Il6\" 0.34\nSTUDY_NAME \"KO\" 0.29\nPARTNER_LAB \"KO\" 0.37\nEARLY_RESULT \"KO\" 0.37\nSTUDY_NAME \"Solenne Biotech\" 0.19\nPARTNER_LAB \"Solenne Biotech\" 0.32\nEARLY_RESULT \"Solenne Biotech\" 0.34\nSTUDY_NAME \"Solenne\" 0.27\nPARTNER_LAB \"Solenne\" 0.30\nEARLY_RESULT \"Solenne\" 0.28\nSTUDY_NAME \"Biotech\" 0.25\nPARTNER_LAB \"Biotech\" 0.31\nEARLY_RESULT \"Biotech\" 0.18\nSTUDY_NAME \"Hélène\" 0.22\nPARTNER_LAB \"Hélène\" 0.29\nEARLY_RESULT \"Hélène\" 0.37\nSTUDY_NAME \"ANR\" 0.20\nPARTNER_LAB \"ANR\" 0.23\nEARLY_RESULT \"ANR\" 0.26\nSTUDY_NAME \"RIPA\" 0.24\nPARTNER_LAB \"RIPA\" 0.24\nEARLY_RESULT \"RIPA\" 0.24\nSTUDY_NAME \"fais-en\" 0.28\nPARTNER_LAB \"fais-en\" 0.24\nEARLY_RESULT \"fais-en\" 0.21"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6321,
+   "output": "STUDY_NAME \"Rédige\" 0.52\nPARTNER_LAB \"Rédige\" 0.23\nEARLY_RESULT \"Rédige\" 0.27\nSTUDY_NAME \"Mentionne\" 0.48\nPARTNER_LAB \"Mentionne\" 0.32\nEARLY_RESULT \"Mentionne\" 0.22\nSTUDY_NAME \"ANR et Inserm\" 0.45\nPARTNER_LAB \"ANR et Inserm\" 0.48\nEARLY_RESULT \"ANR et Inserm\" 0.33\nSTUDY_NAME \"ANR\" 0.66\nPARTNER_LAB \"ANR\" 0.60\nEARLY_RESULT \"ANR\" 0.48\nSTUDY_NAME \"Inserm\" 0.39\nPARTNER_LAB \"Inserm\" 0.43\nEARLY_RESULT \"Inserm\" 0.65"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: European Research Council",
+    "-EARLY_RESULT: Keep"
+   ],
+   "ms": 12064,
+   "output": "STUDY_NAME \"Draft\" 0.66\nPARTNER_LAB \"Draft\" 0.46\nEARLY_RESULT \"Draft\" 0.35\nSTUDY_NAME \"Mention\" 0.68\nPARTNER_LAB \"Mention\" 0.56\nEARLY_RESULT \"Mention\" 0.33\nSTUDY_NAME \"Wellcome Trust\" 0.53\nPARTNER_LAB \"Wellcome Trust\" 0.47\nEARLY_RESULT \"Wellcome Trust\" 0.46\nSTUDY_NAME \"Wellcome\" 0.33\nPARTNER_LAB \"Wellcome\" 0.61\nEARLY_RESULT \"Wellcome\" 0.29\nSTUDY_NAME \"Trust\" 0.44\nPARTNER_LAB \"Trust\" 0.41\nEARLY_RESULT \"Trust\" 0.57\nSTUDY_NAME \"European Research Council\" 0.70\nPARTNER_LAB \"European Research Council\" 0.43\nEARLY_RESULT \"European Research Council\" 0.49\nSTUDY_NAME \"European\" 0.57\nPARTNER_LAB \"European\" 0.54\nEARLY_RESULT \"European\" 0.48\nSTUDY_NAME \"Research\" 0.56\nPARTNER_LAB \"Research\" 0.45\nEARLY_RESULT \"Research\" 0.48\nSTUDY_NAME \"Council\" 0.58\nPARTNER_LAB \"Council\" 0.39\nEARLY_RESULT \"Council\" 0.51\nSTUDY_NAME \"Keep\" 0.43\nPARTNER_LAB \"Keep\" 0.65\nEARLY_RESULT \"Keep\" 0.70"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 12376,
+   "output": "UNRELEASED_PRODUCT \"Discovery\" 0.19\nPROSPECT_NAME \"Discovery\" 0.47\nUNRELEASED_PRODUCT \"Pembrook Dental Group\" 0.33\nPROSPECT_NAME \"Pembrook Dental Group\" 0.47\nUNRELEASED_PRODUCT \"Pembrook\" 0.33\nPROSPECT_NAME \"Pembrook\" 0.60\nUNRELEASED_PRODUCT \"Dental\" 0.26\nPROSPECT_NAME \"Dental\" 0.45\nUNRELEASED_PRODUCT \"Group\" 0.51\nPROSPECT_NAME \"Group\" 0.39\nUNRELEASED_PRODUCT \"Current\" 0.56\nPROSPECT_NAME \"Current\" 0.48\nUNRELEASED_PRODUCT \"K5\" 0.50\nPROSPECT_NAME \"K5\" 0.52\nUNRELEASED_PRODUCT \"Decision\" 0.50\nPROSPECT_NAME \"Decision\" 0.60\nUNRELEASED_PRODUCT \"Q4\" 0.42\nPROSPECT_NAME \"Q4\" 0.39\nUNRELEASED_PRODUCT \"Competitors\" 0.53\nPROSPECT_NAME \"Competitors\" 0.55\nUNRELEASED_PRODUCT \"Draxon\" 0.35\nPROSPECT_NAME \"Draxon\" 0.41\nUNRELEASED_PRODUCT \"Pain\" 0.24\nPROSPECT_NAME \"Pain\" 0.67\nUNRELEASED_PRODUCT \"front-desk\" 0.38\nPROSPECT_NAME \"front-desk\" 0.46\nUNRELEASED_PRODUCT \"Write\" 0.20\nPROSPECT_NAME \"Write\" 0.57\nUNRELEASED_PRODUCT \"follow-up\" 0.40\nPROSPECT_NAME \"follow-up\" 0.64"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1371,
+   "output": "UNRELEASED_PRODUCT \"normalement oui\" 0.62\nPROSPECT_NAME \"normalement oui\" 0.53"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2711,
+   "output": "UNRELEASED_PRODUCT \"K7\" 0.57\nPROSPECT_NAME \"K7\" 0.37\nUNRELEASED_PRODUCT \"K5s\" 0.46\nPROSPECT_NAME \"K5s\" 0.50\nUNRELEASED_PRODUCT \"EOL\" 0.25\nPROSPECT_NAME \"EOL\" 0.48"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8605,
+   "output": "UNRELEASED_PRODUCT \"Mme Roussel\" 0.51\nPROSPECT_NAME \"Mme Roussel\" 0.57\nUNRELEASED_PRODUCT \"Mme\" 0.38\nPROSPECT_NAME \"Mme\" 0.56\nUNRELEASED_PRODUCT \"Roussel\" 0.47\nPROSPECT_NAME \"Roussel\" 0.44\nUNRELEASED_PRODUCT \"rendez-vous\" 0.27\nPROSPECT_NAME \"rendez-vous\" 0.65\nUNRELEASED_PRODUCT \"J'ai\" 0.45\nPROSPECT_NAME \"J'ai\" 0.63\nUNRELEASED_PRODUCT \"avant-vente\" 0.54\nPROSPECT_NAME \"avant-vente\" 0.62\nUNRELEASED_PRODUCT \"Hotels Delacroix\" 0.55\nPROSPECT_NAME \"Hotels Delacroix\" 0.58\nUNRELEASED_PRODUCT \"Hotels\" 0.52\nPROSPECT_NAME \"Hotels\" 0.31\nUNRELEASED_PRODUCT \"Delacroix\" 0.56\nPROSPECT_NAME \"Delacroix\" 0.41"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 4499,
+   "output": "CUSTOMER_NAME \"Ms Imogen Castellanos\" 0.48\nACCOUNT_REF \"Ms Imogen Castellanos\" 0.62\nCUSTOMER_NAME \"Ms\" 0.36\nACCOUNT_REF \"Ms\" 0.45\nCUSTOMER_NAME \"Imogen\" 0.23\nACCOUNT_REF \"Imogen\" 0.40\nCUSTOMER_NAME \"Castellanos\" 0.56\nACCOUNT_REF \"Castellanos\" 0.45\nCUSTOMER_NAME \"PCL5519027734ES\" 0.54\nACCOUNT_REF \"PCL5519027734ES\" 0.17"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-ACCOUNT_REF: Mme Karadeniz",
+    "-ACCOUNT_REF: Karadeniz"
+   ],
+   "ms": 5013,
+   "output": "CUSTOMER_NAME \"Quelqu'un\" 0.60\nACCOUNT_REF \"Quelqu'un\" 0.55\nCUSTOMER_NAME \"Mme Karadeniz\" 0.63\nACCOUNT_REF \"Mme Karadeniz\" 0.74\nCUSTOMER_NAME \"Mme\" 0.53\nACCOUNT_REF \"Mme\" 0.69\nCUSTOMER_NAME \"Karadeniz\" 0.42\nACCOUNT_REF \"Karadeniz\" 0.75\nCUSTOMER_NAME \"Toulouse\" 0.35\nACCOUNT_REF \"Toulouse\" 0.60\nCUSTOMER_NAME \"Nantes\" 0.43\nACCOUNT_REF \"Nantes\" 0.66"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3991,
+   "output": "CUSTOMER_NAME \"Kévin\" 0.42\nACCOUNT_REF \"Kévin\" 0.56\nCUSTOMER_NAME \"Pouvez\" 0.46\nACCOUNT_REF \"Pouvez\" 0.40\nCUSTOMER_NAME \"GPS\" 0.35\nACCOUNT_REF \"GPS\" 0.48\nCUSTOMER_NAME \"Parcelio\" 0.38\nACCOUNT_REF \"Parcelio\" 0.39"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "cls-q1@0.7",
+   "caseId": "support-en-045",
+   "failure": "hallucinated",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "-ACCOUNT_REF: JSON",
+    "-ACCOUNT_REF: API",
+    "-ACCOUNT_REF: order_id",
+    "+ACCOUNT_REF: ORD-5906-3321",
+    "-CUSTOMER_NAME: 5906",
+    "+ACCOUNT_REF: 3321",
+    "-ACCOUNT_REF: account_id",
+    "+ACCOUNT_REF: PX-742018",
+    "-CUSTOMER_NAME: 742018",
+    "-ACCOUNT_REF: full_name",
+    "+CUSTOMER_NAME: Seraphina",
+    "+CUSTOMER_NAME: Kowalski",
+    "-ACCOUNT_REF: tier",
+    "-ACCOUNT_REF: handled_by",
+    "-ACCOUNT_REF: Support Bot",
+    "-CUSTOMER_NAME: Bot",
+    "-ACCOUNT_REF: v2",
+    "-CUSTOMER_NAME: status",
+    "-ACCOUNT_REF: IN_TRANSIT",
+    "-ACCOUNT_REF: IN",
+    "-ACCOUNT_REF: TRANSIT",
+    "-CUSTOMER_NAME: DLV",
+    "-ACCOUNT_REF: http_status",
+    "-ACCOUNT_REF: 200",
+    "-ACCOUNT_REF: PMB-L-200"
+   ],
+   "ms": 29703,
+   "output": "CUSTOMER_NAME \"JSON\" 0.71\nACCOUNT_REF \"JSON\" 0.76\nCUSTOMER_NAME \"API\" 0.54\nACCOUNT_REF \"API\" 0.80\nCUSTOMER_NAME \"order_id\" 0.63\nACCOUNT_REF \"order_id\" 0.83\nCUSTOMER_NAME \"ORD-5906-3321\" 0.68\nACCOUNT_REF \"ORD-5906-3321\" 0.79\nCUSTOMER_NAME \"5906\" 0.75\nACCOUNT_REF \"5906\" 0.58\nCUSTOMER_NAME \"3321\" 0.55\nACCOUNT_REF \"3321\" 0.72\nCUSTOMER_NAME \"account_id\" 0.55\nACCOUNT_REF \"account_id\" 0.76\nCUSTOMER_NAME \"PX-742018\" 0.68\nACCOUNT_REF \"PX-742018\" 0.81\nCUSTOMER_NAME \"742018\" 0.88\nACCOUNT_REF \"742018\" 0.67\nCUSTOMER_NAME \"customer\" 0.62\nACCOUNT_REF \"customer\" 0.58\nCUSTOMER_NAME \"full_name\" 0.55\nACCOUNT_REF \"full_name\" 0.85\nCUSTOMER_NAME \"Seraphina Kowalski\" 0.67\nACCOUNT_REF \"Seraphina Kowalski\" 0.65\nCUSTOMER_NAME \"Seraphina\" 0.85\nACCOUNT_REF \"Seraphina\" 0.61\nCUSTOMER_NAME \"Kowalski\" 0.77\nACCOUNT_REF \"Kowalski\" 0.54\nCUSTOMER_NAME \"tier\" 0.61\nACCOUNT_REF \"tier\" 0.70\nCUSTOMER_NAME \"plus\" 0.54\nACCOUNT_REF \"plus\" 0.69\nCUSTOMER_NAME \"handled_by\" 0.58\nACCOUNT_REF \"handled_by\" 0.80\nCUSTOMER_NAME \"Support Bot v2\" 0.57\nACCOUNT_REF \"Support Bot v2\" 0.68\nCUSTOMER_NAME \"Support Bot\" 0.53\nACCOUNT_REF \"Support Bot\" 0.71\nCUSTOMER_NAME \"Support\" 0.69\nACCOUNT_REF \"Support\" 0.67\nCUSTOMER_NAME \"Bot\" 0.79\nACCOUNT_REF \"Bot\" 0.79\nCUSTOMER_NAME \"v2\" 0.69\nACCOUNT_REF \"v2\" 0.75\nCUSTOMER_NAME \"shipment\" 0.65\nACCOUNT_REF \"shipment\" 0.63\nCUSTOMER_NAME \"carrier\" 0.62\nACCOUNT_REF \"carrier\" 0.49\nCUSTOMER_NAME \"DPD\" 0.46\nACCOUNT_REF \"DPD\" 0.52\nCUSTOMER_NAME \"status\" 0.76\nACCOUNT_REF \"status\" 0.64\nCUSTOMER_NAME \"IN_TRANSI"
+  }
+ ]
+}

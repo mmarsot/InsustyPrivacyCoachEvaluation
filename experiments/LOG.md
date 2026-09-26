@@ -129,3 +129,36 @@ its words that is (at least 4 characters). Rescored the cached SmolLM2 runs
 (`e3-relax-smol`): recall +0 to +3 points, but the false-positive rate on
 negatives rises by 10 points in 3 of 8 rows. Not adopted for now; recheck on
 stronger models.
+
+LFM2.5-350M (partial, stopped after 54 of 192 generations to free the model
+slot): under `ref` it scored F1 13 (P 33, R 8), mostly listing bare passages
+without labels (answered 23/32), p50 17 s for about 28 tokens. Its natural
+style is a bare list of passages, which suits the per-label passage-only
+format better (see E5).
+
+### E4. Classification instead of generation (negative result)
+
+Idea: code proposes candidate spans and the model only answers yes/no per
+(candidate, label), read from the next-token probabilities; no free text, so
+no echo, no answering, no invented passages, no loops.
+(`npm run lab:classify`, `src/lab/candidates.ts`, `src/lab/classify-*.ts`).
+
+- Candidate generator (identifier-like tokens, capitalized sequences, figures,
+  quoted strings, ALL-CAPS words), model-free check on the whole dev split
+  (`src/lab/candidates-coverage.ts`): covers 93% of expected passages (98% of
+  clear positives, 78% of subtle ones) with 9.5 candidates per case.
+- The models cannot discriminate. ROC AUC of P(yes) over all 594 questions of
+  iter32 (76 positive):
+
+| model | question variant | AUC | best F1o | note |
+|---|---|---|---|---|
+| SmolLM2-360M | q1 ("is X one of these: description?") | 0.47 | 18 (t=0.5, P 13) | answers yes/no (92% of the mass) at random |
+| LFM2.5-350M | q1 | 0.50 | 22 (P 14) | says yes to nearly everything; FPR 100% |
+| LFM2.5-350M | q1-ex3 (description + 3 examples) | 0.42 | 22 | |
+| LFM2.5-350M | q2 (label name + description) | 0.51 | 22 | |
+| LFM2.5-350M | q3 (category + examples, contrast question) | 0.56 | 25 | |
+
+Conclusion: a label description like "names of our agency's clients" gives a
+sub-500M model nothing to decide on for an isolated candidate. Dropped; the
+candidate generator stays available (it could still serve as a cheap
+pre-filter or as a deterministic fallback).
