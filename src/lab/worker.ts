@@ -36,6 +36,11 @@ export interface LabGen {
   scoreNone?: boolean;
   /** Forbid EOS before this many tokens (some chat models end a plain-text answer at once). */
   minNewTokens?: number;
+  /**
+   * Repetition penalty applied only to tokens the model generated in this
+   * answer (not to the prompt, so copying from the scanned text stays free).
+   */
+  answerRepetitionPenalty?: number;
 }
 export interface LabJob {
   key: string;
@@ -117,6 +122,25 @@ class FirstStepProbe extends LogitsProcessor {
   }
 }
 
+/** CTRL-style repetition penalty restricted to the generated part of the sequence. */
+class AnswerRepetitionPenalty extends LogitsProcessor {
+  constructor(private readonly promptLength: number, private readonly penalty: number) {
+    super();
+  }
+  override _call(inputIds: (number | bigint)[][], logits: Tensor): Tensor {
+    const data = logits.data as Float32Array;
+    const vocab = logits.dims.at(-1)!;
+    inputIds.forEach((seq, b) => {
+      const row = data.subarray(b * vocab, (b + 1) * vocab);
+      for (const id of new Set(seq.slice(this.promptLength).map(Number))) {
+        const v = row[id]!;
+        row[id] = v > 0 ? v / this.penalty : v * this.penalty;
+      }
+    });
+    return logits;
+  }
+}
+
 async function main() {
   const spec = JSON.parse(readFileSync(process.argv[2] ?? "", "utf8")) as LabWorkerSpec;
   const mod = (await import(pathToFileURL(spec.bundle).href)) as { generation?: { LineOutputTracker?: new () => { feed(t: string): boolean } } };
@@ -177,7 +201,8 @@ async function main() {
         }),
       );
       const probe = job.gen.scoreNone ? new FirstStepProbe(noneIds) : undefined;
-      const processors = probe ? new LogitsProcessorList() : undefined;
+      const processors = probe || job.gen.answerRepetitionPenalty ? new LogitsProcessorList() : undefined;
+      if (job.gen.answerRepetitionPenalty) processors!.push(new AnswerRepetitionPenalty(ids.length, job.gen.answerRepetitionPenalty));
       if (probe) processors!.push(probe);
       const room = contextLength - ids.length;
       const cap = job.gen.maxNewTokens > 0 ? Math.min(job.gen.maxNewTokens, room) : room;

@@ -1,0 +1,903 @@
+{
+ "name": "l3-lfm-remedies",
+ "set": "iter32",
+ "ext": {
+  "ref": "main",
+  "sha": "184c0ed3288e7ba9208b67e9e254fd79fac4c41e"
+ },
+ "at": "2026-09-26T23:30:10.899Z",
+ "summary": [
+  {
+   "model": "lfm2.5-350m",
+   "dtype": "q8",
+   "config": "raw-pl-lang-rp105",
+   "note": "raw-pl-lang with repetition_penalty 1.05 (LFM2.5 card recommendation)",
+   "overall": {
+    "cases": 32,
+    "f1": 0.2,
+    "precision": 0.273,
+    "recall": 0.158,
+    "exactF1": 0.167,
+    "detection": 0.227,
+    "fpr": 0.4,
+    "compliance": 0.938,
+    "p50ms": 17053,
+    "p95ms": 56722,
+    "tokens": 27,
+    "failures": {
+     "ok": 8,
+     "timeout": 2,
+     "hallucinated": 22
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.194,
+    "precision": 0.3,
+    "recall": 0.143,
+    "exactF1": 0.129,
+    "detection": 0.273,
+    "fpr": 0.2,
+    "compliance": 0.875,
+    "p50ms": 21376,
+    "p95ms": 57341,
+    "tokens": 28,
+    "failures": {
+     "ok": 3,
+     "timeout": 2,
+     "hallucinated": 11
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.207,
+    "precision": 0.25,
+    "recall": 0.176,
+    "exactF1": 0.207,
+    "detection": 0.182,
+    "fpr": 0.6,
+    "compliance": 1,
+    "p50ms": 16574,
+    "p95ms": 56722,
+    "tokens": 25,
+    "failures": {
+     "ok": 5,
+     "hallucinated": 11
+    }
+   }
+  },
+  {
+   "model": "lfm2.5-350m",
+   "dtype": "q8",
+   "config": "pl-passages",
+   "note": "Per-label passes; bare passages, label attached by code",
+   "overall": {
+    "cases": 32,
+    "f1": 0.214,
+    "precision": 0.333,
+    "recall": 0.158,
+    "exactF1": 0.136,
+    "detection": 0.091,
+    "fpr": 0.2,
+    "compliance": 0.813,
+    "p50ms": 9642,
+    "p95ms": 55622,
+    "tokens": 28,
+    "failures": {
+     "ok": 18,
+     "timeout": 6,
+     "echo_instructions": 2,
+     "hallucinated": 6
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.354,
+    "precision": 0.467,
+    "recall": 0.286,
+    "exactF1": 0.222,
+    "detection": 0.182,
+    "fpr": 0,
+    "compliance": 0.813,
+    "p50ms": 15718,
+    "p95ms": 55622,
+    "tokens": 31,
+    "failures": {
+     "ok": 8,
+     "timeout": 3,
+     "echo_instructions": 2,
+     "hallucinated": 3
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0,
+    "precision": 0,
+    "recall": 0,
+    "exactF1": 0,
+    "detection": 0,
+    "fpr": 0.4,
+    "compliance": 0.813,
+    "p50ms": 7913,
+    "p95ms": 67849,
+    "tokens": 25,
+    "failures": {
+     "ok": 10,
+     "timeout": 3,
+     "hallucinated": 3
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "agency-en-001",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CAMPAIGN_CODENAME: Halvard Cycles"
+   ],
+   "ms": 11071,
+   "output": "[CLIENT_NAME]  Halvard Cycle Cycle Cycle Halvard Cycle\n[CAMPAIGN_CODENAME]  Halvard Cycles\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Louis",
+    "-CAMPAIGN_CODENAME: Bien à vous"
+   ],
+   "ms": 8637,
+   "output": "[CLIENT_NAME]  Louis\n\n\n[CAMPAIGN_CODENAME]  Bien à vous."
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "agency-en-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 15233,
+   "output": "[CLIENT_NAME]  plan_pargetargetargettargettargettarget\n[CAMPAIGN_CODENAME]  plan_plan_plan_plan_plan_pl\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "agency-fr-018",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: halvard"
+   ],
+   "ms": 12608,
+   "output": "[CLIENT_NAME]  halvard\n\n\n[CAMPAIGN_CODENAME]  New Velard vest vest vest vest vest vest"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "dev-en-018",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 43124,
+   "output": "[INTERNAL_HOST]  sshportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportportport\n[INTERNAL_SERVICE]  smh\n[CUSTOMER_ID]  howdohowhowhowhowhowhowhowhowhowhowhow"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "dev-fr-007",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 22091,
+   "output": "[INTERNAL_HOST] \n[INTERNAL_SERVICE] \n[CUSTOMER_ID]  keycloecoooooooooooooooooooo"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "dev-fr-030",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_SERVICE: Temporal"
+   ],
+   "ms": 40275,
+   "output": "[INTERNAL_HOST]  heiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseiseise\n[INTERNAL_SERVICE]  Temporal\n\n\n[CUSTOMER_ID]  hesiteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 10392,
+   "output": "[INTERNAL_HOST] \n[INTERNAL_SERVICE] \n[CUSTOMER_ID] "
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Europe is going to miss its H2 target, we now see Europe margin at 8.1%",
+    "+INTERNAL_FORECAST: Europe is going to miss its H2 target, we now see Europe margin at 8.1%"
+   ],
+   "ms": 29683,
+   "output": "[UNPUBLISHED_FIGURE]  'Europe is going to miss its H2 target, we now see Europe margin at 8.1%'\n[INTERNAL_FORECAST]  'Europe is going to miss its H2 target, we now see Europe margin at 8.1%'"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "finance-fr-038",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 31623,
+   "output": "[UNPUBLISHED_FIGURE]  flashaweahbanbanbanbanbanbanbanbanbanbanbanbanban\n\n\n[INTERNAL_FORECAST]  flashaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "finance-en-032",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 31751,
+   "output": "[UNPUBLISHED_FIGURE]  divdend cover was paid in pay pay pay pay pay pay pay pay paypaypaypaypaypaypaypaypaypaypay\n[INTERNAL_FORECAST]  divdend cover explains divdivdivdivdivdivdivdivdivdiv"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 10132,
+   "output": "[UNPUBLISHED_FIGURE] \n[INTERNAL_FORECAST] "
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "hr-en-012",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-SOURCE_COMPANY: Best regards",
+    "-COMPENSATION: Best"
+   ],
+   "ms": 11874,
+   "output": "[CANDIDATE_NAME]  best_candidate\n\n\n[SOURCE_COMPANY]  Best regards\n\n\n[COMPENSATION]  best"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: Thibault Ferrand",
+    "+SOURCE_COMPANY: Norvik Dynamics"
+   ],
+   "ms": 12927,
+   "output": "[CANDIDATE_NAME]  Thibault Ferrand\n\n\n[SOURCE_COMPANY]  Norvik Dynamics\n\n\n[COMPENSATION]  NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "hr-fr-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CANDIDATE_NAME: Apec",
+    "-SOURCE_COMPANY: Apec"
+   ],
+   "ms": 13358,
+   "output": "[CANDIDATE_NAME]  Apec\n\n\n[SOURCE_COMPANY]  Apec\n[COMPENSATION]  oùjejejejejeje"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "hr-en-025",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 4,
+   "predicted": [
+    "+CANDIDATE_NAME: J. Lindqvist"
+   ],
+   "ms": 14587,
+   "output": "[CANDIDATE_NAME]  J. Lindqvist\n\n\n[SOURCE_COMPANY]  SIGNED!!\n\n\n[COMPENSATION]  signed!! signed!! signed!!"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: board"
+   ],
+   "ms": 9966,
+   "output": "[DEAL_CODENAME]  board\n\n\n[DEAL_TARGET]  NONE\n\n\n[DEAL_VALUE]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "legal-fr-005",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 24613,
+   "output": "[DEAL_CODENAME]  Harrowgate Industries and Sorvane Industrie\n\n\n[DEAL_TARGET]  French French French FrenchFrench\n[DEAL_VALUE]  français français français français Français Français Français"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "legal-en-033",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: Fellbeck Tooling"
+   ],
+   "ms": 21376,
+   "output": "[DEAL_CODENAME]  Fellbeck Tooling\n\n\n[DEAL_TARGET]  NONE\n[DEAL_VALUE]  ££££££££££££££££££££"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "legal-fr-045",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 21191,
+   "output": "[DEAL_CODENAME]  Belvédarde\n[DEAL_TARGET]  Belvédère,Sorvane Industrie;31,5M€;LOIsigned\n[DEAL_VALUE] "
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "research-en-004",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 57341,
+   "output": "[STUDY_NAME]  the group pls\n\n[PARTNER_LAB]  Thank you for your support and thank thanks for your patience, we will be be be be be bebebebebebebebebebebebebebebebebebbbbbbb\n[EARLY_RESULT]  A brief summary of the brief summary of the brief summary of the brief summary of the briefbriefbriefbriefbriefb"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "research-fr-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 56722,
+   "output": "[STUDY_NAME]  fausquequequequequequequequequequequequequequequequeque\n[PARTNER_LAB] fais-enunununununununununununununununununununununununununun\n[EARLY_RESULT]  fafafafafafafafafafaffafafaffffffff"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "research-fr-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 35319,
+   "output": "[STUDY_NAME]  lettre_absportportportportportportportportport\n[PARTNER_LAB]  Mentionnermentmentmentmentmentmentmentmentmentment\n[EARLY_RESULT]  A letter of accompaniment to eLife's eLifeLifeLifeLifeLifeLifeLifeLifeLife"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "research-en-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 32065,
+   "output": "[STUDY_NAME]  draft_letter_1_1\n\n\n[PARTNER_LAB]  draft_letter_one_page_versus_versus_versa_versa\n[EARLY_RESULT]  draft_edition_1_1page\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "sales-en-040",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 25844,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  Pembrobrookbrookbrookbrookbrookbrookbrookb\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "sales-fr-041",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 16041,
+   "output": "[UNRELEASED_PRODUCT]  l'équipe produit mdr\n\n\n[PROSPECT_NAME]  normalmente toujours toujours toujours toujoursversversvers"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "sales-en-039",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 38419,
+   "output": "[UNRELEASED_PRODUCT]  wat wat wat wat watllllllllllllllllllllllllllll\n[PROSPECT_NAME]  lenovolenovolenovobothbothbothbothbothbothboth"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Mme Roussel",
+    "-PROSPECT_NAME: Mme Roussel"
+   ],
+   "ms": 12464,
+   "output": "[UNRELEASED_PRODUCT]  MME Roussel\n\n\n[PROSPECT_NAME]  Mme Roussel\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "support-en-007",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-ACCOUNT_REF: spanish"
+   ],
+   "ms": 12311,
+   "output": "[CUSTOMER_NAME]  \"Ms Imogen Castellains\".\n[ACCOUNT_REF]  spanish\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "support-fr-019",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-ACCOUNT_REF: transporteur"
+   ],
+   "ms": 16574,
+   "output": "[CUSTOMER_NAME]  QUEUEQUEUEQUEUEQUEUEQUEUEQ\n[ACCOUNT_REF]  transporteur\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: Kévin d'après l'avis de passage"
+   ],
+   "ms": 17053,
+   "output": "[CUSTOMER_NAME]  Kévin d'après l'avis de passage\n\n\n[ACCOUNT_REF]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang-rp105",
+   "caseId": "support-en-045",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+CUSTOMER_NAME: Seraphina Kowalski"
+   ],
+   "ms": 28819,
+   "output": "[CUSTOMER_NAME]  Seraphina Kowalski\n\n\n[ACCOUNT_REF]  ORDER-ORDER-ORDER-ORDERORDERORDERORDERORDER"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7584,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "agency-fr-016",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7847,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] OBJECT: Point hebdo\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "agency-en-035",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 49804,
+   "output": "[CLIENT_NAME] plan a 4 email black friday sequense for a DTC sneaker brand.  \nsubjet line one sumary  \nplan a 4 email black friday sequense.  \nsubjet line two sumary  \nplan\n[CAMPAIGN_CODENAME] plan a 4 email black friday sequense for a DTC sneaker brand\nsubjet line sumary\nemail1\nemail2\nemail3\nemail4"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9642,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7273,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7086,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_HOST: on hesite entre Temporal et un simple cron"
+   ],
+   "ms": 38187,
+   "output": "[INTERNAL_HOST] Uber a open-sourcé Cadence et ensuite les créateurs ont fait Temporal, c'est bien ça ?  \non hesite entre Temporal et un simple cron  \n\n\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] Uber a open-sourcé Cadence et ensuite les créateurs ont fait Temporal, c'est bien ça ?  \nNONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_HOST: cus_mP02zzLc",
+    "-INTERNAL_HOST: acct-40051-AR",
+    "-INTERNAL_HOST: org_4f1c9a2e",
+    "+CUSTOMER_ID: cus_mP02zzLc",
+    "+CUSTOMER_ID: acct-40051-AR",
+    "+CUSTOMER_ID: org_4f1c9a2e"
+   ],
+   "ms": 42437,
+   "output": "[INTERNAL_HOST] cus_mP02zzLc\nacct-40051-AR\norg_4f1c9a2e\n\n\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] cus_mP02zzLc\nacct-40051-AR\norg_4f1c9a2e\ncus_mP02zzLc\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 4546,
+   "output": "[UNPUBLISHED_FIGURE] NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 4538,
+   "output": "[UNPUBLISHED_FIGURE] NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4326,
+   "output": "[UNPUBLISHED_FIGURE] NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Cordialement,",
+    "-UNPUBLISHED_FIGURE: Claire",
+    "-INTERNAL_FORECAST: Cordialement,",
+    "-INTERNAL_FORECAST: Claire"
+   ],
+   "ms": 10815,
+   "output": "[UNPUBLISHED_FIGURE] Cordialement,\nClaire\n[INTERNAL_FORECAST] Cordialement,\nClaire"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "hr-en-012",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 15718,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] The competitor we are recruiting candidates away from, when named in a hiring context.\nNONE\n[COMPENSATION] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "hr-fr-004",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 35963,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] entretient avec Thibault Ferrand : bon niv en ROS, un peu leger en c++.  \nnorvik Dynamics depuis 4ans, preavis 3 mois, veut 75K€ minimum sin\n[COMPENSATION] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7913,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] NONE\n[COMPENSATION] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "hr-en-025",
+   "failure": "hallucinated",
+   "found": 3,
+   "expected": 4,
+   "predicted": [
+    "-COMPENSATION: J. Lindqvist accepted",
+    "+COMPENSATION: IC5",
+    "+COMPENSATION: 188",
+    "+COMPENSATION: 12%",
+    "+COMPENSATION: bonus",
+    "-COMPENSATION: HM",
+    "-COMPENSATION: lunch",
+    "-COMPENSATION: team"
+   ],
+   "ms": 34306,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] The competitor we are recruiting candidates away from, when named in a hiring context.\n\n\n[COMPENSATION] SIGNED!!  \nJ. Lindqvist accepted  \nIC5  \n188  \n12%  \nbonus  \nHM  \nlunch  \nteam  \n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "legal-en-003",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_TARGET: board wants a sanity check before friday"
+   ],
+   "ms": 38812,
+   "output": "[DEAL_CODENAME] Codenames of confidential deals or transactions\nNONE\n[DEAL_TARGET] quick q - is $1.1bn for Vessant too rich if their EBITDA is ~70m?  \nboard wants a sanity check before friday\n[DEAL_VALUE] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "legal-fr-005",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 67849,
+   "output": "[DEAL_CODENAME] Codenames of confidential deals or transactions\nNONE\n[DEAL_TARGET] Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement. Droit français, ton sobre.\n\n\n[DEAL_VALUE] Rédige "
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "legal-en-033",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 25260,
+   "output": "[DEAL_CODENAME] Codenames of confidential deals or transactions\nNONE\n[DEAL_TARGET] The company we plan to acquire or merge with in a confidential deal.\nNONE\n\n\n[DEAL_VALUE] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "legal-fr-045",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 36628,
+   "output": "[DEAL_CODENAME] Codenames of confidential deals or transactions:\nBelvédère\nSorvane Industrie\n31,5 M€\nLOI signée\nPhare\n-\nArchive-2023\n\n[DEAL_TARGET] NONE\n[DEAL_VALUE] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "research-en-004",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 55622,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] lab mtg 12/3\n- Sam: qPCR repeats done, Il6 down again in KO\nme: send updated SOP to Quillon Biosciences b4 fri\nHanna: renewal\n[EARLY_RESULT] Unpublished quantitative results: effect sizes, p-values, response rates, hit counts  \nTurn this into a short recap email for t"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "research-fr-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PARTNER_LAB: fais-en un petit mail récap pour l'équipe stp"
+   ],
+   "ms": 29368,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] fais-en un petit mail récap pour l'équipe stp\n\n\n[EARLY_RESULT] Unpublished quantitative results: effect sizes, p-values, response rates, hit counts  \nNONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "research-fr-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 36338,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] REDGE IN THE EXTERNAL LAB, INSTITUTE OF SCIENCES, ANR AND INSERM\n\n\n[EARLY_RESULT] Unpublished quantitative results: effect sizes, p-values, response rates, hit counts\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "research-en-034",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 28732,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] The external lab, institute or company we are collaborating with on unpublished work.\n\n\n[EARLY_RESULT] Unpublished quantitative results: effect sizes, p-values, response rates, hit counts\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6265,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5410,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5269,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5993,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "support-en-007",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 33380,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] Dear Ms Imogen Castellanos,\nYour order has been split into two parcels. The first one arrived yesterday; the second one, tracking number PCL5519027734ES, should reach you on Thursday. We"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6615,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6328,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "pl-passages",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 7600,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] NONE"
+  }
+ ]
+}

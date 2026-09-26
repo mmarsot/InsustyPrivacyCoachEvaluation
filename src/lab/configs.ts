@@ -143,4 +143,6 @@ add("raw-pl-lang", "raw-pl-lang-min1", "raw-pl-lang forbidding EOS as the first 
 
 add("raw-pl-lang", "raw-pl-lang-rp105", "raw-pl-lang with repetition_penalty 1.05 (LFM2.5 card recommendation)", { repetitionPenalty: 1.05 });
 
+for (const p of [1.3, 1.6]) add("raw-pl-lang", `raw-pl-lang-arp${p}`, `raw-pl-lang with a ${p} repetition penalty on the answer's own tokens only`, { answerRepetitionPenalty: p });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));

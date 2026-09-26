@@ -85,6 +85,8 @@ export interface LabConfig {
   noneGate: number | null;
   /** Forbid EOS for the first N tokens; 0 = off. */
   minNewTokens: number;
+  /** Repetition penalty on the answer's own tokens only (prompt excluded); 0 = off. */
+  answerRepetitionPenalty: number;
   /** Extra variables for the chat template (e.g. enable_thinking: false). */
   templateKwargs: Record<string, unknown>;
 }
@@ -149,6 +151,7 @@ export const REF_CONFIG: LabConfig = {
   stopAtNewline: false,
   noneGate: null,
   minNewTokens: 0,
+  answerRepetitionPenalty: 0,
   templateKwargs: {},
 };
 

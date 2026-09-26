@@ -167,7 +167,7 @@ async function plan(model: LabModel): Promise<Planned[]> {
           prefix = rendered.slice(0, at);
           instructions = built.instructions;
         }
-        const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" && !config.stopAtNewline, ...(config.stopAtNewline ? { stopAtNewline: true } : {}), ...(config.noneGate !== null ? { scoreNone: true } : {}), ...(config.minNewTokens ? { minNewTokens: config.minNewTokens } : {}) };
+        const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" && !config.stopAtNewline, ...(config.stopAtNewline ? { stopAtNewline: true } : {}), ...(config.noneGate !== null ? { scoreNone: true } : {}), ...(config.minNewTokens ? { minNewTokens: config.minNewTokens } : {}), ...(config.answerRepetitionPenalty ? { answerRepetitionPenalty: config.answerRepetitionPenalty } : {}) };
         // Keys omit defaults added after the first runs, so cached results stay valid.
         const { lineStop, ...keyGen } = gen;
         const key = createHash("sha256").update(JSON.stringify({ model: model.id, dtype, prefix, suffix, gen: lineStop ? keyGen : gen })).digest("hex").slice(0, 32);

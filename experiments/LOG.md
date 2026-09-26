@@ -430,3 +430,36 @@ reuse, degenerate ones included (`sshportport...`, `keycloecoooo...`). So:
 - the prefix-reuse failure of E7a remains a 3.8.1 problem (v4 was not tested
   with a split prefix);
 - v4 in Node also needed the external-data bytes passed by hand.
+
+### L3-L4. LFM2.5-350M: repetition penalties and chat framing (iter32)
+
+| config | F1o | P | R | F1x | det | FPR | p50s | note |
+|---|---|---|---|---|---|---|---|---|
+| raw-pl-lang | 23 | 29 | 18 | 19 | 27 | 30 | 19.5 | reference |
+| raw-pl-lang-rp105 (card's `repetition_penalty: 1.05`, whole sequence) | 20 | 27 | 16 | 17 | 23 | 40 | 17.1 | loops persist |
+| pl-passages (chat framing, one pass per label) | 21 | 33 | 16 | 14 | 9 | 20 | 9.6 | French F1 0 |
+| raw-pl-lang-arp1.3 (penalty on the answer's own tokens only) | 22 | 28 | 18 | 19 | 27 | 40 | 19.2 | loops become word salad |
+| raw-pl-lang-arp1.6 | 22 | 28 | 18 | 19 | 27 | 40 | 16.4 | same |
+
+The LFM2.5 card's repetition penalty (1.05) is not in the ONNX repo's
+`generation_config.json`, so it was off; turning it on does not help, since
+Transformers.js applies it to the scanned text too. A new lab option,
+`answerRepetitionPenalty` (a logits processor that penalizes only tokens of
+the answer being generated, so copying from the text stays free), replaces
+`portportport` with `portfndeffortforwardshift...`: the model loses the thread
+after a few tokens whatever the constraint.
+
+### E7b. Gemma 3 270M-it (onnxruntime-web 1.24.3, prefix reuse OK), iter32 (`e7-candidates`)
+
+| model | config | F1o | P | R | F1x | det | FPR | p50s | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Gemma 3 270M | raw-pl | 33 | 30 | 37 | 29 | 50 | 100 | 6.6 | 43 | 21 |
+| Gemma 3 270M | **raw-pl-lang** | **39** | 34 | 45 | 29 | 55 | 100 | 8.4 | 45 | 30 |
+| Gemma 3 270M | raw-pl-lang + basic | 36 | 35 | 37 | 31 | 50 | 80 | 8.4 | | |
+| Gemma 3 270M | raw-pl-lang + basic + dedup | 31 | 45 | 24 | 28 | 27 | 40 | 8.4 | | |
+| SmolLM2-360M | raw-pl-lang | 38 | 43 | 34 | 30 | 50 | 60 | 2.9 | 42 | 33 |
+
+Gemma has the highest recall of all models so far but flags every negative:
+its false positives are look-alike entities (public companies and tools such
+as "Fellbeck Tooling", "Apec", "Parcelio", "Temporal"), often under two labels
+at once. Peak RSS 2.48 GB; 3x slower than SmolLM2-360M.
