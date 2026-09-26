@@ -256,3 +256,36 @@ export function passagesToLines(raw: string, label: string): string {
   }
   return lines.length ? lines.join("\n") : "NONE";
 }
+
+/**
+ * Relaxed anchoring (a candidate parser change for the extension): when a
+ * line's passage is not in the text, keep the longest run of its words that
+ * is (at least 4 characters, word-bounded, case-insensitive), so "Kofi Owusu"
+ * becomes "Kofi" when only "Kofi" is written. Lines that anchor are untouched.
+ */
+export function relaxLines(raw: string, text: string): string {
+  const lower = text.toLocaleLowerCase();
+  const isWord = (c: string | undefined) => c !== undefined && /[\p{L}\p{N}_]/u.test(c);
+  const occurs = (needle: string) => {
+    const n = needle.toLocaleLowerCase();
+    for (let i = lower.indexOf(n); i >= 0; i = lower.indexOf(n, i + 1))
+      if (!(isWord(n[0]) && isWord(lower[i - 1])) && !(isWord(n.at(-1)) && isWord(lower[i + n.length]))) return true;
+    return false;
+  };
+  return raw
+    .split(/\r?\n/u)
+    .map((line) => {
+      const m = /^(?<pre>\s*(?:(?:[-*•]+|\d+[.)])\s*)*(?<label>[^:\n]+?)\s*:\s*)(?<passage>.+)$/u.exec(line);
+      if (!m?.groups) return line;
+      const passage = m.groups.passage!.trim().replace(/^["'`“‘]|["'`”’.,;:!?]+$/gu, "");
+      if (!passage || occurs(passage)) return line;
+      const words = passage.split(/\s+/u);
+      for (let len = words.length - 1; len >= 1; len--)
+        for (let start = 0; start + len <= words.length; start++) {
+          const span = words.slice(start, start + len).join(" ").replace(/^["'`“‘(]+|["'`”’.,;:!?)]+$/gu, "");
+          if (span.length >= 4 && occurs(span)) return `${m.groups.pre}${span}`;
+        }
+      return line;
+    })
+    .join("\n");
+}

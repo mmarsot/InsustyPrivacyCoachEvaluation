@@ -98,3 +98,34 @@ lab keeps prefix reuse on by default because that is what the extension does
 (its engine prepares the instruction prefix once). Practical consequence:
 single-case differences between configurations are noisy; only aggregate
 metrics over many cases mean anything.
+
+### E3. Model screen (6 configurations per model)
+
+Configurations: `ref`, `lbl-means`, `v4`, `user-instr`, `fmt-example` (schema
+plus an example reply with made-up labels), `json-extract` (LFM2-Extract's
+native JSON protocol, converted to lines). Runs `e3-<model>`.
+
+SmolLM2-360M:
+
+| config | F1o | P | R | F1x | det | FPR | comp | p50s | tok | failures |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ref | 19 | 36 | 13 | 12 | 18 | 30 | 28 | 9.1 | 127 | timeout 6, echo 3, echoI 7, answered 9, unkL 2, halluc 3 |
+| lbl-means | 18 | 67 | 11 | 9 | 14 | 10 | 16 | 4.3 | 65 | timeout 2, echo 7, answered 17 |
+| v4 | 19 | 33 | 13 | 8 | 14 | 20 | 41 | 8.8 | 99 | echoI 13, answered 6 |
+| user-instr | 14 | 60 | 8 | 14 | 9 | 10 | 78 | 12.0 | 102 | echoI 23 |
+| fmt-example | 0 | - | 0 | - | 0 | 0 | 9 | 5.4 | 73 | answered 16, unkL 5 |
+| json-extract | 0 | 0 | 0 | 0 | 0 | 10 | 0 | 12.5 | 116 | answered 22 |
+
+- The 360M does better than the 135M at baseline (F1 19 vs 5) but no prompt
+  change helps it; the example reply in `fmt-example` is imitated as prose.
+- Typical errors: recites the label list, lists topics of the text ("Tone:
+  Witty"), puts the same passage under every label, and completes names that
+  are not in the text ("Kofi Owusu" for "Kofi"), which anchoring drops.
+
+### E3b. Relaxed anchoring (parser-side, rescoring only)
+
+`--anchor relaxed`: when a passage is not in the text, keep the longest run of
+its words that is (at least 4 characters). Rescored the cached SmolLM2 runs
+(`e3-relax-smol`): recall +0 to +3 points, but the false-positive rate on
+negatives rises by 10 points in 3 of 8 rows. Not adopted for now; recheck on
+stronger models.

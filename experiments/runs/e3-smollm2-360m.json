@@ -1,0 +1,2583 @@
+{
+ "name": "e3-smollm2-360m",
+ "set": "iter32",
+ "ext": {
+  "ref": "main",
+  "sha": "dc91f3677c07f95776f8c0f0cddb97e08a3170d5"
+ },
+ "at": "2026-09-26T17:55:51.826Z",
+ "summary": [
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "ref",
+   "note": "Extension ref as shipped",
+   "overall": {
+    "cases": 32,
+    "f1": 0.192,
+    "precision": 0.357,
+    "recall": 0.132,
+    "exactF1": 0.115,
+    "detection": 0.182,
+    "fpr": 0.3,
+    "compliance": 0.281,
+    "p50ms": 9098,
+    "p95ms": 30046,
+    "tokens": 127,
+    "failures": {
+     "ok": 2,
+     "timeout": 6,
+     "echo": 3,
+     "echo_instructions": 7,
+     "answered": 9,
+     "unknown_label": 2,
+     "hallucinated": 3
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.2,
+    "precision": 0.333,
+    "recall": 0.143,
+    "exactF1": 0.133,
+    "detection": 0.182,
+    "fpr": 0.4,
+    "compliance": 0.313,
+    "p50ms": 6547,
+    "p95ms": 30030,
+    "tokens": 96,
+    "failures": {
+     "ok": 2,
+     "timeout": 1,
+     "echo": 2,
+     "echo_instructions": 3,
+     "answered": 5,
+     "unknown_label": 1,
+     "hallucinated": 2
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.182,
+    "precision": 0.4,
+    "recall": 0.118,
+    "exactF1": 0.091,
+    "detection": 0.182,
+    "fpr": 0.2,
+    "compliance": 0.25,
+    "p50ms": 10846,
+    "p95ms": 30106,
+    "tokens": 158,
+    "failures": {
+     "timeout": 5,
+     "echo": 1,
+     "echo_instructions": 4,
+     "answered": 4,
+     "unknown_label": 1,
+     "hallucinated": 1
+    }
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "lbl-means",
+   "note": "Label lines as 'LABEL means description' (not output-shaped)",
+   "overall": {
+    "cases": 32,
+    "f1": 0.182,
+    "precision": 0.667,
+    "recall": 0.105,
+    "exactF1": 0.091,
+    "detection": 0.136,
+    "fpr": 0.1,
+    "compliance": 0.156,
+    "p50ms": 4253,
+    "p95ms": 30006,
+    "tokens": 65,
+    "failures": {
+     "ok": 3,
+     "timeout": 2,
+     "echo": 7,
+     "echo_instructions": 1,
+     "answered": 17,
+     "hallucinated": 2
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.174,
+    "precision": 1,
+    "recall": 0.095,
+    "exactF1": 0.087,
+    "detection": 0.091,
+    "fpr": 0,
+    "compliance": 0.063,
+    "p50ms": 3924,
+    "p95ms": 8480,
+    "tokens": 38,
+    "failures": {
+     "echo": 3,
+     "answered": 12,
+     "hallucinated": 1
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.19,
+    "precision": 0.5,
+    "recall": 0.118,
+    "exactF1": 0.095,
+    "detection": 0.182,
+    "fpr": 0.2,
+    "compliance": 0.25,
+    "p50ms": 5793,
+    "p95ms": 30101,
+    "tokens": 91,
+    "failures": {
+     "ok": 3,
+     "timeout": 2,
+     "echo": 4,
+     "echo_instructions": 1,
+     "answered": 5,
+     "hallucinated": 1
+    }
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "v4",
+   "note": "Rewritten scanner instruction (data framing, copy exactly)",
+   "overall": {
+    "cases": 32,
+    "f1": 0.189,
+    "precision": 0.333,
+    "recall": 0.132,
+    "exactF1": 0.08,
+    "detection": 0.136,
+    "fpr": 0.2,
+    "compliance": 0.406,
+    "p50ms": 8765,
+    "p95ms": 30085,
+    "tokens": 99,
+    "failures": {
+     "ok": 4,
+     "timeout": 3,
+     "echo": 4,
+     "echo_instructions": 13,
+     "answered": 6,
+     "unknown_label": 1,
+     "hallucinated": 1
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.233,
+    "precision": 0.3,
+    "recall": 0.19,
+    "exactF1": 0.129,
+    "detection": 0.182,
+    "fpr": 0.4,
+    "compliance": 0.375,
+    "p50ms": 6407,
+    "p95ms": 12371,
+    "tokens": 65,
+    "failures": {
+     "ok": 3,
+     "echo": 4,
+     "echo_instructions": 2,
+     "answered": 5,
+     "unknown_label": 1,
+     "hallucinated": 1
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.105,
+    "precision": 0.5,
+    "recall": 0.059,
+    "exactF1": 0,
+    "detection": 0.091,
+    "fpr": 0,
+    "compliance": 0.438,
+    "p50ms": 10320,
+    "p95ms": 30136,
+    "tokens": 134,
+    "failures": {
+     "ok": 1,
+     "timeout": 3,
+     "echo_instructions": 11,
+     "answered": 1
+    }
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "user-instr",
+   "note": "Short system persona; instructions in the user turn right before the text",
+   "overall": {
+    "cases": 32,
+    "f1": 0.14,
+    "precision": 0.6,
+    "recall": 0.079,
+    "exactF1": 0.14,
+    "detection": 0.091,
+    "fpr": 0.1,
+    "compliance": 0.781,
+    "p50ms": 11961,
+    "p95ms": 15406,
+    "tokens": 102,
+    "failures": {
+     "timeout": 1,
+     "echo": 2,
+     "echo_instructions": 23,
+     "answered": 2,
+     "unknown_label": 1,
+     "hallucinated": 3
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.231,
+    "precision": 0.6,
+    "recall": 0.143,
+    "exactF1": 0.231,
+    "detection": 0.182,
+    "fpr": 0.2,
+    "compliance": 0.75,
+    "p50ms": 11961,
+    "p95ms": 30020,
+    "tokens": 112,
+    "failures": {
+     "timeout": 1,
+     "echo": 1,
+     "echo_instructions": 10,
+     "answered": 1,
+     "unknown_label": 1,
+     "hallucinated": 2
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0.813,
+    "p50ms": 11904,
+    "p95ms": 15406,
+    "tokens": 92,
+    "failures": {
+     "echo": 1,
+     "echo_instructions": 13,
+     "answered": 1,
+     "hallucinated": 1
+    }
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "fmt-example",
+   "note": "Schema followed by a concrete example reply with a made-up label",
+   "overall": {
+    "cases": 32,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0.094,
+    "p50ms": 5368,
+    "p95ms": 30014,
+    "tokens": 73,
+    "failures": {
+     "timeout": 2,
+     "echo": 5,
+     "echo_instructions": 3,
+     "answered": 16,
+     "unknown_label": 5,
+     "hallucinated": 1
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 4172,
+    "p95ms": 8945,
+    "tokens": 40,
+    "failures": {
+     "echo": 3,
+     "answered": 12,
+     "unknown_label": 1
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0.188,
+    "p50ms": 8462,
+    "p95ms": 30093,
+    "tokens": 105,
+    "failures": {
+     "timeout": 2,
+     "echo": 2,
+     "echo_instructions": 3,
+     "answered": 4,
+     "unknown_label": 4,
+     "hallucinated": 1
+    }
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "json-extract",
+   "note": "LFM2-Extract style: schema in system prompt, JSON object reply, converted to lines",
+   "overall": {
+    "cases": 32,
+    "f1": 0,
+    "precision": 0,
+    "recall": 0,
+    "exactF1": 0,
+    "detection": 0,
+    "fpr": 0.1,
+    "compliance": 0,
+    "p50ms": 12454,
+    "p95ms": 13851,
+    "tokens": 116,
+    "failures": {
+     "echo": 7,
+     "answered": 22,
+     "unknown_label": 3
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0,
+    "precision": 0,
+    "recall": 0,
+    "exactF1": 0,
+    "detection": 0,
+    "fpr": 0.2,
+    "compliance": 0,
+    "p50ms": 12920,
+    "p95ms": 13525,
+    "tokens": 130,
+    "failures": {
+     "echo": 1,
+     "answered": 14,
+     "unknown_label": 1
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 7767,
+    "p95ms": 14256,
+    "tokens": 102,
+    "failures": {
+     "echo": 6,
+     "answered": 8,
+     "unknown_label": 2
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "agency-en-001",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2657,
+   "output": "\n- Tone: Witty, not smug\n- Tone: Witty, not smug\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "agency-fr-016",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2336,
+   "output": "\n- Point hebdo\n- Bonjour Sophie\n- Bonjour Sophie\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "agency-en-035",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 25907,
+   "output": "\n- Client_Name: The names of our agency's clients or the brands we work for under NDA.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- EMAIL: Email addresses.\n- ADDRESS: Postal or street addresses.\n- PHONE: Telephone numbers in any national or international format.\n- SEPTEM"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "agency-fr-018",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 30034,
+   "output": "\n- CLIENT_NAME: The name of our agency or the brands we work for under NDA.\n- CAMPAIGN_CODENAME: Internal codenames of campaigns or pitches that are not public.\n- API_KEY: API keys, access tokens, and other credentials.\n- PHONE: Telephone numbers in any national or international format.\n- EMAIL: Ema"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "dev-en-018",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 20966,
+   "output": "\n- INTERNAL_HOST: Internal hostnames, internal domains and private URLs of our infrastructure.\n- INTERNAL_SERVICE: Names of our internal repositories, microservices and internal tools.\n- CUSTOMER_ID: Customer or tenant identifiers that appear in our logs and databases.\n- API_KEY: API keys, access to"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "dev-fr-007",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 30106,
+   "output": "\n- INTERNAL_HOST: Internal hostnames, internal domains and private URLs of our infrastructure.\n- INTERNAL_SERVICE: Names of our internal repositories, microservices and internal tools.\n- CUSTOMER_ID: Customer or tenant identifiers that appear in our logs and databases.\n- API_KEY: API keys, access to"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "dev-fr-030",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_HOST: Temporal",
+    "-INTERNAL_SERVICE: Temporal"
+   ],
+   "ms": 29660,
+   "output": "\n- INTERNAL_HOST: Temporal\n- INTERNAL_SERVICE: Temporal\n- CUSTOMER_ID: Customer\n- API_KEY: Temporal\n- PHONE: Temporal\n- EMAIL: Temporal\n- ADDRESS: Temporal\n- EMAIL_FROM: Temporal\n- ADDRESS_FROM: Temporal\n- ADDRESS_TO: Temporal\n- ADDRESS_TO_FROM: Temporal\n- ADDRESS_TO_FROM_TO: Temporal\n- ADDRESS_TO_F"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "dev-en-047",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 30030,
+   "output": "\n- customer: 500\n- status: 500\n- attempts: 5\n- attempts_attempts: 5\n- attempts_attempts_attempts: 5\n- attempts_attempts_attempts_attempts: 5\n- attempts_attempts_attempts_attempts_attempts: 5\n- attempts_attempts_attempts_attempts_attempts_attempts: 5\n- attempts_attempts_attempts_attempts_attempts_att"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "finance-en-005",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 3187,
+   "output": "\nEurope is going to miss its H2 target, we now see Europe margin at 8.1% not 9%"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "finance-fr-038",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 9151,
+   "output": "\n- Unpublished Figure: Revenue, margins, profit, cash, segment numbers for the current or last quarter.\n- Internal Forecast: Guidance, targets, and targets that are not public.\n- API Key: API keys, access tokens, secret keys, and other credentials.\n- Phone: Telephone numbers in any national or inter"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "finance-en-032",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1827,
+   "output": "\n- 38.2p per share paid in May\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "finance-fr-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1896,
+   "output": "\nBonjour à tous,\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "hr-en-012",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8927,
+   "output": "\n- CANDIDATE_NAME: Kofi Owusu\n- SOURCE_COMPANY: Kofi Owusu\n- COMPENSATION: Kofi Owusu\n- API_KEY: Kofi Owusu\n- PHONE: Kofi Owusu\n- EMAIL: Kofi Owusu\n- ADDRESS: Kofi Owusu\n- ADDRESS: Kofi Owusu\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "hr-fr-004",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12111,
+   "output": "- CANDIDATE_NAME: Names of job candidates or employees we are discussing.\n- SOURCE_COMPANY: The competitor we are recruiting candidates away from, when named in a hiring context.\n- COMPENSATION: Salaries, bonuses, equity amounts and internal job levels or grades tied to a person or offer.\n- API_KEY:"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "hr-fr-035",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 30046,
+   "output": "\n- CANDIDATE_NAME: Jean-Luc Bézély\n- SOURCE_COMPANY: L'Apec\n- COMPENSATION: 15000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "hr-en-025",
+   "failure": "echo",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 3961,
+   "output": "\n- Signed!! J. Lindqvist accepted at IC5 🎉 188 base / 12% bonus, HM is buying lunch for the whole team\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: Vessant",
+    "+DEAL_TARGET: Vessant",
+    "-DEAL_VALUE: ~70m"
+   ],
+   "ms": 7307,
+   "output": "\n- DEAL_CODENAME: Vessant\n- DEAL_TARGET: Vessant\n- DEAL_VALUE: ~70m\n- API_KEY: Vessant\n- PHONE: Vessant\n- EMAIL: Vessant\n- ADDRESS: Vessant\n- ADDRESS: Vessant\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "legal-fr-005",
+   "failure": "answered",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-DEAL_CODENAME: Harrowgate Industries",
+    "+DEAL_TARGET: Sorvane Industrie"
+   ],
+   "ms": 10846,
+   "output": "\n- DEAL_CODENAME: Harrowgate Industries\n- DEAL_TARGET: Sorvane Industrie\n- DEAL_VALUE: Price, valuation or financial terms\n- API_KEY: Harrowgate Industries\n- PHONE: 123-456-7890\n- EMAIL:\n- ADDRESS: 123-456-7890\n- ADDRESS: 123-456-7890\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: Fellbeck Tooling",
+    "-DEAL_TARGET: Fellbeck Tooling",
+    "-DEAL_VALUE: £41m"
+   ],
+   "ms": 9098,
+   "output": "\n- DEAL_CODENAME: Fellbeck Tooling\n- DEAL_TARGET: Fellbeck Tooling\n- DEAL_VALUE: £41m\n- API_KEY: Fellbeck Tooling\n- PHONE: Fellbeck Tooling\n- ADDRESS: Fellbeck Tooling\n- EMAIL: Fellbeck Tooling\n- ADDRESS: Fellbeck Tooling\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "legal-fr-045",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 4317,
+   "output": "\n```\nDEAL_CODENAME:\n- DEAL_VALUE:\n- DEAL_TARGET:\n- DEAL_VALUE:\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "research-en-004",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9259,
+   "output": "\n- STUDY_NAME: The study we are collaborating on.\n- PARTNER_LAB: The external lab, institute or company we are collaborating with.\n- EARLY_RESULT: Unpublished quantitative results.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Phone numbers.\n- EMAIL: Email addresse"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "research-fr-004",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 30012,
+   "output": "- STUDY_NAME: The study name, the study protocol, the study design, the study population, the study setting, the study duration, the study location, the study funding, the study funding source, the study funding amount, the study funding period, the study funding year, the study funding country, the"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "research-fr-034",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 9234,
+   "output": "- STUDY_NAME: The study's title.\n- PARTNER_LAB: The external lab, institute, or company we are collaborating with.\n- EARLY_RESULT: Unpublished quantitative results.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Phone numbers.\n- EMAIL: Email addresses.\n- ADDRESS: Po"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "research-en-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: macrophage polarization in fibrotic liver"
+   ],
+   "ms": 4956,
+   "output": "- Study Name: Macrophage Polarization in Fibrotic Liver\n- Study Type: Manuscript\n- Study Location: Published in PLOS ONE\n- Study Funding: Wellcome Trust\n- Study Institution: University of Cambridge\n- Study Abstract:\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3195,
+   "output": "- The text contains the following findings:\n- The text contains the following questions:\n- The text contains the following questions:\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "sales-fr-041",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 30037,
+   "output": "\n- Unreleased product names: [unreleased_product_names]\n- Prospect names: [prospect_names]\n- API keys: [api_keys]\n- Phone numbers: [phone_numbers]\n- Email addresses: [email_addresses]\n- Postal or street addresses: [postal_addresses]\n- Linking to a product: [linked_product]\n- Linking to a prospect: ["
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "sales-en-039",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5490,
+   "output": "\n- The Lenovo ThinkPad X1 Carbon is a new laptop model from Lenovo.\n- The ThinkPad X1 Carbon is a mid-range laptop model from Lenovo.\n- The ThinkPad X1 Carbon is a mid-range laptop model from Lenovo.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "sales-fr-030",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8863,
+   "output": "\n- \"tu peux verifier le ton de ce mail\"\n- \"je le trouve un peu sec\"\n- \"Bonjour Mme Roussel, je vous confirme notre rendez-vous du 30\"\n- \"je me donne un peu de réponses techniques\"\n- \"à bientôt\""
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "support-en-007",
+   "failure": "hallucinated",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Imogen",
+    "+ACCOUNT_REF: PCL5519027734ES"
+   ],
+   "ms": 6547,
+   "output": "\n- CUSTOMER_NAME: Imogen\n- ACCOUNT_REF: PCL5519027734ES\n- API_KEY: none\n- PHONE: none\n- EMAIL: none\n- ADDRESS: none\n- EMAIL: none\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "support-fr-019",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_NAME: Mme Karadeniz"
+   ],
+   "ms": 14778,
+   "output": "\n- CUSTOMER_NAME: Mme Karadeniz\n- ACCOUNT_REF: 1234567890\n- API_KEY: 1234567890\n- PHONE: 1234567890\n- EMAIL: 1234567890\n- ADDRESS: Toulouse\n- ADDRESS: Nantes\n- ADDRESS: Paris\n- ADDRESS: Lille\n- ADDRESS: Lyon\n- ADDRESS: Marseille\n- ADDRESS: Nice\n- ADDRESS: Monaco\n- ADDRESS: Monaco\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "support-fr-031",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5673,
+   "output": "\n- CUSTOMER_NAME:\n- ACCOUNT_REF:\n- API_KEY:\n- EMAIL:\n- ADDRESS:\n- PHONE:\n- EMAIL:\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "ref",
+   "caseId": "support-en-045",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 13817,
+   "output": "\n- \"CUSTOMER_NAME\": Names of our customers (people) mentioned in tickets or replies.\n- \"PHONE\": Telephone numbers in any national or international format.\n- \"EMAIL\": Email addresses.\n- \"ADDRESS\": Postal or street addresses.\n- \"CUSTOMER_ID\": Customer account number, ticket number, order number, and t"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "agency-en-001",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2883,
+   "output": "\n* Tone: Witty, not smug\n* Tone: Witty, not smug\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "agency-fr-016",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2717,
+   "output": "\n- Point hebdo\n- Bonjour Sophie\n- Bonjour\n- Bonjour\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "agency-en-035",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5442,
+   "output": "\n- The text contains a single sentence.\n- The sentence is a request for a plan for a DTC sneaker brand to host a Black Friday sale.\n- The sentence is a request for a plan for a DTC sneaker brand to host a Black Friday sale.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: halvard"
+   ],
+   "ms": 1548,
+   "output": "\nCLIENT_NAME: halvard\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "dev-en-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4253,
+   "output": "\n* [1]: How to set up SSH port forwarding on Bastion-EU1.int.Quillmark.net to reach PostgreSQL from your laptop.\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "dev-fr-007",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5793,
+   "output": "\n- The text is a message from the company \"keycloak.corp\" to the user.\n- The message contains a token endpoint.\n- The token endpoint is verified to be the correct one.\n- The token endpoint is verified to be the correct one.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "dev-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2447,
+   "output": "\n- [Cadence]\n- [Temporal]\n- [Temporal]\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "dev-en-047",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 3207,
+   "output": "\nCustomer: Cus_mP02zzLc\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "finance-en-005",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 3394,
+   "output": "\nEurope is going to miss its H2 target, we now see Europe margin at 8.1% not 9%"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "finance-fr-038",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12691,
+   "output": "\n* LABEL: UNPUBLISHED_FIGURE means Financial results that have not been published yet: revenue, margins, profit, cash, segment numbers for the current or last quarter.\n* LABEL: INTERNAL_FORECAST means Internal forecasts, guidance drafts and targets that are not public.\n* LABEL: API_KEY means API key"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "finance-en-032",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1866,
+   "output": "\n* 38.2p per share paid in may\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "finance-fr-040",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 10661,
+   "output": "\n- Bonjour à tous,\n- Vous trouverez ci-joint le calendrier de clôture T3.\n- Clôture des entités à J+3, consolidation à J+5 et première version du board pack à J+7.\n- Merci de me signaler d'ici vendredi si ces dates posent problèmes à vos équipes.\n- Cordialement,\nClaire"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "hr-en-012",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8480,
+   "output": "\n- CANDIDATE_NAME: Kofi Owusu\n- SOURCE_COMPANY: Kofi Owusu\n- COMPENSATION: Kofi Owusu\n- API_KEY: Kofi Owusu\n- ADDRESS: Kofi Owusu\n- EMAIL: Kofi Owusu\n- ADDRESS: Kofi Owusu\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "hr-fr-004",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 30101,
+   "output": "\nCANDIDATE_NAME: Thibault Ferrand\nSOURCE_COMPANY: Norvik Dynamics\nCOMPENSATION: 75K€\nAPI_KEY: \nADDRESS: 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CANDIDATE_NAME: D'après l'étude de rémunération annuelle de l'Apec, les ingénieurs en robotique confirmés sont plutôt bien payés en région lyonnaise."
+   ],
+   "ms": 6986,
+   "output": "\nCANDIDATE_NAME: D'après l'étude de rémunération annuelle de l'Apec, les ingénieurs en robotique confirmés sont plutôt bien payés en région lyonnaise.\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "hr-en-025",
+   "failure": "echo",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 3924,
+   "output": "\nSigned!! J. Lindqvist accepted at IC5 🎉 188 base / 12% bonus, HM is buying lunch for the whole team\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "legal-en-003",
+   "failure": "answered",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1422,
+   "output": "\nThe text contains the following findings:\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "legal-fr-005",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 30006,
+   "output": "\n- DEAL_CODENAME: Harrowgate\n- DEAL_TARGET: Harrowgate\n- DEAL_VALUE: 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "legal-en-033",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3944,
+   "output": "\n- The text contains a lock-box mechanism.\n- The text contains a 12-month leakage period.\n- The text contains a lock-box mechanism.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "legal-fr-045",
+   "failure": "echo",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 4147,
+   "output": "\n```\npourquoi Excel m'affiche tout dans une seule colonne quand j'ouvre l'export\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "research-en-004",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4136,
+   "output": "\n- Sam: qPCR repeats done, Il6 down in KO\n- Hanna: renewal draft due end of month\n- order RIPA + protease inhib\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "research-fr-004",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8953,
+   "output": "\n- Réu labo 04/02\n- Julien : qPCR refaites, Il6 tjs en baisse chez les KO\n- moi : envoyer le protocole maj à Solenne Biotech avant vendredi\n- Hélène : dossier ANR à boucler fin du mois\n- commander RIPA\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "research-fr-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5010,
+   "output": "\n- The text is in English.\n- The text mentions the ANR and Inserm.\n- The text mentions a page max.\n- The text mentions the financement ANR and Inserm."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "research-en-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3709,
+   "output": "\n* The manuscript was written by a single author.\n* The manuscript was written for the eLife editors.\n* The manuscript was written for the eLife editors.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1839,
+   "output": "1. The text contains the following findings:\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "sales-fr-041",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2951,
+   "output": "\nUNRELEASED_PRODUCTs\nPROSPECT_NAME\nAPI_KEY\nEMAIL\nADDRESS\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "sales-en-039",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5424,
+   "output": "\n- The Lenovo ThinkPad X1 Carbon is the new Lenovo ThinkPad.\n- The X1 Carbon is a new model of Lenovo ThinkPad.\n- The X1 Carbon is a new model of Lenovo ThinkPad.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "sales-fr-030",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6543,
+   "output": "\n* \"tu peux verifier le ton de ce mail\"\n* \"je le trouve un peu sec\"\n* \"bonjour mme roussel\"\n* \"je vous confirme\"\n* \"je le trouve à bientôt\""
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "support-en-007",
+   "failure": "answered",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Ms Imogen Castellanos",
+    "+ACCOUNT_REF: PCL5519027734ES"
+   ],
+   "ms": 8283,
+   "output": "\n* CUSTOMER_NAME: Ms Imogen Castellanos\n* ACCOUNT_REF: PCL5519027734ES\n* API_KEY: EMAIL\n* PHONE: 123-456-7890\n* ADDRESS: Postal or street addresses\n* EMAIL:\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "support-fr-019",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_NAME: Mme Karadeniz",
+    "-ACCOUNT_REF: Toulouse"
+   ],
+   "ms": 5314,
+   "output": "\n* CUSTOMER_NAME: Mme Karadeniz\n* ACCOUNT_REF: Toulouse\n* API_KEY: None\n* PHONE: None\n* EMAIL: None\n* ADDRESS: None\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 14786,
+   "output": "\n* CUSTOMER_NAME: Tu peux rendre cette réclamation au transporteur plus formelle.\n* ACCOUNT_REF: Tu peux rendre cette réclamation au transporteur plus formelle.\n* API_KEY: Tu peux rendre cette réclamation au transporteur plus formelle.\n* PHONE: Tu peux rendre cette réclamation au transporteur plus f"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "lbl-means",
+   "caseId": "support-en-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 6167,
+   "output": "\n* \"CUSTOMER_NAME\"\n* \"PHONE\"\n* \"EMAIL\"\n* \"ADDRESS\"\n* \"CUSTOMER_ID\"\n* \"CUSTOMER_NAME\"\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "agency-en-001",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2651,
+   "output": "\n- Tone: Witty but not smug\n- Tone: Witty but not smug\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "agency-fr-016",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 10320,
+   "output": "\n- Client Name: Names of our agency's clients or the brands we work for under NDA.\n- CAMPAIGN_CODENAME: Internal codenames of campaigns or pitches that are not public.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: black friday",
+    "-CLIENT_NAME: DTC"
+   ],
+   "ms": 2647,
+   "output": "\n- Client Name: Black Friday\n- Client Name: DTC\n- Client Name: Black Friday\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "agency-fr-018",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9744,
+   "output": "- CLIENT_NAME: Names of our agency's clients or the brands we work for under NDA.\n- CAMPAIGN_CODENAME: Internal codenames of campaigns or pitches that are not public.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international f"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "dev-en-018",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11537,
+   "output": "\n- INTERNAL_HOST: Internal hostnames, internal domains and private URLs of our infrastructure.\n- INTERNAL_SERVICE: Names of our internal repositories, microservices and internal tools.\n- CUSTOMER_ID: Customer or tenant identifiers that appear in our logs and databases.\n- API_KEY: API keys, access to"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "dev-fr-007",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11380,
+   "output": "\n- INTERNAL_HOST: Internal hostnames, internal domains and private URLs of our infrastructure.\n- INTERNAL_SERVICE: Names of our internal repositories, microservices and internal tools.\n- CUSTOMER_ID: Customer or tenant identifiers that appear in our logs and databases.\n- API_KEY: API keys, access to"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "dev-fr-030",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8939,
+   "output": "\n- Inter-service: Inter-service, internal repositories, internal tools, and internal domains.\n- Customer: Customer identifiers, customer or tenant identifiers, and other credentials.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- Phone: Telephone numbers, in any national o"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "dev-en-047",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 11625,
+   "output": "\n- customer: Cus_mP02zzLc\n- endpoint_host: hooks.slack.com\n- status: 500\n- attempts: 500\n- attempts_attempts: 5\n- attempts_attempts_attempts: 5\n- attempts_attempts_status: 410\n- attempts_status: 500\n- attempts_attempts: 5\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "finance-en-005",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 3222,
+   "output": "\n- Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "finance-fr-038",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 2442,
+   "output": "\n- <text_to_scan>\n- <text_to_scan>\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "finance-en-032",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3293,
+   "output": "\n- 38.2p per share paid in may\n- how do i explain divdend cover to a new grad in plain english"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "finance-fr-040",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8241,
+   "output": "\n- Unpublished figures: Financial results that have not been published yet.\n- Internal forecasts, guidance drafts and targets that are not public.\n- API keys, access tokens, and other credentials.\n- Telephone numbers in any national or international format.\n- Postal or street addresses.\n- Email addr"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CANDIDATE_NAME: Kofi",
+    "-SOURCE_COMPANY: Kofi",
+    "-COMPENSATION: Kofi"
+   ],
+   "ms": 6998,
+   "output": "\n- CANDIDATE_NAME: Kofi\n- SOURCE_COMPANY: Kofi\n- COMPENSATION: Kofi\n- API_KEY: Kofi\n- PHONE: Kofi\n- EMAIL: Kofi\n- ADDRESS: Kofi\n- EMAIL: Kofi\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "hr-fr-004",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 30067,
+   "output": "\n- CANDIDATE_NAME: Names of job candidates or employees we are discussing.\n- SOURCE_COMPANY: The competitor we are recruiting candidates away from, when named in a hiring context.\n- COMPENSATION: Salaries, bonuses, equity amounts and internal job levels or grades tied to a person or offer.\n- API_KEY"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "hr-fr-035",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 11877,
+   "output": "\n- CANDIDATE_NAME: The candidate we are discussing.\n- SOURCE_COMPANY: The competitor we are recruiting candidates away from.\n- COMPENSATION: Salaries, bonuses, equity amounts, and internal job levels or grades tied to a person or offer.\n- API_KEY: API keys, access tokens, secret keys, and other cred"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "hr-en-025",
+   "failure": "answered",
+   "found": 3,
+   "expected": 4,
+   "predicted": [
+    "+CANDIDATE_NAME: J. Lindqvist",
+    "-SOURCE_COMPANY: IC5",
+    "+COMPENSATION: 188 base / 12% bonus"
+   ],
+   "ms": 6407,
+   "output": "- CANDIDATE_NAME: J. Lindqvist\n- SOURCE_COMPANY: IC5\n- COMPENSATION: 188 base / 12% bonus\n- EMAIL:\n- ADDRESS:\n- PHONE:\n- EMAIL:\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_VALUE: 70m"
+   ],
+   "ms": 2582,
+   "output": "\n- DEAL_VALUE: 70m\n- DEAL_VALUE: 70m\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "legal-fr-005",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 19351,
+   "output": "\n- DEAL_CODENAME: Codenames of confidential deals or transactions.\n- DEAL_TARGET: The company we plan to acquire or merge with in a confidential deal.\n- DEAL_VALUE: Price, valuation or financial terms of a confidential deal.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- P"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "legal-en-033",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_TARGET: Fellbeck Tooling"
+   ],
+   "ms": 8476,
+   "output": "\n- DEAL_VALUE: 41,000,000\n- DEAL_KEY: 2023-02-23\n- DEAL_NAME: Fellbeck Tooling\n- DEAL_TARGET: Fellbeck Tooling\n- DEAL_VALUE: 41,000,000\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "legal-fr-045",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 30136,
+   "output": "\n```\nDEAL_VALUE: Price, valuation or financial terms of a confidential deal.\nDEAL_KEY: The key to the confidential deal.\nDEAL_KEY_1: The first key to the confidential deal.\nDEAL_KEY_2: The second key to the confidential deal.\nDEAL_KEY_3: The third key to the confidential deal.\nDEAL_KEY_4: The fourth"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "research-en-004",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 10767,
+   "output": "\n- STUDY_NAME: The study\n- PARTNER_LAB: The external lab, institute or company we are collaborating with on unpublished work\n- EARLY_RESULT: Unpublished quantitative results: effect sizes, p-values, response rates, hit counts\n- API_KEY: API keys, access tokens, secret keys, and other credentials\n- P"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "research-fr-004",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13128,
+   "output": "\n- STUDY_NAME: Réu Labo 04/02\n- PARTNER_LAB: The external lab, institute or company we are collaborating with on unpublished work.\n- EARLY_RESULT: Unpublished quantitative results: effect sizes, p-values, response rates, hit counts.\n- API_KEY: API keys, access tokens, secret keys, and other credenti"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "research-fr-034",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 15974,
+   "output": "\n- STUDY_NAME: The study name, which is the title of the publication.\n- PARTNER_LAB: The external lab, institute, or company we are collaborating with on unpublished work.\n- EARLY_RESULT: Unpublished quantitative results: effect sizes, p-values, response rates, hit counts.\n- API_KEY: API keys, acces"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "research-en-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5198,
+   "output": "- The manuscript is about the role of macrophage polarization in fibrotic liver.\n- The research is funded by the Wellcome Trust and the European Research Council.\n- The manuscript is about the role of macrophage polarization in fibrotic liver."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "sales-en-040",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7168,
+   "output": "\n- Discovery notes - Pembrook Dental Group\n- Current setup: 60 clinics, a mix of older K5 docks and laptops\n- Decision by: end of Q4\n- Competitors in the mix: Draxon\n- Pain: front-desk devices fail during peak hours\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "sales-fr-041",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8765,
+   "output": "- Unreleased product: Names or internal codenames of our products that are not announced yet.\n- Prospect name: Names of companies in our sales pipeline (prospects and open deals).\n- API key: API keys, access tokens, secret keys, and other credentials.\n- Phone: Telephone numbers in any national or in"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "sales-en-039",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4337,
+   "output": "\n- The new Lenovo ThinkPad X1 Carbon vs the K7.\n- The K5s still supported.\n- The K7 is still EOLed."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "sales-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6235,
+   "output": "\n- Un peu sec\n- Je vous confirme notre rendez-vous du 30.\n- Je le trouve un peu sec\n- Je vous confirme notre rendez-vous du 30.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "support-en-007",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 11839,
+   "output": "\n- CUSTOMER_NAME: Imiona\n- ACCOUNT_REF: 5519027734ES\n- API_KEY: 5519027734ES\n- EMAIL: imiona@imiona.com\n- ADDRESS: 123 Main St, Anytown, USA 12345\n- PHONE: 5519027734ES\n- EMAIL: imiona@imiona.com\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_NAME: Mme Karadeniz",
+    "-ACCOUNT_REF: Mme Karadeniz"
+   ],
+   "ms": 8068,
+   "output": "\n- CUSTOMER_NAME: Mme Karadeniz\n- ACCOUNT_REF: Mme Karadeniz\n- API_KEY: Mme Karadeniz\n- EMAIL: Mme Karadeniz\n- ADDRESS: Mme Karadeniz\n- PHONE: Mme Karadeniz\n- EMAIL: Mme Karadeniz\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "support-fr-031",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 30085,
+   "output": "\n- CUSTOMER_NAME: Names of our customers (people) mentioned in the text.\n- ACCOUNT_REF: Customer account numbers, ticket numbers, order numbers and tracking numbers.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international fo"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "v4",
+   "caseId": "support-en-045",
+   "failure": "echo",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12371,
+   "output": "\n- \"account_id\": \"PX-742018\"\n- \"customer\": \"Seraphina Kowalski\"\n- \"handled_by\": \"Support Bot v2\"\n- \"shipment\": {\"carrier\": \"DPD\", \"status\": \"IN_TRANSIT\", \"last_event\": \"DLV\", \"http_status\": 200}\n- \"sku\": \"PMB-L-200\""
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "agency-en-001",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 10158,
+   "output": "\n- LABEL: CLIENT_NAME: Halvard Cycles\n- LABEL: API_KEY: Halvard Cycles\n- LABEL: EMAIL: Halvard Cycles\n- LABEL: ADDRESS: Halvard Cycles\n- LABEL: PHONE: Halvard Cycles\n- LABEL: ADDRESS: Halvard Cycles\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "agency-fr-016",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9041,
+   "output": "\n- CLIENT_NAME: Léa\n- CAMPAIGN_CODENAME: Léa\n- API_KEY: Léa\n- EMAIL: Léa\n- ADDRESS: Léa\n- PHONE: Léa\n- ADDRESS: Léa\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "agency-en-035",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 11218,
+   "output": "\n- CLIENT_NAME: Names of our agency's clients or the brands we work for under NDA.\n- CAMPAIGN_CODENAME: Internal codenames of campaigns or pitches that are not public.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "agency-fr-018",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 10669,
+   "output": "\n- CLIENT_NAME: Names of our agency's clients or the brands we work for under NDA.\n- CAMPAIGN_CODENAME: Internal codenames of campaigns or pitches that are not public.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "dev-en-018",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13079,
+   "output": "\n- INTERNAL_HOST: Internal hostnames, internal domains and private URLs of our infrastructure.\n- INTERNAL_SERVICE: Names of our internal repositories, microservices and internal tools.\n- CUSTOMER_ID: Customer or tenant identifiers that appear in our logs and databases.\n- API_KEY: API keys, access to"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "dev-fr-007",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 12977,
+   "output": "- INTERNAL_HOST: Internal hostnames, internal domains and private URLs of our infrastructure.\n- INTERNAL_SERVICE: Names of our internal repositories, microservices and internal tools.\n- CUSTOMER_ID: Customer or tenant identifiers that appear in our logs and databases.\n- API_KEY: API keys, access tok"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "dev-fr-030",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 12910,
+   "output": "\n- INTERNAL_HOST: Internal hostnames, internal domains and private URLs of our infrastructure.\n- INTERNAL_SERVICE: Names of our internal repositories, microservices and internal tools.\n- CUSTOMER_ID: Customer or tenant identifiers that appear in our logs and databases.\n- API_KEY: API keys, access to"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "dev-en-047",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 30020,
+   "output": "\n- customer: CUSTOMER_ID\n- status: status\n- attempts: attempts\n- attempts_attempts: attempts_attempts\n- attempts_attempts_attempts: attempts_attempts_attempts\n- attempts_attempts_attempts_attempts: attempts_attempts_attempts_attempts\n- attempts_attempts_attempts_attempts_attempts: attempts_attempts_"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "finance-en-005",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 12593,
+   "output": "\n- UNPUBLISHED_FIGURE: Financial results that have not been published yet: revenue, margins, profit, cash, segment numbers for the current or last quarter.\n- INTERNAL_FORECAST: Internal forecasts, guidance drafts and targets that are not public.\n- API_KEY: API keys, access tokens, secret keys, and o"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "finance-fr-038",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12871,
+   "output": "\n- UNPUBLISHED_FIGURE: Financial results that have not been published yet: revenue, margins, profit, cash, segment numbers for the current or last quarter.\n- INTERNAL_FORECAST: Internal forecasts, guidance drafts and targets that are not public.\n- API_KEY: API keys, access tokens, secret keys, and o"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "finance-en-032",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 12229,
+   "output": "\n- UNPUBLISHED_FIGURE: Financial results that have not been published yet: revenue, margins, profit, cash, segment numbers for the current or last quarter.\n- INTERNAL_FORECAST: Internal forecasts, guidance drafts and targets that are not public.\n- API_KEY: API keys, access tokens, secret keys, and o"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "finance-fr-040",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7497,
+   "output": "- Unpublished financial results\n- Internal forecasts, guidance drafts and targets\n- API keys, access tokens, secret keys, and other credentials\n- Telephone numbers\n- Postal or street addresses\n- EMAIL\n- ADDRESS"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "hr-en-012",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11961,
+   "output": "- CANDIDATE_NAME: Names of job candidates or employees we are discussing.\n- SOURCE_COMPANY: The competitor we are recruiting candidates away from, when named in a hiring context.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- EMAIL: Email addresses.\n- ADDRESS: Postal or st"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "hr-fr-004",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 13658,
+   "output": "\n- CANDIDATE_NAME: Names of job candidates or employees we are discussing.\n- SOURCE_COMPANY: The competitor we are recruiting candidates away from, when named in a hiring context.\n- COMPENSATION: Salaries, bonuses, equity amounts and internal job levels or grades tied to a person or offer.\n- API_KEY"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "hr-fr-035",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 11758,
+   "output": "- CANDIDATE_NAME: The candidate's name.\n- SOURCE_COMPANY: The competitor we are recruiting from.\n- COMPENSATION: Salaries, bonuses, equity amounts and internal job levels or grades tied to a person or offer.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- EMAIL: Email addre"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "hr-en-025",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 13604,
+   "output": "\n- CANDIDATE_NAME: The name of the candidate we are discussing.\n- SOURCE_COMPANY: The competitor we are recruiting candidates away from, when named in a hiring context.\n- COMPENSATION: Salaries, bonuses, equity amounts and internal job levels or grades tied to a person or offer.\n- API_KEY: API keys,"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "legal-en-003",
+   "failure": "answered",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: Vessant",
+    "+DEAL_TARGET: Vessant"
+   ],
+   "ms": 10642,
+   "output": "\n- DEAL_CODENAME: Vessant\n- DEAL_TARGET: Vessant\n- DEAL_VALUE: $1.1 billion\n- API_KEY: Vessant\n- PHONE: 123-456-7890\n- EMAIL:\n- ADDRESS: 123 Main St\n- DEAL_VALUE: $1.1 billion\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "legal-fr-005",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11986,
+   "output": "\n- DEAL_CODENAME: The code name of the confidential deal.\n- DEAL_TARGET: The company we plan to acquire or merge with in a confidential deal.\n- DEAL_VALUE: Price, valuation or financial terms of a confidential deal.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Tel"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "legal-en-033",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 13260,
+   "output": "\n- DEAL_CODENAME: The company we plan to acquire or merge with in a confidential deal.\n- DEAL_TARGET: The company we plan to acquire or merge with in a confidential deal.\n- DEAL_VALUE: Price, valuation or financial terms of a confidential deal.\n- API_KEY: API keys, access tokens, secret keys, and ot"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "legal-fr-045",
+   "failure": "echo",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 5716,
+   "output": "\n```\npourquoi Excel m'affiche tout dans une seule colonne quand j'ouvre l'export ?\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "research-en-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13832,
+   "output": "\n- STUDY_NAME: The study name, the study protocol, and the study design.\n- PARTNER_LAB: The external lab, institute, or company we are collaborating with.\n- EARLY_RESULT: The unpublished quantitative results, effect sizes, p-values, response rates, and hit counts.\n- API_KEY: The API keys, access tok"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "research-fr-004",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 15406,
+   "output": "\n- STUDY_NAME: The study name, acronym, or code of our unpublished studies, trials, and cohorts.\n- PARTNER_LAB: The external lab, institute, or company we are collaborating with on unpublished work.\n- EARLY_RESULT: Unpublished quantitative results: effect sizes, p-values, response rates, hit counts."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "research-fr-034",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 12003,
+   "output": "\n- STUDY_NAME: The study name, abbreviation, or code.\n- PARTNER_LAB: The external lab, institute, or company we are collaborating with.\n- EARLY_RESULT: Unpublished quantitative results.\n- API_KEY: API keys, access tokens, and other credentials.\n- PHONE: Telephone numbers in any national or internati"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "research-en-034",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: our manuscript on macrophage polarization in fibrotic liver."
+   ],
+   "ms": 13422,
+   "output": "- STUDY_NAME: Our manuscript on macrophage polarization in fibrotic liver.\n- PARTNER_LAB: The external lab, institute or company we are collaborating with on unpublished work.\n- EARLY_RESULT: Unpublished quantitative results: effect sizes, p-values, response rates, hit counts.\n- API_KEY: API keys, a"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "sales-en-040",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7601,
+   "output": "\n- Pembrook Dental Group\n- 60 clinics\n- a mix of older K5 docks and laptops\n- Decision by end of Q4\n- Competitors in the mix: Draxon\n- Pain: front-desk devices fail during peak hours\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "sales-fr-041",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11904,
+   "output": "\n- UNRELEASED_PRODUCT: Names or internal codenames of our products that are not announced publicly yet.\n- PROSPECT_NAME: Names of companies in our sales pipeline (prospects and open deals).\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any nati"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "sales-en-039",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 11400,
+   "output": "\n- UNRELEASED_PRODUCT: Names or internal codenames of our products that are not announced publicly yet.\n- PROSPECT_NAME: Names of companies in our sales pipeline (prospects and open deals).\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any nati"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "sales-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4591,
+   "output": "\n- Unreliable information\n- Unreliable information\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "support-en-007",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 10936,
+   "output": "\n- CUSTOMER_NAME: Names of our customers (people) mentioned in tickets or replies.\n- ACCOUNT_REF: Customer account numbers, ticket numbers, order numbers and tracking numbers.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or intern"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "support-fr-019",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11155,
+   "output": "\n- CUSTOMER_NAME: Names of our customers (people) mentioned in the text.\n- ACCOUNT_REF: Customer account numbers, ticket numbers, order numbers and tracking numbers.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international fo"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "support-fr-031",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 13025,
+   "output": "\n- CUSTOMER_NAME: Names of our customers (people) mentioned in tickets or replies.\n- ACCOUNT_REF: Customer account numbers, ticket numbers, order numbers and tracking numbers.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- EMAIL: Email addresses.\n- ADDRESS: Postal or stree"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "user-instr",
+   "caseId": "support-en-045",
+   "failure": "hallucinated",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CUSTOMER_NAME: Seraphina Kowalski",
+    "+ACCOUNT_REF: PX-742018"
+   ],
+   "ms": 11453,
+   "output": "\n- CUSTOMER_NAME: Seraphina Kowalski\n- ACCOUNT_REF: PX-742018\n- API_KEY: Support Bot v2\n- PHONE: +1-512-555-1234\n- EMAIL: support@supportbot.com\n- ADDRESS: Postal or street addresses\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "agency-en-001",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2555,
+   "output": "\n- Tone: Witty, not smug\n- Tone: Witty, not smug\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "agency-fr-016",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 30014,
+   "output": "1. LABEL: LABEL_1\n2. LABEL: LABEL_2\n3. LABEL: LABEL_3\n4. LABEL: LABEL_4\n5. LABEL: LABEL_5\n6. LABEL: LABEL_6\n7. LABEL: LABEL_7\n8. LABEL: LABEL_8\n9. LABEL: LABEL_9\n10. LABEL: LABEL_10\n11. LABEL: LABEL_11\n12. LABEL: LABEL_12\n13. LABEL: LABEL_13\n14. LABEL: LABEL_14\n15. LABEL: LABEL_15\n16. LABEL: LABEL_1"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "agency-en-035",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4869,
+   "output": "\n- The text is a prompt for a Black Friday event.\n- The text mentions a DTC sneaker brand.\n- The text mentions a Black Friday event.\n- The text mentions a DTC sneaker brand.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "agency-fr-018",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5272,
+   "output": "\n- LABEL: \"Names of our agency's clients or the brands we work for under NDA.\"\n- LABEL: \"Claims of the client's name.\"\n- LABEL: \"Claims of the client's name.\"\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "dev-en-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2091,
+   "output": "\n- The text is not complete.\n- The text is not complete.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "dev-fr-007",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 30093,
+   "output": "\n- The text contains the following labels:\n- INTERNAL_HOST: The internal hostnames, internal domains and private URLs of our infrastructure.\n- INTERNAL_SERVICE: Names of our internal repositories, microservices and internal tools.\n- CUSTOMER_ID: Customer or tenant identifiers that appear in our logs"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "dev-fr-030",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 12293,
+   "output": "\n- The text contains the following labels:\n  - INTERNAL_HOST: The internal hostnames, internal domains, and private URLs of our infrastructure.\n  - INTERNAL_SERVICE: Names of our internal repositories, microservices, and internal tools.\n  - CUSTOMER_ID: Customer or tenant identifiers that appear in "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "dev-en-047",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 5640,
+   "output": "\n- The customer with the most failures is \"cus_mP02zzLc\" with 500 failures.\n- The most common status code is 500."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "finance-en-005",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 2894,
+   "output": "\nEurope is going to miss its H2 target, we now see Europe margin at 8.1% not 9%"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "finance-fr-038",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 9618,
+   "output": "\n- Unpublished Figure: Financial results that have not been published yet: revenue, margins, profit, cash, segment numbers for the current or last quarter.\n- Internal Forecast: Internal forecasts, guidance drafts and targets that are not public.\n- API Key: API keys, access tokens, secret keys, and o"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "finance-en-032",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8945,
+   "output": "\n- Our final divi last year was 38.2p per share paid in May.\n- The dividend cover is a financial metric that measures the proportion of the dividend that is paid out to shareholders.\n- It is calculated by dividing the dividend by the total number of shares outstanding.\n- The dividend cover is an imp"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "finance-fr-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1926,
+   "output": "\nClaire,\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "hr-en-012",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6100,
+   "output": "\n- The text contains a meeting schedule for the team.\n- The meeting is scheduled for Thursday.\n- The meeting is for the final round of recruitment.\n- The meeting is for the team.\n- The meeting is for the final round.\n- The meeting is for the team."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "hr-fr-004",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12021,
+   "output": "\n- CANDIDATE_NAME: names of job candidates or employees we are discussing.\n- SOURCE_COMPANY: the competitor we are recruiting candidates away from, when named in a hiring context.\n- COMPENSATION: salaries, bonuses, equity amounts and internal job levels or grades tied to a person or offer.\n- API_KEY"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "hr-fr-035",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8462,
+   "output": "\n- D'après l'étude de rémunération annuelle de l'Apec, les ingénieurs en robotique confirmés sont plutôt bien payés en région lyonnaise.\n- Où est-ce que je peux trouver le détail par région pour préparer une présentation ?"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "hr-en-025",
+   "failure": "echo",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 4311,
+   "output": "\n- SIGNED!! J. Lindqvist accepted at IC5 🎉 188 base / 12% bonus, HM is buying lunch for the whole team\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "legal-en-003",
+   "failure": "answered",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1415,
+   "output": "\nThe text contains the following findings:\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "legal-fr-005",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8267,
+   "output": "\n- The text contains a clause of confidentiality that covers the discussions between Harrowgate Industries and Sorvane Industrie regarding a potential merger.\n- The clause mentions that the discussions are confidential, which is a key point to note.\n- The clause also mentions that the discussions ar"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "legal-en-033",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3531,
+   "output": "\n- The text contains a list of features and services that the company has.\n- The text contains a list of features and services that the company has.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "legal-fr-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12227,
+   "output": "\n```json\n{\n  \"code_projet\": \"Belvédère;Sorvane Industrie;31,5 M€;LOI signée\",\n  \"cible\": \"Phare;-;projet interne SI\",\n  \"valeur_entreprise\": \"31,5 M€\",\n  \"statut\": \"finalisé (public)\",\n  \"archive\": \"Archive-2023;Fellbeck Tooling;41 M£;finalisé (public)\"\n}\n```"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "research-en-004",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4172,
+   "output": "\n- Sam: qPCR repeats done, Il6 down again in KO\n- Hanna: renewal draft due end of month\n- order RIPA + protease inhib\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "research-fr-004",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5959,
+   "output": "- Julien : qPCR refaites, Il6 tjs en baisse chez les KO\n- Hélène : dossier ANR à boucler fin du mois\n- Commander RIPA\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "research-fr-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8581,
+   "output": "- STUDY_NAME: The study, its name, and its acronym.\n- PARTNER_LAB: The partner lab, institute, or company we are collaborating with.\n- EARLY_RESULT: The unpublished quantitative results.\n- API_KEY: The API key.\n- PHONE: The phone number.\n- EMAIL: The email address.\n- ADDRESS: The postal or street ad"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "research-en-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5368,
+   "output": "- The manuscript on macrophage polarization in fibrotic liver was published in the Journal of Hepatology.\n- The manuscript was funded by the Wellcome Trust and the European Research Council.\n- The manuscript was published in the Journal of Hepatology."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3720,
+   "output": "\n- The current setup is a mix of older K5 docks and laptops.\n- The current setup is a mix of older K5 docks and laptops.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "sales-fr-041",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4351,
+   "output": "- LABEL: L'équipe produit \"normalement oui\" mdr\n- LABEL: L'équipe produit \"normalement oui\" mdr\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "sales-en-039",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1462,
+   "output": "\nThe text above contains the following:\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "sales-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4358,
+   "output": "\n- \"Un peu sec\"\n- \"Je le trouve\"\n- \"un peu sec\"\n- \"Je le trouve\"\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "support-en-007",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 6461,
+   "output": "\n- LABEL: LOCATION: The text mentions a location, but it is not specified.\n- LABEL: DATE: The text mentions a date, but it is not specified.\n- LABEL: DATE: The text mentions a date, but it is not specified.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "support-fr-019",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 10630,
+   "output": "\n- LABEL: CUSTOMER_NAME: Mme Karadeniz\n- LABEL: ACCOUNT_REF: Mme Karadeniz\n- LABEL: API_KEY: Mme Karadeniz\n- LABEL: EMAIL: Mme Karadeniz\n- LABEL: ADDRESS: Mme Karadeniz\n- LABEL: PHONE: Mme Karadeniz\n- LABEL: ADDRESS: Mme Karadeniz\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "support-fr-031",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4964,
+   "output": "\n- LABEL: L'avis de passage de la cliente Kévin.\n- LABEL: Parcelio.\n- LABEL: Parcelio.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "fmt-example",
+   "caseId": "support-en-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 6153,
+   "output": "\n- The order_id field is missing.\n- The account_id field is missing.\n- The customer_name field is missing.\n- The API_KEY field is missing.\n- The API_KEY field is missing.\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "agency-en-001",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 10986,
+   "output": "Here are three tagline options for Halvard Cycles:\n\n1. \"E-bike for the city: a fun and sustainable way to get around.\"\n2. \"A city-friendly ride for the city-dweller.\"\n3. \"A new way to get around, with a twist.\"\n\nThese tagline options aim to capture the essence of Halvard Cycles' e-bike campaign, whi"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "agency-fr-016",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7083,
+   "output": "Bonjour Sophie,\n\nOpération Grand Nord : storyboards validés lundi, animatique en cours, PPM prévue le 18. Pas de point bloquant de notre côté, nous attendons seulement la validation des droits musicaux par le juridique du client.\n\nBien à vous,\nLouis"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "agency-en-035",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 12933,
+   "output": "Here's a plan for a 4-email Black Friday Sequense for a DTC sneaker brand:\n\n**Email Sequense 1: Black Friday Sequense**\n\nSubject: Black Friday Sequense for Black Friday Sequense 1\n\nDear [Recipient's Name],\n\nWe are excited to announce that our Black Friday Sequense 1 is set for [Black Friday Date]. W"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "agency-fr-018",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3425,
+   "output": "tu peux rendre ça plus percutant : « le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse »"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "dev-en-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13197,
+   "output": "To setup ssh port forwarding on Bastion-EU1.int.Quillmark.net, you can use the following command:\n\n```\nsudo bash -c \"sudo -u postgres bash -c 'ssh -L 5432:localhost:5432' -L 5432:localhost:5432\"\n```\n\nThis command will forward the local port 5432 to the Bastion-EU1.int.Quillmark.net port 5432.\n\nHere'"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "dev-fr-007",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13402,
+   "output": "No, the user is not correct. The correct response should be:\n\n\"No, the user is not correct. The correct response should be:\n\n\"No, the user is not correct. The correct response should be:\n\n\"No, the user is not correct. The correct response should be:\n\n\"No, the user is not correct. The correct respons"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "dev-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5270,
+   "output": "Uber a déjà utilisé Temporal pour les créateurs de cadences et les créateurs de créditats de services. C'est bien ça. On aime les créateurs de cadences et les créateurs de créditats de services."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "dev-en-047",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 5385,
+   "output": "Based on the CSV, the customer with the most failures is \"cus_mP02zzLc\" with 500 failures. The most common status code is 500."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "finance-en-005",
+   "failure": "answered",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 12633,
+   "output": "Here's a revised version of the sentence:\n\n\"Europe is set to miss its H2 target, and we now see Europe's margin at 8.1% not 9%.\"\n\nI made a few changes to make the sentence more concise and polished:\n\n- Changed \"going to miss\" to \"is set to miss\" to make the language more formal and precise.\n- Remove"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "finance-fr-038",
+   "failure": "echo",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 4986,
+   "output": "\"StP Resume Pr Mon N+1 ELELE LIT Rien de Long : Flash Aout CA 452M£ pr le mois, taux d'EBIT 11,7 et conversion cash 82%.\""
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "finance-en-032",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 12454,
+   "output": "Here's a possible explanation:\n\n\"The dividend cover is a measure of how much the company's earnings are used to cover its dividend payments. In other words, it's a way to see how much the company is actually investing in its shareholders.\n\nThink of it like this: imagine you're buying a house. The pr"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "finance-fr-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 14256,
+   "output": "Claire est désolée de la notification de la clôture de T3. Il y a un calendrier de clôture T3, qui sera le calendrier de clôture T3. C'est le calendrier de clôture T3, qui sera le calendrier de clôture T3. C'est le calendrier de clôture T3, qui sera le calendrier de clôture T3. C'est le calendrier d"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "hr-en-012",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2931,
+   "output": "I'm glad you're on board for the final round. I'm available for a two-hour block next week. Please let me know your availability."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "hr-fr-004",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 13851,
+   "output": "Schema:\n- ENTRETRIT_AUTRE_VENT_A_VIRTUEL : Entretien àvec Thibault Ferrand.\n- TERRE_INTRA_VENT_A_VIRTUEL : Entretien àvec Norvik Dynamics.\n- TERRE_INTRA_VENT_A_VIRTUEL : Entretien àvec 4 ans.\n- TERRE_INTRA_VENT_A_VIRTUEL : Entretien àvec 3 mois.\n- TERRE_INTRA_VENT_A_VIRTUEL : Entretien àvec 75K€ min"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "hr-fr-035",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6874,
+   "output": "D'après l'étude de rémunération annuelle de l'Apec, les ingénieurs en robotique sont bien payés en région lyonnaise. Où peut-on trouver le détail par région pour préparer une présentation ?"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "hr-en-025",
+   "failure": "answered",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 6277,
+   "output": "I'm excited to announce that J. Lindqvist has accepted at the IC5 conference! The 188 base / 12% bonus and HM is buying lunch for the whole team are just two of the highlights of the event. I'm looking forward to seeing more of J. Lindqvist's work and catching up with the rest of the team."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "legal-en-003",
+   "failure": "answered",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 12976,
+   "output": "$1.1 billion for Vessant is indeed a significant amount, and their EBITDA of $70 million is a substantial portion of their business. However, it's also important to consider the company's financial health and the potential impact of a deal on their EBITDA.\n\nA $1.1 billion deal for Vessant would like"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "legal-fr-005",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3503,
+   "output": "\"Decrees de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement.\""
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "legal-en-033",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_TARGET: Fellbeck Tooling",
+    "-DEAL_VALUE: £41m"
+   ],
+   "ms": 13439,
+   "output": "Here's a JSON object representing the template:\n\n```json\n{\n  \"DEAL_NAME\": \"Fellbeck Tooling Acquisition\",\n  \"DEAL_TARGET\": \"Fellbeck Tooling\",\n  \"DEAL_VALUE\": \"£41m\",\n  \"LOCKED_BOX_MECHANISM\": \"12-month leakage period\",\n  \"LOCKED_BOX_MECHANISM_DESCRIPTION\": \"A locked-box mechanism with a 12-month le"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "legal-fr-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12877,
+   "output": "- poursuivant l'examen de l'élément de colonne de l'excel, je suis déployé dans une seule colonne.\n- L'élément de colonne de l'excel est le code de l'élément de colonne.\n- L'élément de colonne de l'excel est le code de l'élément de colonne.\n- L'élément de colonne de l'excel est le code de l'élément "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "research-en-004",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13525,
+   "output": "Here's a brief recap email for the group:\n\n- We've completed the initial study, and the results are in.\n- The initial results show that the KO mice have a significant reduction in Il6 levels, which is a promising finding.\n- We've also reported the initial results of the qPCR and protease inhibitor s"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "research-fr-004",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9692,
+   "output": "- Réu Labo 04/02\n- Julien : qPCR refaites, Il6 tjs en baisse chez les KO\n- Moi : envoyer le protocole maj à Solenne Biotech avant vendredi\n- Hélène : dossier ANR à boucler fin du mois\n- Commander RIPA\n\nfais-en un petit mail récap pour l'équipe stp"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "research-fr-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 13479,
+   "output": "\"La lettre d'accompagnement à l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur de l'éditeur "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "research-en-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 12920,
+   "output": "Here's a draft cover letter to the eLife editors for our manuscript on macrophage polarization in fibrotic liver:\n\nDear Editors,\n\nI am pleased to submit this manuscript to the eLife series, as it represents a significant contribution to our understanding of macrophage polarization in fibrotic liver."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13095,
+   "output": "Here are three follow-up questions I would like to ask on the next call:\n\n1. What are the biggest pain points for your clinic staff during peak hours, and how do you plan to address them?\n\nThis question will help me understand the challenges your clinic staff faces during peak hours and identify pot"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "sales-fr-041",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 10343,
+   "output": "\"Petite question avant mon call : j'ai le droit de dire au prospect que le pulse edge gère le mode hors ligne?\"\n\n- \"Petite question avant mon call\" : \"Petite question avant mon call\"\n- \"j'ai le droit\" : \"j'ai le droit\"\n- \"le pulse edge\" : \"le pulse edge\"\n- \"gère le mode hors ligne\" : \"gère le mode h"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "sales-en-039",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 13009,
+   "output": "I'm not an expert, but I can provide some general information. The Lenovo ThinkPad K7 and Lenovo ThinkPad K5 are two different laptops from Lenovo, both with the same brand. The K7 is a laptop that was released in 2015, while the K5 was released in 2016.\n\nThe K7 is known for its 15.6-inch touchscree"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "sales-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7767,
+   "output": "Bonjour Mme Roussel, je vous confère de notre rendez-vous le 30. Je me rappelle de notre ingénieur avant-vente, qui a proposé de se joindre à nous pour répondre aux questions techniques soulevées par les Hotels Delacroix la semaine dernière. À bientôt."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "support-en-007",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 13409,
+   "output": "\"¡Dear Ms. Imogen Castellanos, your order has been split into two parcels. The first one arrived yesterday; the second one, the tracking number 12345678900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "support-fr-019",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13245,
+   "output": "Schema:\n- CUSTOMER_NAME: Names of our customers (people) mentioned in tickets or replies.\n- ACCOUNT_REF: Customer account numbers, ticket numbers, order numbers and tracking numbers.\n- ACCOUNT_ID: Customer account ID.\n- ACCOUNT_TYPE: Type of account (e.g. credit, debit, overdraft).\n- ACCOUNT_ADDRESS"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "support-fr-031",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1765,
+   "output": "Merci, le service client Parcelio."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "json-extract",
+   "caseId": "support-en-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 4297,
+   "output": "To find the wrong delivery status, you should look at the \"shipment\" field. Specifically, you need to find the \"last_event\" field, which contains the delivery status."
+  }
+ ]
+}

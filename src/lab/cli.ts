@@ -27,7 +27,7 @@ import { CACHE_DIR, MODEL_CACHE_DIR, ROOT } from "../paths.ts";
 import type { ResultRecord } from "../run/jobs.ts";
 import { metrics, type Metrics } from "../score/aggregate.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
-import { buildMessages, configCategories, jsonToLines, passagesToLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
+import { buildMessages, configCategories, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
 import type { LabEvent, LabGroup, LabJob, LabRecord, LabWorkerSpec } from "./worker.ts";
@@ -106,6 +106,8 @@ interface Planned {
 
 const slug = (s: string) => s.replace(/^.*\//, "").replace(/[^A-Za-z0-9.-]+/g, "_");
 const noPrefixCache = flag("no-prefix-cache");
+/** Rescore with relaxed anchoring (src/lab/config.ts relaxLines); summaries get a "+relax" suffix. */
+const relaxedAnchor = opt("anchor") === "relaxed";
 /** onnxruntime-web build: `pinned` (the extension's, default) or `next` (1.24.3, needed by newer ONNX exports). */
 const ortOverride = opt("ort");
 const ortFor = (model: LabModel) => ortOverride ?? model.ort;
@@ -260,7 +262,8 @@ function score(parts: Planned[], cache: Map<string, LabRecord>): Row {
   parts.forEach((part, i) => {
     const r = records[i]!;
     const json = part.config.output === "json" ? jsonToLines(r.output) : r.output;
-    const parsed = part.part && part.config.passageOnly ? passagesToLines(json, part.part) : json;
+    const lines = part.part && part.config.passageOnly ? passagesToLines(json, part.part) : json;
+    const parsed = relaxedAnchor ? relaxLines(lines, p.c.text) : lines;
     const categories = configCategories(part.config, part.scope, refTexts);
     if (!deadline) findings.push(...validateModelOutput(parsed, { text: p.c.text, offset: 0 }, 0, categories));
     chunks.push({ output: parsed, ms: r.ms, runtime: { backend: "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } });
@@ -327,7 +330,7 @@ for (const ps of planned) {
     const rows = [...byCase.values()].filter((parts) => parts.every((p) => cache.has(p.key))).map((parts) => score(parts, cache));
     allRows.push(...rows);
     if (!rows.length) continue;
-    summary.push({ model: model.short, dtype, config: cfg.id, note: cfg.note, overall: metrics(rows), en: metrics(rows.filter((r) => r.lang === "en")), fr: metrics(rows.filter((r) => r.lang === "fr")) });
+    summary.push({ model: model.short, dtype, config: relaxedAnchor ? `${cfg.id}+relax` : cfg.id, note: cfg.note, overall: metrics(rows), en: metrics(rows.filter((r) => r.lang === "en")), fr: metrics(rows.filter((r) => r.lang === "fr")) });
   }
 }
 
@@ -371,7 +374,7 @@ if (!flag("dry-run") && summary.length) {
         })),
         cases: allRows.map((r) => ({
           model: findLabModel(r.model)?.short ?? r.model,
-          config: r.config.split(" | ")[1],
+          config: relaxedAnchor ? `${r.config.split(" | ")[1]}+relax` : r.config.split(" | ")[1],
           caseId: r.caseId,
           failure: r.failure,
           found: r.expected.filter((e) => e.overlap).length,
