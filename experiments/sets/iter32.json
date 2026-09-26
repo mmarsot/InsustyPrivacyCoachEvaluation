@@ -1,0 +1,4 @@
+{
+  "$comment": "Fixed iteration set for the lab: 32 dev-split cases (never test), 4 per profile: an English clear positive, a French positive, a look-alike negative, and one rotating extra (subtle positive, hard case or negative); short and medium texts only so one chunk covers each case. 22 positives, 10 negatives. Picked deterministically by sha256('iter-v1:' + id) order.",
+  "cases": ["agency-en-001","agency-fr-016","agency-en-035","agency-fr-018","dev-en-018","dev-fr-007","dev-fr-030","dev-en-047","finance-en-005","finance-fr-038","finance-en-032","finance-fr-040","hr-en-012","hr-fr-004","hr-fr-035","hr-en-025","legal-en-003","legal-fr-005","legal-en-033","legal-fr-045","research-en-004","research-fr-004","research-fr-034","research-en-034","sales-en-040","sales-fr-041","sales-en-039","sales-fr-030","support-en-007","support-fr-019","support-fr-031","support-en-045"]
+}

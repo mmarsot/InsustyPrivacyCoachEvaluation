@@ -17,7 +17,8 @@
     "compare": "tsx src/cli/compare.ts",
     "dashboard": "tsx src/cli/dashboard.ts",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test tests/*.test.ts"
+    "test": "node --import tsx --test tests/*.test.ts",
+    "lab": "tsx src/lab/cli.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "3.8.1",

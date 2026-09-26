@@ -1,0 +1,432 @@
+{
+ "name": "smol135-ref",
+ "set": "iter32",
+ "ext": {
+  "ref": "main",
+  "sha": "dc91f3677c07f95776f8c0f0cddb97e08a3170d5"
+ },
+ "at": "2026-09-26T16:33:00.610Z",
+ "summary": [
+  {
+   "model": "smollm2-135m",
+   "dtype": "q8",
+   "config": "ref",
+   "note": "Extension ref as shipped",
+   "overall": {
+    "cases": 32,
+    "f1": 0.049,
+    "precision": 0.333,
+    "recall": 0.026,
+    "exactF1": 0,
+    "detection": 0.045,
+    "fpr": 0.1,
+    "compliance": 0.344,
+    "p50ms": 5610,
+    "p95ms": 30031,
+    "tokens": 123,
+    "failures": {
+     "timeout": 2,
+     "echo": 3,
+     "echo_instructions": 22,
+     "answered": 5
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.083,
+    "precision": 0.333,
+    "recall": 0.048,
+    "exactF1": 0,
+    "detection": 0.091,
+    "fpr": 0.2,
+    "compliance": 0.313,
+    "p50ms": 4510,
+    "p95ms": 7797,
+    "tokens": 87,
+    "failures": {
+     "echo": 3,
+     "echo_instructions": 9,
+     "answered": 4
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0.375,
+    "p50ms": 5881,
+    "p95ms": 30034,
+    "tokens": 159,
+    "failures": {
+     "timeout": 2,
+     "echo_instructions": 13,
+     "answered": 1
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "agency-en-001",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6236,
+   "output": "- CLIENT_NAME: Names of our agency's clients or the brands we work for under NDA.\n- CAMPAIGN_CODENAME: Internal codenames of campaigns or pitches that are not public.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international f"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "agency-fr-016",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5681,
+   "output": "- CLIENT_NAME: Names of our agency's clients or the brands we work for under NDA.\n- CAMPAIGN_CODENAME: Internal codenames of campaigns or pitches that are not public.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international f"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "agency-en-035",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5094,
+   "output": "- CLIENT_NAME: Names of our agency's clients or the brands we work for under NDA.\n- CAMPAIGN_CODENAME: Internal codenames of campaigns or pitches that are not public.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international f"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "agency-fr-018",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5144,
+   "output": "- CLIENT_NAME: Names of our agency's clients or the brands we work for under NDA.\n- CAMPAIGN_CODENAME: Internal codenames of campaigns or pitches that are not public.\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international f"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "dev-en-018",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5610,
+   "output": "- INTERNAL_HOST: Internal hostnames, internal domains and private URLs of our infrastructure.\n- INTERNAL_SERVICE: Names of our internal repositories, microservices and internal tools.\n- CUSTOMER_ID: Customer or tenant identifiers that appear in our logs and databases.\n- API_KEY: API keys, access tok"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "dev-fr-007",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6986,
+   "output": "- INTERNAL_HOST: Internal hostnames, internal domains and private URLs of our infrastructure.\n- INTERNAL_SERVICE: Names of our internal repositories, microservices and internal tools.\n- CUSTOMER_ID: Customer or tenant identifiers that appear in our logs and databases.\n- API_KEY: API keys, access tok"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "dev-fr-030",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5746,
+   "output": "- INTERNAL_HOST: Internal hostnames, internal domains and private URLs of our infrastructure.\n- INTERNAL_SERVICE: Names of our internal repositories, microservices and internal tools.\n- CUSTOMER_ID: Customer or tenant identifiers that appear in our logs and databases.\n- API_KEY: API keys, access tok"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "dev-en-047",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 3821,
+   "output": "- CUSTOMER_ID: Customer ID\n- API_KEY: API key\n- PHONE: Phone number\n- EMAIL: Email address\n- ADDRESS: Postal or street address\n- ADDRESS: Address\n- EMAIL: Email address\n"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "finance-en-005",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1589,
+   "output": "\n- EU is going to miss its H2 target, we now see EU margin at 8.1% not 9%\n\n"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "finance-fr-038",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 5347,
+   "output": "- Financial results that have not been published yet: revenue, margins, profit, cash, segment numbers for the current or last quarter.\n- Internal forecasts, guidance drafts and targets that are not public: revenue, margins, profit, cash, segment numbers for the current or last quarter.\n- API key: AP"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "finance-en-032",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5373,
+   "output": "- 38.2p per share paid in May\n- Our final divisor last yr was 38.2p per share paid in May\n- INTERNAL_FORECAST: Internal forecasts, guidance drafts and targets that are not public\n- API KEY: API keys, access tokens, secret keys, and other credentials\n- PHONE: Telephone numbers in any national or inte"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "finance-fr-040",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5881,
+   "output": "\n- UNPUBLISHED_FIGURE: Financial results that have not been published yet: revenue, margins, profit, cash, segment numbers for the current or last quarter.\n- INTERNAL_FORECAST: Internal forecasts, guidance drafts and targets that are not public.\n- API_KEY: API keys, access tokens, secret keys, and o"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "hr-en-012",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6545,
+   "output": "- CANDIDATE_NAME: Names of job candidates or employees we are discussing.\n- SOURCE_COMPANY: The competitor we are recruiting candidates away from, when named in a hiring context.\n- COMPENSATION: Salaries, bonuses, equity amounts and internal job levels or grades tied to a person or offer.\n- API_KEY:"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "hr-fr-004",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 6536,
+   "output": "\n- Thibault Ferrand\n- CANDIDATE_NAME: Names of job candidates or employees we are discussing.\n- SOURCE_COMPANY: The competitor we are recruiting candidates away from, when named in a hiring context.\n- COMPENSATION: Salaries, bonuses, equity amounts and internal job levels or grades tied to a person "
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "hr-fr-035",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6324,
+   "output": "- CANDIDATE_NAME: Names of job candidates or employees we are discussing.\n- SOURCE_COMPANY: The competitor we are recruiting candidates away from, when named in a hiring context.\n- COMPENSATION: Salaries, bonuses, equity amounts and internal job levels or grades tied to a person or offer.\n- API_KEY:"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "hr-en-025",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 7797,
+   "output": "\n- CANDIDATE_NAME: Names of job candidates or employees we are discussing\n- SOURCE_COMPANY: The competitor we are recruiting candidates away from\n- COMPENSATION: Salaries, bonuses, equity amounts, and other credentials\n- API_KEY: API keys, access tokens, secret keys, and other credentials\n- PHONE: T"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "legal-en-003",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1819,
+   "output": "- $1.1bn for Vessant is too rich if their EBITDA is ~70m\n- Board wants a sanity check before friday\n\n"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "legal-fr-005",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7746,
+   "output": "\n- DEAL_CODENAME: Codenames of confidential deals or transactions\n- DEAL_TARGET: The company we plan to acquire or merge with in a confidential deal\n- DEAL_VALUE: Price, valuation or financial terms of a confidential deal\n- API_KEY: API keys, access tokens, secret keys, and other credentials\n- PHONE"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "legal-en-033",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7035,
+   "output": "\n- DEAL_CODENAME: Codenames of confidential deals or transactions\n- DEAL_TARGET: The company we plan to acquire or merge with in a confidential deal\n- DEAL_VALUE: Price, valuation or financial terms of a confidential deal\n- API_KEY: API keys, access tokens, secret keys, and other credentials\n- PHONE"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "legal-fr-045",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 8159,
+   "output": "- DEAL_CODENAME: Codenames of confidential deals or transactions\n- DEAL_TARGET: The company we plan to acquire or merge with in a confidential deal\n- DEAL_VALUE: Price, valuation or financial terms of a confidential deal\n- API_KEY: API keys, access tokens, secret keys, and other credentials\n- PHONE:"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "research-en-004",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: Sam"
+   ],
+   "ms": 3205,
+   "output": "- Study Name: Sam\n- Study Title: Quillaculi Biosciences\n- Study Date: 12/3\n- Study Location: University of Cambridge\n- Study Method: PCR\n- Study Date: 12/3\n"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "research-fr-004",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 30034,
+   "output": "\n- 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/02: 04/"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "research-fr-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 824,
+   "output": "\n- Research:\n- Research:\n"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "research-en-034",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Draft a cover letter to the eLife editors for our manuscript on macrophage polarization in fibrotic liver."
+   ],
+   "ms": 4510,
+   "output": "\n- Study Name: \"Draft a cover letter to the eLife editors for our manuscript on macrophage polarization in fibrotic liver.\"\n- Title: \"Draft a cover letter to the eLife editors for our manuscript on macrophage polarization in fibrotic liver.\"\n- Title: \"Draft a cover letter to the eLife editors for ou"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2048,
+   "output": "\n- Name of the product: Pembrook Dental Group\n- Name of the company: Draxon\n- Name of the product: Pembrook Dental Group\n"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "sales-fr-041",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5980,
+   "output": "- UNRELEASED_PRODUCT: Names of our products that are not announced publicly yet.\n- PROSPECT_NAME: Names of companies in our sales pipeline (prospects and open deals).\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international f"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "sales-en-039",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6696,
+   "output": "\n- UNRELEASED_PRODUCT: Names of our products that are not announced publicly yet.\n- PROSPECT_NAME: Names of companies in our sales pipeline (prospects and open deals).\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any national or international "
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "sales-fr-030",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5426,
+   "output": "- UNRELEASED_PRODUCT: Names or internal codenames of our products that are not announced publicly yet.\n- PROSPECT_NAME: Names of companies in our sales pipeline (prospects and open deals).\n- API_KEY: API keys, access tokens, secret keys, and other credentials.\n- PHONE: Telephone numbers in any natio"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "support-en-007",
+   "failure": "answered",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Ms Imogen Castellanos"
+   ],
+   "ms": 3153,
+   "output": "\n- Customer name: Ms Imogen Castellanos\n- Customer address: 123 Main Street, Anytown, USA\n- Customer account number: 123456789\n- Customer account number: 123456789\n"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "support-fr-019",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 30031,
+   "output": "1. Mme Karadeniz: Name of the customer who has been in touch with Toulouse.\n2. Nantes: Name of the city where Toulouse is located.\n3. Nantes: City where Toulouse is located.\n4. Nantes: City where Toulouse is located.\n5. Nantes: City where Toulouse is located.\n6. Nantes: City where Toulouse is locate"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "support-fr-031",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2439,
+   "output": "- Customer account numbers, ticket numbers, order numbers and tracking numbers\n- API keys, access tokens, secret keys, and other credentials\n- Email addresses\n- Address details\n- Address details\n"
+  },
+  {
+   "model": "SmolLM2-135M-Instruct-ONNX",
+   "config": "ref",
+   "caseId": "support-en-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 2458,
+   "output": "- \"PX-742018\"\n- \"DWP\"\n- \"DPD\"\n- \"DP\"\n- \"DPD\"\n"
+  }
+ ]
+}
