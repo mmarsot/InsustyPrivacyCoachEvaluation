@@ -168,6 +168,10 @@ export async function loadPretrained(model: string, dtype: "q8" | "q4" = "q8") {
     AutoModelForCausalLM.from_pretrained(model, { device: "cpu", dtype, ...external } as never),
   ]);
   loaded.push(instance);
+  // The weights were read into JS buffers and copied into the WASM heap; those
+  // buffers are garbage now but V8 keeps them for a while (about 1 GB of RSS
+  // for Qwen2.5-0.5B). Workers run with --expose-gc so it is released at once.
+  (globalThis as { gc?: () => void }).gc?.();
   return { tokenizer, model: instance };
 }
 

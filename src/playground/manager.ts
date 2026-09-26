@@ -67,7 +67,7 @@ export class PlaygroundHost {
   async load(model: string, bundle: string): Promise<HostStatus> {
     if (this.status.activity) throw new BusyError(`busy: ${this.status.activity.kind}`);
     await this.unload();
-    const child = fork(this.hostScript, [], { cwd: ROOT, execArgv: ["--import", "tsx"], stdio: ["ignore", "inherit", "inherit", "ipc"] });
+    const child = fork(this.hostScript, [], { cwd: ROOT, execArgv: ["--expose-gc", "--import", "tsx"], stdio: ["ignore", "inherit", "inherit", "ipc"] });
     this.child = child;
     child.on("message", (msg: { id: number; ok: boolean; result?: unknown; error?: string }) => {
       const p = this.pending.get(msg.id);

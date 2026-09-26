@@ -202,7 +202,7 @@ async function runWorker(model: LabModel, dtype: string, pending: Planned[]): Pr
   console.log(`[${model.short}] ${total} generations in ${spec.groups.length} prefix group(s); ${readMem()} MB available`);
   const t0 = performance.now();
   await new Promise<void>((resolveRun) => {
-    const child = spawn(process.execPath, ["--import", "tsx", join(ROOT, "src/lab/worker.ts"), specFile], {
+    const child = spawn(process.execPath, ["--expose-gc", "--import", "tsx", join(ROOT, "src/lab/worker.ts"), specFile], {
       cwd: ROOT,
       stdio: ["ignore", "pipe", "inherit"],
       env: { ...process.env, LAB_ORT: ortFor(model) },

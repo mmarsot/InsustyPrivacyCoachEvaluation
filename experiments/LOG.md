@@ -162,3 +162,15 @@ Conclusion: a label description like "names of our agency's clients" gives a
 sub-500M model nothing to decide on for an isolated candidate. Dropped; the
 candidate generator stays available (it could still serve as a cheap
 pre-filter or as a deterministic fallback).
+
+### E5a. Qwen2.5-0.5B memory: garbage-collect after load
+
+The first Qwen2.5-0.5B lab run was killed by the lab's 3.5 GB RSS guard right
+after loading (3.27 GB after load, 3.57 GB at the first prefill). Measured in
+a standalone process: RSS 3337 MB after load with 1.47 GB of live JS
+ArrayBuffers; after a forced `gc()`, RSS 2361 MB and 0.49 GB of ArrayBuffers.
+The load high-water mark is unchanged, but about 1 GB of stale JS copies of
+the weights would otherwise stay resident. `loadPretrained` now calls `gc()`
+when available, and every model worker (bench, lab, playground host) is
+spawned with `--expose-gc`. Relaunched run: RSS 3.03 GB after load, 2.65 GB
+while generating.

@@ -51,7 +51,7 @@ export function runGuardedWorker(
   onEvent: (event: { type: string } & Record<string, unknown>, rssMb: number) => void,
 ): Promise<number> {
   return new Promise((resolve) => {
-    const child = spawn(process.execPath, ["--import", "tsx", join(ROOT, script), specFile], {
+    const child = spawn(process.execPath, ["--expose-gc", "--import", "tsx", join(ROOT, script), specFile], {
       cwd: ROOT,
       stdio: ["ignore", "pipe", "inherit"],
       env: { ...process.env, ...env },

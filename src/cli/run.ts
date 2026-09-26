@@ -116,7 +116,7 @@ for (const m of models) {
   console.log(`\n[${m.short}] ${pending.length} jobs`);
   const t0 = performance.now();
   await new Promise<void>((resolveRun) => {
-    const child = spawn(process.execPath, ["--import", "tsx", join(ROOT, "src/run/worker.ts"), specFile], {
+    const child = spawn(process.execPath, ["--expose-gc", "--import", "tsx", join(ROOT, "src/run/worker.ts"), specFile], {
       cwd: ROOT,
       stdio: ["ignore", "pipe", "inherit"],
     });
