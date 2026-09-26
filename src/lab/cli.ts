@@ -119,8 +119,10 @@ const filterSuffix = postFilters.length ? `+${postFilters.join("+")}` : "";
 const ortOverride = opt("ort");
 const ortFor = (model: LabModel) => ortOverride ?? model.ort;
 const skipPrefix = (model: LabModel) => noPrefixCache || !model.prefixCache;
+/** `--backend webgpu`: score results produced in Chrome by src/lab/browser/ (separate cache file). */
+const backend = opt("backend") ?? "wasm";
 const cacheFileFor = (model: LabModel, dtype: string) =>
-  join(LAB_DIR, `${slug(model.id)}-${dtype}${ortFor(model) === "next" ? "-ortnext" : ""}${skipPrefix(model) ? "-nopkv" : ""}.jsonl`);
+  join(LAB_DIR, `${slug(model.id)}-${dtype}${ortFor(model) === "next" ? "-ortnext" : ""}${skipPrefix(model) ? "-nopkv" : ""}${backend === "wasm" ? "" : `-${backend}`}.jsonl`);
 const loadLabCache = (file: string) => {
   const map = new Map<string, LabRecord>();
   if (existsSync(file))
@@ -272,6 +274,13 @@ const summary: Array<{ model: string; dtype: string; config: string; note?: stri
 const planned: Planned[][] = [];
 for (const model of models) planned.push(await plan(model));
 
+if (opt("export-jobs")) {
+  // Requests for the browser bench (src/lab/browser/): same keys as the lab cache.
+  const jobs = planned.flat().map((p) => ({ key: p.key, caseId: p.c.id, prompt: p.prefix + p.suffix, gen: p.gen }));
+  writeFileSync(opt("export-jobs")!, JSON.stringify({ model: models[0]!.id, dtype: dtypeOverride ?? models[0]!.dtype, rawBos: models[0]!.rawBos, jobs }));
+  console.log(`exported ${jobs.length} requests to ${opt("export-jobs")}`);
+  process.exit(0);
+}
 if (flag("show-prompt")) {
   for (const ps of planned) for (const cfg of configs) {
     const p = ps.find((x) => x.config.id === cfg.id)!;

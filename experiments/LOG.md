@@ -389,3 +389,25 @@ Probe: a page calling `navigator.gpu.requestAdapter()` with
 - The extension probes `requestAdapter()` with no power preference and uses
   q4 weights on WebGPU; with the Vulkan feature the default adapter is the
   NVIDIA GPU here.
+
+### L1. LFM2.5-350M on raw-pl-lang, tune96, without prefix reuse (`l1-lfm-tune96`)
+
+Captain's priority. onnxruntime-web 1.24.3, q8, every request prefilled whole
+(the prefix-cache bug of E7a worked around).
+
+| config | F1o | P | R | F1x | det | FPR | comp | p50s | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| raw-pl-lang | 13 | 18 | 11 | 11 | 19 | 40 | 95 | 21.4 | 15 | 12 |
+| raw-pl-lang + basic filter | 13 | 18 | 10 | 11 | 17 | 36 | 95 | 21.4 | 13 | 12 |
+
+(SmolLM2-360M on the same set: 33 / 32 with the filter, p50 3.1 s.)
+
+Most answers start correctly and then degenerate into repeating a character
+or syllable: `sshportportport...`, `flashaaaa...`, `keycloecoooo...`,
+`££££...`; 66 of 96 cases have a passage that fails anchoring for that reason.
+Short answers survive ("Thibault Ferrand", "Halvard Cycles", "J. Lindqvist").
+This looks like the same Transformers.js 3.8.1 conv-state problem as E7a, now
+in step-by-step decoding (the export targets Transformers.js v4), not like a
+property of the model. Latency is also poor (p50 21 s) because nothing can be
+cached. As measured, LFM2.5-350M is not usable with the extension's current
+runtime.
