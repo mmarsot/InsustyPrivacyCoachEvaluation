@@ -19,8 +19,8 @@ import { pathToFileURL } from "node:url";
 import { build } from "esbuild";
 import { EXT_CACHE_DIR, LOCAL_CONFIG_FILE, ROOT } from "../paths.ts";
 
-/** Default extension ref: the line-protocol branch while PR #17 is unmerged, later `main`. */
-export const DEFAULT_EXT_REF = "fm/slm-line-output-format";
+/** Default extension ref: `main`, which ships the line protocol since PR #17. */
+export const DEFAULT_EXT_REF = "main";
 
 /** Modules the bench imports from the ref, by export name. The first four are required. */
 const MODULES: ReadonlyArray<{ name: string; file: string; required: boolean }> = [

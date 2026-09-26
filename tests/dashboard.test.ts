@@ -185,3 +185,20 @@ test("compares two runs on shared results only", () => {
   assert.equal(all.cases, 3);
   assert.equal(compareRows(smol, better).rows.find((r) => r.slice === "en")!.cells[1]!.direction, 1);
 });
+
+test("quick tier: N cases per profile and language, stratified across the run", async () => {
+  const { selectCases } = await import("../src/run/jobs.ts");
+  const { compileDataset } = await import("../src/dataset/load.ts");
+  const { dataset: real } = compileDataset();
+  assert.ok(real);
+  const two = selectCases(real, "quick", undefined, 2);
+  assert.equal(two.length, 32);
+  assert.ok(two.every((c) => c.split === "dev"));
+  const count = (cs: typeof two, t: string) => cs.filter((c) => c.type === t).length;
+  // 32 slots walk the 10-slot type cycle: 11 clear, 7-8 look-alike, 6-7 subtle, 6 hard, 3 clean.
+  assert.ok(count(two, "clear_positive") >= 10 && count(two, "clean_negative") >= 3 && count(two, "hard") >= 6);
+  const ten = selectCases(real, "quick", undefined, 10);
+  assert.equal(ten.length, 160);
+  const group = ten.filter((c) => c.profile === "sales" && c.lang === "fr");
+  assert.deepEqual([count(group, "clear_positive"), count(group, "lookalike_negative"), count(group, "subtle_positive"), count(group, "hard"), count(group, "clean_negative")], [3, 2, 2, 2, 1]);
+});

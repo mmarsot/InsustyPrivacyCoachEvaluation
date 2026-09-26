@@ -26,7 +26,7 @@
         "summary": "English-first. The card metadata lists only 'en' and states: 'SmolLM2 models primarily understand and generate content in English.'",
         "source": "https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct"
       },
-      "priorSecondsPerCase": 12,
+      "priorSecondsPerCase": 20,
       "priorLoadSeconds": 5
     },
     {
@@ -70,7 +70,7 @@
         "summary": "Multilingual. The card states: 'Multilingual support for over 29 languages, including Chinese, English, French, Spanish, Portuguese, German, Italian, Russian, Japanese, Korean, Vietnamese, Thai, Arabic, and more.' (card metadata tag lists only 'en').",
         "source": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct"
       },
-      "priorSecondsPerCase": 22,
+      "priorSecondsPerCase": 12,
       "priorLoadSeconds": 15
     }
   ]

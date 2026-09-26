@@ -3,6 +3,7 @@
 This file is the project's committed home for project-intrinsic agent knowledge: build, test, release, architecture, and sharp-edge notes that should travel with the code.
 
 - Purpose, commands and layout: `README.md`. Dataset schema and how to add cases: `docs/dataset.md`. How refs are materialized and why the runtime is what it is: `docs/approach.md`.
+- The default extension ref is `main` (`DEFAULT_EXT_REF` in `src/ext/ref.ts`); results are cached per commit sha, so a new `main` commit means a fresh run.
 - Never modify the extension clone: refs are read with `git archive` into `cache/ext/<sha>/` (`src/ext/ref.ts`). The clone path comes from the untracked `bench.local.json`, `INSUSTY_EXT_REPO` or `--ext-repo`; never commit an absolute path.
 - Inference must stay on onnxruntime-web WASM with default session options (`onnxruntime-node` is aliased in `package.json`). Native ORT and other graph-optimization levels change greedy outputs on the q8 models, so results would not reflect the extension.
 - Models run one at a time, each in its own child process (`src/run/worker.ts`); Qwen2.5-0.5B peaks above 3 GB RSS while loading on a 7 GB machine, so never run two workers in parallel.

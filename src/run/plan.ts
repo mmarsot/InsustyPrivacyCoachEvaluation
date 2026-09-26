@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import type { CompiledCase, CompiledDataset, Split } from "../dataset/schema.ts";
 import { MODELS_FILE } from "../paths.ts";
 import { INSTRUCTION_VARIANTS, isLabelVariant, LABEL_VARIANTS, type InstructionVariant, type LabelVariantId } from "../variants.ts";
-import { cachedTimings, jobKey, rulesFor, selectCases, TIERS, type Job, type Tier } from "./jobs.ts";
+import { cachedTimings, DEFAULT_QUICK_CASES_PER_PROFILE, jobKey, rulesFor, selectCases, TIERS, type Job, type Tier } from "./jobs.ts";
 
 export interface ModelInfo {
   id: string;
@@ -19,6 +19,8 @@ export const MODELS: ModelInfo[] = (JSON.parse(readFileSync(MODELS_FILE, "utf8")
 
 export interface BenchOptions {
   tier: Tier;
+  /** Quick tier only: cases per profile and language. */
+  casesPerProfile: number;
   models: ModelInfo[];
   instructions: InstructionVariant[];
   labelVariants: LabelVariantId[];
@@ -30,8 +32,13 @@ export interface BenchOptions {
   name?: string;
   maxRssMb: number;
   dryRun: boolean;
+  /** Score and report what is already cached; compute nothing. */
+  cachedOnly: boolean;
   allowMissingSplit: boolean;
 }
+
+/** One label-description variant by default; the others are opt-in (`--label-variants all`). */
+export const DEFAULT_LABEL_VARIANTS = "desc";
 
 /** Parses `npm run bench` arguments. Throws on an unknown value. */
 export function parseBenchArgs(argv: readonly string[]): BenchOptions {
@@ -48,11 +55,14 @@ export function parseBenchArgs(argv: readonly string[]): BenchOptions {
   if (!TIERS.includes(tier)) bad(`--tier must be one of ${TIERS.join(", ")}`);
   const modelArg = opt("models", "all")!;
   const instrArg = opt("instructions", "current")!;
-  const labelArg = opt("labels", "desc,desc_ex3")!;
+  const labelArg = opt("label-variants") ?? opt("labels") ?? DEFAULT_LABEL_VARIANTS;
+  const casesPerProfile = Number(opt("cases-per-profile", String(DEFAULT_QUICK_CASES_PER_PROFILE)));
+  if (!Number.isInteger(casesPerProfile) || casesPerProfile < 1) bad("--cases-per-profile must be a positive integer");
   const split = opt("split") as Split | "all" | undefined;
   if (split && !["dev", "test", "all"].includes(split)) bad("--split must be dev, test or all");
   return {
     tier,
+    casesPerProfile,
     models: modelArg === "all" ? MODELS : list(modelArg).map((m) => MODELS.find((x) => x.short === m || x.id === m) ?? bad(`unknown model ${m}`)),
     instructions:
       instrArg === "all" ? [...INSTRUCTION_VARIANTS] : list(instrArg).map((i) => INSTRUCTION_VARIANTS.find((v) => v.id === i) ?? bad(`unknown instruction variant ${i}`)),
@@ -65,6 +75,7 @@ export function parseBenchArgs(argv: readonly string[]): BenchOptions {
     name: opt("name"),
     maxRssMb: Number(opt("max-rss-mb", "3800")),
     dryRun: flag("dry-run"),
+    cachedOnly: flag("cached-only"),
     allowMissingSplit: flag("allow-missing-split"),
   };
 }
@@ -78,7 +89,7 @@ export interface Plan {
 
 /** Expands options into jobs for one extension commit. */
 export function planJobs(dataset: CompiledDataset, o: Omit<BenchOptions, "models"> & { models: Pick<ModelInfo, "id">[] }, extSha: string, defaultPrompt: string): Plan {
-  let cases = selectCases(dataset, o.tier, o.split);
+  let cases = selectCases(dataset, o.tier, o.split, o.casesPerProfile);
   if (o.profiles.length) cases = cases.filter((c) => o.profiles.includes(c.profile));
   if (o.langs.length) cases = cases.filter((c) => o.langs.includes(c.lang));
   const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));

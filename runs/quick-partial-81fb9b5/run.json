@@ -1,0 +1,46 @@
+{
+  "name": "quick-partial-81fb9b5",
+  "tier": "quick",
+  "split": "dev",
+  "cases": 160,
+  "instructions": [
+    "current"
+  ],
+  "labelVariants": [
+    "desc",
+    "desc_ex3"
+  ],
+  "models": [
+    {
+      "id": "onnx-community/SmolLM2-135M-Instruct-ONNX",
+      "jobs": 320,
+      "computed": 0
+    },
+    {
+      "id": "onnx-community/SmolLM2-360M-Instruct-ONNX",
+      "jobs": 320,
+      "computed": 0
+    },
+    {
+      "id": "onnx-community/Qwen2.5-0.5B-Instruct-ONNX",
+      "jobs": 320,
+      "computed": 0
+    }
+  ],
+  "ext": {
+    "ref": "fm/slm-line-output-format",
+    "sha": "81fb9b5ca12b52da25ae0ad84d2b9822156888d4",
+    "subject": "feat: use line protocol for local AI review",
+    "committedAt": "2026-09-25T22:11:36+02:00",
+    "transformersRange": "^3.8.1"
+  },
+  "datasetHash": "3c9142bb5592c1adb3abb4eee4fca65311c2f09ee2113721ac152d316a8b7d5a",
+  "runtime": "onnxruntime-web WASM (q8) in Node 24.18.0 via @huggingface/transformers; deterministic greedy decoding; generation budget 30 s per request (from the ref)",
+  "machine": "Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz x8, 7.1 GiB RAM, linux",
+  "node": "24.18.0",
+  "startedAt": "2026-09-26T14:52:35.738Z",
+  "finishedAt": "2026-09-26T14:52:35.790Z",
+  "estimateSeconds": 0,
+  "wallSeconds": 0,
+  "incomplete": 669
+}

@@ -30,8 +30,8 @@ Only two things come from the bench: the Transformers.js loader for Node
 4. The runner imports that bundle. It is cached per sha, so switching refs is
    instant after the first time.
 
-The default ref is `fm/slm-line-output-format` (PR #17) while it is unmerged;
-pass `--ref main` (or set `INSUSTY_EXT_REF`) once it lands. Every result is
+The default ref is `main` (the line protocol of PR #17 is merged there); pass
+`--ref <branch or sha>` or set `INSUSTY_EXT_REF` to benchmark another commit. Every result is
 cached under the commit sha, and every report shows the ref, sha and commit
 subject it measured.
 

@@ -10,7 +10,7 @@ import { compileDataset } from "../dataset/load.ts";
 import type { CompiledCase, CompiledDataset } from "../dataset/schema.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo, type ExtApi, type ExtRef } from "../ext/ref.ts";
 import { EXT_CACHE_DIR, MODELS_FILE } from "../paths.ts";
-import { rulesFor, type Job, type ResultRecord } from "../run/jobs.ts";
+import { DEFAULT_QUICK_CASES_PER_PROFILE, rulesFor, type Job, type ResultRecord } from "../run/jobs.ts";
 import { MODELS, parseBenchArgs, planJobs, secondsPerCase, splitLabel, type Plan } from "../run/plan.ts";
 import { compareRows, COMPARE_METRICS } from "../report/compare-data.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
@@ -183,7 +183,7 @@ export class Dashboard {
   private plansFor(loaded: LoadedExt) {
     let plans = this.plansMemo.get(loaded.ext.sha);
     if (!plans) {
-      const all = { models: MODELS, instructions: [...INSTRUCTION_VARIANTS], labelVariants: LABEL_VARIANTS.map((v) => v.id), profiles: [], langs: [], maxRssMb: 0, dryRun: false, allowMissingSplit: false };
+      const all = { casesPerProfile: DEFAULT_QUICK_CASES_PER_PROFILE, cachedOnly: false, models: MODELS, instructions: [...INSTRUCTION_VARIANTS], labelVariants: LABEL_VARIANTS.map((v) => v.id), profiles: [], langs: [], maxRssMb: 0, dryRun: false, allowMissingSplit: false };
       plans = {
         quick: planJobs(this.dataset, { ...all, tier: "quick" }, loaded.ext.sha, loaded.api.defaultPrompt),
         full: planJobs(this.dataset, { ...all, tier: "full" }, loaded.ext.sha, loaded.api.defaultPrompt),

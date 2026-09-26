@@ -1,16 +1,19 @@
 /**
  * Runs the benchmark.
  *
- *   npm run bench -- [--tier smoke|quick|full] [--models all|smollm2-135m,...]
- *                    [--instructions current,strict,short|all] [--labels desc,desc_ex3|all]
- *                    [--split dev|test|all] [--profiles sales,dev] [--langs en,fr]
- *                    [--ref <git ref>] [--ext-repo <path>] [--name <run name>]
- *                    [--max-rss-mb 3800] [--allow-missing-split] [--dry-run]
+ *   npm run bench -- [--tier smoke|quick|full] [--cases-per-profile 2]
+ *                    [--models all|smollm2-135m,...] [--instructions current,strict,short|all]
+ *                    [--label-variants desc,desc_ex3|all] [--split dev|test|all]
+ *                    [--profiles sales,dev] [--langs en,fr] [--ref main] [--ext-repo <path>]
+ *                    [--name <run name>] [--max-rss-mb 3800] [--allow-missing-split]
+ *                    [--dry-run] [--cached-only]
  *
- * Prints the plan and a runtime estimate first. Models run one at a time, each
- * in its own child process (so its WASM heap is fully released before the
- * next one loads). Results are cached per job; re-runs only compute what
- * changed. Outputs go to runs/<name>/.
+ * Prints the plan and a runtime estimate first (`--dry-run` stops there).
+ * Models run one at a time, each in its own child process (so its WASM heap
+ * is fully released before the next one loads). Results are cached per job;
+ * re-runs only compute what changed, and `--cached-only` computes nothing and
+ * reports what is cached (a partial run is marked incomplete). Outputs go to
+ * runs/<name>/.
  */
 import { spawn } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -59,7 +62,7 @@ if (!cases.length) fail("no case selected");
 const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
 
 console.log(`Extension ${ext.ref} @ ${ext.sha.slice(0, 10)} "${ext.subject}"`);
-console.log(`Tier ${tier}, split ${splitLabel(options)}: ${cases.length} cases x ${instructions.length} instruction(s) [${instructions.map((i) => i.id).join(",")}] x ${labelVariants.length} label variant(s) [${labelVariants.join(",")}]`);
+console.log(`Tier ${tier}${tier === "quick" ? ` (${options.casesPerProfile} per profile and language)` : ""}, split ${splitLabel(options)}: ${cases.length} cases x ${instructions.length} instruction(s) [${instructions.map((i) => i.id).join(",")}] x ${labelVariants.length} label variant(s) [${labelVariants.join(",")}]`);
 let totalEstimate = 0;
 const pendingByModel = new Map<string, Job[]>();
 for (const m of models) {
@@ -73,6 +76,11 @@ for (const m of models) {
 }
 console.log(`Estimated runtime: ~${fmt(totalEstimate)} (sequential, one model at a time)`);
 if (options.dryRun) process.exit(0);
+if (options.cachedOnly) {
+  for (const m of models) pendingByModel.set(m.id, []);
+  totalEstimate = 0;
+  console.log("--cached-only: nothing is computed; reporting cached results.");
+}
 
 // ------------------------------------------------------------------ run
 const startedAt = new Date();

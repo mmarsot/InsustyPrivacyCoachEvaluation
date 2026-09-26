@@ -25,8 +25,8 @@ npm install
 echo '{ "extRepo": "../InsustyPromptCoach" }' > bench.local.json   # untracked
 npm run validate                       # check the dataset
 npm run bench -- --tier smoke          # 8 cases per model, a few minutes
-npm run bench -- --tier quick --dry-run  # print the plan and the time estimate only
-npm run bench -- --tier quick          # ~10 dev cases per profile and language
+npm run bench -- --dry-run             # print the plan and the time estimate only
+npm run bench                          # quick tier: 32 cases x 3 models, ~30 min
 open runs/<run-name>/report.html
 ```
 
@@ -80,33 +80,72 @@ English-first, while Qwen2.5 lists French.
 | Tier | Cases | Use |
 | --- | --- | --- |
 | `smoke` | 16 (one positive and one look-alike negative per profile) | Check that the pipeline works |
-| `quick` | 160 (10 dev cases per profile and language, stratified by type) | Fast iteration on prompts and descriptions |
+| `quick` (default) | 32: 2 dev cases per profile and language, stratified by type across the run (`--cases-per-profile N`) | Fast iteration on prompts and descriptions |
 | `full` | all 809 (both splits) | Overnight runs |
 
-The runner prints its plan and a time estimate before it starts. The estimate
-uses the mean of cached timings on this machine, or the priors in
-`models/models.json`. Measured on an 8-vCPU laptop:
+The defaults are the `quick` tier, all 3 models, the `current` instruction and
+one label-description variant (`desc`). Other axes are opt-in:
+`--label-variants desc,desc_ex3` or `all`, and `--instructions all`.
 
-- **Quick tier, 3 models × `current` × 2 label variants:** about 5 h.
-- **Full tier, same axes:** about 25 h.
-- **Full tier, every axis:** about 190 h.
+The runner prints its plan and a time estimate before it starts
+(`--dry-run` stops there). The estimate uses the mean of cached timings on
+this machine, or the priors in `models/models.json`. Estimates on the 8-vCPU,
+7 GB laptop this was built on:
+
+- **Default quick run** (32 cases × 3 models × 1 variant): about 30 min. This is
+  conservative. The SmolLM2-135M timing comes from runs before `main`'s
+  repeated-line stop, which should cut its many 30 s timeouts.
+- **Quick with 3 cases per profile:** about 45 min.
+- **Quick with 10 cases per profile and 2 variants:** about 3 h.
+- **Full tier, 1 variant:** about 12 h.
+- **Full tier, all axes** (3 instructions × 5 variants): about 190 h.
 
 Cached jobs are never recomputed. A job is keyed by the extension commit,
 model, instruction text, rule texts, case id and case text. Rerunning the same
 command after a change computes only what changed. With nothing new to
-compute, a rerun just rescores and rewrites the report.
+compute, a rerun just rescores and rewrites the report. `--cached-only`
+computes nothing: it reports whatever is cached for that plan and marks the
+run incomplete when jobs are missing.
 
 Useful flags:
 
+- `--cases-per-profile 3` (quick tier volume)
 - `--models smollm2-135m,qwen2.5-0.5b`
+- `--label-variants desc,desc_ex3` or `all` (alias `--labels`)
 - `--instructions all`
-- `--labels all`
 - `--split test`
 - `--profiles dev,hr`
 - `--langs fr`
-- `--ref main`
+- `--ref <git ref>` (default `main`)
 - `--name my-run`
 - `--max-rss-mb 3800`
+- `--dry-run`
+- `--cached-only`
+
+## Results so far
+
+[`runs/quick-partial-81fb9b5/report.html`](runs/quick-partial-81fb9b5/report.html)
+is a **partial** run. It covers the PR #17 branch commit `81fb9b5` (before its
+squash-merge into `main`), with the older 10-cases-per-profile quick tier and
+the `desc` and `desc_ex3` variants. It was stopped on request after 291 of 960
+jobs:
+
+- SmolLM2-135M, `desc`: all 160 cases.
+- SmolLM2-135M, `desc_ex3`: 125 cases.
+- Qwen2.5-0.5B, `desc_ex3`: 6 smoke cases only.
+
+What it shows for SmolLM2-135M, the extension's default model:
+
+- **Outcome:** it found 1 expected passage across 285 cases, and had no false
+  positives on negatives.
+- **Format:** only 11-16% of outputs follow the line protocol.
+- **Timeouts:** 66% of cases hit the 30 s budget, almost all in repeated-line
+  loops (167 of the 187 timeouts repeat a line).
+- **Other failures:** it recited the label list back (`echo_instructions`, 16%),
+  echoed the prompt (10%), or answered it (6%).
+
+`main` has since added a stop on repeated lines, so the next run on `main`
+should show far fewer timeouts. The other two models still need a run.
 
 ## Dashboard
 
@@ -163,8 +202,8 @@ The benchmark therefore runs the shipped code for:
 - the generation budget
 - parsing and code-side anchoring
 
-The default ref is `fm/slm-line-output-format` (PR #17) until that PR merges;
-after that, use `--ref main`.
+The default ref is `main`, which ships the line protocol since PR #17. Pass
+`--ref <branch or sha>` to benchmark any other commit.
 
 Inference uses onnxruntime-web WASM in Node, which is the same runtime the
 extension uses. Each model runs in its own child process, one model at a time.

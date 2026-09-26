@@ -124,26 +124,39 @@ export type Tier = (typeof TIERS)[number];
 
 const stableHash = (text: string) => createHash("sha256").update(text).digest("hex");
 
-/** Per (profile, lang) quota for the quick tier: 10 cases covering every type. */
-const QUICK_QUOTA: Record<CompiledCase["type"], number> = {
-  clear_positive: 3,
-  subtle_positive: 2,
-  lookalike_negative: 2,
-  clean_negative: 1,
-  hard: 2,
-};
+/**
+ * Type order the quick tier walks through. One pass of 10 slots reproduces the
+ * dataset mix (35% clear, 25% look-alike, 15% subtle, 15% hard, 10% clean).
+ * Each (profile, language) group takes the next N slots, continuing where the
+ * previous group stopped, so small tiers stay stratified across the whole run.
+ */
+const TYPE_CYCLE: ReadonlyArray<CompiledCase["type"]> = [
+  "clear_positive",
+  "lookalike_negative",
+  "subtle_positive",
+  "hard",
+  "clear_positive",
+  "clean_negative",
+  "lookalike_negative",
+  "subtle_positive",
+  "hard",
+  "clear_positive",
+];
+/** Default cases per profile and language in the quick tier (~25 min for 3 models, 1 variant). */
+export const DEFAULT_QUICK_CASES_PER_PROFILE = 2;
 
 /**
  * smoke: 1 clear positive + 1 look-alike negative per profile, alternating languages (dev split).
- * quick: ~10 dev cases per profile and language, stratified by type.
+ * quick: N dev cases per profile and language (default 2), stratified by type.
  * full:  every case, both splits (unless --split narrows it).
  */
-export function selectCases(dataset: CompiledDataset, tier: Tier, split?: Split | "all"): CompiledCase[] {
+export function selectCases(dataset: CompiledDataset, tier: Tier, split?: Split | "all", casesPerProfile = DEFAULT_QUICK_CASES_PER_PROFILE): CompiledCase[] {
   const effectiveSplit = split ?? (tier === "full" ? "all" : "dev");
   const pool = dataset.cases.filter((c) => effectiveSplit === "all" || c.split === effectiveSplit);
   const ordered = (cases: CompiledCase[]) => [...cases].sort((a, b) => stableHash(a.id).localeCompare(stableHash(b.id)));
   if (tier === "full") return pool;
   const picked: CompiledCase[] = [];
+  let slot = 0;
   dataset.profiles.forEach((profile, index) => {
     for (const lang of ["en", "fr"] as const) {
       const group = pool.filter((c) => c.profile === profile.id && c.lang === lang);
@@ -155,11 +168,14 @@ export function selectCases(dataset: CompiledDataset, tier: Tier, split?: Split 
         }
         continue;
       }
+      const quota = new Map<CompiledCase["type"], number>();
+      for (let i = 0; i < casesPerProfile; i++) {
+        const type = TYPE_CYCLE[slot++ % TYPE_CYCLE.length]!;
+        quota.set(type, (quota.get(type) ?? 0) + 1);
+      }
       const chosen: CompiledCase[] = [];
-      for (const [type, quota] of Object.entries(QUICK_QUOTA))
-        chosen.push(...ordered(group.filter((c) => c.type === type)).slice(0, quota));
-      const target = Object.values(QUICK_QUOTA).reduce((a, b) => a + b, 0);
-      for (const c of ordered(group)) if (chosen.length < target && !chosen.includes(c)) chosen.push(c);
+      for (const [type, n] of quota) chosen.push(...ordered(group.filter((c) => c.type === type)).slice(0, n));
+      for (const c of ordered(group)) if (chosen.length < casesPerProfile && !chosen.includes(c)) chosen.push(c);
       picked.push(...chosen);
     }
   });
