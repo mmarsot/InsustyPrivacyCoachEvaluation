@@ -120,7 +120,7 @@ interface CasePlan {
 const fill = (t: string, vars: Record<string, string>) => t.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? vars[k]! : m));
 const hash = (v: unknown) => createHash("sha256").update(JSON.stringify(v)).digest("hex").slice(0, 32);
 const ortFor = (m: LabModel) => m.ort;
-const cacheFile = (m: LabModel) => join(CACHE_DIR, "lab", `cls-${m.id.replace(/^.*\//, "")}-${m.dtype}${ortFor(m) === "next" ? "-ortnext" : ""}.jsonl`);
+const cacheFile = (m: LabModel) => join(CACHE_DIR, "lab", `cls-${m.id.replace(/^.*\//, "")}-${m.dtype}${ortFor(m) === "next" ? "-ortnext" : ""}${m.prefixCache ? "" : "-nopkv"}.jsonl`);
 
 async function plan(model: LabModel): Promise<CasePlan[]> {
   const tokenizer = await AutoTokenizer.from_pretrained(model.id);
@@ -179,7 +179,7 @@ for (const model of models) {
   const questions = [...pendingGroups.values()].reduce((a, g) => a + g.jobs.length, 0);
   console.log(`[${model.short}] ${plans.length} case plans, ${pendingGroups.size} prefixes and ${questions} questions to compute`);
   if (!dryRun && pendingGroups.size && (await waitForMemory(model, minFreeMb))) {
-    const spec: ClsWorkerSpec = { model: model.id, dtype: model.dtype, resultFile: file, groups: [...pendingGroups.values()], yes: variants[0]!.yes, no: variants[0]!.no };
+    const spec: ClsWorkerSpec = { model: model.id, dtype: model.dtype, resultFile: file, groups: [...pendingGroups.values()], yes: variants[0]!.yes, no: variants[0]!.no, noPrefixCache: !model.prefixCache };
     const specFile = join(CACHE_DIR, "tmp", `cls-${process.pid}-${model.short}.json`);
     mkdirSync(join(CACHE_DIR, "tmp"), { recursive: true });
     writeFileSync(specFile, JSON.stringify(spec));

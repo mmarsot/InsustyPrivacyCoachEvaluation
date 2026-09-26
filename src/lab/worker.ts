@@ -34,6 +34,8 @@ export interface LabGen {
   stopAtNewline?: boolean;
   /** Record P(answer starts with NONE) at the first generated token (for confidence gating). */
   scoreNone?: boolean;
+  /** Forbid EOS before this many tokens (some chat models end a plain-text answer at once). */
+  minNewTokens?: number;
 }
 export interface LabJob {
   key: string;
@@ -182,6 +184,7 @@ async function main() {
         ...(job.gen.noRepeatNgram === null ? {} : { no_repeat_ngram_size: job.gen.noRepeatNgram }),
         stopping_criteria: criteria,
         ...(processors ? { logits_processor: processors } : {}),
+        ...(job.gen.minNewTokens ? { min_new_tokens: job.gen.minNewTokens } : {}),
       } as unknown as Parameters<PreTrainedModel["generate"]>[0])) as Tensor;
       const generated = ((output.tolist() as (number | bigint)[][])[0] ?? []).slice(ids.length).map(Number);
       const last = generated.at(-1);

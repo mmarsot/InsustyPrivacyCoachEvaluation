@@ -31,6 +31,8 @@ export interface ClsWorkerSpec {
   groups: ClsGroup[];
   yes: string[];
   no: string[];
+  /** Run prefix + question in one forward pass (models whose prefix cache is unusable, e.g. LFM2). */
+  noPrefixCache?: boolean;
 }
 export interface ClsRecord {
   key: string;
@@ -76,14 +78,17 @@ async function main() {
   for (const group of spec.groups) {
     const c0 = performance.now();
     const prefixIds = encode(group.prefix);
-    const out = await forward(prefixIds, prefixIds.length);
-    const pkv = (model as unknown as { getPastKeyValues(o: unknown, p: null): unknown }).getPastKeyValues(out, null);
+    let pkv: unknown;
+    if (!spec.noPrefixCache) {
+      const out = await forward(prefixIds, prefixIds.length);
+      pkv = (model as unknown as { getPastKeyValues(o: unknown, p: null): unknown }).getPastKeyValues(out, null);
+    }
     const at = () => new Date().toISOString();
     appendFileSync(spec.resultFile, JSON.stringify({ key: group.key, kind: "prefix", caseId: group.caseId, ms: Math.round(performance.now() - c0), tokens: prefixIds.length, at: at() } satisfies ClsRecord) + "\n");
     for (const job of group.jobs) {
       const q0 = performance.now();
       const ids = encode(job.suffix);
-      const { logits } = await forward(ids, prefixIds.length + ids.length, pkv);
+      const { logits } = pkv === undefined ? await forward([...prefixIds, ...ids], prefixIds.length + ids.length) : await forward(ids, prefixIds.length + ids.length, pkv);
       const [, seq, vocab] = logits.dims as [number, number, number];
       const row = (logits.data as Float32Array).subarray((seq - 1) * vocab, seq * vocab);
       let max = -Infinity;

@@ -3,6 +3,8 @@
   "models": [
     {
       "id": "onnx-community/LFM2.5-350M-ONNX",
+      "prefixCache": false,
+      "rawBos": true,
       "short": "lfm2.5-350m",
       "parameters": "350M",
       "architecture": "lfm2 (hybrid conv + attention)",
@@ -20,6 +22,8 @@
     },
     {
       "id": "onnx-community/LFM2-350M-Extract-ONNX",
+      "prefixCache": false,
+      "rawBos": true,
       "short": "lfm2-350m-extract",
       "parameters": "350M",
       "architecture": "lfm2, fine-tuned for structured extraction (JSON/XML/YAML)",
@@ -37,6 +41,7 @@
     },
     {
       "id": "onnx-community/gemma-3-270m-it-ONNX",
+      "rawBos": true,
       "short": "gemma3-270m",
       "parameters": "270M (170M of them in the 256k-token embeddings)",
       "architecture": "gemma3_text (no system role: the template merges it into the first user turn)",
@@ -56,7 +61,7 @@
       "id": "onnx-community/granite-4.0-h-350m-ONNX",
       "short": "granite4-h-350m",
       "parameters": "350M",
-      "architecture": "granitemoehybrid (Mamba2 + attention)",
+      "architecture": "granitemoehybrid (Mamba2 + attention). NOT RUNNABLE on Transformers.js 3.8.1: its Mamba state inputs (past_conv.*, past_ssm.*) are never initialized",
       "dtype": "q8",
       "weightsMb": 473,
       "license": "Apache-2.0",

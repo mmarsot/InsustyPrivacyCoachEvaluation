@@ -26,7 +26,7 @@ import { CACHE_DIR, MODEL_CACHE_DIR, ROOT } from "../paths.ts";
 import type { ResultRecord } from "../run/jobs.ts";
 import { metrics, type Metrics } from "../score/aggregate.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
-import { buildMessages, buildRaw, configCategories, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
+import { buildMessages, buildRaw, configCategories, filterLines, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "./runtime.ts";
@@ -108,11 +108,19 @@ const slug = (s: string) => s.replace(/^.*\//, "").replace(/[^A-Za-z0-9.-]+/g, "
 const noPrefixCache = flag("no-prefix-cache");
 /** Rescore with relaxed anchoring (src/lab/config.ts relaxLines); summaries get a "+relax" suffix. */
 const relaxedAnchor = opt("anchor") === "relaxed";
+/**
+ * Scoring-time post-processing (no recompute): `basic` = filterLines,
+ * `dedup` = drop a passage claimed by two or more labels, `basic,dedup` = both.
+ * Summaries get a "+<filter>" suffix.
+ */
+const postFilters = list(opt("filter"));
+const filterSuffix = postFilters.length ? `+${postFilters.join("+")}` : "";
 /** onnxruntime-web build: `pinned` (the extension's, default) or `next` (1.24.3, needed by newer ONNX exports). */
 const ortOverride = opt("ort");
 const ortFor = (model: LabModel) => ortOverride ?? model.ort;
+const skipPrefix = (model: LabModel) => noPrefixCache || !model.prefixCache;
 const cacheFileFor = (model: LabModel, dtype: string) =>
-  join(LAB_DIR, `${slug(model.id)}-${dtype}${ortFor(model) === "next" ? "-ortnext" : ""}${noPrefixCache ? "-nopkv" : ""}.jsonl`);
+  join(LAB_DIR, `${slug(model.id)}-${dtype}${ortFor(model) === "next" ? "-ortnext" : ""}${skipPrefix(model) ? "-nopkv" : ""}.jsonl`);
 const loadLabCache = (file: string) => {
   const map = new Map<string, LabRecord>();
   if (existsSync(file))
@@ -143,6 +151,7 @@ async function plan(model: LabModel): Promise<Planned[]> {
         if (cfg.raw) {
           const raw = buildRaw(cfg, scope, refTexts, c.text);
           ({ prefix, instructions } = raw);
+          if (model.rawBos) prefix = `${String((tokenizer as unknown as { bos_token?: string }).bos_token ?? "")}${prefix}`;
           suffix = raw.suffix(c.text);
         } else {
           const built = buildMessages(cfg, scope, refTexts);
@@ -156,7 +165,7 @@ async function plan(model: LabModel): Promise<Planned[]> {
           prefix = rendered.slice(0, at);
           instructions = built.instructions;
         }
-        const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" && !config.stopAtNewline, ...(config.stopAtNewline ? { stopAtNewline: true } : {}), ...(config.noneGate !== null ? { scoreNone: true } : {}) };
+        const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" && !config.stopAtNewline, ...(config.stopAtNewline ? { stopAtNewline: true } : {}), ...(config.noneGate !== null ? { scoreNone: true } : {}), ...(config.minNewTokens ? { minNewTokens: config.minNewTokens } : {}) };
         // Keys omit defaults added after the first runs, so cached results stay valid.
         const { lineStop, ...keyGen } = gen;
         const key = createHash("sha256").update(JSON.stringify({ model: model.id, dtype, prefix, suffix, gen: lineStop ? keyGen : gen })).digest("hex").slice(0, 32);
@@ -175,7 +184,7 @@ async function runWorker(model: LabModel, dtype: string, pending: Planned[]): Pr
     if (!g.jobs.some((j) => j.key === p.key)) g.jobs.push({ key: p.key, caseId: p.c.id, suffix: p.suffix, gen: p.gen });
     groups.set(p.prefix, g);
   }
-  const spec: LabWorkerSpec = { bundle: ext.bundle, model: model.id, dtype: dtype as LabWorkerSpec["dtype"], resultFile: cacheFileFor(model, dtype), groups: [...groups.values()], noPrefixCache };
+  const spec: LabWorkerSpec = { bundle: ext.bundle, model: model.id, dtype: dtype as LabWorkerSpec["dtype"], resultFile: cacheFileFor(model, dtype), groups: [...groups.values()], noPrefixCache: skipPrefix(model) };
   const specFile = join(CACHE_DIR, "tmp", `lab-${process.pid}-${model.short}.json`);
   mkdirSync(join(CACHE_DIR, "tmp"), { recursive: true });
   mkdirSync(LAB_DIR, { recursive: true });
@@ -215,11 +224,20 @@ function score(parts: Planned[], cache: Map<string, LabRecord>): Row {
     const gated = part.config.noneGate !== null && (r.pNone ?? 0) >= part.config.noneGate;
     const json = gated ? "NONE" : part.config.output === "json" ? jsonToLines(r.output) : r.output;
     const lines = part.part && part.config.passageOnly ? passagesToLines(json, part.part) : json;
-    const parsed = relaxedAnchor ? relaxLines(lines, p.c.text) : lines;
+    const relaxed = relaxedAnchor ? relaxLines(lines, p.c.text) : lines;
+    const parsed = postFilters.includes("basic") ? filterLines(relaxed) : relaxed;
     const categories = configCategories(part.config, part.scope, refTexts);
     if (!deadline) findings.push(...validateModelOutput(parsed, { text: p.c.text, offset: 0 }, 0, categories));
     chunks.push({ output: parsed, ms: r.ms, runtime: { backend: "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } });
   });
+  if (postFilters.includes("dedup")) {
+    const labelsByValue = new Map<string, Set<string>>();
+    for (const f of findings) {
+      const k = (f.value ?? "").toLocaleLowerCase();
+      labelsByValue.set(k, (labelsByValue.get(k) ?? new Set()).add(f.category));
+    }
+    findings.splice(0, findings.length, ...findings.filter((f) => (labelsByValue.get((f.value ?? "").toLocaleLowerCase())?.size ?? 0) < 2));
+  }
   const reviewMs = records.reduce((a, r) => a + r.ms, 0);
   const record: ResultRecord = {
     key: p.key,
@@ -282,7 +300,7 @@ for (const ps of planned) {
     const rows = [...byCase.values()].filter((parts) => parts.every((p) => cache.has(p.key))).map((parts) => score(parts, cache));
     allRows.push(...rows);
     if (!rows.length) continue;
-    summary.push({ model: model.short, dtype, config: relaxedAnchor ? `${cfg.id}+relax` : cfg.id, note: cfg.note, overall: metrics(rows), en: metrics(rows.filter((r) => r.lang === "en")), fr: metrics(rows.filter((r) => r.lang === "fr")) });
+    summary.push({ model: model.short, dtype, config: `${cfg.id}${relaxedAnchor ? "+relax" : ""}${filterSuffix}`, note: cfg.note, overall: metrics(rows), en: metrics(rows.filter((r) => r.lang === "en")), fr: metrics(rows.filter((r) => r.lang === "fr")) });
   }
 }
 
@@ -326,7 +344,7 @@ if (!flag("dry-run") && summary.length) {
         })),
         cases: allRows.map((r) => ({
           model: findLabModel(r.model)?.short ?? r.model,
-          config: relaxedAnchor ? `${r.config.split(" | ")[1]}+relax` : r.config.split(" | ")[1],
+          config: `${r.config.split(" | ")[1]}${relaxedAnchor ? "+relax" : ""}${filterSuffix}`,
           caseId: r.caseId,
           failure: r.failure,
           found: r.expected.filter((e) => e.overlap).length,

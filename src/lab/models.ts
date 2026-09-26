@@ -14,6 +14,14 @@ export interface LabModel {
   secondsPerCase: number;
   /** onnxruntime-web build: `pinned` (the extension's) or `next` (see src/lab/ort-next-hooks.mjs). */
   ort: "pinned" | "next";
+  /** Plain completion prompts must start with the tokenizer's BOS token (LFM2, Gemma). */
+  rawBos: boolean;
+  /**
+   * Whether a prefilled prefix KV cache can be reused. False for LFM2: with
+   * Transformers.js 3.8.1 its conv-state cache breaks when the prompt is
+   * prefilled in two parts (garbage output), so every request runs whole.
+   */
+  prefixCache: boolean;
 }
 
 /** Measured in this repository (docs/approach.md). */
@@ -26,6 +34,8 @@ interface Candidate {
   peakRssMb: number;
   secondsPerCase: number;
   ort?: "pinned" | "next";
+  rawBos?: boolean;
+  prefixCache?: boolean;
 }
 const candidates = (JSON.parse(readFileSync(join(ROOT, "models", "candidates.json"), "utf8")) as { models: Candidate[] }).models;
 
@@ -38,8 +48,10 @@ export const LAB_MODELS: LabModel[] = [
     peakRssMb: BUNDLED_PEAK[m.short] ?? 3000,
     secondsPerCase: Math.min(10, m.priorSecondsPerCase),
     ort: "pinned" as const,
+    rawBos: false,
+    prefixCache: true,
   })),
-  ...candidates.map((c) => ({ id: c.id, short: c.short, dtype: c.dtype, bundled: false, peakRssMb: c.peakRssMb, secondsPerCase: c.secondsPerCase, ort: c.ort ?? "pinned" })),
+  ...candidates.map((c) => ({ id: c.id, short: c.short, dtype: c.dtype, bundled: false, peakRssMb: c.peakRssMb, secondsPerCase: c.secondsPerCase, ort: c.ort ?? "pinned", rawBos: c.rawBos ?? false, prefixCache: c.prefixCache ?? true })),
 ];
 
 export const findLabModel = (name: string) => LAB_MODELS.find((m) => m.short === name || m.id === name);

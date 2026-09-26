@@ -318,3 +318,42 @@ UI only, no change to the SLM modules), so results stay comparable.
 
 Within noise; the plain description stays (the examples are already in the
 demonstrations).
+
+### T4. Code-side post-filters (rescoring only, `t4-filter-*`)
+
+`--filter basic` drops answer passages that cannot be a sensitive item on
+their own: under 3 characters, a bare 1-2 digit number, only stop words, or
+more than 8 words (a copied sentence or instruction). `dedup` drops a passage
+claimed by two or more labels. SmolLM2-360M, tune96:
+
+| config | F1o | P | R | F1x | det | FPR |
+|---|---|---|---|---|---|---|
+| raw-pl | 30 | 32 | 29 | 18 | 39 | 36 |
+| raw-pl + basic | 29 | 35 | 24 | 19 | 37 | 24 |
+| raw-pl + basic + dedup | 27 | 41 | 20 | 19 | 31 | **14** |
+| raw-pl-lang | 33 | 37 | 30 | 26 | 46 | 48 |
+| **raw-pl-lang + basic** | 32 | 42 | 26 | **29** | 41 | 36 |
+| raw-pl-lang + basic + dedup | 30 | 45 | 22 | 26 | 37 | 29 |
+
+The basic filter is nearly free (F1 -1) and cuts the FP rate by 12 points;
+`raw-pl + basic + dedup` matches the shipped false-positive rate (14%) with
+F1 27 instead of 17. These filters are cheap for the extension to adopt.
+
+### E7a. Correction: prefix KV reuse is broken for LFM2 (E2c was wrong for it)
+
+In raw-pl mode LFM2.5-350M answered with an immediate end-of-sequence, or
+with garbage (`$$$$...`, `portportport...`) when EOS was forbidden. Run
+without prefix reuse, the same requests give correct answers ("Thibault
+Ferrand", "Norvik Dynamics", "Halvard Cycles"). So for LFM2 the difference
+seen in E2c was a Transformers.js 3.8.1 cache bug (its conv state does not
+survive a prompt prefilled in two parts), not numerics. SmolLM2 and Gemma 3
+give sensible (and, for Gemma, identical) outputs with reuse.
+
+- Invalidated: LFM2.5 rows of E3 (`ref` F1 13) and E4 (classifier AUC).
+- `models/candidates.json` now carries `prefixCache: false` for the LFM2
+  family; the lab and classifier workers then run each request whole.
+- The extension's engine always prefills the instruction prefix separately,
+  so shipping an LFM2 model would need that path disabled (or Transformers.js
+  v4) as well as the newer onnxruntime-web.
+- Granite 4.0 H 350M is not runnable on Transformers.js 3.8.1: its Mamba
+  state inputs (`past_conv.*`, `past_ssm.*`) are never initialized. Dropped.

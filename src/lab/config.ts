@@ -83,6 +83,8 @@ export interface LabConfig {
    * Configs with a gate record that probability (same cache for every threshold).
    */
   noneGate: number | null;
+  /** Forbid EOS for the first N tokens; 0 = off. */
+  minNewTokens: number;
   /** Extra variables for the chat template (e.g. enable_thinking: false). */
   templateKwargs: Record<string, unknown>;
 }
@@ -146,6 +148,7 @@ export const REF_CONFIG: LabConfig = {
   raw: false,
   stopAtNewline: false,
   noneGate: null,
+  minNewTokens: 0,
   templateKwargs: {},
 };
 
@@ -403,4 +406,27 @@ export function relaxLines(raw: string, text: string): string {
       return line;
     })
     .join("\n");
+}
+
+const STOPWORDS = new Set(
+  "a an the and or of to in on at for with by is are be it this that ok yes no none simple terms le la les un une des du de et ou à au en pour par sur avec est ce ça oui non".split(" "),
+);
+
+/**
+ * Code-side sanity filter on answer lines (a candidate post-processor for the
+ * extension): drops passages that cannot be a sensitive item on their own:
+ * shorter than 3 characters, a bare number of 1-2 digits, only stop words,
+ * or longer than 8 words (a copied sentence or instruction).
+ */
+export function filterLines(raw: string): string {
+  const kept = raw.split(/\r?\n/u).filter((line) => {
+    const m = /^\s*(?:(?:[-*•]+|\d+[.)])\s*)*[^:\n]+?\s*:\s*(?<p>.+)$/u.exec(line);
+    const passage = m?.groups?.p?.trim().replace(/^["'`“‘«]+|["'`”’».,;:!?]+$/gu, "");
+    if (!passage) return true;
+    if (/^NONE$/iu.test(passage)) return true;
+    const words = passage.split(/\s+/u);
+    if (passage.length < 3 || /^[+-]?\d{1,2}([-–]\d{1,2})?$/u.test(passage) || words.length > 8) return false;
+    return !words.every((w) => STOPWORDS.has(w.toLowerCase()));
+  });
+  return kept.some((l) => l.trim()) ? kept.join("\n") : "NONE";
 }

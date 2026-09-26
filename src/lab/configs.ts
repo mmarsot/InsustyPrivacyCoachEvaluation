@@ -139,4 +139,6 @@ add("raw-pl", "raw-pl-gate1", "raw-pl recording P(NONE) with a gate that never f
 add("raw-pl-lang", "raw-pl-lang-dx3", "raw-pl-lang with description + 3 examples in the instruction", { labelVariant: "desc_ex3" });
 add("raw-pl-lang", "raw-pl-lang-xc", "raw-pl-lang with examples + counter-examples (no description) in the instruction", { labelVariant: "ex_counter" });
 
+add("raw-pl-lang", "raw-pl-lang-min1", "raw-pl-lang forbidding EOS as the first token (LFM2 ends plain-text answers at once)", { minNewTokens: 1 });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));
