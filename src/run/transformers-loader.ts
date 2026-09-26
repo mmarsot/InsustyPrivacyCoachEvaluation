@@ -48,7 +48,7 @@ interface GenerateOptions {
   shouldStop(generated: readonly number[]): boolean;
 }
 
-const idsTensor = (ids: readonly number[]): Tensor =>
+export const idsTensor = (ids: readonly number[]): Tensor =>
   new Tensor("int64", BigInt64Array.from(ids, (id) => BigInt(id)), [1, ids.length]);
 
 class CallbackStoppingCriteria extends StoppingCriteria {
@@ -65,14 +65,14 @@ class CallbackStoppingCriteria extends StoppingCriteria {
   }
 }
 
-const eosIds = (model: PreTrainedModel): number[] => {
+export const eosIds = (model: PreTrainedModel): number[] => {
   const config = model.config as { eos_token_id?: unknown };
   const raw = (model as unknown as { generation_config?: { eos_token_id?: unknown } }).generation_config?.eos_token_id ?? config.eos_token_id;
   const list = Array.isArray(raw) ? raw : raw === null || raw === undefined ? [] : [raw];
   return list.filter((id): id is number => typeof id === "number");
 };
 
-function adaptTokenizer(tokenizer: PreTrainedTokenizer) {
+export function adaptTokenizer(tokenizer: PreTrainedTokenizer) {
   return {
     hasChatTemplate: Boolean(tokenizer.chat_template),
     applyChatTemplate: (messages: ReadonlyArray<{ role: string; content: string }>) =>
@@ -82,7 +82,7 @@ function adaptTokenizer(tokenizer: PreTrainedTokenizer) {
   };
 }
 
-function adaptModel(model: PreTrainedModel) {
+export function adaptModel(model: PreTrainedModel) {
   const contextLength = (model.config as { max_position_embeddings?: unknown }).max_position_embeddings;
   if (typeof contextLength !== "number" || !(contextLength > 0))
     throw new Error("The selected model does not declare a context length.");
@@ -118,16 +118,67 @@ function adaptModel(model: PreTrainedModel) {
 /** Loaded models, so the worker can dispose them explicitly. */
 const loaded: PreTrainedModel[] = [];
 
+/** Loads a tokenizer and q8/q4 model on the WASM backend. */
+export async function loadPretrained(model: string, dtype: "q8" | "q4" = "q8") {
+  const [tokenizer, instance] = await Promise.all([
+    AutoTokenizer.from_pretrained(model),
+    // "cpu" is how Transformers.js names the (aliased) onnxruntime-web WASM backend in Node.
+    AutoModelForCausalLM.from_pretrained(model, { device: "cpu", dtype }),
+  ]);
+  loaded.push(instance);
+  return { tokenizer, model: instance };
+}
+
+export interface FreeGenerationOptions {
+  maxNewTokens: number;
+  sample: boolean;
+  temperature: number;
+  topP: number;
+  deadlineMs: number;
+}
+
+/**
+ * Free-form generation for the chat playground: optional sampling, a token
+ * cap and a wall-clock deadline. Returns the new token ids and timing.
+ */
+export async function generateFree(model: PreTrainedModel, ids: readonly number[], options: FreeGenerationOptions) {
+  const started = performance.now();
+  let firstTokenMs: number | undefined;
+  let deadlineHit = false;
+  const criteria = new StoppingCriteriaList();
+  criteria.push(
+    new CallbackStoppingCriteria(ids.length, (generated) => {
+      if (generated.length && firstTokenMs === undefined) firstTokenMs = performance.now() - started;
+      if (performance.now() - started >= options.deadlineMs) {
+        deadlineHit = true;
+        return true;
+      }
+      return false;
+    }),
+  );
+  const parameters = {
+    input_ids: idsTensor(ids),
+    attention_mask: ones([1, ids.length]),
+    max_new_tokens: options.maxNewTokens,
+    do_sample: options.sample,
+    ...(options.sample ? { temperature: options.temperature, top_p: options.topP } : {}),
+    stopping_criteria: criteria,
+  };
+  const output = (await model.generate(parameters as unknown as Parameters<PreTrainedModel["generate"]>[0])) as Tensor;
+  const sequence = (output.tolist() as (number | bigint)[][])[0] ?? [];
+  return {
+    generated: sequence.slice(ids.length).map(Number),
+    ms: Math.round(performance.now() - started),
+    firstTokenMs: firstTokenMs === undefined ? undefined : Math.round(firstTokenMs),
+    deadlineHit,
+  };
+}
+
 /** `SlmRuntimeLoader` for the ref's `SlmEngine`: WASM only, no WebGPU. */
 export const nodeWasmLoader = {
   async load(model: string, device: string, dtype: string) {
     if (device !== "wasm") throw new Error(`The bench only runs on WASM (asked for ${device}).`);
-    const [tokenizer, instance] = await Promise.all([
-      AutoTokenizer.from_pretrained(model),
-      // "cpu" is how Transformers.js names the (aliased) onnxruntime-web WASM backend in Node.
-      AutoModelForCausalLM.from_pretrained(model, { device: "cpu", dtype: dtype as "q8" | "q4" }),
-    ]);
-    loaded.push(instance);
+    const { tokenizer, model: instance } = await loadPretrained(model, dtype as "q8" | "q4");
     return { tokenizer: adaptTokenizer(tokenizer), model: adaptModel(instance) };
   },
   async probeWebGpu() {

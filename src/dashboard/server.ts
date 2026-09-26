@@ -10,7 +10,7 @@ import { compileDataset } from "../dataset/load.ts";
 import type { CompiledCase, CompiledDataset } from "../dataset/schema.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo, type ExtApi, type ExtRef } from "../ext/ref.ts";
 import { EXT_CACHE_DIR, MODELS_FILE } from "../paths.ts";
-import { DEFAULT_QUICK_CASES_PER_PROFILE, rulesFor, type Job, type ResultRecord } from "../run/jobs.ts";
+import { DEFAULT_QUICK_CASES_PER_PROFILE, rulesFor, selectCases, type Job, type ResultRecord } from "../run/jobs.ts";
 import { MODELS, parseBenchArgs, planJobs, secondsPerCase, splitLabel, type Plan } from "../run/plan.ts";
 import { compareRows, COMPARE_METRICS } from "../report/compare-data.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
@@ -34,6 +34,9 @@ import {
   type RunListing,
 } from "./data.ts";
 import { PAGE_HTML } from "./page.ts";
+import { BusyError, PlaygroundHost } from "../playground/manager.ts";
+import { DEFAULT_SETTINGS } from "../playground/logic.ts";
+import { composeLabelDescription } from "../variants.ts";
 
 interface LoadedExt {
   ext: ExtRef;
@@ -52,6 +55,8 @@ interface LiveRun {
 
 export class Dashboard {
   readonly dataset: CompiledDataset;
+  /** At most one chat-playground model, in its own process. */
+  readonly playground = new PlaygroundHost();
   readonly cases: Map<string, CompiledCase>;
   private readonly exts = new Map<string, Promise<LoadedExt>>();
   private readonly scored = new Map<string, Scored>();
@@ -242,6 +247,78 @@ export class Dashboard {
   }
 }
 
+// ------------------------------------------------------------ playground
+
+async function playgroundPresets(dash: Dashboard) {
+  const loaded = await dash.ext();
+  const api = loaded?.api;
+  return {
+    ext: loaded ? { ref: loaded.ext.ref, sha: loaded.ext.sha, subject: loaded.ext.subject } : null,
+    models: MODELS.map((m) => ({ id: m.id, short: m.short })),
+    settings: DEFAULT_SETTINGS,
+    defaultPrompt: api?.defaultPrompt ?? null,
+    outputSchema: api?.outputSchema ?? null,
+    replyPrefill: api?.replyPrefill ?? null,
+    generationBudgetMs: api?.generationBudgetMs ?? null,
+    framedExample: api?.frameReviewChunk?.("<the user's prompt>") ?? null,
+    labelVariants: LABEL_VARIANTS,
+    profiles: dash.dataset.profiles.map((p) => ({
+      id: p.id,
+      name: p.name,
+      rules: Object.fromEntries(LABEL_VARIANTS.map((v) => [v.id, p.labels.map((l) => ({ label: l.label, prompt: composeLabelDescription(l, v.id) }))])),
+    })),
+    // Dev-split cases only: the test split stays held out.
+    examples: selectCases(dash.dataset, "quick", "dev", 2).map((c) => ({ id: c.id, profile: c.profile, lang: c.lang, type: c.type, text: c.text, expected: c.expected })),
+  };
+}
+
+const readBody = (req: IncomingMessage): Promise<Record<string, unknown>> =>
+  new Promise((resolve, reject) => {
+    let body = "";
+    req.on("data", (chunk: Buffer) => {
+      body += chunk.toString();
+      if (body.length > 2_000_000) reject(new Error("request too large"));
+    });
+    req.on("end", () => {
+      try {
+        resolve(body ? (JSON.parse(body) as Record<string, unknown>) : {});
+      } catch {
+        reject(new Error("invalid JSON body"));
+      }
+    });
+    req.on("error", reject);
+  });
+
+async function handlePlayground(dash: Dashboard, path: string, req: IncomingMessage, res: ServerResponse): Promise<void> {
+  const host = dash.playground;
+  if (path === "/api/playground/status") return send(res, 200, host.getStatus());
+  if (path === "/api/playground/presets") return send(res, 200, await playgroundPresets(dash));
+  if (req.method !== "POST") return send(res, 405, { error: "POST required" });
+  const body = await readBody(req);
+  try {
+    switch (path) {
+      case "/api/playground/load": {
+        const model = MODELS.find((m) => m.id === body.model || m.short === body.model);
+        if (!model) return send(res, 400, { error: "unknown model" });
+        const loaded = await dash.ext();
+        if (!loaded) return send(res, 400, { error: "extension clone not configured (needed for the review preset and engine)" });
+        return send(res, 200, await host.load(model.id, loaded.ext.bundle));
+      }
+      case "/api/playground/unload":
+        await host.unload();
+        return send(res, 200, host.getStatus());
+      case "/api/playground/chat":
+        return send(res, 200, await host.request("chat", { messages: body.messages, prefill: body.prefill, settings: body.settings }));
+      case "/api/playground/review":
+        return send(res, 200, await host.request("review", { request: body }));
+      default:
+        return send(res, 404, { error: "not found" });
+    }
+  } catch (error) {
+    return send(res, error instanceof BusyError ? 409 : 400, { error: (error as Error).message });
+  }
+}
+
 // ------------------------------------------------------------ HTTP
 
 const MODEL_META = (JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: unknown[] }).models;
@@ -264,6 +341,7 @@ export async function handle(dash: Dashboard, req: IncomingMessage, res: ServerR
   const url = new URL(req.url ?? "/", "http://localhost");
   const p = url.searchParams;
   try {
+    if (url.pathname.startsWith("/api/playground/")) return await handlePlayground(dash, url.pathname, req, res);
     switch (url.pathname) {
       case "/":
         return send(res, 200, PAGE_HTML, "text/html");

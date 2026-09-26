@@ -8,7 +8,7 @@ This file is the project's committed home for project-intrinsic agent knowledge:
 - Inference must stay on onnxruntime-web WASM with default session options (`onnxruntime-node` is aliased in `package.json`). Native ORT and other graph-optimization levels change greedy outputs on the q8 models, so results would not reflect the extension.
 - Models run one at a time, each in its own child process (`src/run/worker.ts`); Qwen2.5-0.5B peaks above 3 GB RSS while loading on a 7 GB machine, so never run two workers in parallel.
 - `src/run/transformers-loader.ts` mirrors the extension's `src/model-worker.ts` adapters; when a ref changes that worker, update the loader.
-- `npm run dashboard` (`src/dashboard/`) must stay read-only: it watches runs in progress through `cache/active-runs/`, `/proc` and the result cache, and rebuilds plans with `src/run/plan.ts`, the same planner `npm run bench` uses. Keep planning logic there, not in the CLI.
+- `npm run dashboard` (`src/dashboard/`) must stay read-only: it watches runs in progress through `cache/active-runs/`, `/proc` and the result cache, and rebuilds plans with `src/run/plan.ts`, the same planner `npm run bench` uses. Keep planning logic there, not in the CLI. Its Playground view is the only part that runs a model: one at a time, in a child process killed on unload/switch (`src/playground/`); never let it hold two models.
 - The `test` split is held out: never tune instructions or label descriptions on it. `npm run split` only fills missing splits.
 - Results are cached by content hash in `cache/results/`; rerunning a bench command with nothing new only rescores. Do not edit files imported by `src/run/worker.ts` while a run is in progress (each model's worker is spawned later and would load the edited code).
 

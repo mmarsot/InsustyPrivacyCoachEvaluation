@@ -144,6 +144,10 @@ export interface ExtApi {
   ): Promise<{ findings: FindingLike[] }>;
   // SlmEngine constructor from src/slm-engine.ts.
   SlmEngine: new (loader: unknown) => EngineLike;
+  /** Line-protocol refs only (PR #17+): data framing and reply prefill. */
+  frameReviewChunk?: (text: string) => string;
+  replyPrefill?: string;
+  outputSchema?: string;
 }
 
 export interface Rule {
@@ -204,5 +208,8 @@ export async function loadExtApi(bundle: string): Promise<ExtApi> {
     reviewCategories: need(review.reviewCategories, "reviewCategories") as ExtApi["reviewCategories"],
     reviewPrompt: need(review.reviewPrompt, "reviewPrompt") as ExtApi["reviewPrompt"],
     SlmEngine: need(mod.engine?.SlmEngine, "SlmEngine") as ExtApi["SlmEngine"],
+    frameReviewChunk: review.frameReviewChunk as ExtApi["frameReviewChunk"],
+    replyPrefill: review.SLM_REPLY_PREFILL as string | undefined,
+    outputSchema: review.SLM_OUTPUT_SCHEMA as string | undefined,
   };
 }

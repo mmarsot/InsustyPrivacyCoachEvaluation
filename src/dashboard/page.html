@@ -57,13 +57,22 @@ mark sup{font-size:9.5px;color:var(--ink2);margin-left:2px}
 .kv{display:grid;grid-template-columns:max-content 1fr;gap:2px 14px;font-size:12.5px}.kv>div:nth-child(odd){color:var(--muted)}
 #drawer{position:fixed;inset:0 0 0 auto;width:min(980px,100%);background:var(--bg);border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(0,0,0,.15);overflow:auto;padding:16px;z-index:10;display:none}
 #drawer.open{display:block}
+textarea{font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%;resize:vertical}
+.turn{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:8px 0;background:var(--surface)}
+.turn .who{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.turn.user{border-left:3px solid var(--bar)}.turn.assistant{border-left:3px solid var(--good)}
+.turn .content{white-space:pre-wrap;word-break:break-word;margin-top:4px}
+.prefill{color:var(--muted);text-decoration:underline dotted}
+.rule{display:grid;grid-template-columns:200px 1fr auto;gap:8px;margin:6px 0;align-items:start}
+@media (max-width:700px){.rule{grid-template-columns:1fr}}
+.tabs2 button.on{background:var(--bar-bg);font-weight:600}
 </style>
 </head>
 <body>
 <header>
   <h1>Review Bench</h1>
   <nav id="nav">
-    <a href="#live">Live</a><a href="#matrix">Experiments</a><a href="#results">Results</a><a href="#compare">Compare</a>
+    <a href="#live">Live</a><a href="#matrix">Experiments</a><a href="#results">Results</a><a href="#compare">Compare</a><a href="#playground">Playground</a>
   </nav>
   <div id="meta"></div>
 </header>
@@ -292,8 +301,198 @@ async function renderCompare() {
   $("#cb").onchange = (e) => ((state.compareB = e.target.value), renderCompare());
 }
 
+
+// ------------------------------------------------------------------ playground
+const pg = { presets: null, mode: "chat", system: "You are a helpful assistant.", history: [], user: "", prefill: "", settings: null, review: null, reviewResult: null, pending: false, statusTimer: null };
+async function post(path, body) {
+  const r = await fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body ?? {}) });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error ?? r.statusText);
+  return data;
+}
+function statusLine(st) {
+  const act = st.activity ? ` · ${esc(st.activity.kind)} for ${Math.round((Date.now() - st.activity.since) / 1000)} s` : "";
+  const cls = st.state === "ready" ? "done" : st.state === "error" ? "bad" : st.state === "empty" ? "" : "running";
+  return `<span class="chip ${cls}">${esc(st.state)}</span> ${st.model ? `<b>${esc(short(st.model))}</b>` : "no model loaded"}${st.loadMs ? ` · loaded in ${ms(st.loadMs)}` : ""}${st.rssMb ? ` · RAM ${st.rssMb} MB (peak ${st.peakRssMb} MB)` : ""}${st.info ? ` · context ${st.info.contextLength} tokens · ${st.info.threads} WASM threads` : ""}${act}${st.error ? ` · <span class="chip bad">${esc(st.error)}</span>` : ""}`;
+}
+async function refreshStatus() {
+  const el = $("#pgStatus");
+  if (!el) return;
+  const st = await api("/api/playground/status");
+  el.innerHTML = statusLine(st);
+  pg.state = st;
+}
+async function renderPlayground() {
+  if (!pg.presets) {
+    pg.presets = await api("/api/playground/presets");
+    pg.settings = { ...pg.presets.settings };
+    const p0 = pg.presets.profiles[0];
+    pg.review = { systemInstruction: pg.presets.defaultPrompt ?? "", profile: p0?.id ?? "", variant: "desc", rules: p0 ? p0.rules.desc.map((r) => ({ ...r })) : [], text: pg.presets.examples[0]?.text ?? "", example: pg.presets.examples[0]?.id ?? "" };
+  }
+  const P = pg.presets;
+  $("#view").innerHTML = `<div class="card"><div class="row">
+    <label class="f">Model<select id="pgModel">${P.models.map((m) => `<option value="${esc(m.id)}" ${pg.state?.model === m.id ? "selected" : ""}>${esc(m.short)}</option>`).join("")}</select></label>
+    <button id="pgLoad">Load</button><button id="pgUnload">Unload (free RAM)</button>
+    <div id="pgStatus" class="muted" style="flex:1">…</div></div>
+    <p class="muted" style="margin:6px 0 0">One model at a time, on WASM (q8), in its own process: loading another model or unloading kills that process and frees all its memory. Extension ref <code>${esc(P.ext?.ref ?? "?")}</code> @ <code>${esc((P.ext?.sha ?? "").slice(0, 10))}</code>.</p></div>
+  <div class="row tabs2"><button data-mode="chat" class="${pg.mode === "chat" ? "on" : ""}">Free chat</button><button data-mode="review" class="${pg.mode === "review" ? "on" : ""}">Extension review preset</button></div>
+  <div id="pgBody"></div>`;
+  $("#pgLoad").onclick = async () => {
+    $("#pgStatus").innerHTML = '<span class="chip running">loading</span> (first load downloads the weights)';
+    try {
+      await post("/api/playground/load", { model: $("#pgModel").value });
+    } catch (e) {
+      alert(e.message);
+    }
+    refreshStatus();
+  };
+  $("#pgUnload").onclick = async () => (await post("/api/playground/unload"), refreshStatus());
+  for (const b of document.querySelectorAll("[data-mode]")) b.onclick = () => ((pg.mode = b.dataset.mode), renderPlayground());
+  refreshStatus();
+  if (pg.mode === "chat") renderChat();
+  else renderReviewPreset();
+}
+function receivedDetails(t) {
+  return `<details><summary>What the model received and returned · ${t.promptTokens} prompt tokens · ${t.generatedTokens} generated · ${esc(t.finishReason)} · ${ms(t.ms)}${t.firstTokenMs !== undefined ? ` (first token ${ms(t.firstTokenMs)})` : ""}</summary>
+    <h3>Rendered prompt (chat template with role markers${t.prefill ? " + assistant prefill" : ""})</h3><pre>${esc(t.rendered)}</pre>
+    <h3>Raw completion (special tokens kept)</h3><pre>${esc(t.outputWithSpecialTokens)}</pre>
+    <p class="muted">Settings: max ${t.settings.maxNewTokens} new tokens · ${t.settings.sample ? `sampling, temperature ${t.settings.temperature}, top-p ${t.settings.topP}` : "greedy"} · deadline ${t.settings.deadlineMs / 1000} s</p></details>`;
+}
+function renderChat() {
+  const s = pg.settings;
+  const turns = pg.history
+    .map((t) =>
+      t.role === "user"
+        ? `<div class="turn user"><div class="who">user</div><div class="content">${esc(t.content)}</div></div>`
+        : `<div class="turn assistant"><div class="who">assistant</div><div class="content">${t.prefill ? `<span class="prefill" title="assistant prefill">${esc(t.prefill)}</span>` : ""}${esc(t.output)}</div>${receivedDetails(t)}</div>`,
+    )
+    .join("");
+  $("#pgBody").innerHTML = `<div class="grid2"><div>
+    <h3>System message</h3><textarea id="pgSystem" rows="4">${esc(pg.system)}</textarea>
+    <h3>Generation settings</h3><div class="row">
+      <label class="f">Max new tokens<input id="pgMax" type="number" min="1" max="2048" value="${s.maxNewTokens}" style="width:90px"></label>
+      <label class="f">Decoding<select id="pgSample"><option value="greedy">greedy</option><option value="sample" ${s.sample ? "selected" : ""}>sampling</option></select></label>
+      <label class="f">Temperature<input id="pgTemp" type="number" step="0.05" min="0.05" max="2" value="${s.temperature}" style="width:80px"></label>
+      <label class="f">Top-p<input id="pgTopP" type="number" step="0.05" min="0.05" max="1" value="${s.topP}" style="width:80px"></label>
+      <label class="f">Deadline (s)<input id="pgDeadline" type="number" min="1" max="300" value="${s.deadlineMs / 1000}" style="width:80px"></label></div>
+    <p class="muted">Temperature and top-p apply only when sampling. Sampling is not seeded, so repeats differ.</p>
+    </div><div>
+    <h3>User message</h3><textarea id="pgUser" rows="5" placeholder="Type a message">${esc(pg.user)}</textarea>
+    <h3>Assistant prefill (optional)</h3><textarea id="pgPrefill" rows="2" placeholder="Text the assistant turn starts with, e.g. Findings:">${esc(pg.prefill)}</textarea>
+    <div class="row" style="margin-top:8px"><button id="pgSend">${pg.pending ? "Generating…" : "Send"}</button><button id="pgClear">Clear conversation</button><span class="muted">${pg.history.filter((t) => t.role === "user").length} turn(s)</span></div>
+    </div></div>
+    <h2>Conversation</h2>${turns || '<p class="muted">No messages yet. The system message is sent with every turn; the whole history is re-sent each time.</p>'}`;
+  const sync = () => {
+    pg.system = $("#pgSystem").value;
+    pg.user = $("#pgUser").value;
+    pg.prefill = $("#pgPrefill").value;
+    pg.settings = { maxNewTokens: +$("#pgMax").value, sample: $("#pgSample").value === "sample", temperature: +$("#pgTemp").value, topP: +$("#pgTopP").value, deadlineMs: 1000 * +$("#pgDeadline").value };
+  };
+  for (const el of document.querySelectorAll("#pgBody textarea, #pgBody input, #pgBody select")) el.onchange = sync;
+  $("#pgClear").onclick = () => (sync(), (pg.history = []), renderChat());
+  $("#pgSend").onclick = async () => {
+    sync();
+    if (!pg.user.trim() || pg.pending) return;
+    const messages = [...(pg.system.trim() ? [{ role: "system", content: pg.system }] : []), ...pg.history.map((t) => ({ role: t.role, content: t.role === "user" ? t.content : t.prefill + t.output })), { role: "user", content: pg.user }];
+    pg.pending = true;
+    renderChat();
+    try {
+      const r = await post("/api/playground/chat", { messages, prefill: pg.prefill, settings: pg.settings });
+      pg.history.push({ role: "user", content: pg.user }, { role: "assistant", prefill: pg.prefill, ...r });
+      pg.user = "";
+    } catch (e) {
+      alert(e.message);
+    }
+    pg.pending = false;
+    renderChat();
+    refreshStatus();
+  };
+}
+function renderReviewPreset() {
+  const R = pg.review;
+  const P = pg.presets;
+  const rules = R.rules.map((r, i) => `<div class="rule"><input data-rl="${i}" value="${esc(r.label)}" placeholder="LABEL"><textarea data-rp="${i}" rows="2" placeholder="What it should detect">${esc(r.prompt)}</textarea><button data-rm="${i}">✕</button></div>`).join("");
+  const example = P.examples.find((e) => e.id === R.example);
+  const result = pg.reviewResult;
+  let out = "";
+  if (result) {
+    const hl = [...result.findings].sort((a, b) => a.start - b.start);
+    let text = "";
+    let at = 0;
+    for (const f of hl) {
+      if (f.start < at) continue;
+      text += esc(R.lastText.slice(at, f.start)) + `<mark class="expected-hit">${esc(R.lastText.slice(f.start, f.end))}<sup>${esc(f.category)}</sup></mark>`;
+      at = f.end;
+    }
+    text += esc(R.lastText.slice(at));
+    const chunks = result.chunks
+      .map((c, i) => `<h3>Request ${i + 1}${result.chunks.length > 1 ? ` of ${result.chunks.length}` : ""}: ${c.promptTokens} prompt tokens · ${c.runtime ? `${c.runtime.generatedTokens} generated · finish ${esc(c.runtime.finishReason)} · prefix ${c.runtime.prefixReused ? "reused" : "prepared"}` : ""} · ${ms(c.ms)}${c.error ? ` · <span class="chip bad">${esc(c.error)}</span>` : ""}</h3>
+        <details><summary>Rendered prompt the model receives (system = instructions, user = framed text, then the reply prefill)</summary><pre>${esc(c.rendered)}</pre></details>
+        <h3>Raw completion</h3><pre>${esc(c.output || "(empty)")}</pre>`)
+      .join("");
+    out = `<h2>Result</h2>${result.error ? `<div class="card"><span class="chip bad">review error</span> ${esc(result.error)}</div>` : ""}${result.skipped ? `<div class="card">${esc(result.skipped)}</div>` : ""}
+      <h3>Accepted findings (parsed and anchored by the extension)</h3><div class="card"><table><tbody>${result.findings.map((f) => `<tr><td><code>${esc(f.category)}</code></td><td>${esc(f.value)}</td><td class="muted">${f.start}–${f.end}</td></tr>`).join("") || '<tr><td class="muted">none</td></tr>'}</tbody></table>
+      <div class="text" style="margin-top:8px">${text}</div>${R.lastExpected?.length ? `<p class="muted">Dataset ground truth for this example: ${R.lastExpected.map((e) => `<code>${esc(e.label)}</code> ${esc(e.passage)}`).join(" · ")}</p>` : ""}</div>
+      ${chunks}<details><summary>Composed instructions (composeReviewInstructions)</summary><pre>${esc(result.instructions)}</pre></details>`;
+  }
+  $("#pgBody").innerHTML = `<p>Reproduces exactly what the extension at <code>${esc(P.ext?.ref ?? "?")}</code> sends: its <code>composeReviewInstructions</code> (system prompt, fixed output schema, label list), <code>frameReviewChunk</code> framing, <code>${esc(JSON.stringify(P.replyPrefill))}</code> reply prefill, its engine (stop rule, ${P.generationBudgetMs ? P.generationBudgetMs / 1000 : "?"} s budget, greedy) and its parser/anchoring (<code>reviewPrompt</code>).</p>
+  <div class="card"><div class="row">
+    <label class="f">Load labels from profile<select id="rvProfile">${P.profiles.map((p) => `<option value="${p.id}" ${p.id === R.profile ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select></label>
+    <label class="f">Description variant<select id="rvVariant">${P.labelVariants.map((v) => `<option value="${v.id}" ${v.id === R.variant ? "selected" : ""}>${esc(v.title)}</option>`).join("")}</select></label>
+    <button id="rvLoadRules">Load labels</button>
+    <label class="f">Example text (dev split)<select id="rvExample"><option value="">(custom)</option>${P.examples.map((e) => `<option value="${e.id}" ${e.id === R.example ? "selected" : ""}>${e.id} · ${e.type}</option>`).join("")}</select></label></div></div>
+  <div class="grid2"><div>
+    <h3>System instruction (user-editable prompt; default = the extension's)</h3><textarea id="rvSystem" rows="3">${esc(R.systemInstruction)}</textarea>
+    <h3>Custom labels</h3>${rules}<button id="rvAdd">+ label</button>
+    <p class="muted">Same constraints as the extension: LABEL matches <code>[A-Z][A-Z0-9_]{0,31}</code>, description up to 1000 characters. The built-in labels (API_KEY, PHONE, EMAIL, ADDRESS) are always appended.</p>
+  </div><div>
+    <h3>Text to review</h3><textarea id="rvText" rows="12">${esc(R.text)}</textarea>
+    ${example ? `<p class="muted">Example ${esc(example.id)} expects: ${example.expected.map((e) => `<code>${esc(e.label)}</code> ${esc(e.passage)}`).join(" · ") || "nothing (negative case)"}</p>` : ""}
+    <div class="row"><button id="rvRun">${pg.pending ? "Reviewing…" : "Run extension review"}</button></div>
+  </div></div>${out}`;
+  const sync = () => {
+    R.systemInstruction = $("#rvSystem").value;
+    R.text = $("#rvText").value;
+    for (const el of document.querySelectorAll("[data-rl]")) R.rules[+el.dataset.rl].label = el.value;
+    for (const el of document.querySelectorAll("[data-rp]")) R.rules[+el.dataset.rp].prompt = el.value;
+  };
+  for (const el of document.querySelectorAll("#pgBody textarea, #pgBody input")) el.onchange = sync;
+  for (const b of document.querySelectorAll("[data-rm]")) b.onclick = () => (sync(), R.rules.splice(+b.dataset.rm, 1), renderReviewPreset());
+  $("#rvAdd").onclick = () => (sync(), R.rules.push({ label: "", prompt: "" }), renderReviewPreset());
+  $("#rvLoadRules").onclick = () => {
+    sync();
+    R.profile = $("#rvProfile").value;
+    R.variant = $("#rvVariant").value;
+    R.rules = P.profiles.find((p) => p.id === R.profile).rules[R.variant].map((r) => ({ ...r }));
+    renderReviewPreset();
+  };
+  $("#rvExample").onchange = (e) => {
+    sync();
+    R.example = e.target.value;
+    const ex = P.examples.find((x) => x.id === R.example);
+    if (ex) R.text = ex.text;
+    renderReviewPreset();
+  };
+  $("#rvRun").onclick = async () => {
+    sync();
+    if (pg.pending) return;
+    pg.pending = true;
+    renderReviewPreset();
+    try {
+      pg.reviewResult = await post("/api/playground/review", { systemInstruction: R.systemInstruction, rules: R.rules, text: R.text });
+      R.lastText = R.text;
+      R.lastExpected = P.examples.find((x) => x.id === R.example && x.text === R.text)?.expected ?? [];
+    } catch (e) {
+      alert(e.message);
+    }
+    pg.pending = false;
+    renderReviewPreset();
+    refreshStatus();
+  };
+}
+
 // ------------------------------------------------------------------ routing
-const VIEWS = { live: renderLive, matrix: renderMatrix, results: renderResults, compare: renderCompare };
+const VIEWS = { live: renderLive, matrix: renderMatrix, results: renderResults, compare: renderCompare, playground: renderPlayground };
 async function route() {
   const tab = (location.hash.slice(1) || "live").split("?")[0];
   for (const a of document.querySelectorAll("#nav a")) a.classList.toggle("on", a.getAttribute("href") === "#" + tab);
@@ -306,6 +505,7 @@ async function route() {
   }
   if (tab === "live") timer = setInterval(() => renderLive().catch(() => {}), 5000);
   if (tab === "matrix") timer = setInterval(() => renderMatrix().catch(() => {}), 30000);
+  if (tab === "playground") timer = setInterval(() => refreshStatus().catch(() => {}), 2000);
 }
 (async () => {
   overview = await api("/api/overview");

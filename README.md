@@ -154,14 +154,15 @@ npm run dashboard            # http://127.0.0.1:4380/  (--port, --ref, --ext-rep
 ```
 
 The dashboard is a small read-only local server: plain `node:http` and one
-static page, no framework, about 200 MB of RAM. It reads the dataset, the
+static page, no framework, about 200 MB of RAM (plus one model process while
+the Playground has a model loaded). It reads the dataset, the
 result cache and `runs/`, and it never writes, so it is safe to leave open
 during a bench run. It finds runs in progress automatically. Each bench
 process registers in `cache/active-runs/`, and on Linux the dashboard also
 scans `/proc`. It then rebuilds the run's exact plan from its arguments and
 compares it with the cache.
 
-It has four views:
+It has five views:
 
 - **Live.** One card per bench run in progress, refreshed every 5 s. It shows
   overall done/total and ETA. For each model it shows status
@@ -185,6 +186,38 @@ It has four views:
     latency, tokens and finish reason.
 - **Compare.** Any two runs, committed or live, on their shared (configuration,
   case) results, overall and by language.
+- **Playground.** Talk to one bundled model to see its limits (below).
+
+### Chat playground
+
+The Playground view (`#playground`) loads **one** bundled model at a time,
+q8 on WASM like the bench, in its own child process (`src/playground/host.ts`).
+Loading another model or pressing *Unload* kills that process, so the
+operating system gets all of its memory back. The header shows load time,
+current and peak RSS (from `/proc`), context length and WASM threads. It
+handles one request at a time; a second one gets HTTP 409 while it is busy.
+Rough RSS on this laptop: SmolLM2-135M about 1 GB. Qwen2.5-0.5B can peak above
+3 GB while loading, so do not load it while a bench run is going.
+
+- **Free chat.** Editable system message, user message and optional assistant
+  prefill, max new tokens, greedy or sampling (temperature, top-p, not seeded)
+  and a wall-clock deadline. The whole history is re-sent each turn. For every
+  turn it shows the exact text the model continues (chat template with role
+  markers, plus the prefill), prompt and generated token counts, the raw
+  completion with special tokens, latency, first-token time and the finish
+  reason (`eos`, `max_new_tokens`, `deadline`, `context`).
+- **Extension review preset.** Runs the extension ref's own `reviewPrompt`
+  through its own `SlmEngine`: `composeReviewInstructions`,
+  `frameReviewChunk` framing, the `SLM_REPLY_PREFILL` prefill, pagination, the
+  stop rule, the generation budget, parsing and anchoring. Custom labels and
+  descriptions are editable, under the extension's constraints. You can load
+  them from a dataset profile in any description variant, and pick dev-split
+  example texts (the test split stays out). Each engine request shows the
+  rendered prompt, its token count, the raw completion and the runtime report.
+  The accepted findings are highlighted in the text, next to the dataset's
+  ground truth when the text is an unedited example.
+
+The playground calls the model only when you click; it writes no files.
 
 ## How it runs the extension's code
 
@@ -266,7 +299,8 @@ Other commands:
 - `npm run compare -- runs/A runs/B` writes an HTML diff of two runs, computed
   on the configurations and cases they share.
 - `npm run report -- runs/A` re-renders the report from `results.jsonl`.
-- `npm test` runs the scorer and dashboard data unit tests.
+- `npm test` runs the scorer, dashboard data and playground unit tests (the
+  playground ones use a fake model process, no weights).
 - `npm run typecheck` runs the type checker.
 
 ## Repository layout
@@ -280,6 +314,7 @@ src/run/        jobs, tiers, cache, per-model worker, Node Transformers.js loade
 src/score/      per-case scoring and aggregation
 src/report/     HTML report, run comparison
 src/dashboard/  local dashboard (read-only server + static page)
+src/playground/ chat playground: request logic, model host process, its manager
 src/cli/        validate, split, bench, report, compare
 runs/           committed run outputs
 cache/          (untracked) model weights, extracted refs, result cache
