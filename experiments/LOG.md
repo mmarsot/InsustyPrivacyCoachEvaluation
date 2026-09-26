@@ -307,3 +307,14 @@ UI only, no change to the SLM modules), so results stay comparable.
   guessed from stop words, 564/567 correct on dev): French F1 23 -> 31,
   exact-match F1 18 -> 26, English about flat. New best.
 - Relaxed anchoring confirmed harmful (FPR +12-14 points).
+
+### T3. Label-description variants inside the raw-pl-lang instruction (`t3-smol360`)
+
+| config | F1o | P | R | F1x | det | FPR | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|
+| raw-pl-lang (description) | 33 | 37 | 30 | 26 | 46 | 48 | 35 | 31 |
+| raw-pl-lang-dx3 (description + 3 examples) | 31 | 40 | 25 | 24 | 37 | 43 | 31 | 31 |
+| raw-pl-lang-xc (examples + counter-examples) | 29 | 35 | 24 | 20 | 35 | 38 | 25 | 32 |
+
+Within noise; the plain description stays (the examples are already in the
+demonstrations).
