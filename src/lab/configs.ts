@@ -81,4 +81,14 @@ add("ref", "pl-passages", "Per-label passes; bare passages, label attached by co
 add("pl-passages", "pl-passages-uncapped", "pl-passages without the 96-token cap (ref deadline only)", { maxNewTokens: 0 });
 add("ref", "pl-lines", "Per-label passes with the ref prompt and format, one label listed", { perLabel: true, passageOnly: true });
 
+// --- combinations (after E5)
+add("pl-passages", "pl-passages-rp1", "pl-passages without the inherited repetition penalty", { repetitionPenalty: 1 });
+add("lbl-means", "lbl-means-rp1", "lbl-means without the inherited repetition penalty", { repetitionPenalty: 1 });
+add("rp1", "rp1-cap96", "rp1 with a 96-token cap (latency bound, findings kept)", { maxNewTokens: 96 });
+add("rp1", "rp1-nobuiltin", "rp1 without the deterministic labels in the list", { builtinLabels: false });
+add("rp1", "rp1-v4-means", "rp1 + v4 instruction + 'LABEL means' layout", {
+  instruction: V4,
+  labelLine: "* {label} means {description}",
+});
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));

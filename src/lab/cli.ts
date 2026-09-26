@@ -15,7 +15,6 @@
  * generation that hits the deadline yields no findings, as in the extension.
  * Summaries go to experiments/runs/<name>.json.
  */
-import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -30,6 +29,7 @@ import { scoreResult, type Scored } from "../score/score.ts";
 import { buildMessages, configCategories, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
+import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "./runtime.ts";
 import type { LabEvent, LabGroup, LabJob, LabRecord, LabWorkerSpec } from "./worker.ts";
 
 env.cacheDir = MODEL_CACHE_DIR;
@@ -158,34 +158,6 @@ async function plan(model: LabModel): Promise<Planned[]> {
 }
 
 // ------------------------------------------------------------------ run
-const readMem = () => {
-  const info = readFileSync("/proc/meminfo", "utf8");
-  const kb = (k: string) => Number(new RegExp(`${k}:\\s+(\\d+)`).exec(info)?.[1] ?? 0);
-  return Math.round(kb("MemAvailable") / 1024);
-};
-const readRss = (pid: number, field: "VmRSS" | "VmHWM") => {
-  try {
-    const kb = Number(new RegExp(`${field}:\\s+(\\d+)`).exec(readFileSync(`/proc/${pid}/status`, "utf8"))?.[1]);
-    return Number.isFinite(kb) ? Math.round(kb / 1024) : 0;
-  } catch {
-    return 0;
-  }
-};
-
-async function waitForMemory(model: LabModel): Promise<boolean> {
-  const need = model.peakRssMb + minFreeMb;
-  for (let waited = 0; ; waited += 30) {
-    const available = readMem();
-    if (available >= need) return true;
-    if (waited >= 600) {
-      console.error(`[${model.short}] only ${available} MB available, need ${need} MB (peak ~${model.peakRssMb} + ${minFreeMb} margin); skipping.`);
-      return false;
-    }
-    if (waited === 0) console.log(`[${model.short}] waiting for memory: ${available} MB available, need ${need} MB`);
-    await new Promise((r) => setTimeout(r, 30_000));
-  }
-}
-
 async function runWorker(model: LabModel, dtype: string, pending: Planned[]): Promise<void> {
   const groups = new Map<string, LabGroup>();
   for (const p of pending) {
@@ -199,52 +171,21 @@ async function runWorker(model: LabModel, dtype: string, pending: Planned[]): Pr
   mkdirSync(LAB_DIR, { recursive: true });
   writeFileSync(specFile, JSON.stringify(spec));
   const total = spec.groups.reduce((a, g) => a + g.jobs.length, 0);
-  console.log(`[${model.short}] ${total} generations in ${spec.groups.length} prefix group(s); ${readMem()} MB available`);
+  console.log(`[${model.short}] ${total} generations in ${spec.groups.length} prefix group(s); ${readMemAvailableMb()} MB available`);
   const t0 = performance.now();
-  await new Promise<void>((resolveRun) => {
-    const child = spawn(process.execPath, ["--expose-gc", "--import", "tsx", join(ROOT, "src/lab/worker.ts"), specFile], {
-      cwd: ROOT,
-      stdio: ["ignore", "pipe", "inherit"],
-      env: { ...process.env, LAB_ORT: ortFor(model) },
-    });
-    let peak = 0;
-    const kill = (why: string) => {
-      console.error(`[${model.short}] ${why}; killing the worker.`);
-      child.kill("SIGKILL");
-    };
-    const timer = setInterval(() => {
-      const rss = readRss(child.pid!, "VmRSS");
-      peak = Math.max(peak, readRss(child.pid!, "VmHWM"), rss);
-      if (rss > maxRssMb) kill(`RSS ${rss} MB exceeds ${maxRssMb} MB`);
-      else if (readMem() < 600) kill(`system MemAvailable below 600 MB`);
-    }, 250);
-    let buffer = "";
-    let last = 0;
-    child.stdout.on("data", (data: Buffer) => {
-      buffer += data.toString();
-      let nl: number;
-      while ((nl = buffer.indexOf("\n")) >= 0) {
-        const line = buffer.slice(0, nl);
-        buffer = buffer.slice(nl + 1);
-        if (!line.startsWith("@@")) continue;
-        const e = JSON.parse(line.slice(2)) as LabEvent;
-        if (e.type === "loaded") console.log(`[${model.short}] loaded in ${(e.loadMs / 1000).toFixed(1)} s, ort-web ${e.ort}, context ${e.contextLength}, rss ${readRss(child.pid!, "VmRSS")} MB (peak ${peak})`);
-        else if (e.type === "result") {
-          const now = performance.now();
-          if (now - last > 20_000 || e.done === e.total) {
-            last = now;
-            console.log(`[${model.short}] ${e.done}/${e.total} ${e.caseId} ${e.ms} ms ${e.tokens} tok ${e.finish} · ${Math.round((now - t0) / 1000)} s`);
-          }
-        } else if (e.type === "fatal") console.error(`[${model.short}] worker failed: ${e.error}`);
-        else if (e.type === "done") peak = Math.max(peak, e.maxRssMb);
+  let last = 0;
+  const peak = await runGuardedWorker("src/lab/worker.ts", specFile, { LAB_ORT: ortFor(model) }, model.short, maxRssMb, (event, rss) => {
+    const e = event as unknown as LabEvent;
+    if (e.type === "loaded") console.log(`[${model.short}] loaded in ${(e.loadMs / 1000).toFixed(1)} s, ort-web ${e.ort}, context ${e.contextLength}, rss ${rss} MB`);
+    else if (e.type === "result") {
+      const now = performance.now();
+      if (now - last > 20_000 || e.done === e.total) {
+        last = now;
+        console.log(`[${model.short}] ${e.done}/${e.total} ${e.caseId} ${e.ms} ms ${e.tokens} tok ${e.finish} · ${Math.round((now - t0) / 1000)} s`);
       }
-    });
-    child.on("exit", (code) => {
-      clearInterval(timer);
-      console.log(`[${model.short}] worker exit ${code}, peak RSS ${peak} MB, ${Math.round((performance.now() - t0) / 1000)} s`);
-      resolveRun();
-    });
+    } else if (e.type === "fatal") console.error(`[${model.short}] worker failed: ${e.error}`);
   });
+  console.log(`[${model.short}] worker done, peak RSS ${peak} MB, ${Math.round((performance.now() - t0) / 1000)} s`);
 }
 
 // ------------------------------------------------------------------ score
@@ -316,7 +257,7 @@ for (const ps of planned) {
   const unique = new Set(pending.map((p) => p.key)).size;
   console.log(`[${model.short} ${dtype}] ${ps.length} jobs, ${unique} to compute (~${Math.round((unique * model.secondsPerCase) / 60)} min)`);
   if (flag("dry-run") || !unique) continue;
-  if (!(await waitForMemory(model))) continue;
+  if (!(await waitForMemory(model, minFreeMb))) continue;
   await runWorker(model, dtype, pending);
 }
 
