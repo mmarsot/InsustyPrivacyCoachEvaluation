@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Review Bench Dashboard</title>
+<style>
+:root{--bg:#f7f7f5;--surface:#fff;--ink:#1d1f23;--ink2:#4a4f57;--muted:#7a808a;--line:#e3e5e8;--bar:#3b6fb6;--bar-bg:#e8edf5;--good:#2f7d4f;--good-bg:#e3f1e8;--warn:#9a6a12;--warn-bg:#f8edd6;--bad:#b4442f;--bad-bg:#f6e6e2;--code:#f3f4f6;--accent:#3b6fb6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#131518;--surface:#1b1e22;--ink:#e8eaed;--ink2:#b9bec6;--muted:#8a919b;--line:#2e3238;--bar:#6f9be0;--bar-bg:#26303d;--good:#6cc08f;--good-bg:#1f3328;--warn:#e0b458;--warn-bg:#3a3020;--bad:#e0826e;--bad-bg:#3a2723;--code:#23272c;--accent:#6f9be0}}
+:root[data-theme="dark"]{--bg:#131518;--surface:#1b1e22;--ink:#e8eaed;--ink2:#b9bec6;--muted:#8a919b;--line:#2e3238;--bar:#6f9be0;--bar-bg:#26303d;--good:#6cc08f;--good-bg:#1f3328;--warn:#e0b458;--warn-bg:#3a3020;--bad:#e0826e;--bad-bg:#3a2723;--code:#23272c;--accent:#6f9be0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+header h1{font-size:16px;margin:0}
+nav a{color:var(--ink2);text-decoration:none;padding:6px 10px;border-radius:6px;margin-right:2px}
+nav a.on{background:var(--bar-bg);color:var(--ink);font-weight:600}
+#meta{color:var(--muted);font-size:12px;margin-left:auto}
+main{max-width:1280px;margin:0 auto;padding:16px}
+h2{font-size:16px;margin:22px 0 8px}h3{font-size:14px;margin:16px 0 6px;color:var(--ink2)}
+p{color:var(--ink2);max-width:90ch}
+.muted{color:var(--muted)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+code{background:var(--code);padding:1px 4px;border-radius:4px;font-size:12px}
+pre{white-space:pre-wrap;word-break:break-word;background:var(--code);padding:10px;border-radius:6px;font-size:12.5px;max-height:420px;overflow:auto;margin:6px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:10px 0}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;font-size:12.5px;width:100%}
+th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:top}
+th{color:var(--ink2);font-weight:600;background:var(--surface);position:sticky;top:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--bar-bg)}
+.meter{display:inline-block;width:60px;height:7px;border-radius:4px;background:var(--bar-bg);margin-right:6px;vertical-align:middle;overflow:hidden}
+.meter>span{display:block;height:100%;background:var(--bar);border-radius:4px}
+.meter.inv>span{background:var(--bad)}
+.progress{height:10px;border-radius:5px;background:var(--bar-bg);overflow:hidden;min-width:120px}
+.progress>span{display:block;height:100%;background:var(--bar)}
+.chip{display:inline-block;padding:0 7px;border-radius:10px;font-size:11.5px;background:var(--bar-bg);color:var(--ink2);margin-right:4px}
+.chip.done,.chip.TP,.chip.TN,.chip.ok,.chip.advertised{background:var(--good-bg);color:var(--good)}
+.chip.running,.chip.partial,.chip.FP{background:var(--warn-bg);color:var(--warn)}
+.chip.FN,.chip.bad,.chip.timeout,.chip.error{background:var(--bad-bg);color:var(--bad)}
+select,button,input{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+button{cursor:pointer}button:hover{border-color:var(--accent)}
+label.f{display:inline-flex;flex-direction:column;font-size:11.5px;color:var(--muted);gap:2px}
+.chart{display:grid;grid-template-columns:minmax(120px,max-content) 1fr max-content;gap:4px 10px;align-items:center;font-size:12.5px}
+.chart .bar{height:14px;background:var(--bar-bg);border-radius:4px;overflow:hidden}
+.chart .bar>span{display:block;height:100%;background:var(--bar);border-radius:4px}
+.chart .bar.inv>span{background:var(--bad)}
+.text{white-space:pre-wrap;word-break:break-word;background:var(--code);padding:12px;border-radius:6px;font-size:13px;line-height:1.7}
+mark{border-radius:3px;padding:0 2px;color:inherit}
+mark.expected-hit{background:var(--good-bg);outline:1px solid var(--good)}
+mark.expected-miss{background:var(--bad-bg);outline:1px solid var(--bad)}
+mark.predicted-fp{background:var(--warn-bg);outline:1px dashed var(--warn)}
+mark sup{font-size:9.5px;color:var(--ink2);margin-left:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:800px){.grid2{grid-template-columns:1fr}}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:2px 14px;font-size:12.5px}.kv>div:nth-child(odd){color:var(--muted)}
+#drawer{position:fixed;inset:0 0 0 auto;width:min(980px,100%);background:var(--bg);border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(0,0,0,.15);overflow:auto;padding:16px;z-index:10;display:none}
+#drawer.open{display:block}
+</style>
+</head>
+<body>
+<header>
+  <h1>Review Bench</h1>
+  <nav id="nav">
+    <a href="#live">Live</a><a href="#matrix">Experiments</a><a href="#results">Results</a><a href="#compare">Compare</a>
+  </nav>
+  <div id="meta"></div>
+</header>
+<main id="view"></main>
+<aside id="drawer"></aside>
+<script>
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const pct = (v) => (v === null || v === undefined ? "–" : Math.round(100 * v) + "%");
+const dur = (s) => (s === null || s === undefined ? "–" : s < 90 ? Math.round(s) + " s" : s < 5400 ? Math.round(s / 60) + " min" : (s / 3600).toFixed(1) + " h");
+const ms = (v) => (v === null || v === undefined ? "–" : (v / 1000).toFixed(1) + " s");
+const short = (id) => String(id).replace(/^.*\//, "").replace(/-ONNX$/, "");
+const meter = (v, inv) => (v === null || v === undefined ? '<td class="num muted">–</td>' : `<td class="num"><span class="meter${inv ? " inv" : ""}"><span style="width:${Math.round(100 * v)}%"></span></span>${pct(v)}</td>`);
+const progressBar = (done, total) => `<div class="progress" title="${done}/${total}"><span style="width:${total ? (100 * done) / total : 0}%"></span></div>`;
+async function api(path) {
+  const r = await fetch(path);
+  return r.json();
+}
+
+let overview = null;
+let timer = null;
+const state = { run: "", groupBy: "model", groupBy2: "lang", metric: "overlapF1", filters: {}, verdict: "", compareA: "", compareB: "", hideDone: false };
+
+const METRICS = {
+  overlapF1: ["F1 (overlap)", (m) => m.overlap.f1],
+  recall: ["Recall", (m) => m.overlap.recall],
+  precision: ["Precision", (m) => m.overlap.precision],
+  exactF1: ["F1 (exact)", (m) => m.exact.f1],
+  detection: ["Case detection", (m) => m.caseDetection],
+  fpRate: ["FP rate (negatives)", (m) => m.falsePositiveRate, true],
+  compliance: ["Format OK", (m) => m.compliance],
+};
+const DIM_TITLES = { model: "Model", instruction: "Instruction", labelVariant: "Label description", lang: "Language", langMixed: "Language (+mixed)", profile: "Profile", type: "Case type", difficulty: "Difficulty", lengthBucket: "Length", register: "Register", errors: "Error level", split: "Split", failure: "Failure mode" };
+
+// ------------------------------------------------------------------ live
+async function renderLive() {
+  const { runs } = await api("/api/progress");
+  const view = $("#view");
+  if (!runs.length) {
+    view.innerHTML = `<h2>Live progress</h2><div class="card"><p>No bench run in progress. Start one with <code>npm run bench -- --tier quick</code>; this page refreshes every 5 s.</p></div>`;
+    return;
+  }
+  view.innerHTML = runs.map(renderRunProgress).join("");
+}
+function renderRunProgress(r) {
+  if (r.error) return `<div class="card"><b>${esc(r.name ?? r.argv.join(" "))}</b> <span class="chip bad">${esc(r.error)}</span></div>`;
+  const models = r.models
+    .map(
+      (m) => `<tr><td>${esc(short(m.model))}</td><td><span class="chip ${m.status}">${m.status}</span></td><td>${progressBar(m.done, m.total)}</td><td class="num">${m.done}/${m.total}</td>
+      <td class="num">${m.throughputPerMin ? m.throughputPerMin.toFixed(1) + "/min" : "–"}</td><td class="num">${ms(m.medianMs)}</td><td class="num">${m.status === "done" ? "done" : dur(m.etaSeconds)}</td><td class="muted">${m.lastAt ? new Date(m.lastAt).toLocaleTimeString() : ""}</td></tr>`,
+    )
+    .join("");
+  const cells = r.cells
+    .map((c) => {
+      const f = c.failures;
+      const failures = Object.entries(f).filter(([k]) => k !== "ok").map(([k, n]) => `<span class="chip ${k === "timeout" ? "timeout" : ""}">${k} ${n}</span>`).join("");
+      return `<tr><td>${esc(short(c.model))}</td><td>${esc(c.instruction)}</td><td>${esc(c.labelVariant)}</td><td>${progressBar(c.done, c.total)}</td><td class="num">${c.done}/${c.total}</td><td class="num">${c.timeouts}</td><td class="num">${c.errors}</td><td class="num">${f.ok ?? 0}</td><td>${failures}</td></tr>`;
+    })
+    .join("");
+  const recent = r.recent
+    .map((e) => `<tr><td class="muted">${new Date(e.at).toLocaleTimeString()}</td><td>${esc(short(e.model))}</td><td><code>${esc(e.caseId)}</code></td><td>${esc(e.instruction)}/${esc(e.labelVariant)}</td><td class="num">${ms(e.reviewMs)}</td><td><span class="chip ${e.failure === "ok" ? "ok" : e.failure === "timeout" ? "timeout" : ""}">${esc(e.failure)}</span></td></tr>`)
+    .join("");
+  return `<h2>Live: ${esc(r.name ?? "bench run")} <span class="chip">${esc(r.tier)}</span> <span class="chip">split ${esc(r.split)}</span></h2>
+  <div class="card"><div class="row"><div style="flex:1">${progressBar(r.done, r.total)}</div><b>${r.done}/${r.total}</b> jobs · ${r.cases} cases · ETA <b>${dur(r.etaSeconds)}</b></div>
+  <p class="muted">Ref <code>${esc(r.ref)}</code> @ <code>${esc(r.sha.slice(0, 10))}</code> · pid ${r.pid} · started ${r.startedAt ? new Date(r.startedAt).toLocaleString() : "?"} · <code>npm run bench -- ${esc(r.argv.join(" "))}</code></p></div>
+  <h3>Per model</h3><div class="card scroll"><table><thead><tr><th>Model</th><th>Status</th><th>Progress</th><th class="num">Done</th><th class="num">Throughput</th><th class="num">Median/case</th><th class="num">ETA</th><th>Last result</th></tr></thead><tbody>${models}</tbody></table></div>
+  <h3>Per model × instruction × label description</h3><div class="card scroll"><table><thead><tr><th>Model</th><th>Instruction</th><th>Labels</th><th>Progress</th><th class="num">Done</th><th class="num">Timeouts</th><th class="num">Errors</th><th class="num">OK</th><th>Failure modes so far</th></tr></thead><tbody>${cells}</tbody></table></div>
+  <h3>Latest results</h3><div class="card scroll"><table><tbody>${recent}</tbody></table></div>`;
+}
+
+// ------------------------------------------------------------------ matrix
+async function renderMatrix() {
+  const data = await api("/api/matrix");
+  const view = $("#view");
+  if (data.error) {
+    view.innerHTML = `<div class="card"><p>${esc(data.error)}</p></div>`;
+    return;
+  }
+  const tiers = ["quick", "full"].map((tier) => {
+    const rows = data.rows.filter((r) => r.tier === tier);
+    const remaining = rows.reduce((a, r) => a + r.estimateSeconds, 0);
+    const done = rows.reduce((a, r) => a + r.done, 0);
+    const total = rows.reduce((a, r) => a + r.total, 0);
+    const body = rows
+      .filter((r) => !state.hideDone || r.status !== "done")
+      .map((r) => `<tr><td>${esc(short(r.model))}</td><td>${esc(r.instruction)}</td><td>${esc(r.labelVariant)}</td><td><span class="chip ${r.status}">${r.status}</span></td><td>${progressBar(r.done, r.total)}</td><td class="num">${r.done}/${r.total}</td><td class="num">${r.status === "done" ? "–" : dur(r.estimateSeconds)}</td></tr>`)
+      .join("");
+    return `<h2>${tier === "quick" ? "Quick tier (dev split, 10 cases per profile and language)" : "Full tier (all cases, both splits)"}</h2>
+    <div class="card"><div class="row"><div style="flex:1">${progressBar(done, total)}</div><b>${done}/${total}</b> jobs · remaining ≈ <b>${dur(remaining)}</b> sequential</div></div>
+    <div class="card scroll"><table><thead><tr><th>Model</th><th>Instruction</th><th>Label description</th><th>Status</th><th>Progress</th><th class="num">Done</th><th class="num">Est. remaining</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  });
+  const perCase = Object.entries(data.secondsPerCase).map(([m, s]) => `${esc(short(m))} ${s.toFixed(1)} s/case`).join(" · ");
+  view.innerHTML = `<p>Every planned experiment for ref <code>${esc(data.ref)}</code> @ <code>${esc(data.sha.slice(0, 10))}</code>: all 3 models × 3 instructions × 5 label descriptions. <b>done</b>: every job cached; <b>running</b>: part of a bench run in progress; <b>partial</b>: some jobs cached. Estimates use ${perCase}.</p>
+  <label><input type="checkbox" id="hideDone" ${state.hideDone ? "checked" : ""}> hide finished rows</label>${tiers.join("")}`;
+  $("#hideDone").onchange = (e) => {
+    state.hideDone = e.target.checked;
+    renderMatrix();
+  };
+}
+
+// ------------------------------------------------------------------ results
+async function renderResults() {
+  const { runs } = await api("/api/runs");
+  const view = $("#view");
+  if (!runs.length) {
+    view.innerHTML = `<div class="card"><p>No run yet. Committed runs live in <code>runs/</code>; a run in progress appears here as LIVE.</p></div>`;
+    return;
+  }
+  if (!runs.some((r) => r.id === state.run)) state.run = runs[0].id;
+  const q = new URLSearchParams({ run: state.run, groupBy: [state.groupBy, state.groupBy2].filter(Boolean).join(",") });
+  for (const [dim, v] of Object.entries(state.filters)) if (v) q.set("f." + dim, v);
+  const data = await api("/api/results?" + q);
+  const dimOptions = (sel, allowNone) => (allowNone ? '<option value="">(none)</option>' : "") + overview.dimensions.map((d) => `<option value="${d}" ${d === sel ? "selected" : ""}>${esc(DIM_TITLES[d] ?? d)}</option>`).join("");
+  const filters = overview.dimensions
+    .map((d) => `<label class="f">${esc(DIM_TITLES[d] ?? d)}<select data-filter="${d}"><option value="">all</option>${(data.options[d] ?? []).map((v) => `<option ${state.filters[d] === v ? "selected" : ""}>${esc(v)}</option>`).join("")}</select></label>`)
+    .join("");
+  const [mTitle, mGet, mInv] = METRICS[state.metric];
+  const labelOf = (g) => g.keys.join(" · ");
+  const chart = data.groups
+    .map((g) => {
+      const v = mGet(g.metrics);
+      return `<div title="${esc(labelOf(g))}: ${pct(v)} over ${g.metrics.cases} cases">${esc(labelOf(g))}</div><div class="bar${mInv ? " inv" : ""}"><span style="width:${v === null ? 0 : Math.round(100 * v)}%"></span></div><div class="num">${pct(v)} <span class="muted">n=${g.metrics.cases}</span></div>`;
+    })
+    .join("");
+  const dims = data.dims;
+  const modelIdx = dims.indexOf("model");
+  const langIdx = dims.findIndex((d) => d === "lang" || d === "langMixed");
+  const support = (g) => {
+    if (modelIdx < 0 || langIdx < 0) return "";
+    const model = overview.models.find((m) => short(m.id) === g.keys[modelIdx]);
+    const lang = g.keys[langIdx].split("+")[0];
+    const s = lang === "en" ? "advertised" : model?.languages?.[lang] ?? "?";
+    return `<td><span class="chip ${s === "advertised" ? "advertised" : "bad"}">${esc(s)}</span></td>`;
+  };
+  const rows = data.groups
+    .map((g) => `<tr>${g.keys.map((k) => `<td>${esc(k)}</td>`).join("")}${support(g)}<td class="num">${g.metrics.cases}</td>${meter(g.metrics.overlap.f1)}${meter(g.metrics.overlap.precision)}${meter(g.metrics.overlap.recall)}${meter(g.metrics.exact.f1)}${meter(g.metrics.caseDetection)}${meter(g.metrics.falsePositiveRate, true)}${meter(g.metrics.compliance)}<td class="num">${g.metrics.timeouts}</td><td class="num">${ms(g.metrics.latencyP50)}</td><td class="num">${ms(g.metrics.latencyP95)}</td></tr>`)
+    .join("");
+  const langCards = overview.models.map((m) => `<span class="chip">${esc(m.short)}: FR ${esc(m.languages.fr)}</span>`).join("");
+  view.innerHTML = `<div class="card"><div class="row">
+    <label class="f">Run<select id="run">${runs.map((r) => `<option value="${esc(r.id)}" ${r.id === state.run ? "selected" : ""}>${esc(r.name)}${r.tier ? " (" + esc(r.tier) + ")" : ""}</option>`).join("")}</select></label>
+    <label class="f">Group by<select id="groupBy">${dimOptions(state.groupBy)}</select></label>
+    <label class="f">then by<select id="groupBy2">${dimOptions(state.groupBy2, true)}</select></label>
+    <label class="f">Chart metric<select id="metric">${Object.entries(METRICS).map(([k, [t]]) => `<option value="${k}" ${k === state.metric ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+    <span class="muted">${data.filtered}/${data.total} results</span></div>
+    <div class="row" style="margin-top:8px">${filters} <button id="clear">clear filters</button></div></div>
+    <p class="muted">Advertised language support: ${langCards}</p>
+    <h3>${esc(mTitle)} by ${esc(dims.map((d) => DIM_TITLES[d] ?? d).join(" × "))}</h3><div class="card chart">${chart || '<span class="muted">no data</span>'}</div>
+    <div class="card scroll"><table><thead><tr>${dims.map((d) => `<th>${esc(DIM_TITLES[d] ?? d)}</th>`).join("")}${modelIdx >= 0 && langIdx >= 0 ? "<th>Advertised</th>" : ""}<th class="num">Cases</th><th class="num">F1 overlap</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1 exact</th><th class="num">Detection</th><th class="num">FP rate</th><th class="num">Format OK</th><th class="num">Timeouts</th><th class="num">p50</th><th class="num">p95</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <h2>Cases</h2><div class="row"><label class="f">Verdict<select id="verdict">${["", "TP", "FN", "FP", "TN"].map((v) => `<option value="${v}" ${v === state.verdict ? "selected" : ""}>${v || "all"}</option>`).join("")}</select></label><span class="muted">TP: positive with a passage found · FN: positive missed · FP: negative flagged · TN: negative left clean. Click a row for the full case.</span></div>
+    <div class="card scroll" id="cases">loading…</div>`;
+  $("#run").onchange = (e) => ((state.run = e.target.value), (state.filters = {}), renderResults());
+  $("#groupBy").onchange = (e) => ((state.groupBy = e.target.value), renderResults());
+  $("#groupBy2").onchange = (e) => ((state.groupBy2 = e.target.value), renderResults());
+  $("#metric").onchange = (e) => ((state.metric = e.target.value), renderResults());
+  $("#verdict").onchange = (e) => ((state.verdict = e.target.value), renderCases());
+  $("#clear").onclick = () => ((state.filters = {}), renderResults());
+  for (const sel of document.querySelectorAll("[data-filter]")) sel.onchange = (e) => ((state.filters[e.target.dataset.filter] = e.target.value), renderResults());
+  renderCases();
+}
+
+async function renderCases() {
+  const q = new URLSearchParams({ run: state.run, limit: "300" });
+  for (const [dim, v] of Object.entries(state.filters)) if (v) q.set("f." + dim, v);
+  if (state.verdict) q.set("verdict", state.verdict);
+  const data = await api("/api/cases?" + q);
+  $("#cases").innerHTML = `<p class="muted">${data.items.length} of ${data.total} shown</p><table><thead><tr><th>Case</th><th>Config</th><th>Verdict</th><th>Failure</th><th>Type</th><th>Lang</th><th class="num">TP</th><th class="num">FP</th><th class="num">FN</th><th class="num">Latency</th></tr></thead><tbody>${data.items
+    .map((i) => `<tr class="click" data-case="${esc(i.caseId)}" data-config="${esc(i.config)}"><td><code>${esc(i.caseId)}</code></td><td>${esc(i.config)}</td><td><span class="chip ${i.verdict}">${i.verdict}</span></td><td><span class="chip ${i.failure === "ok" ? "ok" : i.failure === "timeout" ? "timeout" : ""}">${esc(i.failure)}</span></td><td>${esc(i.type)}</td><td>${esc(i.lang)}</td><td class="num">${i.tp}</td><td class="num">${i.fp}</td><td class="num">${i.fn}</td><td class="num">${ms(i.reviewMs)}</td></tr>`)
+    .join("")}</tbody></table>`;
+  for (const tr of document.querySelectorAll("tr[data-case]")) tr.onclick = () => openCase(tr.dataset.config, tr.dataset.case);
+}
+
+function highlight(text, highlights) {
+  let out = "";
+  let at = 0;
+  for (const h of highlights) {
+    if (h.start < at) continue; // skip overlaps; the tables list everything
+    const tag = h.kind === "expected-hit" ? "TP" : h.kind === "expected-miss" ? "FN" : "FP";
+    out += esc(text.slice(at, h.start)) + `<mark class="${h.kind}" title="${esc(h.label)} (${tag})">${esc(text.slice(h.start, h.end))}<sup>${esc(h.label)} ${tag}</sup></mark>`;
+    at = h.end;
+  }
+  return out + esc(text.slice(at));
+}
+
+async function openCase(config, caseId) {
+  const d = await api("/api/case?" + new URLSearchParams({ run: state.run, config, case: caseId }));
+  const drawer = $("#drawer");
+  if (d.notFound) {
+    drawer.innerHTML = `<button id="close">Close</button><p>${esc(d.notFound)}</p>`;
+  } else {
+    const m = d.meta;
+    drawer.innerHTML = `<div class="row"><button id="close">✕ Close</button><h2 style="margin:0"><code>${esc(d.caseId)}</code></h2><span class="chip ${d.verdict}">${d.verdict}</span><span class="chip ${d.failure === "ok" ? "ok" : "bad"}">${esc(d.failure)}</span></div>
+    <div class="card kv"><div>Config</div><div>${esc(d.config)}</div><div>Case</div><div>${esc(m.profile)} · ${esc(m.lang)}${m.mixed ? " (mixed)" : ""} · ${esc(m.type)} · ${esc(m.difficulty)} · ${esc(m.lengthBucket)} · ${esc(m.style.register)}/${esc(m.style.errors)} errors · split ${esc(m.split)}${m.tags?.length ? " · " + m.tags.map(esc).join(", ") : ""}</div>
+    ${m.note ? `<div>Note</div><div>${esc(m.note)}</div>` : ""}<div>Latency</div><div>${ms(d.reviewMs)} · ${d.generatedTokens} generated tokens · finish ${esc(d.finishReasons.join(", "))} · format ${esc(d.format)}</div>${d.error ? `<div>Error</div><div>${esc(d.error)}</div>` : ""}</div>
+    <h3>Prompt (highlighted: <mark class="expected-hit">found<sup>TP</sup></mark> <mark class="expected-miss">missed<sup>FN</sup></mark> <mark class="predicted-fp">false positive<sup>FP</sup></mark>)</h3><div class="text">${highlight(d.text, d.highlights)}</div>
+    <div class="grid2"><div><h3>Ground truth</h3><table><tbody>${d.expected.map((e) => `<tr><td><code>${esc(e.label)}</code></td><td>${esc(e.passage)}</td><td><span class="chip ${e.verdict}">${e.verdict}</span>${e.exact ? ' <span class="chip">exact</span>' : ""}</td></tr>`).join("") || '<tr><td class="muted">negative case: nothing expected</td></tr>'}</tbody></table></div>
+    <div><h3>Accepted findings (parsed by the extension)</h3><table><tbody>${d.predicted.map((p) => `<tr><td><code>${esc(p.label)}</code></td><td>${esc(p.value)}</td><td><span class="chip ${p.verdict}">${p.verdict}</span>${p.exact ? ' <span class="chip">exact</span>' : ""}</td></tr>`).join("") || '<tr><td class="muted">none</td></tr>'}</tbody></table></div></div>
+    <h3>Raw model output</h3><pre>${esc(d.raw || "(empty)")}</pre>
+    <h3>System instruction (${esc(d.instruction)})</h3><pre>${esc(d.systemInstruction)}</pre>
+    <h3>Custom labels, description variant <code>${esc(d.labelVariant)}</code></h3><pre>${d.rules.map((r) => `${esc(r.label)}: ${esc(r.prompt)}`).join("\n")}</pre>
+    <p class="muted">The fixed output schema and built-in labels are appended by the extension's composeReviewInstructions.</p>`;
+  }
+  drawer.classList.add("open");
+  $("#close").onclick = () => drawer.classList.remove("open");
+}
+
+// ------------------------------------------------------------------ compare
+async function renderCompare() {
+  const { runs } = await api("/api/runs");
+  const view = $("#view");
+  if (runs.length < 2) {
+    view.innerHTML = `<div class="card"><p>Comparing needs two runs (committed runs in <code>runs/</code> or a LIVE run).</p></div>`;
+    return;
+  }
+  if (!runs.some((r) => r.id === state.compareA)) state.compareA = runs[1].id;
+  if (!runs.some((r) => r.id === state.compareB)) state.compareB = runs[0].id;
+  const opts = (sel) => runs.map((r) => `<option value="${esc(r.id)}" ${r.id === sel ? "selected" : ""}>${esc(r.name)}</option>`).join("");
+  const data = await api("/api/compare?" + new URLSearchParams({ a: state.compareA, b: state.compareB }));
+  const arrow = (d) => (d > 0 ? "▲" : d < 0 ? "▼" : "");
+  const rows = data.rows
+    .map((r) => `<tr><td>${esc(r.config)}</td><td>${esc(r.slice)}</td><td class="num">${r.cases}</td>${r.cells.map((c) => `<td class="num">${pct(c.a)} → ${pct(c.b)} <b class="${c.direction > 0 ? "" : ""}">${arrow(c.direction)}</b>${c.delta === null ? "" : ` <span class="muted">${c.delta >= 0 ? "+" : ""}${Math.round(100 * c.delta)}</span>`}</td>`).join("")}<td class="num">${ms(r.latencyP50[0])} → ${ms(r.latencyP50[1])}</td></tr>`)
+    .join("");
+  view.innerHTML = `<div class="card row"><label class="f">A (baseline)<select id="ca">${opts(state.compareA)}</select></label><label class="f">B<select id="cb">${opts(state.compareB)}</select></label><span class="muted">${data.shared} shared (configuration, case) results. ▲ better, ▼ worse; deltas in points.</span></div>
+  <div class="card scroll"><table><thead><tr><th>Config</th><th>Slice</th><th class="num">Cases</th>${overview.compareMetrics.map((m) => `<th class="num">${esc(m)}</th>`).join("")}<th class="num">p50</th></tr></thead><tbody>${rows || '<tr><td class="muted">No shared results.</td></tr>'}</tbody></table></div>`;
+  $("#ca").onchange = (e) => ((state.compareA = e.target.value), renderCompare());
+  $("#cb").onchange = (e) => ((state.compareB = e.target.value), renderCompare());
+}
+
+// ------------------------------------------------------------------ routing
+const VIEWS = { live: renderLive, matrix: renderMatrix, results: renderResults, compare: renderCompare };
+async function route() {
+  const tab = (location.hash.slice(1) || "live").split("?")[0];
+  for (const a of document.querySelectorAll("#nav a")) a.classList.toggle("on", a.getAttribute("href") === "#" + tab);
+  clearInterval(timer);
+  const render = VIEWS[tab] ?? renderLive;
+  try {
+    await render();
+  } catch (error) {
+    $("#view").innerHTML = `<div class="card"><p>Error: ${esc(error.message)}</p></div>`;
+  }
+  if (tab === "live") timer = setInterval(() => renderLive().catch(() => {}), 5000);
+  if (tab === "matrix") timer = setInterval(() => renderMatrix().catch(() => {}), 30000);
+}
+(async () => {
+  overview = await api("/api/overview");
+  $("#meta").textContent = `${overview.dataset.cases} cases · dataset ${overview.dataset.hash.slice(0, 10)}${overview.ext ? ` · ${overview.ext.ref} @ ${overview.ext.sha.slice(0, 8)}` : ""}`;
+  window.addEventListener("hashchange", route);
+  route();
+})();
+</script>
+</body>
+</html>

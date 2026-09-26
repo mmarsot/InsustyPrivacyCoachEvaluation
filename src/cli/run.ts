@@ -13,109 +13,53 @@
  * changed. Outputs go to runs/<name>/.
  */
 import { spawn } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { cpus, totalmem } from "node:os";
 import { join } from "node:path";
 import { compileDataset } from "../dataset/load.ts";
-import type { CompiledCase, Split } from "../dataset/schema.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo } from "../ext/ref.ts";
-import { CACHE_DIR, MODELS_FILE, ROOT, RUNS_DIR } from "../paths.ts";
-import { cachedTimings, cacheFile, jobKey, loadCache, rulesFor, selectCases, TIERS, type Job, type Tier } from "../run/jobs.ts";
+import { ACTIVE_RUNS_DIR, CACHE_DIR, ROOT, RUNS_DIR } from "../paths.ts";
+import { cacheFile, loadCache, type Job } from "../run/jobs.ts";
 import type { RunMeta, RunModelMeta } from "../run/meta.ts";
 import { writeRun } from "../run/outputs.ts";
+import { estimateSeconds, formatDuration as fmt, parseBenchArgs, planJobs, secondsPerCase, splitLabel } from "../run/plan.ts";
 import type { WorkerEvent, WorkerSpec } from "../run/worker.ts";
-import { percentile } from "../score/aggregate.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
-import { INSTRUCTION_VARIANTS, isLabelVariant, LABEL_VARIANTS, type LabelVariantId } from "../variants.ts";
-
-// ------------------------------------------------------------------ args
-const argv = process.argv.slice(2);
-const flag = (name: string) => argv.includes(`--${name}`);
-const opt = (name: string, fallback?: string) => {
-  const i = argv.indexOf(`--${name}`);
-  return i >= 0 ? argv[i + 1] : fallback;
-};
-const list = (value: string | undefined) => (value ? value.split(",").map((s) => s.trim()).filter(Boolean) : []);
-
-interface ModelInfo {
-  id: string;
-  short: string;
-  priorSecondsPerCase: number;
-  priorLoadSeconds: number;
-}
-const MODELS = (JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelInfo[] }).models;
-
-const tier = (opt("tier", "quick") ?? "quick") as Tier;
-if (!TIERS.includes(tier)) throw new Error(`--tier must be one of ${TIERS.join(", ")}`);
-const modelArg = opt("models", "all")!;
-const models = modelArg === "all" ? MODELS : list(modelArg).map((m) => MODELS.find((x) => x.short === m || x.id === m) ?? fail(`unknown model ${m}`));
-const instrArg = opt("instructions", "current")!;
-const instructions = instrArg === "all" ? INSTRUCTION_VARIANTS : list(instrArg).map((i) => INSTRUCTION_VARIANTS.find((v) => v.id === i) ?? fail(`unknown instruction variant ${i}`));
-const labelArg = opt("labels", "desc,desc_ex3")!;
-const labelVariants: LabelVariantId[] = labelArg === "all" ? LABEL_VARIANTS.map((v) => v.id) : list(labelArg).map((l) => (isLabelVariant(l) ? l : fail(`unknown label variant ${l}`)));
-const splitArg = opt("split") as Split | "all" | undefined;
-const profilesArg = list(opt("profiles"));
-const langsArg = list(opt("langs"));
-const maxRssMb = Number(opt("max-rss-mb", "3800"));
-const dryRun = flag("dry-run");
 
 function fail(message: string): never {
   console.error(message);
   process.exit(2);
 }
 
+const argv = process.argv.slice(2);
+let options;
+try {
+  options = parseBenchArgs(argv);
+} catch (error) {
+  fail((error as Error).message);
+}
+const { tier, models, instructions, labelVariants, maxRssMb } = options;
+
 // ------------------------------------------------------------------ plan
-const { dataset, issues } = compileDataset({ requireSplit: !flag("allow-missing-split"), profiles: profilesArg });
+const { dataset, issues } = compileDataset({ requireSplit: !options.allowMissingSplit, profiles: options.profiles });
 if (!dataset) {
   for (const i of issues.filter((x) => x.level === "error").slice(0, 20)) console.error(`ERROR ${i.where}: ${i.message}`);
   fail("dataset is invalid: run `npm run validate`");
 }
-const extRepo = resolveExtRepo(opt("ext-repo"));
-const ext = await materializeExtRef(extRepo, resolveExtRefName(opt("ref")));
+const extRepo = resolveExtRepo(options.extRepo);
+const ext = await materializeExtRef(extRepo, resolveExtRefName(options.ref));
 const api = await loadExtApi(ext.bundle);
 for (const m of models) if (!api.modelIds.includes(m.id)) console.warn(`warning: ${m.id} is not bundled by ${ext.ref}`);
 const installedTransformers = (JSON.parse(readFileSync(join(ROOT, "node_modules/@huggingface/transformers/package.json"), "utf8")) as { version: string }).version;
 if (ext.transformersRange && ext.transformersRange.replace(/^[\^~=]/, "") !== installedTransformers)
   console.warn(`warning: the ref declares @huggingface/transformers ${ext.transformersRange}; the bench runs ${installedTransformers}`);
 
-let cases: CompiledCase[] = selectCases(dataset, tier, splitArg);
-if (profilesArg.length) cases = cases.filter((c) => profilesArg.includes(c.profile));
-if (langsArg.length) cases = cases.filter((c) => langsArg.includes(c.lang));
+const { cases, jobsByModel } = planJobs(dataset, options, ext.sha, api.defaultPrompt);
 if (!cases.length) fail("no case selected");
 const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
 
-const jobsByModel = new Map<string, Job[]>();
-for (const model of models) {
-  const jobs: Job[] = [];
-  for (const variant of instructions)
-    for (const labelVariant of labelVariants)
-      for (const c of cases) {
-        const systemInstruction = variant.text ?? api.defaultPrompt;
-        const rules = rulesFor(profiles.get(c.profile)!, labelVariant);
-        jobs.push({
-          key: jobKey({ extSha: ext.sha, model: model.id, systemInstruction, rules, caseId: c.id, text: c.text }),
-          caseId: c.id,
-          model: model.id,
-          instruction: variant.id,
-          labelVariant,
-          systemInstruction,
-          rules,
-          text: c.text,
-        });
-      }
-  jobsByModel.set(model.id, jobs);
-}
-
-const secondsPerCase = (m: ModelInfo) => {
-  const timings = cachedTimings(m.id);
-  return timings.length >= 10 ? percentile(timings, 50)! / 1000 : m.priorSecondsPerCase;
-};
-const estimate = (m: ModelInfo, pending: number) => (pending ? m.priorLoadSeconds + pending * secondsPerCase(m) * 1.1 : 0);
-const fmt = (s: number) => (s < 90 ? `${Math.round(s)} s` : s < 5400 ? `${Math.round(s / 60)} min` : `${(s / 3600).toFixed(1)} h`);
-
-const splitLabel = splitArg ?? (tier === "full" ? "all" : "dev");
 console.log(`Extension ${ext.ref} @ ${ext.sha.slice(0, 10)} "${ext.subject}"`);
-console.log(`Tier ${tier}, split ${splitLabel}: ${cases.length} cases x ${instructions.length} instruction(s) [${instructions.map((i) => i.id).join(",")}] x ${labelVariants.length} label variant(s) [${labelVariants.join(",")}]`);
+console.log(`Tier ${tier}, split ${splitLabel(options)}: ${cases.length} cases x ${instructions.length} instruction(s) [${instructions.map((i) => i.id).join(",")}] x ${labelVariants.length} label variant(s) [${labelVariants.join(",")}]`);
 let totalEstimate = 0;
 const pendingByModel = new Map<string, Job[]>();
 for (const m of models) {
@@ -123,18 +67,23 @@ for (const m of models) {
   const jobs = jobsByModel.get(m.id)!;
   const pending = jobs.filter((j) => !cache.has(j.key));
   pendingByModel.set(m.id, pending);
-  const est = estimate(m, pending.length);
+  const est = estimateSeconds(m, pending.length);
   totalEstimate += est;
   console.log(`  ${m.short.padEnd(14)} ${String(jobs.length).padStart(6)} jobs, ${String(pending.length).padStart(6)} to compute, ~${secondsPerCase(m).toFixed(1)} s/case -> ~${fmt(est)}`);
 }
 console.log(`Estimated runtime: ~${fmt(totalEstimate)} (sequential, one model at a time)`);
-if (dryRun) process.exit(0);
+if (options.dryRun) process.exit(0);
 
 // ------------------------------------------------------------------ run
 const startedAt = new Date();
-const runName = opt("name") ?? `${startedAt.toISOString().slice(0, 10)}-${tier}-${ext.sha.slice(0, 7)}`;
+const runName = options.name ?? `${startedAt.toISOString().slice(0, 10)}-${tier}-${ext.sha.slice(0, 7)}`;
 const tmpDir = join(CACHE_DIR, "tmp");
 mkdirSync(tmpDir, { recursive: true });
+// Lets `npm run dashboard` find this run and recompute its plan.
+mkdirSync(ACTIVE_RUNS_DIR, { recursive: true });
+const activeFile = join(ACTIVE_RUNS_DIR, `${process.pid}.json`);
+writeFileSync(activeFile, JSON.stringify({ pid: process.pid, name: runName, argv, startedAt: startedAt.toISOString() }));
+process.on("exit", () => rmSync(activeFile, { force: true }));
 const modelMeta: RunModelMeta[] = [];
 
 const readRssMb = (pid: number, field: "VmRSS" | "VmHWM") => {
@@ -236,7 +185,7 @@ const finishedAt = new Date();
 const meta: RunMeta = {
   name: runName,
   tier,
-  split: splitLabel,
+  split: splitLabel(options),
   cases: cases.length,
   instructions: instructions.map((i) => i.id),
   labelVariants,

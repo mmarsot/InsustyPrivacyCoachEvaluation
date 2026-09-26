@@ -84,7 +84,7 @@ English-first, while Qwen2.5 lists French.
 | `full` | all 809 (both splits) | Overnight runs |
 
 The runner prints its plan and a time estimate before it starts. The estimate
-uses the median of cached timings on this machine, or the priors in
+uses the mean of cached timings on this machine, or the priors in
 `models/models.json`. Measured on an 8-vCPU laptop:
 
 - **Quick tier, 3 models × `current` × 2 label variants:** about 5 h.
@@ -107,6 +107,45 @@ Useful flags:
 - `--ref main`
 - `--name my-run`
 - `--max-rss-mb 3800`
+
+## Dashboard
+
+```bash
+npm run dashboard            # http://127.0.0.1:4380/  (--port, --ref, --ext-repo)
+```
+
+The dashboard is a small read-only local server: plain `node:http` and one
+static page, no framework, about 200 MB of RAM. It reads the dataset, the
+result cache and `runs/`, and it never writes, so it is safe to leave open
+during a bench run. It finds runs in progress automatically. Each bench
+process registers in `cache/active-runs/`, and on Linux the dashboard also
+scans `/proc`. It then rebuilds the run's exact plan from its arguments and
+compares it with the cache.
+
+It has four views:
+
+- **Live.** One card per bench run in progress, refreshed every 5 s. It shows
+  overall done/total and ETA. For each model it shows status
+  (running/pending/done), throughput, median time per case and ETA. For each
+  model × instruction × label description it shows progress, timeouts, errors
+  and failure-mode counts so far. It also lists the latest results.
+- **Experiments.** The full planned matrix for the quick and full tiers, on all
+  axes (3 models × 3 instructions × 5 label descriptions). Each cell shows
+  done/total, a status (done, running, partial or pending) and the estimated
+  remaining time.
+- **Results.** Pick a committed run, or a LIVE run whose results are scored as
+  they arrive. Group by one or two dimensions: model, language, profile, label
+  description, case type, error level, register, failure mode, and more.
+  - Filters on every dimension.
+  - A bar chart of any metric, plus the full metrics table.
+  - Grouping by model × language adds each model's advertised language support.
+  - A case list with TP/FN/FP/TN verdicts. Click a case for the drill-down: the
+    prompt with found, missed and false-positive passages highlighted, the
+    system instruction, the label descriptions of the variant used, the ground
+    truth, the parsed findings with their verdicts, the raw model output,
+    latency, tokens and finish reason.
+- **Compare.** Any two runs, committed or live, on their shared (configuration,
+  case) results, overall and by language.
 
 ## How it runs the extension's code
 
@@ -188,7 +227,7 @@ Other commands:
 - `npm run compare -- runs/A runs/B` writes an HTML diff of two runs, computed
   on the configurations and cases they share.
 - `npm run report -- runs/A` re-renders the report from `results.jsonl`.
-- `npm test` runs the scorer unit tests.
+- `npm test` runs the scorer and dashboard data unit tests.
 - `npm run typecheck` runs the type checker.
 
 ## Repository layout
@@ -200,7 +239,8 @@ src/dataset/    schema, loader/validator
 src/ext/        extension ref materialization and API surface
 src/run/        jobs, tiers, cache, per-model worker, Node Transformers.js loader
 src/score/      per-case scoring and aggregation
-src/report/     HTML report
+src/report/     HTML report, run comparison
+src/dashboard/  local dashboard (read-only server + static page)
 src/cli/        validate, split, bench, report, compare
 runs/           committed run outputs
 cache/          (untracked) model weights, extracted refs, result cache
