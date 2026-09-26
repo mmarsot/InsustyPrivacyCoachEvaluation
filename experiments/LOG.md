@@ -411,3 +411,22 @@ in step-by-step decoding (the export targets Transformers.js v4), not like a
 property of the model. Latency is also poor (p50 21 s) because nothing can be
 cached. As measured, LFM2.5-350M is not usable with the extension's current
 runtime.
+
+### L2. LFM2.5-350M on confirm48 (`l2-lfm-confirm48`), and a Transformers.js v4 cross-check
+
+| config | F1o | P | R | F1x | det | FPR | comp | p50s | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| raw-pl-lang | 18 | 23 | 15 | 16 | 28 | 63 | 96 | 17.8 | 16 | 21 |
+| raw-pl-lang + basic filter | 18 | 23 | 15 | 16 | 28 | 63 | 96 | 17.8 | | |
+
+Cross-check: the first 20 iter32 requests re-run with Transformers.js 4.3.0
+and the onnxruntime-web 1.31.0-dev build it pins (WASM, aliased the same way
+as the bench; `cache/tmp/tf4/check.mjs`, not committed). Outputs are
+**identical** to Transformers.js 3.8.1 + onnxruntime-web 1.24.3 without prefix
+reuse, degenerate ones included (`sshportport...`, `keycloecoooo...`). So:
+
+- the step-by-step degeneration is not a 3.8.1 decoding bug; it is how the q8
+  LFM2.5 export behaves with greedy plain-text continuation;
+- the prefix-reuse failure of E7a remains a 3.8.1 problem (v4 was not tested
+  with a split prefix);
+- v4 in Node also needed the external-data bytes passed by hand.

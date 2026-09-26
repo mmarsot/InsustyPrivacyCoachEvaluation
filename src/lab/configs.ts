@@ -141,4 +141,6 @@ add("raw-pl-lang", "raw-pl-lang-xc", "raw-pl-lang with examples + counter-exampl
 
 add("raw-pl-lang", "raw-pl-lang-min1", "raw-pl-lang forbidding EOS as the first token (LFM2 ends plain-text answers at once)", { minNewTokens: 1 });
 
+add("raw-pl-lang", "raw-pl-lang-rp105", "raw-pl-lang with repetition_penalty 1.05 (LFM2.5 card recommendation)", { repetitionPenalty: 1.05 });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));
