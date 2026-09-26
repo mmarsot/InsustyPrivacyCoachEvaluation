@@ -174,3 +174,61 @@ the weights would otherwise stay resident. `loadPretrained` now calls `gc()`
 when available, and every model worker (bench, lab, playground host) is
 spawned with `--expose-gc`. Relaunched run: RSS 3.03 GB after load, 2.65 GB
 while generating.
+
+### E5. Qwen2.5-0.5B with chat-style prompts (run `e5-qwen`)
+
+| config | F1o | P | R | F1x | det | FPR | comp | p50s | tok | failures |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ref | 0 | - | 0 | - | 0 | 0 | 0 | 8.0 | 76 | timeout 3, echo 6, answered 23 |
+| rp1 | 0 | - | 0 | - | 0 | 0 | 3 | 7.0 | 56 | echo 10, answered 20 |
+| lbl-means | 0 | - | 0 | - | 0 | 0 | 0 | 9.0 | 74 | answered 29 |
+| v4 | 0 | - | 0 | - | 0 | 0 | 0 | 7.7 | 62 | echo 14, answered 17 |
+| pl-passages | 14 | 16 | 13 | 0 | 18 | 20 | 100 | 10.6 | 75 | halluc 26 |
+
+- As shipped, Qwen2.5-0.5B finds nothing: the `Findings:` prefill makes it
+  write analysis bullets about the text ("The text mentions...", "No labels
+  present"), or it answers the request inside the text.
+- Removing the inherited repetition penalty (`rp1`) does not change that.
+- Per-label passes produce the right kind of output but Qwen rewrites the
+  text (fixes typos, capitalizes, translates), so most passages fail anchoring.
+
+### E6. Completion framing with per-label demonstrations (the first real gain)
+
+`raw-pl`: no chat template. One request per custom label, rendered as plain
+text: a one-line instruction with the label and its description, two
+demonstrations built from the label's first two examples (one English, one
+French carrier sentence), one clean-text demonstration answered `NONE`, then
+`Text: <prompt>` and the answer cue `<LABEL>:`. Generation stops at the first
+line break (48-token cap). The label is attached by code; each line is
+anchored by the ref's parser. Runs `e6-raw-smol360`, `e6-raw-others`,
+`e6b-raw-smol360`, `e6c-raw-smol360`.
+
+| model | config | F1o | P | R | F1x | det | FPR | comp | p50s | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| SmolLM2-135M | ref | 5 | 33 | 3 | 0 | 5 | 10 | 34 | 5.6 | | |
+| SmolLM2-135M | **raw-pl** | **30** | 30 | 29 | 23 | 41 | 80 | 100 | 1.6 | 39 | 14 |
+| SmolLM2-360M | ref | 19 | 36 | 13 | 12 | 18 | 30 | 28 | 9.1 | | |
+| SmolLM2-360M | **raw-pl** | **38** | 37 | 39 | 21 | 36 | 40 | 100 | 2.3 | 51 | 20 |
+| SmolLM2-360M | raw-pl-negfirst (NONE demo first) | 29 | 24 | 37 | 19 | 45 | 100 | 100 | 2.8 | 33 | 24 |
+| SmolLM2-360M | raw-pl-counter (+ counter-example NONE demo) | 14 | 20 | 11 | 8 | 14 | 30 | 100 | 2.4 | 17 | 9 |
+| SmolLM2-360M | raw-pl-noex (no example demos) | 5 | 50 | 3 | 5 | 5 | 10 | 100 | 2.2 | 9 | 0 |
+| SmolLM2-360M | raw-pl-name (cue `client name:`) | 31 | 30 | 32 | 20 | 32 | 50 | 100 | 2.2 | 42 | 14 |
+| SmolLM2-360M | raw-pl-pair (two-passage demo `a \| b`) | 11 | 20 | 8 | 11 | 14 | 30 | 100 | 2.4 | 14 | 8 |
+| SmolLM2-360M | raw-pl-noinstr (demos only) | 31 | 31 | 32 | 18 | 36 | 60 | 100 | 2.7 | 36 | 25 |
+| SmolLM2-360M | raw-pl-delim (text in `"""`) | 22 | 27 | 18 | 13 | 27 | 60 | 100 | 2.6 | 33 | 8 |
+| Qwen2.5-0.5B | ref | 0 | - | 0 | - | 0 | 0 | 0 | 8.0 | | |
+| Qwen2.5-0.5B | **raw-pl** | **36** | 42 | 32 | 28 | 36 | 30 | 100 | 4.4 | 55 | 14 |
+
+Conclusions:
+
+- Plain completion with in-context demonstrations is what these models can
+  do: F1 x2 (360M), x6 (135M), 0 -> 36 (Qwen), with 100% parseable output
+  and 2-4x lower latency (one short line per label instead of a rambling list).
+- Demonstrations derived from the label's own examples are essential (without
+  them, F1 5): the extension would need users to give 1-3 examples per label.
+- The last demonstration steers the default answer: ending on a positive demo
+  makes the model always answer something (FPR 100%); a counter-example demo
+  pushes it to answer NONE.
+- French stays weak (F1 14-20 vs 39-55 in English) for all three models.
+- Qwen still paraphrases, capitalizes or translates some passages, and the
+  upper-case label cue sometimes leaks into its answer (`KEYCLOAK_CORP_QMK_...`).

@@ -91,4 +91,38 @@ add("rp1", "rp1-v4-means", "rp1 + v4 instruction + 'LABEL means' layout", {
   labelLine: "* {label} means {description}",
 });
 
+// --- assistant prefill: "Findings:" primes Qwen to write analysis bullets
+add("rp1", "rp1-pf-none", "rp1, no assistant prefill", { prefill: "" });
+add("rp1", "rp1-pf-copied", "rp1, prefill 'Passages copied from the text (LABEL: passage):'", { prefill: "Passages copied from the text (LABEL: passage):\n" });
+add("rp1", "rp1-pf-sensitive", "rp1, prefill 'Sensitive passages:'", { prefill: "Sensitive passages:\n" });
+
+// --- plain completion framing, one label per pass, in-context demonstrations
+add("ref", "raw-pl", "Completion framing per label: instruction, 2 example shots + clean NONE shot, 'Text: ...\\n<name>:' one-line answer", {
+  raw: true,
+  perLabel: true,
+  passageOnly: true,
+  stopAtNewline: true,
+  instruction: "Copy the {label} passages from each text, exactly as written. {label}: {description} Write NONE when the text has none.",
+  schema: "",
+  labelHeader: "",
+  labelLine: "",
+  blockOrder: "i",
+  shots: ["ex-pos", "clean-neg"],
+  user: "Text: {text}\n",
+  prefill: "{label}:",
+  maxNewTokens: 48,
+});
+add("raw-pl", "raw-pl-negfirst", "raw-pl with the NONE shot first (last demo is positive)", { shots: ["clean-neg", "ex-pos"] });
+add("raw-pl", "raw-pl-counter", "raw-pl plus a counter-example NONE shot", { shots: ["ex-pos", "ex-neg", "clean-neg"] });
+add("raw-pl", "raw-pl-noex", "raw-pl without example-derived shots (description only, one clean NONE shot)", { shots: ["clean-neg"] });
+
+add("raw-pl", "raw-pl-name", "raw-pl with the label in lower-case words as the answer cue ('client name:')", {
+  instruction: "Copy the {name} passages from each text, exactly as written. {name}: {description} Write NONE when the text has none.",
+  prefill: "{name}:",
+});
+add("raw-pl-name", "raw-pl-pair", "raw-pl-name with shots: one example, a two-passage example ('a | b'), clean NONE", { shots: ["ex-one", "ex-pair", "clean-neg"] });
+
+add("raw-pl", "raw-pl-noinstr", "raw-pl without the instruction line: demonstrations only", { instruction: "" });
+add("raw-pl", "raw-pl-delim", "raw-pl with the text between triple quotes (multi-line texts stay delimited)", { user: 'Text: """{text}"""\n' });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));

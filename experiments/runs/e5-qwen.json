@@ -1,0 +1,2112 @@
+{
+ "name": "e5-qwen",
+ "set": "iter32",
+ "ext": {
+  "ref": "main",
+  "sha": "dc91f3677c07f95776f8c0f0cddb97e08a3170d5"
+ },
+ "at": "2026-09-26T19:23:59.025Z",
+ "summary": [
+  {
+   "model": "qwen2.5-0.5b",
+   "dtype": "q8",
+   "config": "ref",
+   "note": "Extension ref as shipped",
+   "overall": {
+    "cases": 32,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 8019,
+    "p95ms": 30049,
+    "tokens": 76,
+    "failures": {
+     "timeout": 3,
+     "echo": 6,
+     "answered": 23
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 7401,
+    "p95ms": 30049,
+    "tokens": 75,
+    "failures": {
+     "timeout": 1,
+     "echo": 4,
+     "answered": 11
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 8019,
+    "p95ms": 30074,
+    "tokens": 77,
+    "failures": {
+     "timeout": 2,
+     "echo": 2,
+     "answered": 12
+    }
+   }
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "dtype": "q8",
+   "config": "rp1",
+   "note": "No repetition penalty (Qwen2.5 inherits 1.1 from generation_config)",
+   "overall": {
+    "cases": 32,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0.031,
+    "p50ms": 6965,
+    "p95ms": 16123,
+    "tokens": 56,
+    "failures": {
+     "echo": 10,
+     "answered": 20,
+     "unknown_label": 1,
+     "hallucinated": 1
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 6192,
+    "p95ms": 22684,
+    "tokens": 54,
+    "failures": {
+     "echo": 7,
+     "answered": 9
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0.063,
+    "p50ms": 7423,
+    "p95ms": 16123,
+    "tokens": 58,
+    "failures": {
+     "echo": 3,
+     "answered": 11,
+     "unknown_label": 1,
+     "hallucinated": 1
+    }
+   }
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "dtype": "q8",
+   "config": "lbl-means",
+   "note": "Label lines as 'LABEL means description' (not output-shaped)",
+   "overall": {
+    "cases": 32,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 9034,
+    "p95ms": 20189,
+    "tokens": 74,
+    "failures": {
+     "echo": 3,
+     "answered": 29
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 8121,
+    "p95ms": 20189,
+    "tokens": 68,
+    "failures": {
+     "echo": 2,
+     "answered": 14
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 9149,
+    "p95ms": 24336,
+    "tokens": 79,
+    "failures": {
+     "echo": 1,
+     "answered": 15
+    }
+   }
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "dtype": "q8",
+   "config": "v4",
+   "note": "Rewritten scanner instruction (data framing, copy exactly)",
+   "overall": {
+    "cases": 32,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 7663,
+    "p95ms": 19746,
+    "tokens": 62,
+    "failures": {
+     "echo": 14,
+     "echo_instructions": 1,
+     "answered": 17
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 7477,
+    "p95ms": 17847,
+    "tokens": 55,
+    "failures": {
+     "echo": 7,
+     "answered": 9
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 0,
+    "p50ms": 8178,
+    "p95ms": 21590,
+    "tokens": 70,
+    "failures": {
+     "echo": 7,
+     "echo_instructions": 1,
+     "answered": 8
+    }
+   }
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "dtype": "q8",
+   "config": "pl-passages",
+   "note": "Per-label passes; bare passages, label attached by code",
+   "overall": {
+    "cases": 32,
+    "f1": 0.143,
+    "precision": 0.156,
+    "recall": 0.132,
+    "exactF1": 0,
+    "detection": 0.182,
+    "fpr": 0.2,
+    "compliance": 1,
+    "p50ms": 10573,
+    "p95ms": 23423,
+    "tokens": 75,
+    "failures": {
+     "ok": 2,
+     "echo_instructions": 4,
+     "hallucinated": 26
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.162,
+    "precision": 0.188,
+    "recall": 0.143,
+    "exactF1": 0,
+    "detection": 0.182,
+    "fpr": 0.2,
+    "compliance": 1,
+    "p50ms": 11706,
+    "p95ms": 25844,
+    "tokens": 79,
+    "failures": {
+     "echo_instructions": 3,
+     "hallucinated": 13
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.121,
+    "precision": 0.125,
+    "recall": 0.118,
+    "exactF1": 0,
+    "detection": 0.182,
+    "fpr": 0.2,
+    "compliance": 1,
+    "p50ms": 9723,
+    "p95ms": 23423,
+    "tokens": 72,
+    "failures": {
+     "ok": 2,
+     "echo_instructions": 1,
+     "hallucinated": 13
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "agency-en-001",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6791,
+   "output": "1. Can you help me write three tagline options for Halvard Cycles?\n2. They're launching an e-bike for city commuters in spring.\n3. Tone should be witty but not smug, max 6 words each."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "agency-fr-016",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2120,
+   "output": "- No labels present in the text provided."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "agency-en-035",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 30049,
+   "output": "1. The text contains multiple sentences discussing plans for a DTC sneaker brand on Black Friday.\n2. There is no mention of spamming or promoting products.\n3. The text does not contain any sensitive information or instructions regarding product purchases.\n4. The text appears to be written in English"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "agency-fr-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5842,
+   "output": "1. The text appears to be French.\n2. It contains an exclamation mark (!).\n3. There is a period (.).\n4. The sentence structure seems to be imperative rather than declarative."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "dev-en-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13023,
+   "output": "- SSH port forwarding is configured to forward ports 22 (SSH) and 5432 (PostgreSQL).\n- The configuration uses the `-L` option to specify the target IP address and port number.\n- The target IP address is `bastion-eu1.int.quillmark.net`.\n- The PostgreSQL service is running on port 5432.\n- There are no"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "dev-fr-007",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7664,
+   "output": "1. The token endpoint is marked as \"401 Unauthorized\" which indicates an authentication issue.\n2. The client's secret appears to be correct, but it seems there might be another issue related to the token endpoint."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "dev-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6077,
+   "output": "1. Uber is an open-source company.\n2. The creators have made changes to their workflow.\n3. There are two different methods used for workflows: Temporal and a simple cron."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "dev-en-047",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 8659,
+   "output": "- The most common status code is 500 (HTTP 500 Internal Server Error).\n- The most frequent failure occurred on customer cus_mP02zzLc, resulting in an HTTP 500 error."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "finance-en-005",
+   "failure": "answered",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 6851,
+   "output": "- The text mentions Europe's missing H2 target and Europe's margin at 8.1%, but does not provide a clearer explanation of what \"nicer\" means or how it relates to the region's performance."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "finance-fr-038",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 3485,
+   "output": "- No financial results mentioned.\n- No external sources provided.\n- No internal forecasts or targets given."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "finance-en-032",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 15059,
+   "output": "1. The text appears to be discussing dividends, specifically those paid out in May of the previous year (38.20 pence per share).\n2. It mentions \"dividend coverage\" which is a financial term related to stock performance.\n3. The phrase \"explain dividend coverage to a new graduate\" suggests an educatio"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "finance-fr-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 15581,
+   "output": "1. The text appears to be a message sent by Claire (the sender) to all recipients named \"Claire\".\n2. There is no mention of any external entities or specific individuals within the message.\n3. The content seems to be about a calendar update for a company called T3, possibly related to financial plan"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "hr-en-012",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4436,
+   "output": "1. **Label**: API_KEY\n2. **Phone Number**: 555-555-5555\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "hr-fr-004",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 30074,
+   "output": "1. \"Entretien avec Thibault Ferrand\" - This is a job advertisement mentioning Thibault Ferrand's name.\n2. \"bon niv en ROS\" - This phrase suggests that the candidate has experience with ROS (Robot Operating System).\n3. \"un peu leger en c++\" - This indicates that the candidate has some experience with"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "hr-fr-035",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 9496,
+   "output": "1. \"D'après l'étude de rémunération annuelle de l'Apec\" - This is an abbreviation for \"D'après l'étude de rémunération annuelle de l'Apec\". It appears to be French and refers to a study on annual salaries for engineers in the Apec region.\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "hr-en-025",
+   "failure": "echo",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 5347,
+   "output": "- Signed\n- J. Lindqvist accepted at IC5\n- 188 base / 12% bonus\n- HM is buying lunch for the whole team"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "legal-en-003",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 6000,
+   "output": "- Label: API_KEY\n- Text: Quick Q - Is $1.1bn for Vessant too rich if their EBITDA is ~70m? Board wants a sanity check before Friday\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "legal-fr-005",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4926,
+   "output": "- Label: DEAL_TARGET\n- Label: DEAL_VALUE\n- Label: API_KEY\n- Label: PHONE\n- Label: EMAIL\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "legal-en-033",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7196,
+   "output": "- Our acquisition of Fellbeck Tooling was announced and completed in 2023.\n- It involved a £41 million purchase price and a 12-month leakage period.\n- This type of transaction is common in the industry."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "legal-fr-045",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 30043,
+   "output": "- Label: API_KEY - This indicates that the code is related to an API key used for accessing sensitive data.\n- Label: DEAL_VALUE - This suggests that the code deals with financial terms and values associated with a specific deal or transaction.\n- Label: DEAL_TARGET - This implies that the code refers"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "research-en-004",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7401,
+   "output": "- Sam: QPCR repeats performed on patient samples (IL6 levels).\n- Hanna: Update requested for SOP renewal.\n- Order: Request for RIPA and protease inhibitor.\n- Quillon Biosciences: Due for delivery by Friday."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "research-fr-004",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 12599,
+   "output": "1. Julien is conducting a QPCR experiment to evaluate the effectiveness of his new protocol.\n2. He has sent the protocol to Solenne Biotech before Friday.\n3. Hélène needs to finalize the protocol before Friday.\n4. She should send the complete protocol (draft) to Solenne Biotech by the deadline.\n5. C"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "research-fr-034",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7903,
+   "output": "1. Rédige en anglais une lettre d'accompagnement aux éditeurs de eLife pour notre manuscrit sur la polarisation des macrophages. Mentionne le financement ANR et Inserm.\n2. Une page max."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "research-en-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 26189,
+   "output": "1. Funding from the Wellcome Trust and the European Research Council was provided for this study.\n2. The manuscript is about macrophage polarization in fibrotic liver.\n3. The authors have published their findings in the journal ELife.\n4. The study aims to understand how macrophages respond to fibros"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8988,
+   "output": "1. Discovery notes - Pembrook Dental Group\n2. Current setup: 60 clinics, mix of older K5 docks and laptops\n3. Decision by end of Q4\n4. Competitors in the mix: Draxon\n5. Pain: front-desk devices fail during peak hours"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "sales-fr-041",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9815,
+   "output": "1. The text mentions the phrase \"petite question avant mon call\", which suggests it is being asked about a specific situation or issue.\n2. It also mentions the word \"petite question\", indicating that there may be some level of urgency or importance to the message.\n3. The text ends abruptly without p"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "sales-en-039",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5845,
+   "output": "1. The Lenovo ThinkPad docks vs the K7 is unclear to the customer.\n2. The K5s is still supported, but it's possible they've reached the end of their lifecycle."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "sales-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8383,
+   "output": "1. The sender's name is \"Mme Roussel\".\n2. There is no mention of a company or product being discussed in the message.\n3. The subject of the email appears to be about meeting at a hotel named \"Hotels Delacroix\"."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "support-en-007",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 8494,
+   "output": "- Dear Ms Imogen Castellanos\n- Your order has been split into two parcels\n- The first parcel arrived yesterday\n- The second parcel, tracking number PCL5519027734ES, should reach you on Thursday\n- We apologize for any inconvenience"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "support-fr-019",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8019,
+   "output": "1. Quelqu'un a déjà vu le colis de Mme Karadeniz ?\n2. Il apparaît comme livré à Toulouse alors que la commande part à Nantes.\n3. Je vérifie avec le transporteur mais c'est bizarre."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "support-fr-031",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 15002,
+   "output": "1. The text is discussing a customer's complaint about their delivery being delayed due to unexpected absence of a person named Kévin.\n2. The text mentions that the customer claims they were present at the location where the delivery was supposed to take place during the aprem period.\n3. The text pr"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "ref",
+   "caseId": "support-en-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 8767,
+   "output": "- The order ID is ORD-5906-3321.\n- The customer's tier is plus.\n- The shipment status is IN_TRANSIT.\n- The last event was DLV.\n- The HTTP status code is 200."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "agency-en-001",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5002,
+   "output": "- \"City Commuters in Spring\"\n- \"E-Bike for Commuters\"\n- \"Halvard Cycles Launches Spring E-Bike\""
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "agency-fr-016",
+   "failure": "unknown_label",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6892,
+   "output": "- CLIENT_NAME: Names of our clients\n- CAMPAIGN_CODE: Internal campaigns\n- API_KEY: Internal API keys\n- PHONE_NUMBER: Telephone numbers\n- EMAIL_ADDRESS: Email addresses\n- ADDRESS: Postal addresses"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "agency-en-035",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4376,
+   "output": "- No label\n- No mention of clients, brands, or pitches\n- No telephone numbers\n- No email addresses\n- No postal addresses"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "agency-fr-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9996,
+   "output": "- The text appears to be in French.\n- The text discusses a new bicycle called Halvard.\n- The text mentions that Halvard is being used to transport people to a workplace.\n- The text suggests that Halvard is being used to transport people to a café.\n- The text implies that Halvard is being used to tra"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "dev-en-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6192,
+   "output": "- SSH port forwarding setup for Bastion-EU1.int.quillmark.net\n- No specific details provided regarding the configuration or steps to achieve this setup."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "dev-fr-007",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3798,
+   "output": "1. The token endpoint is not accessible.\n2. The client secret is not verified three times."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "dev-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3792,
+   "output": "1. Temporal is a cron for workflow management.\n2. The workflow is for relaying traffic to Uber."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "dev-en-047",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 6349,
+   "output": "- The most common status code is 500 (500).\n- The most common endpoint is \"webhook.site\" (webhook.site)."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "finance-en-005",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 4213,
+   "output": "- Europe is going to miss its H2 target\n- We now see Europe margin at 8.1% not 9%"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "finance-fr-038",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 3951,
+   "output": "- No label attached.\n- No financial results mentioned.\n- No revenue, margins, or cash conversion rate figures provided."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "finance-en-032",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 10318,
+   "output": "- The text appears to be a summary or explanation of a financial result.\n- The result is related to dividends paid to shareholders in the previous year.\n- The result is presented in the form of a percentage, which is a common way to express dividend amounts.\n- The result is presented in the form of "
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "finance-fr-040",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 16123,
+   "output": "- UNPUBLISHED_FIGURE: The text provided is a single figure, not a publication or a figure.\n- INTERNAL_FORECAST: The text contains an internal forecast, likely referring to a financial forecast or guidance.\n- API_KEY: The text contains an API key, which is used for authentication and is not relevant "
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "hr-en-012",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8314,
+   "output": "- Hi Kofi\n- Thank you for taking the time to meet our team on Thursday\n- I'm happy to share that we'd like to invite you to the final round\n- Could you let me know your availability for a two-hour block next week?\n- Best regards"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "hr-fr-004",
+   "failure": "echo",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 9158,
+   "output": "1. \"entretient avec Thibault Ferrand : bon niv en ROS, un peu leger en c++. chez Norvik Dynamics depuis 4ans, preavis 3 mois, veut 75K€ minimum sinon il bouge pas\"\n2. \"Thibault Ferrand\""
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "hr-fr-035",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6754,
+   "output": "- The text mentions the Apec (likely referring to the Asian Development Bank).\n- It discusses the compensation of engineers in the robotics field in Lyon region.\n- It asks for a region-specific presentation of the compensation details."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "hr-en-025",
+   "failure": "echo",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 5665,
+   "output": "- Signed\n- J. Lindqvist accepted at IC5\n- 188 base / 12% bonus\n- HM is buying lunch for the whole team"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "legal-en-003",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 5984,
+   "output": "- Label: API_KEY\n- Text: Quick Q - is $1.1bn for Vessant too rich if their EBITDA is ~70m? board wants a sanity check before friday"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "legal-fr-005",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7423,
+   "output": "- Label: API_KEY\n- Label: PHONE\n- Label: EMAIL\n- Label: ADDRESS\n- Label: DEAL_TARGET\n- Label: DEAL_VALUE\n- Label: DEAL_CODENAME\n- Label: DEAL_TARGET\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "legal-en-033",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6780,
+   "output": "- Our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "legal-fr-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 9847,
+   "output": "- Excel displays all data in a single column when opening an export.\n- The data is organized into three columns: code_projet, cible, valeur_entreprise, et statut.\n- The data is organized into three columns: code_projet, cible, valeur_entreprise, et statut.\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "research-en-004",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5514,
+   "output": "- Sam: QPCR repeats done, IL6 down again in KO\n- Hanna: Renewal draft due end of month\n- order RIPA + protease inhib"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "research-fr-004",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9882,
+   "output": "1. Julien: qPCR refaites, Il6 tjs en baisse chez les KO\n2. moi: envoyer le protocole maj à Solenne Biotech avant vendredi\n3. Hélène: dossier ANR à boucler fin du mois\n4. commander RIPA"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "research-fr-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6965,
+   "output": "- The manuscrit is about the polarisation of macrophages.\n- The final objective is to discuss the ANR and Inserm funding.\n- There is no mention of a phone number, email address, or postal address."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "research-en-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 22684,
+   "output": "- The manuscript describes macrophage polarization in fibrotic liver using a novel approach involving the use of fibroblast-derived macrophages.\n- The study demonstrates that fibroblast-derived macrophages exhibit distinct polarization patterns during fibrotic liver development, which are influenced"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8892,
+   "output": "1. Discovery notes - Pembrook Dental Group\n2. Current setup: 60 clinics, mix of older K5 docks and laptops\n3. Decision by end of Q4\n4. Competitors in the mix: Draxon\n5. Pain: front-desk devices fail during peak hours"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "sales-fr-041",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 12302,
+   "output": "- The text mentions a \"petite question avant mon call\" and asks about the pulse edge and the mode of operation.\n- The text mentions the \"pulse edge gère le mode hors ligne\" and the \"equipe produit m'a dit \"normalement oui\" mdr\".\n- The text mentions the \"pulse edge gère le mode hors ligne\" and the \"e"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "sales-en-039",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5247,
+   "output": "1. The new Lenovo ThinkPad docks vs the K7 are not publicly announced yet.\n2. The K5s are still supported, but we have EOL them."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "sales-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8677,
+   "output": "- The text appears to be a message from a customer to a sales representative.\n- The sender's name is not provided.\n- The content is not in a standard English format.\n- The sender's email address is not provided.\n- The sender's phone number is not provided."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "support-en-007",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 9028,
+   "output": "- Dear Ms Imogen Castellanos\n- your order has been split into two parcels\n- the first one arrived yesterday\n- the second one, tracking number PCL5519027734ES, should reach you on Thursday\n- we apologise for any inconvenience"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "support-fr-019",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7048,
+   "output": "- Quelqu'un a déjà vu le colis de Mme Karadeniz ? Il apparaît comme livré à Toulouse alors que la commande part à Nantes. Je vérifie avec le transporteur mais c'est bizarre."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "support-fr-031",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 13541,
+   "output": "- The text appears to be a request for GPS data from a customer service representative (Kévin) to a courier service (Parcelio).\n- The text mentions the name of the courier (Kévin), the date of the incident (aprem), and the location of the incident (a parcel).\n- The text is in French and appears to b"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "rp1",
+   "caseId": "support-en-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 14617,
+   "output": "- The order ID is ORD-5906-3321.\n- The account ID is PX-742018.\n- The customer's full name is Seraphina Kowalski.\n- The customer's tier is \"plus\".\n- The shipment status is \"IN_TRANSIT\".\n- The last event is DLV.\n- The HTTP status code is 200.\n- The SKU is PMB-L-200."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "agency-en-001",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5315,
+   "output": "1. Can you help me create three taglines for Halvard Cycles?\n2. Tone should be witty but not smug.\n3. Max 6 words each."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "agency-fr-016",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 19496,
+   "output": "- \"Bonjour Sophie,\" which is an address to Louis.\n- \"Grand Nord\" appears twice in the text.\n- \"storyboards validés lundi\" indicates that it was done on Monday.\n- \"animatique en cours\" suggests that it's currently being animated.\n- \"PPM prévue le 18\" indicates that the production plan is due on Janua"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "agency-en-035",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 12959,
+   "output": "1. The subject line is \"Black Friday Sequences for DTC Sneakers.\"\n2. There are four email sequences mentioned: \n   - Sequence 1: Black Friday Sale on DTC Sneakers\n   - Sequence 2: Black Friday Sale on DTC Sneakers (with additional details)\n   - Sequence 3: Black Friday Sale on DTC Sneakers (with add"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "agency-fr-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9814,
+   "output": "1. The text mentions \"le nouveau vélo de halvard\", which appears to be a brand name or product name.\n2. It also mentions \"refroidissement\" which could refer to cooling down or reheating something.\n3. There is no specific context provided about what the new bike is used for or how it relates to Halva"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "dev-en-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13991,
+   "output": "- * INTERNAL_HOST means Internal hostnames, internal domains, and private IP addresses of our infrastructure.\n- * INTERNAL_SERVICE means Names of internal services.\n- * CUSTOMER_ID means Customer or tenant IDs associated with specific customers.\n- * API_KEY means Access keys used to interact with ou"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "dev-fr-007",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7523,
+   "output": "- The text contains an error message indicating a 401 Unauthorized status code on a specific endpoint.\n- The issue is related to the client's secret key being verified three times before resolving it.\n- This could indicate a security vulnerability or potential unauthorized access attempt."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "dev-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4876,
+   "output": "- Uber is an open-source company.\n- The creators have implemented temporal functionality.\n- Cron is used instead of a simple timer for workflow management."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "dev-en-047",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 7827,
+   "output": "- The most frequent failure occurred on customer cus_mP02zzLc with endpoint_host hooks.slack.com and attempts 5.\n- The most common status code was 500 (HTTP Status Code)."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "finance-en-005",
+   "failure": "answered",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 14414,
+   "output": "- The text mentions \"Europe\" but does not provide a specific context or meaning related to it.\n- It refers to \"H2 target\" which could refer to various things such as European Union goals, market share figures, etc., but doesn't specify what they might mean.\n- There's no indication of who or what the"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "finance-fr-038",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 9149,
+   "output": "- No labels present.\n- The text is about financial data for a company operating in France (Aout CA 452M£).\n- There are no internal references or external links provided.\n- The content appears to be about a business transaction or financial report."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "finance-en-032",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6443,
+   "output": "1. The text does not contain any labels or keywords related to financial data, dividends, or dividend payout ratios.\n2. There is no mention of internal communications, API keys, or external credentials in the provided text."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "finance-fr-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 12926,
+   "output": "- The text appears to be a message sent by Claire (Claire) to all her recipients.\n- It contains a request for confirmation regarding the upcoming calendar of closure T3, including specific dates like J+3, J+5, and J+7.\n- There is also an email address provided within the message.\n- The sender's name"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "hr-en-012",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1678,
+   "output": "1. Label: Candidate\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "hr-fr-004",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12977,
+   "output": "1. Thibault Ferrand is a freelancer who specializes in operating and maintaining various applications related to robotics (ROS), programming languages like C++, and business processes (Norvik Dynamics).\n2. Norvik Dynamics has been working with Thibault Ferrand since 4 years ago.\n3. Thibault Ferrand "
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "hr-fr-035",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6318,
+   "output": "1. \"D'après l'étude de rémunération annuelle de l'Apec\" - This is a reference to an article about robot engineers in Lyon region. It does not contain any relevant information.\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "hr-en-025",
+   "failure": "echo",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 5675,
+   "output": "- Signed!!\n- J. Lindqvist accepted at IC5 🎉\n- 188 base / 12% bonus\n- HM is buying lunch for the whole team"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "legal-en-003",
+   "failure": "answered",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 15788,
+   "output": "- The text mentions \"Vessant\" which could potentially refer to a company or entity.\n- There are multiple potential meanings for \"quick q\", including asking about quick results or quick action.\n- The question itself seems to be seeking an analysis of the company's financial performance based on certa"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "legal-fr-005",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7639,
+   "output": "1. \"Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement.\"\n2. \"Droit français, ton sobre.\""
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "legal-en-033",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6012,
+   "output": "- Our acquisition of Fellbeck Tooling was announced and completed in 2023 for £41m.\n- It used a locked-box mechanism with a 12-month leakage period."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "legal-fr-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 15949,
+   "output": "1. The text contains multiple entries for the same product code (\"Belvédère\" and \"Fellbeck Tooling\"). This suggests that there may be multiple products being exported under the same code.\n2. There are two different values associated with each product code (\"sorvane Industrie\" and \"projet interne SI\""
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "research-en-004",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8458,
+   "output": "1. Sam: QPCR repeats done, IL6 down again in KO\n2. me: Send updated SOP to Quillon Biosciences b4 Fri\n3. Hanna: Renewal draft due end of month\n4. order RIPA + protease inhib"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "research-fr-004",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 14174,
+   "output": "1. Julien: QPCR rework is being done, IL6 levels are decreasing among KO mice.\n2. Hélène: A protocol should be sent to Solenne Biotech before Friday.\n3. Commanding RIPA (likely referring to RNA interference) would be useful.\n4. Julien: An email needs to be sent out to the team for next week's ANR.\n5"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "research-fr-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 24336,
+   "output": "1. The manuscript is about the polarization of macrophages.\n2. It mentions the ANR (Acquisition of Nanoparticles for Research) project.\n3. It references the INM (Institut National de la Recherche Médicale).\n4. There's no mention of funding sources like the European Union or the French Ministry of He"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "research-en-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 20189,
+   "output": "1. Funding from the Wellcome Trust and the European Research Council were provided for this research project.\n2. The study was conducted at the University of Cambridge, UK.\n3. The authors have published their findings in the journal \"Nature Communications\".\n4. The manuscript is titled \"Macrophage Po"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 10544,
+   "output": "1. Discovery notes - Pembrook Dental Group\n2. Current setup: 60 clinics, mix of older K5 docks and laptops\n3. Decision by: end of Q4\n4. Competitors in the mix: Draxon\n5. Pain: front-desk devices fail during peak hours\n6. Follow-up questions to ask on the next call:\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "sales-fr-041",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 10741,
+   "output": "1. The text mentions \"petite question avant mon call\", which is likely referring to a request made before speaking to the prospect.\n2. The text states that the team product manager told them \"normally yes\".\n3. The text refers to \"pulse edge gérer le mode hors ligne\". This could refer to Pulse Edge's"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "sales-en-039",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4975,
+   "output": "- The Lenovo ThinkPad docks are available on the market.\n- The K7 model is no longer supported.\n- The K5s model is no longer supported."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "sales-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7795,
+   "output": "1. The sender's name is \"Mme Roussel\".\n2. There is no mention of an organization or company name in the message.\n3. The content appears to be a personal inquiry about joining an event or meeting scheduled on Wednesday."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "support-en-007",
+   "failure": "answered",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 8121,
+   "output": "- Ms Imogen Castellanos\n- Your order has been split into two parcels\n- First parcel arrived yesterday\n- Second parcel tracking number is PCL5519027734ES\n- Should reach you on Thursday\n- Apology for inconvenience"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "support-fr-019",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9034,
+   "output": "1. The text mentions \"Mme Karadeniz\" which is likely referring to a person's name.\n2. There are two different cities mentioned: Toulouse and Nantes.\n3. The text indicates that the delivery was made to Nantes but it appears to have been delivered to another location instead."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "support-fr-031",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8481,
+   "output": "1. The message is misspelled.\n2. There are multiple spaces between words.\n3. The message contains punctuation marks that should not be used.\n4. The message lacks proper capitalization at the beginning of sentences.\n5. The message does not follow standard English grammar rules."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "lbl-means",
+   "caseId": "support-en-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12957,
+   "output": "1. The text contains an error in the `shipment` section where it states `http_status`: 200 instead of `http_status`: 201.\n2. The `shipment` section is missing the `carrier` field which is necessary to determine the shipping method used.\n3. There are multiple fields that could potentially contain the"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "agency-en-001",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7517,
+   "output": "1. Can you help me create three taglines for Halvard E-Bikes?\n2. What kind of taglines would you like to include for Halvard E-Bikes?\n3. How can I assist you in creating these taglines?"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "agency-fr-016",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11521,
+   "output": "- OBJET: Point hebdo\n- BONJOUR Sophie,\n- OPÉRATION GRAND NORD : storyboards validés lundi, animatique en cours, PPM prévue le 18. Pas de point bloquant de notre côté, nous attendons seulement la validation des droits musicaux par le juridique du client.\n- Bien à vous,\n- Louis"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "agency-en-035",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7462,
+   "output": "1. \"Plan a 4 email Black Friday sequence for a DTC sneaker brand.\"\n2. \"Subjet Lines:\"\n3. \"Subject Line:\"\n4. \"Subject Line:\"\n5. \"Subject Line:\"\n6. \"Subject Line:\""
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "agency-fr-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11490,
+   "output": "1. \"le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse\" - This sentence appears to be describing a scenario involving a new bicycle (likely a hydrogen-powered one) being used by someone who needs to get to their workplace before their coffee has cooled down. It seems l"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "dev-en-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5443,
+   "output": "- How do I setup SSH port forwarding through Bastion-EU1.int.quillmark.net to reach PostgreSQL from my laptop? I always forget to use the -L syntax."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "dev-fr-007",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6601,
+   "output": "- keycloak.corp.qmk\n- me\n- renvoi\n- une\n- 401\n- sur\n- le\n- token\n- endpoint\n- alors\n- que\n- le\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "dev-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8573,
+   "output": "1. Uber is an open-source company.\n2. Uber uses Cadence for its workflow management.\n3. Uber has two main components: Cadence and Temporal.\n4. Uber's workflow includes both cadence and temporal elements.\n5. Uber employs a team to manage their workflows."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "dev-en-047",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 8987,
+   "output": "- Label: CUSTOMER\n  Description: A customer has the most failures with a status code of 500.\n- Label: STATUS_CODE\n  Description: The most common status code for delivery attempts is 500 (HTTP Status Code)."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "finance-en-005",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 7477,
+   "output": "- Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%\n- Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "finance-fr-038",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 1622,
+   "output": "- No labels found."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "finance-en-032",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5640,
+   "output": "1. Our final dividend payout ratio for the year was 38.2% per share paid in May.\n2. How do I explain dividends to a new graduate in Plain English?"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "finance-fr-040",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5257,
+   "output": "- Label: API keys, access tokens, secret keys, and other credentials.\n- Label: Phone numbers.\n- Label: Email addresses."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "hr-en-012",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8153,
+   "output": "- Hi Kofi,\n- Thank you for taking the time to meet our team on Thursday.\n- I'm happy to share that we'd like to invite you to the final round.\n- Could you let me know your availability for a two-hour block next week?\n- Best regards"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "hr-fr-004",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 21590,
+   "output": "1. \"Entretien avec Thibault Ferrand\" - This appears to be a name or title for a discussion or interview.\n2. \"ROS\" - This seems to be a programming language or operating system.\n3. \"c++\" - This could refer to a specific version of C++ or another programming language.\n4. \"Norvik Dynamics\" - This appea"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "hr-fr-035",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8628,
+   "output": "1. D'après l'étude de rémunération annuelle de l'Apec, les ingénieurs en robotique confirmés sont plutôt bien payés en région lyonnaise.\n2. Où est-ce que je peux trouver le détail par région pour préparer une présentation ?"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "hr-en-025",
+   "failure": "echo",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 6016,
+   "output": "- Signed!!\n- J. Lindqvist accepted at IC5 🎉\n- 188 base / 12% bonus, HM is buying lunch for the whole team"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "legal-en-003",
+   "failure": "echo",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 5226,
+   "output": "- quick q - is $1.1bn for Vessant too rich if their EBITDA is ~70m?\n- board wants a sanity check before friday"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "legal-fr-005",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6838,
+   "output": "- Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement. Droit français, ton sobre."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "legal-en-033",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 9335,
+   "output": "- For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website)\n- Used a locked-box mechanism with a 12-month leakage period. Could be a useful template for future deals."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "legal-fr-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 6913,
+   "output": "- Pourquoi Excel m'affiche tout dans une seule colonne quand je ouvre l'export ?\n- Pourquoi Excel m'affiche tout dans une seule colonne quand je ouvre l'export ?"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "research-en-004",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7663,
+   "output": "- Sam: QPCR repeats done, IL6 down again in KO\n- me: Send updated SOP to Quillon Biosciences by Fri\n- Hanna: Renewal draft due end of month\n- order: RIPA + protease inhibitor"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "research-fr-004",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 12429,
+   "output": "1. Réunion de travail sur le rapport de recherche (RQP) 04/02\n   - Julien : QPCR est effectué, il est en baisse chez les KO\n   - moi : Envoyez le protocol principal à Solenne Biotech avant vendredi\n   - Hélène : Dossier ANR à prendre en compte fin du mois\n   - commander RIPA\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "research-fr-034",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7732,
+   "output": "1. Rédige en anglais une lettre d'accompagnement aux éditeurs de eLife pour notre manuscrit sur la polarisation des macrophages. Mentionne le financement ANR et Inserm. Une page max."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "research-en-034",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5971,
+   "output": "- Funding from the Wellcome Trust and the European Research Council\n- Macrophage polarization in fibrotic liver\n- Manuscript on macrophage polarization in fibrotic liver\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 12429,
+   "output": "1. Discovery notes mention the current setup at Pembrook Dental Group.\n2. Current setup includes 60 clinics, including older K5 docks and laptops.\n3. Decision was made by end of Q4.\n4. Competitors include Draxon.\n5. Pain points were identified during peak hours.\n6. Front-desk devices failed during t"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "sales-fr-041",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7131,
+   "output": "1. petite question avant mon call : j'ai le droit de dire au prospect que le pulse edge gère le mode hors ligne ?\n2. l'équipe produit m'a dit \"normalement oui\" mdr\n3. mdr"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "sales-en-039",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6058,
+   "output": "1. Customer asked about Lenovo ThinkPad docks vs K7.\n2. No clue about customer's opinion on the K5s.\n3. Support for the K5s was EOLed."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "sales-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 19746,
+   "output": "- \"Bonjour Mme Roussel\" - This appears to be a greeting or introduction.\n- \"je le trouve un peu sec\" - This seems to be a minor complaint about the timing of the email.\n- \"Je vous confirme notre rendez-vous du 30.\" - This appears to be confirming the meeting date.\n- \"J'ai proposé à notre ingénieur a"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "support-en-007",
+   "failure": "answered",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 9411,
+   "output": "1. Dear Ms Imogen Castellanos\n2. Your order has been split into two parcels\n3. The first parcel arrived yesterday\n4. The second parcel, tracking number PCL5519027734ES, should reach you on Thursday\n5. We apologize for any inconvenience"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "support-fr-019",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8178,
+   "output": "1. Quelqu'un a déjà vu le colis de Mme Karadeniz ?\n2. Il apparaît comme livré à Toulouse alors que la commande part à Nantes.\n3. Je vérifie avec le transporteur mais c'est bizarre."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "support-fr-031",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 16659,
+   "output": "1. The text appears to be about a customer complaint regarding their delivery experience.\n2. It mentions a courier named \"Kévin\" who was present but the customer claims they were not there during the delivery attempt.\n3. The customer states that the delivery took place on the first day of April, whi"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "v4",
+   "caseId": "support-en-045",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 17847,
+   "output": "- This JSON object represents a delivery status update for an order.\n- It includes fields such as `order_id`, `account_id`, `customer`, `handled_by`, `shipment`, and `sku`.\n- The `shipment` field indicates the type of delivery (DPD).\n- The `status` field specifies the current status of the shipment."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "agency-en-001",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7130,
+   "output": "[CLIENT_NAME] 1. Can't wait to ride your e-bike to new heights!\n2. E-biking for a fresh start - now in spring!\n3. Start cycling with ease and style this spring!\n[CAMPAIGN_CODENAME] Sure! Here they are:\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "agency-fr-016",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-CAMPAIGN_CODENAME: Bonjour Sophie,",
+    "+CAMPAIGN_CODENAME: Opération Grand Nord : storyboards validés lundi, animatique en cours, PPM prévue le 18. Pas de point bloquant de notre côté, nous attendons seulement la validation des droits musicaux par le juridique du client.",
+    "-CAMPAIGN_CODENAME: Bien à vous,",
+    "-CAMPAIGN_CODENAME: Louis"
+   ],
+   "ms": 13072,
+   "output": "[CLIENT_NAME] Names of our agency's clients or the brands we work for under NDA.\n[CAMPAIGN_CODENAME] Objet : Point hebdo\nBonjour Sophie,\nOpération Grand Nord : storyboards validés lundi, animatique en cours, PPM prévue le 18. Pas de point bloquant de notre côté, nous attendons seulement la validatio"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "agency-en-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 10945,
+   "output": "[CLIENT_NAME] 1. \"Our customers love our sneakers! \"\n2. \"We're excited about Black Friday!\"\n3. \"Don't miss out on this festive opportunity!\"\n4. \"Stay ahead of the competition with our latest designs!\"\n[CAMPAIGN_CODENAME] 1. Plan a 4 email Black Friday sequence for a DTC sneaker brand. Subjets and su"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse",
+    "-CAMPAIGN_CODENAME: le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse"
+   ],
+   "ms": 9245,
+   "output": "[CLIENT_NAME] 1. Le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse\n2. Le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse\n[CAMPAIGN_CODENAME] le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "dev-en-018",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 14363,
+   "output": "[INTERNAL_HOST] setup ssh port forwarding through bastion-eu1.int.quillmark.net to reach postgres from your laptop, always forgetting the -L syntax smh\n[INTERNAL_SERVICE] setup ssh port forwarding through bastion-eu1.int.quillmark.net to reach postgres from your laptop none COPY PASSENGER OF THE TEX"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "dev-fr-007",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CUSTOMER_ID: token endpoint",
+    "-CUSTOMER_ID: secret",
+    "-CUSTOMER_ID: client secret"
+   ],
+   "ms": 7521,
+   "output": "[INTERNAL_HOST] internal hostnames, internal domain names, and private URL of our infrastructure.\n[INTERNAL_SERVICE] Names of our internal repositories, microservices, and internal tools.  \nNone.\n[CUSTOMER_ID] token endpoint\nsecret\nclient secret"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "dev-fr-030",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_HOST: Temporal",
+    "-INTERNAL_HOST: cron"
+   ],
+   "ms": 10573,
+   "output": "[INTERNAL_HOST] Temporal\ncron\n[INTERNAL_SERVICE] Names of our internal repositories, microservices and internal tools.  \nTemporal and a simple cron for our workflows of relaying.\n[CUSTOMER_ID] Uber a open-sourced Cadence et ensuite les créateurs ont fait Temporal, c'est bien ça? On hesite entre Temp"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "dev-en-047",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_SERVICE: customer,endpoint_host,status,attempts",
+    "-INTERNAL_SERVICE: cus_mP02zzLc,hooks.slack.com,500,5",
+    "-INTERNAL_SERVICE: acct-40051-AR,webhook.site,410,1"
+   ],
+   "ms": 25844,
+   "output": "[INTERNAL_HOST] ```none\nNONE\n```\n[INTERNAL_SERVICE] customer,endpoint_host,status,attempts\ncus_mP02zzLc,hooks.slack.com,500,5\nacct-40051-AR,webhook.site,410,1\ncus_mP02zzLc,hooks.slack.com,500,5\n\n[CUSTOMER_ID] customer,cus_mP02zzLc,webhook.site,500\ncustomer,cus_mP02zzLc,webhook.slack.com,500\ncustomer"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "finance-en-005",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 6615,
+   "output": "[UNPUBLISHED_FIGURE] financial results that have not been published yet are revenue, margins, profit, and cash, segment numbers for the current or last quarter. none.\n[INTERNAL_FORECAST] Internal forecasts, guidance drafts and targets that are not public."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "finance-fr-038",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 4515,
+   "output": "[UNPUBLISHED_FIGURE] financial results that have not been published yet: none\n\n\n[INTERNAL_FORECAST] Internal forecasts, guidance drafts and targets that are not public."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "finance-en-032",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4426,
+   "output": "[UNPUBLISHED_FIGURE] financial results that have not been published yet are none\n\n\n[INTERNAL_FORECAST] internal forecasts,\nguidance drafts,\ntargets that are not public."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "finance-fr-040",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5576,
+   "output": "[UNPUBLISHED_FIGURE] Financial results that have not been published yet: none\n\n\n[INTERNAL_FORECAST] Internal forecasts, guidance drafts, and targets that are not public."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "hr-en-012",
+   "failure": "echo_instructions",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6048,
+   "output": "[CANDIDATE_NAME] Names of job candidates or employees we are discussing.\n[SOURCE_COMPANY] The competitor we are recruiting candidates away from, when named in a hiring context.\n[COMPENSATION] NONE"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "hr-fr-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 13343,
+   "output": "[CANDIDATE_NAME] Entretient avec Thibault Ferrand : bon niveau en ROS, un peu lourd en C++. chez Norvik Dynamics depuis 4 ans, préavis 3 mois, veut 75K€ minimum sinon il bouge pas\n[SOURCE_COMPANY] The competitor we are recruiting candidates away from, when named in a hiring context.\n[COMPENSATION] S"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "hr-fr-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 20886,
+   "output": "[CANDIDATE_NAME] Rémunération annuelle d'ingénieurs en robotique confirmés dans la région lyonnaise : 100 000 € à 250 000 € selon le secteur et l'année. Pour obtenir cette information, il faudrait consulter un document spécifique sur la rémunération des ingénieurs en robotique confirmés dans la régi"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "hr-en-025",
+   "failure": "hallucinated",
+   "found": 2,
+   "expected": 4,
+   "predicted": [
+    "+CANDIDATE_NAME: J. Lindqvist accepted at IC5 🎉",
+    "-CANDIDATE_NAME: HM is buying lunch for the whole team",
+    "+COMPENSATION: J. Lindqvist accepted at IC5 🎉"
+   ],
+   "ms": 13961,
+   "output": "[CANDIDATE_NAME] J. Lindqvist accepted at IC5 🎉  \nHM is buying lunch for the whole team\n[SOURCE_COMPANY] The competitor we are recruiting is named J. Lindqvist. When named in a hiring context, he accepts an offer to work at IC5 with a 188-base/12% bonus and is also purchasing lunch for the entire t"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "legal-en-003",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 12061,
+   "output": "[DEAL_CODENAME] quick q - is $1.1bn for Vessant too rich if their EBITDA is ~70m? board wants a sanity check before friday\n[DEAL_TARGET] quick q - is $1.1bn for Vessant too rich if their EBITDA is ~70m? board wants a sanity check before friday\n[DEAL_VALUE] Price, valuation, or financial term of a co"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "legal-fr-005",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9991,
+   "output": "[DEAL_CODENAME] Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement. Droit français, ton sobre.\n[DEAL_TARGET] The company we plan to acquire or merge with in a confidential deal.\n[DEAL_"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "legal-en-033",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 13979,
+   "output": "[DEAL_CODENAME] The precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period. Could be a useful template for future deals.\n[DEAL_TARGET] The company we plan to acquire"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "legal-fr-045",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 23423,
+   "output": "[DEAL_CODENAME] Pourquoi Excel affiche-t-il toutes les informations dans une seule colonne lorsque vous ouvrez l'export ? Voici les passages qui répondent à cette question :\n\n\n[DEAL_TARGET] Pourquoi Excel m'affiche tout dans une seule colonne quand je veux ouvrir l'export ? C'est parce que :\n\n\n[DEAL"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "research-en-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-EARLY_RESULT: qPCR repeats done, Il6 down again in KO",
+    "-EARLY_RESULT: renewal draft due end of month",
+    "-EARLY_RESULT: order RIPA + protease inhib"
+   ],
+   "ms": 15496,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] - Lab meeting scheduled for tomorrow\n- Order received from Quillon Biosciences\n- Update on IL6 expression and suppression by KO\n- New RIPA and protease inhibitor needed\n- Next steps will be sent to Quillon Biosciences by Friday\n[EARLY_RESULT] - QPCR repeats done, IL6 "
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "research-fr-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: commander RIPA",
+    "-PARTNER_LAB: commander RIPA"
+   ],
+   "ms": 21157,
+   "output": "[STUDY_NAME] Résumé de la recherche : \n- Julien : QPCR réfait, il est en baisse chez les KO\n- moi : Envoyez le protocole maj à Solenne Biotech avant vendredi\n- Hélène : Dossier ANR à boulanger fin du mois\n- commander RIPA\n[PARTNER_LAB] Résumé de la communication :\n- Julien : QPCR faisant partie de n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "research-fr-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5654,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] The external lab, institute or company we are collaborating with on unpublished work.\n[EARLY_RESULT] Un passage qui correspond à ce texte est :\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "research-en-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6440,
+   "output": "[STUDY_NAME] None\n[PARTNER_LAB] external lab, institute we are collaborating with on unpublished work.\n[EARLY_RESULT] unpublished quantitative results: effect sizes, p-values, response rates, hit counts."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "sales-en-040",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11706,
+   "output": "[UNRELEASED_PRODUCT] 1. What are some of the current challenges faced by Pembrook Dental Group regarding their technology?\n2. How does the decision to use older K5 docks versus laptops impact the company's ability to provide pain relief services?\n3. Are there any specific technologies or solutions b"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6814,
+   "output": "[UNRELEASED_PRODUCT] petite question avant mon call : j'ai le droit de dire au prospect que le pulse edge gère le mode hors ligne ? l'équipe produit m'a dit \"normalement oui\" mdr\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "sales-en-039",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: customer asked me",
+    "-UNRELEASED_PRODUCT: also r the K5s still supported or did we EOL them"
+   ],
+   "ms": 5661,
+   "output": "[UNRELEASED_PRODUCT] customer asked me\nnewlenovothinkpad docksvsthek7\nalso r the k5s still supported or did we EOL them\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "sales-fr-030",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: tu peux verifier le ton de ce mail ?",
+    "-UNRELEASED_PRODUCT: je le trouve un peu sec",
+    "-UNRELEASED_PRODUCT: À bientôt."
+   ],
+   "ms": 12703,
+   "output": "[UNRELEASED_PRODUCT] 1. Tu peux verifier le ton de ce mail ?\n2. Je le trouve un peu sec\n3. Bonjour Mme Roussel, je le trouve un peu sec\n4. Nous avons proposé à notre ingénieur avant-vente de se joindre à nous afin de répondre aux questions techniques soulevées par les Hotels Delacroix la semaine der"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "support-en-007",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Dear Ms Imogen Castellanos,",
+    "-CUSTOMER_NAME: your order has been split into two parcels.",
+    "-CUSTOMER_NAME: The first one arrived yesterday;",
+    "-CUSTOMER_NAME: the second one, tracking number PCL5519027734ES,",
+    "-CUSTOMER_NAME: should reach you on Thursday."
+   ],
+   "ms": 20978,
+   "output": "[CUSTOMER_NAME] Dear Ms Imogen Castellanos,\nyour order has been split into two parcels.\nThe first one arrived yesterday;\nthe second one, tracking number PCL5519027734ES,\nshould reach you on Thursday.\nWe apologize for any inconvenience.\n[ACCOUNT_REF] Customer account numbers: 867-1234-5678, 867-1234-"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "support-fr-019",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9723,
+   "output": "[CUSTOMER_NAME] Quelqu'un a déjà vu le colis de Mme Karadeniz ? Il apparaît comme livré à Toulouse alors que la commande part à Nantes. Je vérifie avec le transporteur mais c'est bizarre.\n[ACCOUNT_REF] Customer account number, ticket number, order number, tracking number."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "support-fr-031",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5185,
+   "output": "[CUSTOMER_NAME] Here are the passages that match:\n\n\n[ACCOUNT_REF] Customer account number, ticket number, order number, and tracking number."
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "pl-passages",
+   "caseId": "support-en-045",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 20124,
+   "output": "[CUSTOMER_NAME] Order ID: ORD-5906-3321\nAccount ID: PX-742018\nCustomer Full Name: Seraphina Kowalski\nCustomer Tier: plus\nHandled By: Support Bot v2\nShipment Status: IN_TRANSIT\nLast Event: DLV\nSKU: PMB-L-200\n[ACCOUNT_REF] Customer account number: PX-742018\nOrder ID: ORD-5906-3321\nTracking number: PMB"
+  }
+ ]
+}

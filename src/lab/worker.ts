@@ -30,6 +30,8 @@ export interface LabGen {
   noRepeatNgram: number | null;
   /** Stop with the ref's line-protocol tracker (off for JSON output). */
   lineStop: boolean;
+  /** Stop at the first line break after some output. */
+  stopAtNewline?: boolean;
 }
 export interface LabJob {
   key: string;
@@ -122,6 +124,7 @@ async function main() {
       let checked = 0;
       let lineDone = false;
       let deadline = false;
+      let text = "";
       const criteria = new StoppingCriteriaList();
       criteria.push(
         new Stop(ids.length, (generated) => {
@@ -129,6 +132,10 @@ async function main() {
           if (generated.length > checked) {
             const fresh = generated.slice(checked);
             checked = generated.length;
+            if (job.gen.stopAtNewline) {
+              text += decode(fresh);
+              if (/\S[^\n]*\n/u.test(text)) return (lineDone = true);
+            }
             if (job.gen.lineStop && tracker.feed(decode(fresh))) return (lineDone = true);
           }
           return false;

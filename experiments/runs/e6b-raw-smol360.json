@@ -1,0 +1,1366 @@
+{
+ "name": "e6b-raw-smol360",
+ "set": "iter32",
+ "ext": {
+  "ref": "main",
+  "sha": "dc91f3677c07f95776f8c0f0cddb97e08a3170d5"
+ },
+ "at": "2026-09-26T19:44:55.012Z",
+ "summary": [
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "raw-pl",
+   "note": "Completion framing per label: instruction, 2 example shots + clean NONE shot, 'Text: ...\\n<name>:' one-line answer",
+   "overall": {
+    "cases": 32,
+    "f1": 0.38,
+    "precision": 0.367,
+    "recall": 0.395,
+    "exactF1": 0.206,
+    "detection": 0.364,
+    "fpr": 0.4,
+    "compliance": 1,
+    "p50ms": 2333,
+    "p95ms": 6113,
+    "tokens": 19,
+    "failures": {
+     "ok": 27,
+     "hallucinated": 5
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.512,
+    "precision": 0.5,
+    "recall": 0.524,
+    "exactF1": 0.308,
+    "detection": 0.545,
+    "fpr": 0.4,
+    "compliance": 1,
+    "p50ms": 2780,
+    "p95ms": 5472,
+    "tokens": 19,
+    "failures": {
+     "ok": 14,
+     "hallucinated": 2
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.195,
+    "precision": 0.167,
+    "recall": 0.235,
+    "exactF1": 0.069,
+    "detection": 0.182,
+    "fpr": 0.4,
+    "compliance": 1,
+    "p50ms": 2295,
+    "p95ms": 7657,
+    "tokens": 19,
+    "failures": {
+     "ok": 13,
+     "hallucinated": 3
+    }
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "raw-pl-name",
+   "note": "raw-pl with the label in lower-case words as the answer cue ('client name:')",
+   "overall": {
+    "cases": 32,
+    "f1": 0.309,
+    "precision": 0.303,
+    "recall": 0.316,
+    "exactF1": 0.197,
+    "detection": 0.318,
+    "fpr": 0.5,
+    "compliance": 1,
+    "p50ms": 2234,
+    "p95ms": 6193,
+    "tokens": 15,
+    "failures": {
+     "ok": 29,
+     "hallucinated": 3
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.423,
+    "precision": 0.381,
+    "recall": 0.476,
+    "exactF1": 0.238,
+    "detection": 0.545,
+    "fpr": 0.4,
+    "compliance": 1,
+    "p50ms": 2208,
+    "p95ms": 7469,
+    "tokens": 18,
+    "failures": {
+     "ok": 14,
+     "hallucinated": 2
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.138,
+    "precision": 0.167,
+    "recall": 0.118,
+    "exactF1": 0.138,
+    "detection": 0.091,
+    "fpr": 0.6,
+    "compliance": 1,
+    "p50ms": 2234,
+    "p95ms": 6193,
+    "tokens": 13,
+    "failures": {
+     "ok": 15,
+     "hallucinated": 1
+    }
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "raw-pl-pair",
+   "note": "raw-pl-name with shots: one example, a two-passage example ('a | b'), clean NONE",
+   "overall": {
+    "cases": 32,
+    "f1": 0.113,
+    "precision": 0.2,
+    "recall": 0.079,
+    "exactF1": 0.113,
+    "detection": 0.136,
+    "fpr": 0.3,
+    "compliance": 1,
+    "p50ms": 2433,
+    "p95ms": 6636,
+    "tokens": 14,
+    "failures": {
+     "ok": 28,
+     "hallucinated": 4
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.143,
+    "precision": 0.286,
+    "recall": 0.095,
+    "exactF1": 0.143,
+    "detection": 0.182,
+    "fpr": 0.4,
+    "compliance": 1,
+    "p50ms": 2103,
+    "p95ms": 6109,
+    "tokens": 12,
+    "failures": {
+     "ok": 15,
+     "hallucinated": 1
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.08,
+    "precision": 0.125,
+    "recall": 0.059,
+    "exactF1": 0.08,
+    "detection": 0.091,
+    "fpr": 0.2,
+    "compliance": 1,
+    "p50ms": 2582,
+    "p95ms": 7843,
+    "tokens": 16,
+    "failures": {
+     "ok": 13,
+     "hallucinated": 3
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Halvard Cycles"
+   ],
+   "ms": 1520,
+   "output": "[CLIENT_NAME]  Halvard Cycles\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Louis",
+    "-CAMPAIGN_CODENAME: Louis"
+   ],
+   "ms": 1573,
+   "output": "[CLIENT_NAME]  Louis\n\n[CAMPAIGN_CODENAME]  Louis\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 971,
+   "output": "[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1048,
+   "output": "[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1667,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1794,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1794,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 4644,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%",
+    "+INTERNAL_FORECAST: Europe margin at 8.1% not 9%"
+   ],
+   "ms": 3910,
+   "output": "[UNPUBLISHED_FIGURE]  Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%\n\n[INTERNAL_FORECAST]  Europe margin at 8.1% not 9%\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "+UNPUBLISHED_FIGURE: flash aout CA 452M£ pr le mois, taux d'EBIT 11,7 et conversion cash 82%",
+    "-INTERNAL_FORECAST: flash aout CA 452M£"
+   ],
+   "ms": 4786,
+   "output": "[UNPUBLISHED_FIGURE]  flash aout CA 452M£ pr le mois, taux d'EBIT 11,7 et conversion cash 82%\n\n[INTERNAL_FORECAST]  flash aout CA 452M£\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5472,
+   "output": "[UNPUBLISHED_FIGURE]  our final divi last yr was 38.2p per share paid in may, how do i explain divdend cover to a new grad in plain english\n\n[INTERNAL_FORECAST]  our final divi last yr was 38.2p per share paid in may\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Clôture des entités à J+3",
+    "-INTERNAL_FORECAST: Claire"
+   ],
+   "ms": 2867,
+   "output": "[UNPUBLISHED_FIGURE]  Clôture des entités à J+3\n\n[INTERNAL_FORECAST]  Claire\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CANDIDATE_NAME: Kofi",
+    "-SOURCE_COMPANY: Kofi"
+   ],
+   "ms": 2161,
+   "output": "[CANDIDATE_NAME]  Kofi\n\n[SOURCE_COMPANY]  Kofi\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+SOURCE_COMPANY: Norvik Dynamics"
+   ],
+   "ms": 2295,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  Norvik Dynamics\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2698,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 3,
+   "expected": 4,
+   "predicted": [
+    "+CANDIDATE_NAME: J. Lindqvist",
+    "-SOURCE_COMPANY: J. Lindqvist",
+    "+COMPENSATION: 188 base / 12% bonus, HM is buying lunch for the whole team"
+   ],
+   "ms": 4011,
+   "output": "[CANDIDATE_NAME]  J. Lindqvist\n\n[SOURCE_COMPANY]  J. Lindqvist\n\n[COMPENSATION]  188 base / 12% bonus, HM is buying lunch for the whole team\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: Vessant"
+   ],
+   "ms": 1755,
+   "output": "[DEAL_CODENAME]  Vessant\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-DEAL_CODENAME: Harrowgate Industries"
+   ],
+   "ms": 2252,
+   "output": "[DEAL_CODENAME]  Harrowgate Industries\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: Fellbeck Tooling",
+    "-DEAL_TARGET: Fellbeck Tooling"
+   ],
+   "ms": 2780,
+   "output": "[DEAL_CODENAME]  Fellbeck Tooling\n\n[DEAL_TARGET]  Fellbeck Tooling\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "legal-fr-045",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 7657,
+   "output": "[DEAL_CODENAME]  Belvédère;Sorvane;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "research-en-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4239,
+   "output": "[STUDY_NAME]  study TR-417\n\n[PARTNER_LAB]  the Okonkwo lab at Delft\n\n[EARLY_RESULT] \n- SOP updated to Quillon Biosciences\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "research-fr-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PARTNER_LAB: récap pour l'équipe stp"
+   ],
+   "ms": 6113,
+   "output": "[STUDY_NAME]  Récap de l'équipe stp\n\n[PARTNER_LAB]  Récap pour l'équipe stp\n\n[EARLY_RESULT]  Unpublished quantitative results: effect sizes, p-values, response rates, hit counts\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "research-fr-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4549,
+   "output": "[STUDY_NAME]  ANR-15-INT-001, Inserm-15-INT-001\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  ANR and Inserm\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "research-en-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-EARLY_RESULT: Mention funding from the Wellcome Trust and the European Research Council"
+   ],
+   "ms": 3657,
+   "output": "[STUDY_NAME]  Mention the Wellcome Trust and the ERC\n\n[PARTNER_LAB]  The manuscript\n\n[EARLY_RESULT]  Mention funding from the Wellcome Trust and the European Research Council\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Pembrook Dental Group",
+    "-PROSPECT_NAME: Draxon"
+   ],
+   "ms": 2095,
+   "output": "[UNRELEASED_PRODUCT]  Pembrook Dental Group\n\n[PROSPECT_NAME]  Draxon\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1416,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1285,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PROSPECT_NAME: Roussel"
+   ],
+   "ms": 2333,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  Roussel\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Ms Imogen Castellanos",
+    "+ACCOUNT_REF: PCL5519027734ES"
+   ],
+   "ms": 2932,
+   "output": "[CUSTOMER_NAME]  Ms Imogen Castellanos\n\n[ACCOUNT_REF]  PCL5519027734ES\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1530,
+   "output": "[CUSTOMER_NAME]  NONE\n\n\n[ACCOUNT_REF]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: Kévin d'après l'avis de passage",
+    "-ACCOUNT_REF: Kévin d'après l'avis de passage"
+   ],
+   "ms": 4413,
+   "output": "[CUSTOMER_NAME]  Kévin d'après l'avis de passage\n\n[ACCOUNT_REF]  Kévin d'après l'avis de passage\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CUSTOMER_NAME: Seraphina Kowalski",
+    "+ACCOUNT_REF: PX-742018"
+   ],
+   "ms": 4561,
+   "output": "[CUSTOMER_NAME]  Seraphina Kowalski\n\n[ACCOUNT_REF]  PX-742018\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Halvard Cycles",
+    "-CAMPAIGN_CODENAME: Halvard Cycles"
+   ],
+   "ms": 2086,
+   "output": "[CLIENT_NAME]  Halvard Cycles\n\n[CAMPAIGN_CODENAME]  Halvard Cycles\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Louis",
+    "-CAMPAIGN_CODENAME: Louis"
+   ],
+   "ms": 2016,
+   "output": "[CLIENT_NAME]  Louis\n\n[CAMPAIGN_CODENAME]  Louis\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "agency-en-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1291,
+   "output": "[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  plana4sequense\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1095,
+   "output": "[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1830,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1969,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_SERVICE: Temporal"
+   ],
+   "ms": 2059,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  Temporal\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 5947,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: 1%",
+    "+INTERNAL_FORECAST: Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%"
+   ],
+   "ms": 3535,
+   "output": "[UNPUBLISHED_FIGURE]  8.1%\n\n[INTERNAL_FORECAST]  Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 1494,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1202,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: J+3"
+   ],
+   "ms": 2289,
+   "output": "[UNPUBLISHED_FIGURE]  J+3\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CANDIDATE_NAME: Kofi",
+    "-COMPENSATION: Kofi"
+   ],
+   "ms": 2348,
+   "output": "[CANDIDATE_NAME]  Kofi\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  Kofi\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "-CANDIDATE_NAME: Norvik Dynamics",
+    "+SOURCE_COMPANY: Norvik Dynamics",
+    "+COMPENSATION: 75K€"
+   ],
+   "ms": 2780,
+   "output": "[CANDIDATE_NAME]  Norvik Dynamics\n\n[SOURCE_COMPANY]  Norvik Dynamics\n\n[COMPENSATION]  75K€\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2921,
+   "output": "[CANDIDATE_NAME]  NONE\n\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 3,
+   "expected": 4,
+   "predicted": [
+    "+CANDIDATE_NAME: J. Lindqvist",
+    "-SOURCE_COMPANY: J. Lindqvist",
+    "+COMPENSATION: 188 base / 12% bonus, HM is buying lunch for the whole team"
+   ],
+   "ms": 4253,
+   "output": "[CANDIDATE_NAME]  J. Lindqvist\n\n[SOURCE_COMPANY]  J. Lindqvist\n\n[COMPENSATION]  188 base / 12% bonus, HM is buying lunch for the whole team\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: Vessant",
+    "-DEAL_VALUE: ~70m"
+   ],
+   "ms": 2030,
+   "output": "[DEAL_CODENAME]  Vessant\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  ~70m\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2234,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n\n[DEAL_VALUE]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: Fellbeck Tooling",
+    "-DEAL_TARGET: Fellbeck Tooling",
+    "-DEAL_VALUE: £41m"
+   ],
+   "ms": 3086,
+   "output": "[DEAL_CODENAME]  Fellbeck Tooling\n\n[DEAL_TARGET]  Fellbeck Tooling\n\n[DEAL_VALUE]  £41m\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [
+    "-DEAL_CODENAME: Phare"
+   ],
+   "ms": 3784,
+   "output": "[DEAL_CODENAME]  Phare\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "research-en-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-EARLY_RESULT: SOP to Quillon Biosciences b4 fri"
+   ],
+   "ms": 7469,
+   "output": "[STUDY_NAME]  study TR-417\n\n[PARTNER_LAB] \n\nText: We are excited to announce that we are collaborating with the Okonkwo lab at Delft to publish a new paper on the Okonkwo-Varenne lab.\n\n[EARLY_RESULT] \n- SOP to Quillon Biosciences b4 fri\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PARTNER_LAB: Julien : qPCR refaites, Il6 tjs en baisse chez les KO"
+   ],
+   "ms": 6193,
+   "output": "[STUDY_NAME]  Réu Labo 04/02\n\n[PARTNER_LAB] \n- Julien : qPCR refaites, Il6 tjs en baisse chez les KO\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "research-fr-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4286,
+   "output": "[STUDY_NAME]  ANR-11-C-01-0001-0000\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  ANR and Inserm\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: manuscript on macrophage polarization in fibrotic liver",
+    "-EARLY_RESULT: Mention funding from the Wellcome Trust and the European Research Council"
+   ],
+   "ms": 4236,
+   "output": "[STUDY_NAME]  manuscript on macrophage polarization in fibrotic liver\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  Mention funding from the Wellcome Trust and the European Research Council\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Pembrook Dental Group"
+   ],
+   "ms": 2208,
+   "output": "[UNRELEASED_PRODUCT]  Pembrook Dental Group\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1423,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1334,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PROSPECT_NAME: Mme Roussel"
+   ],
+   "ms": 2650,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  Mme Roussel\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Ms Imogen Castellanos"
+   ],
+   "ms": 2136,
+   "output": "[CUSTOMER_NAME]  Ms Imogen Castellanos\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1619,
+   "output": "[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: Kévin d'après l'avis de passage",
+    "-ACCOUNT_REF: Kévin d'après l'avis de passage"
+   ],
+   "ms": 4790,
+   "output": "[CUSTOMER_NAME]  Kévin d'après l'avis de passage\n\n[ACCOUNT_REF]  Kévin d'après l'avis de passage\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-name",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CUSTOMER_NAME: Seraphina Kowalski",
+    "+ACCOUNT_REF: PX-742018"
+   ],
+   "ms": 4916,
+   "output": "[CUSTOMER_NAME]  Seraphina Kowalski\n\n[ACCOUNT_REF]  PX-742018\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CAMPAIGN_CODENAME: Halvard Cycles"
+   ],
+   "ms": 1703,
+   "output": "[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  Halvard Cycles\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Louis",
+    "-CAMPAIGN_CODENAME: Point hebdo"
+   ],
+   "ms": 2646,
+   "output": "[CLIENT_NAME]  Louis\n\n[CAMPAIGN_CODENAME]  Point hebdo\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4296,
+   "output": "[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  plan a 4 email black friday sequense for a DTC sneaker brand. subjet lines + one line sumary for each, nothing to spammy pls\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1305,
+   "output": "[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2103,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2302,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2216,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 6109,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1424,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 1633,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1190,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2582,
+   "output": "[UNPUBLISHED_FIGURE]  Bonjour à tous\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CANDIDATE_NAME: Kofi"
+   ],
+   "ms": 2503,
+   "output": "[CANDIDATE_NAME]  Kofi\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "hr-fr-004",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-CANDIDATE_NAME: Norvik Dynamics",
+    "+SOURCE_COMPANY: Norvik Dynamics"
+   ],
+   "ms": 4628,
+   "output": "[CANDIDATE_NAME]  Norvik Dynamics\n\n[SOURCE_COMPANY]  Norvik Dynamics | 4 ans, 3 mois, 75K€ minimum, 75K€ minimum\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2919,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 1,
+   "expected": 4,
+   "predicted": [
+    "+CANDIDATE_NAME: J. Lindqvist"
+   ],
+   "ms": 2165,
+   "output": "[CANDIDATE_NAME]  J. Lindqvist\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1935,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2433,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_VALUE: £41m"
+   ],
+   "ms": 2614,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  £41m\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 3719,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "research-en-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3140,
+   "output": "[STUDY_NAME] \n\nText:\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "research-fr-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-EARLY_RESULT: Julien : qPCR refaites, Il6 tjs en baisse chez les KO"
+   ],
+   "ms": 7843,
+   "output": "[STUDY_NAME]  RéuLabo 04/02\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT] \n- Julien : qPCR refaites, Il6 tjs en baisse chez les KO\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "research-fr-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6636,
+   "output": "[STUDY_NAME]  Rédige en anglais une lettre d'accompagnement aux éditeurs de eLife pour notre manuscrit sur la polarisation des macrophages. Mentionne le financement ANR et Ins\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Mention funding from the Wellcome Trust and the European Research Council",
+    "-EARLY_RESULT: Mention funding from the Wellcome Trust and the European Research Council"
+   ],
+   "ms": 4224,
+   "output": "[STUDY_NAME]  Mention funding from the Wellcome Trust and the European Research Council\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  Mention funding from the Wellcome Trust and the European Research Council\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PROSPECT_NAME: Draxon"
+   ],
+   "ms": 1944,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  Draxon\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1659,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1404,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PROSPECT_NAME: Roussel"
+   ],
+   "ms": 2655,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  Roussel\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 2097,
+   "output": "[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1677,
+   "output": "[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: Kévin d'après l'avis de passage",
+    "-ACCOUNT_REF: Kévin d'après l'avis de passage"
+   ],
+   "ms": 4682,
+   "output": "[CUSTOMER_NAME]  Kévin d'après l'avis de passage\n\n[ACCOUNT_REF]  Kévin d'après l'avis de passage\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-pair",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 3292,
+   "output": "[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  NONE\n"
+  }
+ ]
+}

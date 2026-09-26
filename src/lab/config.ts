@@ -69,6 +69,14 @@ export interface LabConfig {
   perLabel: boolean;
   /** Lines are bare passages; the code attaches the pass's label (perLabel only). */
   passageOnly: boolean;
+  /**
+   * Plain completion framing, no chat template: instructions, then each shot
+   * as `user` + `prefill` + answer, then the real `user` + `prefill`. `user`
+   * and `prefill` may use {label} and {name} (the label in lower-case words).
+   */
+  raw: boolean;
+  /** Stop at the first line break after some output (one-line answers). */
+  stopAtNewline: boolean;
   /** Extra variables for the chat template (e.g. enable_thinking: false). */
   templateKwargs: Record<string, unknown>;
 }
@@ -80,7 +88,22 @@ export interface LabConfig {
  *   - `labelex`: one shot per custom label built from the label's first example
  *     (what the extension could do if labels had an examples field).
  */
-export type ShotSource = "none-clean" | "none-request" | "builtin-email" | "labelex" | "labelex-neg";
+export type ShotSource =
+  | "none-clean"
+  | "none-request"
+  | "builtin-email"
+  | "labelex"
+  | "labelex-neg"
+  /** Bare-answer shots for passage-only configs: two positives from the first label's examples. */
+  | "ex-pos"
+  /** Bare-answer NONE shot from the first label's first counter-example. */
+  | "ex-neg"
+  /** Bare-answer NONE shot on a clean text. */
+  | "clean-neg"
+  /** Bare-answer positive shot from the first label's first example. */
+  | "ex-one"
+  /** One text holding the first label's 2nd and 3rd examples, answered "b | c". */
+  | "ex-pair";
 
 const REF_USER =
   "<text_to_scan>\n{text}\n</text_to_scan>\nTask: scan only the text above. List findings in the required format.\n";
@@ -106,6 +129,8 @@ export const REF_CONFIG: LabConfig = {
   output: "lines",
   perLabel: false,
   passageOnly: false,
+  raw: false,
+  stopAtNewline: false,
   templateKwargs: {},
 };
 
@@ -141,7 +166,7 @@ export function composeInstructions(config: LabConfig, profile: Profile, ref: Re
     .join("\n");
   const first = customLabels(profile, config.labelVariant)[0];
   const blocks: Record<string, string> = {
-    i: fill(resolveInstruction(config.instruction, ref), first ? { label: first.label, description: first.description } : {}),
+    i: fill(resolveInstruction(config.instruction, ref), first ? { label: first.label, name: first.label.toLowerCase().replace(/_/g, " "), description: first.description } : {}),
     s: config.schema === "@ref" ? ref.outputSchema : config.schema,
     l: list,
   };
@@ -158,6 +183,9 @@ const LABEL_EX_SENTENCES = [
   "Petit point avant la réunion : on reparle de {ex} jeudi, tu peux reformuler ce message ?",
 ];
 
+const PAIR_SENTENCE = "Notes de la réunion : {a} avance bien, par contre {b} a encore du retard, on en reparle lundi.";
+const COUNTER_SENTENCE = "Can you explain in simple terms how {ex} is usually used?";
+
 function buildShots(config: LabConfig, profile: Profile): Shot[] {
   const shots: Shot[] = [];
   for (const source of config.shots) {
@@ -172,6 +200,20 @@ function buildShots(config: LabConfig, profile: Profile): Shot[] {
         const ex = spec.examples.at(-1) ?? spec.examples[0]!;
         shots.push({ text: fill(LABEL_EX_SENTENCES[i % 2]!, { ex }), answer: `${spec.label}: ${ex}` });
       });
+    else if (source === "ex-pos") {
+      const spec = profile.labels[0]!;
+      spec.examples.slice(0, 2).forEach((ex, i) => shots.push({ text: fill(LABEL_EX_SENTENCES[i % 2]!, { ex }), answer: ex }));
+    } else if (source === "ex-one") {
+      const ex = profile.labels[0]!.examples[0]!;
+      shots.push({ text: fill(LABEL_EX_SENTENCES[0]!, { ex }), answer: ex });
+    } else if (source === "ex-pair") {
+      const [, b, c] = profile.labels[0]!.examples;
+      if (b && c) shots.push({ text: fill(PAIR_SENTENCE, { a: b, b: c }), answer: `${b} | ${c}` });
+    } else if (source === "ex-neg") {
+      const ex = profile.labels[0]!.counterExamples[0];
+      if (ex) shots.push({ text: fill(COUNTER_SENTENCE, { ex }), answer: "NONE" });
+    } else if (source === "clean-neg")
+      shots.push({ text: "Can you rewrite this so it sounds friendlier? Thanks for your patience, we will get back to you shortly.", answer: "NONE" });
     else if (source === "labelex-neg") {
       const spec = profile.labels[0]!;
       const ex = spec.counterExamples[0];
@@ -208,6 +250,23 @@ export function buildMessages(config: LabConfig, profile: Profile, ref: RefTexts
   });
   messages.push({ role: "user", content: CONTENT_MARKER });
   return { messages, instructions, userContent: (text: string) => userFor(text, shots.length === 0) };
+}
+
+/** Completion-framed request (config.raw): a reusable prefix and the per-case suffix. */
+export function buildRaw(config: LabConfig, profile: Profile, ref: RefTexts) {
+  const instructions = composeInstructions(config, profile, ref);
+  const label = profile.labels[0]?.label ?? "";
+  const vars = { label, name: label.toLowerCase().replace(/_/g, " ") };
+  const user = (text: string) => fill(config.user, { ...vars, text, instructions: "" });
+  const prefill = fill(config.prefill, vars);
+  const shots = buildShots(config, profile)
+    .map((shot) => `${user(shot.text)}${prefill}${prefill.endsWith(":") ? " " : ""}${shot.answer}\n\n`)
+    .join("");
+  return {
+    instructions,
+    prefix: `${instructions ? `${instructions}\n\n` : ""}${shots}`,
+    suffix: (text: string) => `${user(text)}${prefill}`,
+  };
 }
 
 export function withOverrides(base: LabConfig, id: string, overrides: Partial<LabConfig>): LabConfig {
@@ -247,7 +306,7 @@ export function jsonToLines(raw: string): string {
 export function passagesToLines(raw: string, label: string): string {
   const norm = (s: string) => s.toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
   const lines: string[] = [];
-  for (const original of raw.split(/\r?\n/u)) {
+  for (const original of raw.split(/\r?\n| \| /u)) {
     let line = original.trim().replace(/^(?:(?:[-*•]+|\d+[.)])\s*)+/u, "");
     if (!line || /^NONE\.?$/iu.test(line) || line.startsWith("```")) continue;
     const m = /^(?<l>[^:\n]{1,40}?)\s*:\s*(?<p>.+)$/u.exec(line);

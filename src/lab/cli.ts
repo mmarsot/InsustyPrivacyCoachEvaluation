@@ -26,7 +26,7 @@ import { CACHE_DIR, MODEL_CACHE_DIR, ROOT } from "../paths.ts";
 import type { ResultRecord } from "../run/jobs.ts";
 import { metrics, type Metrics } from "../score/aggregate.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
-import { buildMessages, configCategories, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
+import { buildMessages, buildRaw, configCategories, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "./runtime.ts";
@@ -137,20 +137,30 @@ async function plan(model: LabModel): Promise<Planned[]> {
         : [{ scope: profile }];
       for (const { part, scope } of parts) {
         const cfg = config.perLabel ? { ...config, builtinLabels: false } : config;
-        const built = buildMessages(cfg, scope, refTexts);
-        const rendered = String(
-          tokenizer.apply_chat_template(built.messages as never, { tokenize: false, add_generation_prompt: true, ...config.templateKwargs } as never),
-        );
-        const at = rendered.indexOf(CONTENT_MARKER);
-        if (at < 0 || rendered.indexOf(CONTENT_MARKER, at + 1) >= 0) fail(`${model.short}/${config.id}: template did not place the content once`);
-        const tail = rendered.slice(at + CONTENT_MARKER.length);
-        const suffix = `${built.userContent(c.text)}${tail}${config.prefill}`;
-        const prefix = rendered.slice(0, at);
-        const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" };
+        let prefix: string;
+        let suffix: string;
+        let instructions: string;
+        if (cfg.raw) {
+          const raw = buildRaw(cfg, scope, refTexts);
+          ({ prefix, instructions } = raw);
+          suffix = raw.suffix(c.text);
+        } else {
+          const built = buildMessages(cfg, scope, refTexts);
+          const rendered = String(
+            tokenizer.apply_chat_template(built.messages as never, { tokenize: false, add_generation_prompt: true, ...config.templateKwargs } as never),
+          );
+          const at = rendered.indexOf(CONTENT_MARKER);
+          if (at < 0 || rendered.indexOf(CONTENT_MARKER, at + 1) >= 0) fail(`${model.short}/${config.id}: template did not place the content once`);
+          const tail = rendered.slice(at + CONTENT_MARKER.length);
+          suffix = `${built.userContent(c.text)}${tail}${config.prefill}`;
+          prefix = rendered.slice(0, at);
+          instructions = built.instructions;
+        }
+        const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" && !config.stopAtNewline, ...(config.stopAtNewline ? { stopAtNewline: true } : {}) };
         // Keys omit defaults added after the first runs, so cached results stay valid.
         const { lineStop, ...keyGen } = gen;
         const key = createHash("sha256").update(JSON.stringify({ model: model.id, dtype, prefix, suffix, gen: lineStop ? keyGen : gen })).digest("hex").slice(0, 32);
-        out.push({ model, dtype, config: cfg, c, profile, prefix, suffix, key, gen, instructions: built.instructions, part, scope });
+        out.push({ model, dtype, config: cfg, c, profile, prefix, suffix, key, gen, instructions, part, scope });
       }
     }
   }
