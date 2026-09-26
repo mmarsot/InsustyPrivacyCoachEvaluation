@@ -27,7 +27,7 @@ import { CACHE_DIR, MODEL_CACHE_DIR, ROOT } from "../paths.ts";
 import type { ResultRecord } from "../run/jobs.ts";
 import { metrics, type Metrics } from "../score/aggregate.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
-import { buildMessages, configCategories, jsonToLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
+import { buildMessages, configCategories, jsonToLines, passagesToLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
 import type { LabEvent, LabGroup, LabJob, LabRecord, LabWorkerSpec } from "./worker.ts";
@@ -98,6 +98,10 @@ interface Planned {
   key: string;
   gen: LabJob["gen"];
   instructions: string;
+  /** Per-label pass: the only custom label of this request. */
+  part?: string;
+  /** Profile as seen by this request (one label for a per-label pass). */
+  scope: Profile;
 }
 
 const slug = (s: string) => s.replace(/^.*\//, "").replace(/[^A-Za-z0-9.-]+/g, "_");
@@ -126,22 +130,26 @@ async function plan(model: LabModel): Promise<Planned[]> {
   for (const config of configs) {
     for (const c of cases) {
       const profile = profiles.get(c.profile)!;
-      const built = buildMessages(config, profile, refTexts);
-      const rendered = String(
-        tokenizer.apply_chat_template(built.messages as never, { tokenize: false, add_generation_prompt: true, ...config.templateKwargs } as never),
-      );
-      const at = rendered.indexOf(CONTENT_MARKER);
-      if (at < 0 || rendered.indexOf(CONTENT_MARKER, at + 1) >= 0) fail(`${model.short}/${config.id}: template did not place the content once`);
-      const tail = rendered.slice(at + CONTENT_MARKER.length);
-      const instructions = built.instructions;
-      const userContent = built.userContent(c.text);
-      const suffix = `${userContent}${tail}${config.prefill}`;
-      const prefix = rendered.slice(0, at);
-      const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" };
-      // Keys omit defaults added after the first runs, so cached results stay valid.
-      const { lineStop, ...keyGen } = gen;
-      const key = createHash("sha256").update(JSON.stringify({ model: model.id, dtype, prefix, suffix, gen: lineStop ? keyGen : gen })).digest("hex").slice(0, 32);
-      out.push({ model, dtype, config, c, profile, prefix, suffix, key, gen, instructions });
+      const parts: Array<{ part?: string; scope: Profile }> = config.perLabel
+        ? profile.labels.map((l) => ({ part: l.label, scope: { ...profile, labels: [l] } }))
+        : [{ scope: profile }];
+      for (const { part, scope } of parts) {
+        const cfg = config.perLabel ? { ...config, builtinLabels: false } : config;
+        const built = buildMessages(cfg, scope, refTexts);
+        const rendered = String(
+          tokenizer.apply_chat_template(built.messages as never, { tokenize: false, add_generation_prompt: true, ...config.templateKwargs } as never),
+        );
+        const at = rendered.indexOf(CONTENT_MARKER);
+        if (at < 0 || rendered.indexOf(CONTENT_MARKER, at + 1) >= 0) fail(`${model.short}/${config.id}: template did not place the content once`);
+        const tail = rendered.slice(at + CONTENT_MARKER.length);
+        const suffix = `${built.userContent(c.text)}${tail}${config.prefill}`;
+        const prefix = rendered.slice(0, at);
+        const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" };
+        // Keys omit defaults added after the first runs, so cached results stay valid.
+        const { lineStop, ...keyGen } = gen;
+        const key = createHash("sha256").update(JSON.stringify({ model: model.id, dtype, prefix, suffix, gen: lineStop ? keyGen : gen })).digest("hex").slice(0, 32);
+        out.push({ model, dtype, config: cfg, c, profile, prefix, suffix, key, gen, instructions: built.instructions, part, scope });
+      }
     }
   }
   return out;
@@ -242,11 +250,22 @@ interface Row extends Scored {
   output: string;
 }
 
-function score(p: Planned, r: LabRecord): Row {
-  const deadline = r.finishReason === "deadline";
-  const categories = configCategories(p.config, p.profile, refTexts);
-  const parsed = p.config.output === "json" ? jsonToLines(r.output) : r.output;
-  const findings = deadline ? [] : validateModelOutput(parsed, { text: p.c.text, offset: 0 }, 0, categories);
+/** Scores one case from its request(s): one, or one per label for per-label configurations. */
+function score(parts: Planned[], cache: Map<string, LabRecord>): Row {
+  const p = parts[0]!;
+  const records = parts.map((part) => cache.get(part.key)!);
+  const deadline = records.some((r) => r.finishReason === "deadline");
+  const chunks: ResultRecord["chunks"] = [];
+  const findings: ReturnType<typeof validateModelOutput> = [];
+  parts.forEach((part, i) => {
+    const r = records[i]!;
+    const json = part.config.output === "json" ? jsonToLines(r.output) : r.output;
+    const parsed = part.part && part.config.passageOnly ? passagesToLines(json, part.part) : json;
+    const categories = configCategories(part.config, part.scope, refTexts);
+    if (!deadline) findings.push(...validateModelOutput(parsed, { text: p.c.text, offset: 0 }, 0, categories));
+    chunks.push({ output: parsed, ms: r.ms, runtime: { backend: "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } });
+  });
+  const reviewMs = records.reduce((a, r) => a + r.ms, 0);
   const record: ResultRecord = {
     key: p.key,
     extSha: ext.sha,
@@ -255,12 +274,13 @@ function score(p: Planned, r: LabRecord): Row {
     labelVariant: p.config.labelVariant,
     caseId: p.c.id,
     findings: findings.map(({ category, start, end, value }) => ({ category, start, end, value })),
-    chunks: [{ output: parsed, ms: r.ms, runtime: { backend: "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } }],
+    chunks,
     ...(deadline ? { error: "deadline", errorKind: "deadline" as const } : {}),
-    reviewMs: r.ms,
-    at: r.at,
+    reviewMs,
+    at: records[0]!.at,
   };
-  return { ...scoreResult(p.c, p.profile, record, builtinLabels, p.instructions), output: r.output };
+  const output = parts.length > 1 ? records.map((r, i) => `[${parts[i]!.part}] ${r.output}`).join("\n") : records[0]!.output;
+  return { ...scoreResult(p.c, p.profile, record, builtinLabels, parts.map((x) => x.instructions).join("\n")), output };
 }
 
 const pct = (v: number | null) => (v === null ? "  - " : `${Math.round(v * 100)}`.padStart(4));
@@ -302,7 +322,9 @@ for (const ps of planned) {
   const dtype = ps[0]!.dtype;
   const cache = loadLabCache(cacheFileFor(model, dtype));
   for (const cfg of configs) {
-    const rows = ps.filter((p) => p.config.id === cfg.id && cache.has(p.key)).map((p) => score(p, cache.get(p.key)!));
+    const byCase = new Map<string, Planned[]>();
+    for (const p of ps) if (p.config.id === cfg.id) byCase.set(p.c.id, [...(byCase.get(p.c.id) ?? []), p]);
+    const rows = [...byCase.values()].filter((parts) => parts.every((p) => cache.has(p.key))).map((parts) => score(parts, cache));
     allRows.push(...rows);
     if (!rows.length) continue;
     summary.push({ model: model.short, dtype, config: cfg.id, note: cfg.note, overall: metrics(rows), en: metrics(rows.filter((r) => r.lang === "en")), fr: metrics(rows.filter((r) => r.lang === "fr")) });

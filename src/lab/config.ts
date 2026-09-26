@@ -61,6 +61,14 @@ export interface LabConfig {
    * ref's parser (what an extension-side adapter would do).
    */
   output: "lines" | "json";
+  /**
+   * One request per custom label, each listing only that label (built-in
+   * labels are then never listed). The instruction and user templates may use
+   * {label} and {description}. Findings of all passes are merged.
+   */
+  perLabel: boolean;
+  /** Lines are bare passages; the code attaches the pass's label (perLabel only). */
+  passageOnly: boolean;
   /** Extra variables for the chat template (e.g. enable_thinking: false). */
   templateKwargs: Record<string, unknown>;
 }
@@ -96,6 +104,8 @@ export const REF_CONFIG: LabConfig = {
   repetitionPenalty: null,
   noRepeatNgram: null,
   output: "lines",
+  perLabel: false,
+  passageOnly: false,
   templateKwargs: {},
 };
 
@@ -129,8 +139,9 @@ export function composeInstructions(config: LabConfig, profile: Profile, ref: Re
   const list = [header, ...labels.map((l) => fill(config.labelLine, { label: l.label, description: l.description }))]
     .filter(Boolean)
     .join("\n");
+  const first = customLabels(profile, config.labelVariant)[0];
   const blocks: Record<string, string> = {
-    i: resolveInstruction(config.instruction, ref),
+    i: fill(resolveInstruction(config.instruction, ref), first ? { label: first.label, description: first.description } : {}),
     s: config.schema === "@ref" ? ref.outputSchema : config.schema,
     l: list,
   };
@@ -229,5 +240,19 @@ export function jsonToLines(raw: string): string {
       push(o.label ?? o.category, o.text ?? o.passage ?? o.value);
     }
   else if (value && typeof value === "object") for (const [k, v] of Object.entries(value)) push(k, v);
+  return lines.length ? lines.join("\n") : "NONE";
+}
+
+/** Turns a per-label pass reply into protocol lines for that label (bare passages or LABEL: passage). */
+export function passagesToLines(raw: string, label: string): string {
+  const norm = (s: string) => s.toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+  const lines: string[] = [];
+  for (const original of raw.split(/\r?\n/u)) {
+    let line = original.trim().replace(/^(?:(?:[-*•]+|\d+[.)])\s*)+/u, "");
+    if (!line || /^NONE\.?$/iu.test(line) || line.startsWith("```")) continue;
+    const m = /^(?<l>[^:\n]{1,40}?)\s*:\s*(?<p>.+)$/u.exec(line);
+    if (m?.groups && norm(m.groups.l!) === norm(label)) line = m.groups.p!;
+    lines.push(`${label}: ${line}`);
+  }
   return lines.length ? lines.join("\n") : "NONE";
 }

@@ -63,4 +63,22 @@ add("ref", "json-extract", "LFM2-Extract style: schema in system prompt, JSON ob
   maxNewTokens: 160,
 });
 
+// --- one request per custom label, label attached by code
+const PL_INSTRUCTION =
+  "You copy passages out of a text. Copy every passage of the text that is: {description}\nWrite each passage on its own line, exactly as it is written in the text. If the text has no such passage, write NONE.";
+add("ref", "pl-passages", "Per-label passes; bare passages, label attached by code", {
+  perLabel: true,
+  passageOnly: true,
+  instruction: PL_INSTRUCTION,
+  schema: "",
+  labelHeader: "",
+  labelLine: "",
+  blockOrder: "i",
+  user: "<text_to_scan>\n{text}\n</text_to_scan>\nTask: copy the passages that match, one per line, or write NONE.\n",
+  prefill: "",
+  maxNewTokens: 96,
+});
+add("pl-passages", "pl-passages-uncapped", "pl-passages without the 96-token cap (ref deadline only)", { maxNewTokens: 0 });
+add("ref", "pl-lines", "Per-label passes with the ref prompt and format, one label listed", { perLabel: true, passageOnly: true });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));
