@@ -1,0 +1,6 @@
+node_modules/
+# Model weights, extracted extension refs, result cache: all reproducible, never committed.
+cache/
+# Machine-local settings (for example the path to the extension clone).
+bench.local.json
+*.tmp.*

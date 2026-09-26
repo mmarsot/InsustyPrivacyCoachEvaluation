@@ -1,0 +1,19 @@
+{
+  "id": "finance",
+  "name": "Finance team before earnings",
+  "persona": "FP&A analyst at Corrigan & Faye plc, a listed consumer goods company, in the weeks before quarterly results. Uses chatbots to draft commentary, reformat tables and write the CFO's talking points. Pastes unpublished figures and internal forecasts.",
+  "labels": [
+    {
+      "label": "UNPUBLISHED_FIGURE",
+      "description": "Financial results that have not been published yet: revenue, margins, profit, cash, segment numbers for the current or last quarter.",
+      "examples": ["Q3 revenue of £1.284bn", "gross margin 41.7%", "EBITDA down 6.2% vs PY"],
+      "counterExamples": ["figures from last year's published annual report", "the inflation rate", "a competitor's published results"]
+    },
+    {
+      "label": "INTERNAL_FORECAST",
+      "description": "Internal forecasts, guidance drafts and targets that are not public.",
+      "examples": ["FY guidance of 4-5% organic growth", "reforecast to £312m operating profit", "H2 target of 9.5% margin"],
+      "counterExamples": ["an analyst consensus from a news site", "a textbook example forecast", "GDP forecast by the central bank"]
+    }
+  ]
+}

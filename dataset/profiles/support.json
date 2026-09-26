@@ -1,0 +1,19 @@
+{
+  "id": "support",
+  "name": "Customer support agent",
+  "persona": "Tier-2 support agent at Parcelio, an e-commerce and delivery platform. Uses chatbots to rewrite replies, summarize ticket threads and translate customer messages. Pastes account numbers, ticket and order numbers, and customer names. Emails, phone numbers and postal addresses are out of scope (deterministic rules catch them).",
+  "labels": [
+    {
+      "label": "CUSTOMER_NAME",
+      "description": "Names of our customers (people) mentioned in tickets or replies.",
+      "examples": ["Mrs Odile Varennes", "Priyanka Seth", "M. Jean-Baptiste Lhomme"],
+      "counterExamples": ["an agent signature like 'Support Team'", "a courier company name", "Santa Claus"]
+    },
+    {
+      "label": "ACCOUNT_REF",
+      "description": "Customer account numbers, ticket numbers, order numbers and tracking numbers.",
+      "examples": ["ORD-2291-7734", "ticket #558120", "account PX-004417"],
+      "counterExamples": ["an HTTP 404 error code", "a product SKU in a public catalogue", "a date like 2024-03-01"]
+    }
+  ]
+}

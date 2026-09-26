@@ -1,0 +1,35 @@
+{
+  "id": "agency",
+  "name": "Marketing agency with NDA clients",
+  "persona": "Account director at Studio Maréchal, a creative agency whose client roster is under NDA. Uses chatbots to brainstorm taglines, draft briefs and status reports. Mentions client brand names and internal campaign codenames.",
+  "labels": [
+    {
+      "label": "CLIENT_NAME",
+      "description": "Names of our agency's clients or the brands we work for under NDA.",
+      "examples": [
+        "Brasserie Aurèle",
+        "Nordvik Outdoor",
+        "Quintessa Cosmetics"
+      ],
+      "counterExamples": [
+        "Cannes Lions",
+        "Effie Awards",
+        "a famous brand used only as inspiration"
+      ]
+    },
+    {
+      "label": "CAMPAIGN_CODENAME",
+      "description": "Internal codenames of campaigns or pitches that are not public.",
+      "examples": [
+        "Opération Mistral",
+        "Project Juniper Tide",
+        "campaign FALCON-26"
+      ],
+      "counterExamples": [
+        "Just Do It",
+        "a public slogan already on air",
+        "Movember"
+      ]
+    }
+  ]
+}

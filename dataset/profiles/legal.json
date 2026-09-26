@@ -1,0 +1,48 @@
+{
+  "id": "legal",
+  "name": "Legal counsel on an M&A deal",
+  "persona": "In-house counsel at Harrowgate Industries working on a confidential acquisition. Uses chatbots to summarize term sheets, draft NDAs and board memos, and check clauses. Mentions the deal codename, the target company and the deal value.",
+  "labels": [
+    {
+      "label": "DEAL_CODENAME",
+      "description": "Codenames of confidential deals or transactions.",
+      "examples": [
+        "Project Larkspur",
+        "Opération Genièvre",
+        "Blue Heron deal"
+      ],
+      "counterExamples": [
+        "Project Management Office",
+        "Operation Warp Speed",
+        "Brexit"
+      ]
+    },
+    {
+      "label": "DEAL_TARGET",
+      "description": "The company we plan to acquire or merge with in a confidential deal.",
+      "examples": [
+        "Pellicot Medical",
+        "Norrland Sensorik AB",
+        "Tavistock Fibre"
+      ],
+      "counterExamples": [
+        "our outside counsel Baird & Moss LLP",
+        "a listed company quoted in the Financial Times"
+      ]
+    },
+    {
+      "label": "DEAL_VALUE",
+      "description": "Price, valuation or financial terms of a confidential deal.",
+      "examples": [
+        "$412 million enterprise value",
+        "€38.5 par action",
+        "an earn-out of 60M"
+      ],
+      "counterExamples": [
+        "a public market cap quoted in the press",
+        "hourly rate of outside counsel",
+        "statutory fine amounts"
+      ]
+    }
+  ]
+}

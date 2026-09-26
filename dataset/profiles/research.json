@@ -1,0 +1,49 @@
+{
+  "id": "research",
+  "name": "Researcher with unpublished work",
+  "persona": "Postdoc in a university biology lab, preparing a paper with an external partner lab. Uses chatbots to polish abstracts, write grant sections, summarize results and fix analysis code. Mentions unpublished study names, the partner lab and early results.",
+  "labels": [
+    {
+      "label": "STUDY_NAME",
+      "description": "Names, acronyms or codes of our unpublished studies, trials and cohorts.",
+      "examples": [
+        "the HELIOS-2 cohort",
+        "study TR-417",
+        "Projet Sablier"
+      ],
+      "counterExamples": [
+        "the Framingham Heart Study",
+        "the Nurses' Health Study",
+        "a published paper title"
+      ]
+    },
+    {
+      "label": "PARTNER_LAB",
+      "description": "The external lab, institute or company we are collaborating with on unpublished work.",
+      "examples": [
+        "the Okonkwo lab at Delft",
+        "Institut Varenne",
+        "Kairos Bio"
+      ],
+      "counterExamples": [
+        "Addgene",
+        "the journal Nature",
+        "a university we only cite"
+      ]
+    },
+    {
+      "label": "EARLY_RESULT",
+      "description": "Unpublished quantitative results: effect sizes, p-values, response rates, hit counts.",
+      "examples": [
+        "a 38% reduction in plaque load",
+        "p = 0.003 in the knockout arm",
+        "17 of 42 responders"
+      ],
+      "counterExamples": [
+        "a textbook p < 0.05 threshold",
+        "results quoted from a published paper",
+        "sample size planning"
+      ]
+    }
+  ]
+}

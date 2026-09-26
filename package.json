@@ -1,0 +1,33 @@
+{
+  "name": "insusty-review-bench",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline benchmark (dataset + runner + report) for the InsustyPromptCoach local AI review.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "validate": "tsx src/cli/validate.ts",
+    "split": "tsx src/cli/split.ts",
+    "ext": "tsx src/cli/ext.ts",
+    "bench": "tsx src/cli/run.ts",
+    "report": "tsx src/cli/report.ts",
+    "compare": "tsx src/cli/compare.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "3.8.1",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2"
+  },
+  "overrides": {
+    "onnxruntime-node": "npm:onnxruntime-web@1.22.0-dev.20250409-89f8206ba4"
+  }
+}

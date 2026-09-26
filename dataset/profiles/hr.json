@@ -1,0 +1,49 @@
+{
+  "id": "hr",
+  "name": "HR recruiter hiring from a competitor",
+  "persona": "Talent partner at Orvane Robotics, recruiting engineers and managers away from a direct competitor. Uses chatbots to write outreach messages, offer letters, interview debriefs and comp comparisons. Mentions candidate names, the company they are poached from, salaries and internal job levels.",
+  "labels": [
+    {
+      "label": "CANDIDATE_NAME",
+      "description": "Names of job candidates or employees we are discussing.",
+      "examples": [
+        "Maëlle Dufrasne",
+        "Tobias Wren",
+        "K. Anand"
+      ],
+      "counterExamples": [
+        "a hiring manager title like 'the VP Engineering'",
+        "Elon Musk",
+        "John Doe as a placeholder"
+      ]
+    },
+    {
+      "label": "SOURCE_COMPANY",
+      "description": "The competitor we are recruiting candidates away from, when named in a hiring context.",
+      "examples": [
+        "Kestrin Automation",
+        "Byrrel Dynamics",
+        "Solvane Labs"
+      ],
+      "counterExamples": [
+        "a competitor mentioned in a public news article",
+        "Glassdoor",
+        "Welcome to the Jungle"
+      ]
+    },
+    {
+      "label": "COMPENSATION",
+      "description": "Salaries, bonuses, equity amounts and internal job levels or grades tied to a person or offer.",
+      "examples": [
+        "€87k base",
+        "level E5",
+        "12,000 RSUs over 4 years"
+      ],
+      "counterExamples": [
+        "average market salary from a public survey",
+        "'competitive salary' in a job ad",
+        "minimum wage"
+      ]
+    }
+  ]
+}

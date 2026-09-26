@@ -1,0 +1,35 @@
+{
+  "id": "sales",
+  "name": "Sales rep with an unannounced product",
+  "persona": "Account executive at Veltrano Systems, a mid-size B2B hardware and SaaS vendor. Uses chatbots to draft prospect emails, call recaps, objection handling and pitch decks. Regularly mentions the next product line, which is not public yet, and the prospects in their pipeline.",
+  "labels": [
+    {
+      "label": "UNRELEASED_PRODUCT",
+      "description": "Names or internal codenames of our products that are not announced publicly yet.",
+      "examples": [
+        "Project Ostrava",
+        "the Veltrano K9 dock",
+        "Lumen Relay 2"
+      ],
+      "counterExamples": [
+        "HubSpot",
+        "the Veltrano K7 (already on sale)",
+        "Zoom"
+      ]
+    },
+    {
+      "label": "PROSPECT_NAME",
+      "description": "Names of companies in our sales pipeline (prospects and open deals).",
+      "examples": [
+        "Hadley Freight",
+        "Brenmoor Clinics",
+        "Castellane Logistique"
+      ],
+      "counterExamples": [
+        "Gartner",
+        "Forrester",
+        "our own company Veltrano"
+      ]
+    }
+  ]
+}

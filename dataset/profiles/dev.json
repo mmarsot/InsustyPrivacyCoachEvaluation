@@ -1,0 +1,48 @@
+{
+  "id": "dev",
+  "name": "Developer on sensitive code",
+  "persona": "Backend engineer at Quillmark, a fintech-ish SaaS. Pastes stack traces, logs, config and code snippets into chatbots to debug. Those contain internal hostnames, internal repository and service names, and customer identifiers from production logs. API keys are out of scope (deterministic rules catch them).",
+  "labels": [
+    {
+      "label": "INTERNAL_HOST",
+      "description": "Internal hostnames, internal domains and private URLs of our infrastructure.",
+      "examples": [
+        "db-replica-07.int.quillmark.net",
+        "grafana.corp.qmk",
+        "http://10.42.8.19:9200"
+      ],
+      "counterExamples": [
+        "registry.npmjs.org",
+        "api.stripe.com"
+      ]
+    },
+    {
+      "label": "INTERNAL_SERVICE",
+      "description": "Names of our internal repositories, microservices and internal tools.",
+      "examples": [
+        "ledger-syncd",
+        "qm-billing-core",
+        "the hermes-router service"
+      ],
+      "counterExamples": [
+        "Elasticsearch",
+        "Terraform",
+        "RabbitMQ"
+      ]
+    },
+    {
+      "label": "CUSTOMER_ID",
+      "description": "Customer or tenant identifiers that appear in our logs and databases.",
+      "examples": [
+        "cus_8Hq2LmX0",
+        "tenant_id=55120",
+        "acct-00918-BZ"
+      ],
+      "counterExamples": [
+        "user_id placeholder",
+        "id=1 in a tutorial",
+        "UUID format explanation"
+      ]
+    }
+  ]
+}
