@@ -149,4 +149,6 @@ add("raw-pl-lang", "raw-pl-lang-conf", "raw-pl-lang recording per-token answer p
 
 add("raw-pl-lang-conf", "raw-pl-lang-iter3", "raw-pl-lang-conf re-asking each label up to 3 rounds with found passages masked", { iterations: 3 });
 
+add("raw-pl-lang-conf", "raw-pl-lang-ex3", "raw-pl-lang-conf with three example demonstrations (all examples)", { shots: ["ex-pos3-auto", "clean-neg-auto"] });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));

@@ -129,7 +129,9 @@ export type ShotSource =
   /** Two positives from the first label's examples, carrier sentences in the scanned text's language. */
   | "ex-pos-auto"
   /** Clean NONE shot in the scanned text's language. */
-  | "clean-neg-auto";
+  | "clean-neg-auto"
+  /** Three positives (all examples), carrier sentences in the scanned text's language. */
+  | "ex-pos3-auto";
 
 const REF_USER =
   "<text_to_scan>\n{text}\n</text_to_scan>\nTask: scan only the text above. List findings in the required format.\n";
@@ -221,10 +223,12 @@ const CARRIERS: Record<"en" | "fr", string[]> = {
   en: [
     "Quick update before the call: {ex} is still on the list for next week, can you tidy up this paragraph?",
     "Reminder for tomorrow: we need to go over {ex} with the team, keep it short.",
+    "Notes from this morning: {ex} came up twice, please turn this into a clean summary.",
   ],
   fr: [
     "Petit point avant la réunion : on reparle de {ex} jeudi, tu peux reformuler ce message ?",
     "Rappel pour demain : il faut qu'on voie {ex} avec l'équipe, fais court stp.",
+    "Notes de ce matin : {ex} est revenu deux fois, tu peux en faire un résumé propre ?",
   ],
 };
 const CLEAN: Record<"en" | "fr", string> = {
@@ -248,6 +252,10 @@ export function detectLang(text: string): "en" | "fr" {
 function buildShots(config: LabConfig, profile: Profile, lang: "en" | "fr" = "en"): Shot[] {
   const shots: Shot[] = [];
   for (const source of config.shots) {
+    if (source === "ex-pos3-auto") {
+      profile.labels[0]!.examples.slice(0, 3).forEach((ex, i) => shots.push({ text: fill(CARRIERS[lang][i]!, { ex }), answer: ex }));
+      continue;
+    }
     if (source === "ex-pos-auto") {
       profile.labels[0]!.examples.slice(0, 2).forEach((ex, i) => shots.push({ text: fill(CARRIERS[lang][i]!, { ex }), answer: ex }));
       continue;

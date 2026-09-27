@@ -694,3 +694,15 @@ Recall rises on every set (+5 to +9 points), but later rounds also add
 non-verbatim or wrong passages, so precision falls; F1 gains +2 to +3 on the
 dev sets and only +1 on the held-out split, for about 1 s more per prompt.
 A recall option, not a clear default.
+
+### E8. Three example demonstrations instead of two (tune96, `e8-ex3-tune96`)
+
+| config | filters | F1o | P | R | F1x | FPR |
+|---|---|---|---|---|---|---|
+| raw-pl-lang (2 example demos) | basic | 32 | 42 | 26 | 29 | 36 |
+| raw-pl-lang-ex3 (3 example demos) | basic | 28 | 31 | 25 | 22 | 45 |
+| raw-pl-lang | basic + cmin0.2 | 30 | 48 | 21 | 26 | 21 |
+| raw-pl-lang-ex3 | basic + cmin0.2 | 28 | 36 | 23 | 22 | 33 |
+
+A third positive demonstration makes the model answer more often (FP +9)
+without finding more. Two example demos plus the NONE demo stay.
