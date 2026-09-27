@@ -85,6 +85,27 @@ word-bounded) and labelled by code.
    inheriting each model's `generation_config.json`.
 6. Pick the demonstration language from the prompt.
 
+## Model decisions (raw-pl-lang + basic filter, dev sets)
+
+Captain's criterion for keeping a model next to the new default
+SmolLM2-360M: F1 within ~5 points or clearly better in French, FP rate no
+worse.
+
+| model | tune96 F1 | confirm48 F1 | FR F1 (t96 / c48) | FP rate (t96 / c48) | p50 | verdict |
+|---|---|---|---|---|---|---|
+| **SmolLM2-360M** (default) | 32 | 31 | 31 / 36 | 36% / 50% | 3.1 s | keep |
+| Qwen2.5-0.5B | 24 | 24 | 27 / 23 | 45% / 56% | 5.4-6.3 s | fails (−8, worse FR and FP) |
+| Gemma 3 270M (candidate) | 33 | 37 | 33 / 33 (unfiltered) | 76% / 75% | 7-10 s | fails on FP; needs onnxruntime-web ≥ 1.24 |
+| LFM2.5-350M (candidate) | 13 | 18 | 12 / 21 | 40% / 63% | 18-21 s | not usable (below) |
+
+## Extension implementation: parity confirmed
+
+Branch `fm/slm-completion-framing` (d42c466), run through the bench's own
+path on tune96 with SmolLM2-360M: F1 32.1%, precision 41.5%, recall 26.2%,
+FP rate 35.7%, EN 33% / FR 31.5%, p50 2.75 s — the same as the lab's
+`raw-pl-lang` + basic filter, with 239 of 240 per-label answers byte-identical.
+(LOG V1.)
+
 ## LFM2.5-350M (requested by the captain): not usable as exported
 
 Run with the prefix-cache bug worked around (every request prefilled whole),
