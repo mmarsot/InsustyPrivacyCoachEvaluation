@@ -13,11 +13,16 @@ extension ships.
   the bench confirms it reproduces the lab byte for byte). On the held-out
   test split it more than doubles F1 (12% → 27%), finds 3.5x more passages,
   never times out and answers in 2.4 s instead of 10 s.
+- **Next, add example-derived patterns** (pure code, no model cost): each
+  label example that looks like an identifier (`acct-00918-BZ`,
+  `db-07.int.corp.net`, `ticket #558120`) becomes a regular expression whose
+  matches join the model's findings. Held-out F1 27% → **34%**, FP rate
+  unchanged. It fixes the model's blind spot (ids, hosts, codes).
 - **Its weakness is false positives** (45% of negatives on the held-out
   split, vs 11% before). The best fix found: drop a label's answer when its
-  least likely token has probability below 0.2 (held-out FP 45% → 34% for
-  1 point of F1). Recommended as the next extension change, ideally exposed as
-  a sensitivity setting.
+  least likely token has probability below 0.2. With the patterns: held-out
+  **F1 33%, precision 43%, FP 36%**. Recommended, ideally exposed as a
+  sensitivity setting.
 - **Models:** SmolLM2-360M as default is right. Qwen2.5-0.5B, Gemma 3 270M
   and LFM2.5-350M all fail the keep/add criterion (below). SmolLM2-135M only
   becomes marginally useful with the new design (F1 ~30% on dev, FP 80%).
@@ -40,8 +45,10 @@ SmolLM2-360M through the bench (`npm run bench -- --tier full --split test`):
 | **completion design (d42c466)** | **27.4%** | 32% | **23.9%** | **42%** | 45% | 100% | 0 | **2.4 s** | 8.8 s | 26% | 29% |
 | + confidence filter, min token prob < 0.2 (lab) | 26% | 36% | 20% | 36% | **34%** | 100% | 0 | 2.4 s | | 25% | 27% |
 | + confidence filter, min token prob < 0.3 (lab) | 23% | 37% | 17% | 30% | 25% | 100% | 0 | 2.4 s | | 22% | 24% |
+| + example-derived patterns (lab) | **34%** | 38% | **30%** | **50%** | 46% | 100% | 0 | 2.4 s | | 32% | 36% |
+| **+ patterns + confidence filter 0.2 (lab)** | 33% | **43%** | 27% | 44% | 36% | 100% | 0 | 2.4 s | | 32% | 34% |
 
-(LOG H1, H2. The lab's unfiltered row reproduces the bench's d42c466 numbers.)
+(LOG H1, H2, P1. The lab's unfiltered row reproduces the bench's d42c466 numbers.)
 
 ## The recommended design
 
@@ -84,20 +91,28 @@ lab summary's truncation). (LOG V1.)
 
 ## Recommended next changes to the extension
 
-1. **Confidence filter** (biggest remaining gain). The engine records the
+1. **Example-derived patterns** (biggest remaining gain, no model cost).
+   Port `src/lab/patterns.ts` (about 60 lines, unit-tested in
+   `tests/patterns.test.ts`): for each custom label, examples containing an
+   identifier-like token (digits, `_ = # @ : /`, or a dotted host) become
+   regular expressions with the literal prefix, separators and domain suffix
+   kept and digit/code runs generalized; plain names give none. Add their
+   matches to the model's findings (they run even when the model is
+   unavailable). Held-out F1 +7 points, precision 85% on their own. (LOG P1.)
+2. **Confidence filter**. The engine records the
    probability of each greedy token while generating (a pass-through logits
    processor, cheap) and returns the minimum with the answer; `reviewPrompt`
    drops answers below a threshold. 0.2 recommended; could be a sensitivity
    setting (0 = today's behaviour). Dev: tune96 FP 38% → 21%, confirm48
    50% → 44%, F1 −2 / +2. Held-out: see the table above. (LOG C2-C3, H2.)
-2. **Remove "simple" and "terms" from `PASSAGE_STOP_WORDS`**: they were added
+3. **Remove "simple" and "terms" from `PASSAGE_STOP_WORDS`**: they were added
    for one dev case in the lab and copied over; no effect on held-out.
-3. **Optional recall mode:** re-ask a label on the text with its found
+4. **Optional recall mode:** re-ask a label on the text with its found
    passages masked, up to 3 rounds. Recall +5 to +9 points on every set but
    precision falls; held-out F1 27% → 28%, about 1 s more. (LOG I1-I2, H3.)
-4. **WebGPU path:** do not use q4 (it halves quality); use fp32, or fp16 on
+5. **WebGPU path:** do not use q4 (it halves quality); use fp32, or fp16 on
    GPUs with `shader-f16`; keep WASM q8 as default. (LOG G2-G3.)
-5. **Free the fetched weight buffers after session creation** (the Node
+6. **Free the fetched weight buffers after session creation** (the Node
    workers now force a GC after load: Qwen2.5-0.5B RSS 3.34 → 2.36 GB).
 
 ## Model decisions (completion design + plausibility filter, dev sets)

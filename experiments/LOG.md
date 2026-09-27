@@ -803,3 +803,37 @@ Qwen2.5-0.5B, whose load peak is ~3.1-3.3 GB even with the GC fix). Its load
 peak would exceed the ~3.5 GB limit for this 7 GB machine, so it was not
 loaded. It remains the most promising untested model (IFEval ~64, 119
 languages); worth measuring on a machine with more headroom.
+
+### P1. Example-derived patterns next to the model (rescoring only; `h4-patterns-*`)
+
+On the held-out split, identifier-like labels were nearly missed by the model
+(internal hosts 8% recall, account refs 7%, customer ids 17%, compensation
+5%, internal services 0%) while names did well (50-67%). `src/lab/patterns.ts`
+turns each label example that contains an identifier-like token into a
+regular expression (literal prefix/separators/domain suffix, generalized digit
+and code runs; plain names give none), e.g. `acct-00918-BZ` ->
+`acct-\p{N}{3,8}-[\p{L}\p{N}]{1,6}`, `db-replica-07.int.quillmark.net` ->
+`[\p{L}\p{N}_-]+\.int\.quillmark\.net`, `ticket #558120` -> also `#\p{N}{4,9}`.
+Matches are added to the model's findings. Unit tests: `tests/patterns.test.ts`.
+
+| set | filters | F1o | P | R | F1x | det | FPR |
+|---|---|---|---|---|---|---|---|
+| tune96 | basic | 32 | 41 | 26 | 28 | 41 | 38 |
+| tune96 | patterns only | 16 | 100 | 9 | 16 | 13 | 0 |
+| tune96 | basic + patterns | **40** | 47 | 34 | 36 | 48 | 38 |
+| tune96 | basic + cmin0.2 + patterns | 38 | 56 | 29 | 34 | 39 | 21 |
+| confirm48 | basic | 31 | 38 | 25 | 29 | 38 | 50 |
+| confirm48 | patterns only | 21 | 90 | 12 | 14 | 13 | 6 |
+| confirm48 | basic + patterns | **41** | 48 | 36 | 34 | 44 | 56 |
+| confirm48 | basic + cmin0.2 + patterns | 43 | 55 | 36 | 36 | 44 | 50 |
+| held-out | basic | 27 | 32 | 24 | 20 | 42 | 45 |
+| held-out | patterns only | 13 | 85 | 7 | 11 | 11 | 4 |
+| held-out | **basic + patterns** | **34** | 38 | 30 | 27 | 50 | 46 |
+| held-out | basic + cmin0.2 | 26 | 36 | 20 | 20 | 36 | 34 |
+| held-out | **basic + cmin0.2 + patterns** | **33** | 43 | 27 | 27 | 44 | 36 |
+
+The patterns are precise (85-100%) and complementary to the model: +7 to +10
+F1 on every set at no model cost and almost no FP cost. Caveat: the fictional
+dataset's identifiers follow each company's formats consistently, as real
+ones usually do; users whose examples do not share a format with their real
+identifiers will gain less.

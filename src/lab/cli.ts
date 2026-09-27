@@ -29,6 +29,7 @@ import { scoreResult, type Scored } from "../score/score.ts";
 import { buildMessages, buildRaw, configCategories, filterLines, maskPassages, isRequestLike, shapeSimilarity, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
+import { labelPatterns, patternFindings } from "./patterns.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "./runtime.ts";
 import type { LabEvent, LabGroup, LabJob, LabRecord, LabWorkerSpec } from "./worker.ts";
 
@@ -274,6 +275,13 @@ function score(parts: Planned[], cache: Map<string, LabRecord>, agree?: Set<stri
     chunks.push({ output: parsed, ms: r.ms, runtime: { backend: "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } });
   });
   if (agree) findings.splice(0, findings.length, ...findings.filter((f) => agree.has(`${f.category}\u0000${(f.value ?? "").toLowerCase()}`)));
+  // Example-derived patterns (src/lab/patterns.ts): `patterns` adds their
+  // matches to the model's findings, `patonly` keeps only them.
+  if (postFilters.includes("patterns") || postFilters.includes("patonly")) {
+    const matches = deadline ? [] : patternFindings(p.c.text, labelPatterns(p.profile.labels));
+    if (postFilters.includes("patonly")) findings.splice(0, findings.length);
+    for (const m of matches) if (!findings.some((f) => f.category === m.category && f.start === m.start && f.end === m.end)) findings.push(m);
+  }
   if (postFilters.includes("shape")) {
     // A passage claimed by several labels keeps only the label whose examples
     // it resembles most; a tie drops it.
