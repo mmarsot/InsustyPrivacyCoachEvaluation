@@ -837,3 +837,15 @@ F1 on every set at no model cost and almost no FP cost. Caveat: the fictional
 dataset's identifiers follow each company's formats consistently, as real
 ones usually do; users whose examples do not share a format with their real
 identifiers will gain less.
+
+With the patterns, the iterative recall mode no longer helps on the held-out
+split (basic + patterns: F1 34 with or without iterations; with cmin0.2: 33
+both), though it still adds 2-4 points on the dev sets. Dropped from the
+recommendations.
+
+### P2. Standalone money/percent patterns (dev only, `--filter figs`)
+
+Letting figure tokens of figure-type examples (`41.7%`, `£1.284bn`, `€87k`)
+match on their own: tune96 F1 40 -> 41 (FP 38 -> 38), with cmin0.2 38 -> 40
+(FP 21 -> 26); confirm48 41 -> 42, 43 -> 45 (FP unchanged). Within noise and
+it matches public figures too; not recommended, not run on held-out.

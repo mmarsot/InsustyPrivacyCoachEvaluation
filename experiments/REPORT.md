@@ -107,9 +107,9 @@ lab summary's truncation). (LOG V1.)
    50% → 44%, F1 −2 / +2. Held-out: see the table above. (LOG C2-C3, H2.)
 3. **Remove "simple" and "terms" from `PASSAGE_STOP_WORDS`**: they were added
    for one dev case in the lab and copied over; no effect on held-out.
-4. **Optional recall mode:** re-ask a label on the text with its found
-   passages masked, up to 3 rounds. Recall +5 to +9 points on every set but
-   precision falls; held-out F1 27% → 28%, about 1 s more. (LOG I1-I2, H3.)
+4. (Not recommended any more) **recall mode:** re-asking a label on the text
+   with its found passages masked raised recall, but once the patterns are in
+   it adds no held-out F1 (34% either way) and costs about 1 s. (LOG I1-I2, H3, P1.)
 5. **WebGPU path:** do not use q4 (it halves quality); use fp32, or fp16 on
    GPUs with `shader-f16`; keep WASM q8 as default. (LOG G2-G3.)
 6. **Free the fetched weight buffers after session creation** (the Node

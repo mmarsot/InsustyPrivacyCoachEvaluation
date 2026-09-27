@@ -278,7 +278,7 @@ function score(parts: Planned[], cache: Map<string, LabRecord>, agree?: Set<stri
   // Example-derived patterns (src/lab/patterns.ts): `patterns` adds their
   // matches to the model's findings, `patonly` keeps only them.
   if (postFilters.includes("patterns") || postFilters.includes("patonly")) {
-    const matches = deadline ? [] : patternFindings(p.c.text, labelPatterns(p.profile.labels));
+    const matches = deadline ? [] : patternFindings(p.c.text, labelPatterns(p.profile.labels, { figures: postFilters.includes("figs") }));
     if (postFilters.includes("patonly")) findings.splice(0, findings.length);
     for (const m of matches) if (!findings.some((f) => f.category === m.category && f.start === m.start && f.end === m.end)) findings.push(m);
   }

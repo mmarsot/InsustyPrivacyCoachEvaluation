@@ -54,7 +54,10 @@ export interface LabelPattern {
   from: string;
 }
 
-export function labelPatterns(labels: ReadonlyArray<{ label: string; examples: readonly string[] }>): LabelPattern[] {
+/** A money or percentage token: `£1.284bn`, `41.7%`, `€87k`, `$412`. */
+const isFigureToken = (token: string) => /^[£€$]?\p{N}[\p{N}.,]*(?:%|k|m|bn|M|K)?$/u.test(token) && /[£€$%]|\p{N}(?:k|m|bn|M|K)$/u.test(token);
+
+export function labelPatterns(labels: ReadonlyArray<{ label: string; examples: readonly string[] }>, options: { figures?: boolean } = {}): LabelPattern[] {
   const out: LabelPattern[] = [];
   const add = (label: string, source: string, from: string) => {
     const regex = new RegExp(`(?<![\\p{L}\\p{N}_])${source}(?![\\p{L}\\p{N}_])`, "giu");
@@ -67,7 +70,7 @@ export function labelPatterns(labels: ReadonlyArray<{ label: string; examples: r
       const parts = tokens.map((t) => (isIdToken(t) ? tokenPattern(t) : { source: escape(t), standalone: false }));
       add(label, parts.map((p) => p.source).join("\\s+"), example);
       tokens.forEach((t, i) => {
-        if (isIdToken(t) && parts[i]!.standalone) add(label, parts[i]!.source, example);
+        if (isIdToken(t) && (parts[i]!.standalone || (options.figures && isFigureToken(t)))) add(label, parts[i]!.source, example);
       });
     }
   return out;
