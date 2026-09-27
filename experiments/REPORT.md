@@ -85,6 +85,39 @@ word-bounded) and labelled by code.
    inheriting each model's `generation_config.json`.
 6. Pick the demonstration language from the prompt.
 
+## LFM2.5-350M (requested by the captain): not usable as exported
+
+Run with the prefix-cache bug worked around (every request prefilled whole),
+onnxruntime-web 1.24.3, `raw-pl-lang`:
+
+| set | dtype | F1 | precision | recall | exact F1 | detection | FP rate | p50 | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| tune96 | q8 | 13% | 18% | 11% | 11% | 19% | 40% | 21.4 s | 15% | 12% |
+| tune96, + basic filter | q8 | 13% | 18% | 10% | 11% | 17% | 36% | 21.4 s | 13% | 12% |
+| confirm48 | q8 | 18% | 23% | 15% | 16% | 28% | 63% | 17.8 s | 16% | 21% |
+| iter32 | q8 | 23% | 29% | 18% | 19% | 27% | 30% | 19.5 s | | |
+| iter32 | q4 | 14% | 50% | 8% | 14% | 9% | 10% | 21.8 s | | |
+
+(SmolLM2-360M, same framing: tune96 33%, iter32 38%, p50 ~3 s.)
+
+- Answers start right, then degenerate into repeated characters or
+  syllables (`sshportportport...`, `keycloecoooo...`). The same outputs,
+  byte for byte, come out of Transformers.js 4.3 with onnxruntime-web 1.31,
+  so this is not a Transformers.js 3.8.1 decoding bug; q4 is no better.
+- Remedies tried on iter32: the card's `repetition_penalty: 1.05` (20%), a
+  penalty on the answer's own tokens only (22%, loops become word salad),
+  chat framing per label (21%, French 0%).
+- Integration cost on top: onnxruntime-web upgrade (1.24+), prefix KV reuse
+  must be disabled (Transformers.js 3.8.1 breaks LFM2's conv state when the
+  prompt is prefilled in two parts), so latency is 6x SmolLM2-360M's.
+
+## Gemma 3 270M-it (candidate)
+
+iter32, onnxruntime-web 1.24.3 (prefix reuse works): `raw-pl-lang` F1 39%
+(P 34, R 45, EN 45, FR 30) — the best recall so far — but it flags every
+negative (FP rate 100%; 40% after the basic + dedup filters, F1 31%), p50
+8.4 s, peak RSS 2.5 GB. Not yet run on tune96/confirm48.
+
 ## What has been ruled out
 
 | idea | result |

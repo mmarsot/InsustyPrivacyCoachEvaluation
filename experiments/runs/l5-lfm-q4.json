@@ -1,0 +1,435 @@
+{
+ "name": "l5-lfm-q4",
+ "set": "iter32",
+ "ext": {
+  "ref": "main",
+  "sha": "3d4e79dc40139cd776ca89d6b73eb19f1a1da4b6"
+ },
+ "at": "2026-09-27T00:13:46.271Z",
+ "summary": [
+  {
+   "model": "lfm2.5-350m",
+   "dtype": "q4",
+   "config": "raw-pl-lang",
+   "note": "raw-pl with demonstrations in the scanned text's language (detected by stop words)",
+   "overall": {
+    "cases": 32,
+    "f1": 0.136,
+    "precision": 0.5,
+    "recall": 0.079,
+    "exactF1": 0.136,
+    "detection": 0.091,
+    "fpr": 0.1,
+    "compliance": 0.781,
+    "p50ms": 21785,
+    "p95ms": 69676,
+    "tokens": 27,
+    "failures": {
+     "ok": 12,
+     "timeout": 7,
+     "hallucinated": 13
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.083,
+    "precision": 0.333,
+    "recall": 0.048,
+    "exactF1": 0.083,
+    "detection": 0.091,
+    "fpr": 0,
+    "compliance": 0.938,
+    "p50ms": 16825,
+    "p95ms": 52021,
+    "tokens": 18,
+    "failures": {
+     "ok": 8,
+     "timeout": 1,
+     "hallucinated": 7
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.2,
+    "precision": 0.667,
+    "recall": 0.118,
+    "exactF1": 0.2,
+    "detection": 0.091,
+    "fpr": 0.2,
+    "compliance": 0.625,
+    "p50ms": 32332,
+    "p95ms": 89147,
+    "tokens": 36,
+    "failures": {
+     "ok": 4,
+     "timeout": 6,
+     "hallucinated": 6
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-001",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 26070,
+   "output": "[CLIENT_NAME]  Halvard Cycle Cycle Cycle\n[CAMPAIGN_CODENAME]  Halvard Cycles will write a witty witty witty witty"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-016",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11857,
+   "output": "[CLIENT_NAME] \n[CAMPAIGN_CODENAME]  Bienvenueà vous\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 16994,
+   "output": "[CLIENT_NAME]  NONE\n\n\n[CAMPAIGN_CODENAME]  plan_plan_plan_plan_plan_plan_plan"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9235,
+   "output": "[CLIENT_NAME]  NONE\n\n\n[CAMPAIGN_CODENAME]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 14904,
+   "output": "[INTERNAL_HOST]  none\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-007",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 38385,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE] \n[CUSTOMER_ID]  keycloecoooooooooooooooooooooooo"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-030",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_SERVICE: Temporal"
+   ],
+   "ms": 38791,
+   "output": "[INTERNAL_HOST]  TCHTCHTCHTCHTCHTTTTTTTTTTTTTTTTTTTTTTT\n[INTERNAL_SERVICE]  Temporal\n[CUSTOMER_ID]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 15139,
+   "output": "[INTERNAL_HOST] \n[INTERNAL_SERVICE] \n[CUSTOMER_ID] "
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-005",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 32387,
+   "output": "[UNPUBLISHED_FIGURE]  'Europe is going to miss**nor**nor**\n[INTERNAL_FORECAST]  'Europe is going to miss**nor**nor**"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "finance-fr-038",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 33243,
+   "output": "[UNPUBLISHED_FIGURE]  flashaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n[INTERNAL_FORECAST] "
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-032",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 31150,
+   "output": "[UNPUBLISHED_FIGURE]  divdend cover was paid in paid paid paid paid paidpaidpaidpaidpaidpaidpaidpaidpaidpaidpaidpaidpaidpaid\n[INTERNAL_FORECAST]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6210,
+   "output": "[UNPUBLISHED_FIGURE] \n[INTERNAL_FORECAST] "
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "hr-en-012",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CANDIDATE_NAME: Best regards",
+    "-SOURCE_COMPANY: Best regards"
+   ],
+   "ms": 14449,
+   "output": "[CANDIDATE_NAME]  Best regards\n\n\n[SOURCE_COMPANY]  Best regards\n\n\n[COMPENSATION]  Best wishes wishes wishes"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: Thibault Ferrand",
+    "+SOURCE_COMPANY: Norvik Dynamics"
+   ],
+   "ms": 17664,
+   "output": "[CANDIDATE_NAME]  Thibault Ferrand\n\n\n[SOURCE_COMPANY]  Norvik Dynamics\n\n\n[COMPENSATION]  NONE"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "hr-fr-035",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 69676,
+   "output": "[CANDIDATE_NAME]  D'après l'étude de rémunération annuelle de l'Apec, la réduction rédu rédu rédu rédu rédu rédu****************************\n[SOURCE_COMPANY]  Apec,pourquoi pourquoi pourquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoiquoi\n["
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 12418,
+   "output": "[CANDIDATE_NAME]  NONE\n\n\n[SOURCE_COMPANY]  SIGNED\n\n\n[COMPENSATION]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 22035,
+   "output": "[DEAL_CODENAME]  NONE\n\n\n[DEAL_TARGET]  NONE\n\n\n[DEAL_VALUE]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "legal-fr-005",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 63340,
+   "output": "[DEAL_CODENAME]  Rédireireireireireireireireireireire********************************************\n[DEAL_TARGET]  RADRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR\n[DEAL_VALUE] "
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 22416,
+   "output": "[DEAL_CODENAME]  NONE\n[DEAL_TARGET]  NONE\n[DEAL_VALUE]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "legal-fr-045",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12578,
+   "output": "[DEAL_CODENAME]  NONE\n[DEAL_TARGET] Belvédéré\n[DEAL_VALUE] "
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "research-en-004",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 52021,
+   "output": "[STUDY_NAME]  STUDY_SURTERTERTERTERBRBRBRBRBRBRB\n[PARTNER_LAB]  Turning this into a short recap recaptaptaptrewrewrewrewrewrewrew******************************\n[EARLY_RESULT]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "research-fr-004",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 54470,
+   "output": "[STUDY_NAME]  stp\n\n\n[PARTNER_LAB] fais-enununununununununffffffffffff\n[EARLY_RESULT]  fmailexexexexexexexcecececececececececeexexexexexexxxxxxxxxxxx"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "research-fr-034",
+   "failure": "timeout",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 89147,
+   "output": "[STUDY_NAME]  MENNENENENENENENENENENENENENENENENENENENENENENENENENENENENENENENENENENENEN\n[PARTNER_LAB]  MENNENENENENENENENENENENENENENENENENENENENENENENENENENENENENENENENENENENEN\n[EARLY_RESULT]  mbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 13724,
+   "output": "[STUDY_NAME]  NONE\n\n\n[PARTNER_LAB]  NONE\n\n\n[EARLY_RESULT]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+PROSPECT_NAME: Pembrook Dental Group"
+   ],
+   "ms": 10900,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  Pembrook Dental Group\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 8357,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "sales-en-039",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 33637,
+   "output": "[UNRELEASED_PRODUCT]  do u uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu\n[PROSPECT_NAME]  wat?????????\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "sales-fr-030",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 21785,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  MENNENNENNENNENNENNENNNNNNN"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 10399,
+   "output": "[CUSTOMER_NAME]  NONE\n\n\n[ACCOUNT_REF]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "support-fr-019",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 33189,
+   "output": "[CUSTOMER_NAME]  QUEQUEQUEVEVEVEVEVEVVVVVVQVQVQVQVQVQQ\n[ACCOUNT_REF]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "support-fr-031",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 32332,
+   "output": "[CUSTOMER_NAME]  KÉVKÉVKÉVKÉKÉKÉKÉKÉKÉKÉKÉKÉKÉKÉKÉKÉ\n[ACCOUNT_REF]  NONE\n\n"
+  },
+  {
+   "model": "lfm2.5-350m",
+   "config": "raw-pl-lang",
+   "caseId": "support-en-045",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 16825,
+   "output": "[CUSTOMER_NAME]  NONE\n[ACCOUNT_REF]  NONNNNNNNNNNN"
+  }
+ ]
+}
