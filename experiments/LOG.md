@@ -573,3 +573,13 @@ profile, and forwards the engine's pinned decoding settings in the Node loader.
 - No gap found in the implementation. Bench-side gaps fixed on the way: new
   review API signature, `examples` in rules, pinned `settings` forwarded to
   `generate`, completion answers analyzed with their `LABEL:` cue.
+
+### D6-D7. Qwen2.5-0.5B with English-only demonstrations (raw-pl): not completed
+
+Both runs were killed by the lab's guard (system MemAvailable below 600 MB)
+while Qwen2.5-0.5B loaded or ran: other processes on the machine had grown,
+and Qwen's load peak is ~3.1-3.3 GB. Only cached cases got scored (33/96 and
+a handful of 48); the lab now prints `INCOMPLETE` for such rows instead of a
+silently partial summary. Not retried. On the complete iter32 run, raw-pl gave
+Qwen EN F1 55 but FR 14, so it cannot meet the "clearly better in French"
+branch of the criterion either; the D1-D3 verdict (drop Qwen2.5-0.5B) stands.
