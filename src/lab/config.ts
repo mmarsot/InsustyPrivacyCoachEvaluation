@@ -104,6 +104,17 @@ export interface LabConfig {
   iterations: number;
   /** Extra variables for the chat template (e.g. enable_thinking: false). */
   templateKwargs: Record<string, unknown>;
+  /**
+   * Language of the `*-auto` demonstrations: `auto` follows the scanned text
+   * (detectLang), `en` always uses the English carrier sentences.
+   */
+  demoLanguage: "auto" | "en";
+  /**
+   * Plausibility filter on answer lines, as the extension ships it: the ref's
+   * own `isPlausiblePassage` when the ref exports it, else the lab's
+   * `filterLines` rule (see `plausibleLines`).
+   */
+  plausibilityFilter: boolean;
 }
 
 /**
@@ -142,7 +153,9 @@ export type ShotSource =
   /** Like ex-pos-auto with other carrier sentences (for agreement between two variants). */
   | "ex-pos-auto-alt"
   /** Like clean-neg-auto with another clean text. */
-  | "clean-neg-auto-alt";
+  | "clean-neg-auto-alt"
+  /** Every label's first two examples, carrier sentences in the scanned text's language, answered "LABEL: example". */
+  | "labelex-auto";
 
 const REF_USER =
   "<text_to_scan>\n{text}\n</text_to_scan>\nTask: scan only the text above. List findings in the required format.\n";
@@ -176,6 +189,8 @@ export const REF_CONFIG: LabConfig = {
   recordConfidence: false,
   iterations: 1,
   templateKwargs: {},
+  demoLanguage: "auto",
+  plausibilityFilter: false,
 };
 
 export interface RefTexts {
@@ -281,6 +296,11 @@ function buildShots(config: LabConfig, profile: Profile, lang: "en" | "fr" = "en
       profile.labels[0]!.examples.slice(0, 2).forEach((ex, i) => shots.push({ text: fill(CARRIERS_ALT[lang][i]!, { ex }), answer: ex }));
       continue;
     }
+    if (source === "labelex-auto") {
+      for (const spec of profile.labels)
+        spec.examples.slice(0, 2).forEach((ex, i) => shots.push({ text: fill(CARRIERS[lang][i]!, { ex }), answer: `${spec.label}: ${ex}` }));
+      continue;
+    }
     if (source === "clean-neg-auto-alt") {
       shots.push({ text: CLEAN_ALT[lang], answer: "NONE" });
       continue;
@@ -343,37 +363,48 @@ export interface ChatMessage {
 
 export const CONTENT_MARKER = "\u0000LAB_CONTENT\u0000";
 
+/** Language of the demonstrations for a scanned text. */
+const demoLang = (config: LabConfig, text: string) => (config.demoLanguage === "en" ? "en" : detectLang(text));
+
+/** Template variables of a request: its first custom label, as is and in lower-case words. */
+function labelVars(profile: Profile) {
+  const label = profile.labels[0]?.label ?? "";
+  return { label, name: label.toLowerCase().replace(/_/g, " ") };
+}
+
 /**
  * Messages for one request. The last user turn is a marker, so the rendered
  * template splits into a reusable prefix (system, shots) and the per-case part
- * (`userContent(text)` + template tail + prefill), exactly like the
- * extension's engine splits it.
+ * (`userContent(text)` + template tail + `prefill`), exactly like the
+ * extension's engine splits it. `langText` picks the language of `*-auto`
+ * demonstrations; `user` and `prefill` may use {label} and {name}.
  */
-export function buildMessages(config: LabConfig, profile: Profile, ref: RefTexts) {
+export function buildMessages(config: LabConfig, profile: Profile, ref: RefTexts, langText = "") {
   const instructions = composeInstructions(config, profile, ref);
   const inSystem = config.system !== null && config.system.includes("{instructions}");
+  const vars = labelVars(profile);
   const messages: ChatMessage[] = [];
   if (config.system !== null) messages.push({ role: "system", content: fill(config.system, { instructions }) });
   const userFor = (text: string, first: boolean) =>
-    fill(config.user, { text, instructions: inSystem || !first ? "" : instructions }).replace(/^\n+/, "");
-  const shots = buildShots(config, profile);
+    fill(config.user, { ...vars, text, instructions: inSystem || !first ? "" : instructions }).replace(/^\n+/, "");
+  const prefill = fill(config.prefill, vars);
+  const shots = buildShots(config, profile, demoLang(config, langText));
   shots.forEach((shot, i) => {
     messages.push({ role: "user", content: userFor(shot.text, i === 0) });
-    messages.push({ role: "assistant", content: `${config.prefill}${shot.answer}` });
+    messages.push({ role: "assistant", content: `${prefill}${prefill.endsWith(":") ? " " : ""}${shot.answer}` });
   });
   messages.push({ role: "user", content: CONTENT_MARKER });
-  return { messages, instructions, userContent: (text: string) => userFor(text, shots.length === 0) };
+  return { messages, instructions, prefill, userContent: (text: string) => userFor(text, shots.length === 0) };
 }
 
 /** Completion-framed request (config.raw): a reusable prefix and the per-case suffix. */
 export function buildRaw(config: LabConfig, profile: Profile, ref: RefTexts, text = "", langText = text) {
   const lang = detectLang(langText);
   const instructions = composeInstructions(lang === "fr" && config.instructionFr ? { ...config, instruction: config.instructionFr } : config, profile, ref);
-  const label = profile.labels[0]?.label ?? "";
-  const vars = { label, name: label.toLowerCase().replace(/_/g, " ") };
+  const vars = labelVars(profile);
   const user = (text: string) => fill(config.user, { ...vars, text, instructions: "" });
   const prefill = fill(config.prefill, vars);
-  const shots = buildShots(config, profile, lang)
+  const shots = buildShots(config, profile, demoLang(config, langText))
     .map((shot) => `${user(shot.text)}${prefill}${prefill.endsWith(":") ? " " : ""}${shot.answer}\n\n`)
     .join("");
   return {
@@ -482,6 +513,20 @@ export function filterLines(raw: string): string {
     const words = passage.split(/\s+/u);
     if (passage.length < 3 || /^[+-]?\d{1,2}([-–]\d{1,2})?$/u.test(passage) || words.length > 8) return false;
     return !words.every((w) => STOPWORDS.has(w.toLowerCase()));
+  });
+  return kept.some((l) => l.trim()) ? kept.join("\n") : "NONE";
+}
+
+/**
+ * Keeps NONE and the answer lines whose passage `isPlausible` accepts. The
+ * shipped filter passes the ref's `isPlausiblePassage`; without one it falls
+ * back to the lab's rule (`filterLines`).
+ */
+export function plausibleLines(raw: string, isPlausible?: (passage: string) => boolean): string {
+  if (!isPlausible) return filterLines(raw);
+  const kept = raw.split(/\r?\n/u).filter((line) => {
+    const passage = /^\s*(?:(?:[-*•]+|\d+[.)])\s*)*[^:\n]+?\s*:\s*(?<p>.+)$/u.exec(line)?.groups?.p?.trim();
+    return !passage || /^NONE$/iu.test(passage) || isPlausible(passage);
   });
   return kept.some((l) => l.trim()) ? kept.join("\n") : "NONE";
 }

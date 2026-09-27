@@ -6,6 +6,7 @@
  * silently changes what a name means).
  */
 import { REF_CONFIG, withOverrides, type LabConfig } from "./config.ts";
+import { shippedConfigs } from "./shipped.ts";
 
 const defs: LabConfig[] = [REF_CONFIG];
 const add = (base: string, id: string, note: string, overrides: Partial<LabConfig>) => {
@@ -160,5 +161,10 @@ add("raw-pl-lang-conf", "raw-pl-lang-agree", "raw-pl-lang-conf keeping only find
 
 add("raw-pl-lang-conf", "raw-pl-lang-altneg", "raw-pl-lang-conf with the alternate clean NONE demo only (grammar fix request)", { shots: ["ex-pos-auto", "clean-neg-auto-alt"] });
 add("raw-pl-lang-conf", "raw-pl-lang-altpos", "raw-pl-lang-conf with the alternate carrier sentences only", { shots: ["ex-pos-auto-alt", "clean-neg-auto"] });
+
+// --- the shipped design (src/lab/shipped.ts): `shipped` and one `shipped-no-<switch>`
+// per shipped improvement. Add new proposals below as add("shipped", ...) so
+// `npm run ablate -- --with <id>` measures them against the shipped baseline.
+defs.push(...shippedConfigs());
 
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));

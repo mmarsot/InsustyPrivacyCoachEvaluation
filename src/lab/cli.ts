@@ -26,7 +26,7 @@ import { CACHE_DIR, MODEL_CACHE_DIR, ROOT } from "../paths.ts";
 import type { ResultRecord } from "../run/jobs.ts";
 import { metrics, type Metrics } from "../score/aggregate.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
-import { buildMessages, buildRaw, configCategories, filterLines, maskPassages, isRequestLike, shapeSimilarity, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
+import { buildMessages, buildRaw, configCategories, filterLines, plausibleLines, maskPassages, isRequestLike, shapeSimilarity, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
 import { labelPatterns, patternFindings } from "./patterns.ts";
@@ -79,6 +79,8 @@ const validateModelOutput = refModule.review.validateModelOutput as (
   categories: readonly string[],
 ) => Array<{ category: string; start: number; end: number; value?: string }>;
 const descriptions = refModule.review.DETERMINISTIC_LABEL_DESCRIPTIONS as Record<string, string>;
+/** The shipped plausibility filter (configs with `plausibilityFilter`), when the ref has one. */
+const refPlausible = refModule.review.isPlausiblePassage as ((passage: string) => boolean) | undefined;
 const refTexts: RefTexts = {
   defaultPrompt: api.defaultPrompt,
   outputSchema: String(refModule.review.SLM_OUTPUT_SCHEMA),
@@ -159,14 +161,14 @@ async function plan(model: LabModel, cache: Map<string, LabRecord> = new Map()):
           if (model.rawBos) prefix = `${String((tokenizer as unknown as { bos_token?: string }).bos_token ?? "")}${prefix}`;
           suffix = raw.suffix(c.text);
         } else {
-          const built = buildMessages(cfg, scope, refTexts);
+          const built = buildMessages(cfg, scope, refTexts, c.text);
           const rendered = String(
             tokenizer.apply_chat_template(built.messages as never, { tokenize: false, add_generation_prompt: true, ...config.templateKwargs } as never),
           );
           const at = rendered.indexOf(CONTENT_MARKER);
           if (at < 0 || rendered.indexOf(CONTENT_MARKER, at + 1) >= 0) fail(`${model.short}/${config.id}: template did not place the content once`);
           const tail = rendered.slice(at + CONTENT_MARKER.length);
-          suffix = `${built.userContent(c.text)}${tail}${config.prefill}`;
+          suffix = `${built.userContent(c.text)}${tail}${built.prefill}`;
           prefix = rendered.slice(0, at);
           instructions = built.instructions;
         }
@@ -263,7 +265,8 @@ function score(parts: Planned[], cache: Map<string, LabRecord>, agree?: Set<stri
     const json = gated ? "NONE" : part.config.output === "json" ? jsonToLines(r.output) : r.output;
     const lines = part.part && part.config.passageOnly ? passagesToLines(json, part.part) : json;
     const relaxed = relaxedAnchor ? relaxLines(lines, p.c.text) : lines;
-    const basic = postFilters.includes("basic") ? filterLines(relaxed) : relaxed;
+    const shipped = part.config.plausibilityFilter ? plausibleLines(relaxed, refPlausible) : relaxed;
+    const basic = postFilters.includes("basic") ? filterLines(shipped) : shipped;
     const parsed = postFilters.includes("request")
       ? basic
           .split("\n")
