@@ -13,7 +13,10 @@ actually ships.
   `main` @ b2c4ca1, checked against the materialized ref when the switches
   were added. `tests/shipped.test.ts` pins one rendered request. The answers
   of the benched branch commit matched the lab byte for byte (LOG V1). The
-  plausibility filter is the ref's own `isPlausiblePassage`.
+  plausibility filter is the ref's own `isPlausiblePassage`. Since PR #32 the
+  baseline also applies the answer-confidence filter and the example-derived
+  patterns; the bench run of that PR reproduced the lab's findings case by
+  case (LOG V2).
 - **Switches:** each entry below has a switch id. The lab configuration
   `shipped-no-<id>` is the baseline with that one improvement turned off. The
   `model` switch runs the baseline on the previous default model.
@@ -48,57 +51,72 @@ With 96 cases, F1 differences under ~8 points are noise.
 | 8 | Basic plausibility filter | `plausible` | [#26](https://github.com/mmarsot/InsustyPromptCoach/pull/26) | 372c8ff | 2026-09-27 08:42 |
 | 9 | SmolLM2-360M default, SmolLM2-135M removed | `model` | [#26](https://github.com/mmarsot/InsustyPromptCoach/pull/26) | 372c8ff | 2026-09-27 08:42 |
 | – | Automatic model preparation (no quality change) | none | [#29](https://github.com/mmarsot/InsustyPromptCoach/pull/29) | b2c4ca1 | 2026-09-27 11:38 |
+| 10 | Example-derived patterns next to the model | `patterns` | [#32](https://github.com/mmarsot/InsustyPromptCoach/pull/32) | b4f96b1 | 2026-09-27 16:13 |
+| 11 | Answer-confidence filter, minimum token probability 0.2 | `confidence` | [#32](https://github.com/mmarsot/InsustyPromptCoach/pull/32) | b4f96b1 | 2026-09-27 16:13 |
+| 12 | Overfit stop words "simple" and "terms" removed | `stopwords` | [#32](https://github.com/mmarsot/InsustyPromptCoach/pull/32) | b4f96b1 | 2026-09-27 16:13 |
 
 ## Leave-one-out ablation (tune96, SmolLM2-360M)
 
 `npm run ablate -- --set tune96 --model smollm2-360m`, 2026-09-27, extension
-`main` @ b2c4ca1, q8 WASM. Full table with the "off" definitions:
+`main` @ 71a29e3 (PR #32 merge b4f96b1 plus #33, which only changes WebGPU
+probing in the browser worker), q8 WASM. Full table with the "off"
+definitions:
 [`experiments/ablations/ablate-tune96-smollm2-360m.md`](../experiments/ablations/ablate-tune96-smollm2-360m.md).
 Runs: `experiments/runs/ablate-tune96-smollm2-360m.json` and
 `ablate-tune96-smollm2-360m-no-model.json`. Deltas are in points vs the
 baseline. Negative ΔF1 means the improvement helps F1, and positive ΔFP means
-it lowers false positives.
+it lowers false positives. The PR #26-baseline run of this ablation is LOG
+A1.
 
 | switched off | F1 | ΔF1 | precision | recall | FP rate | ΔFP | detection | EN / FR F1 | p50 |
 |---|---|---|---|---|---|---|---|---|---|
-| nothing (shipped baseline) | 32.1 | | 41.5 | 26.2 | 35.7 | | 40.7 | 32.9 / 31.5 | 2.37 s |
-| `completion` | 16.7 | −15.4 | 37.9 | 10.7 | 14.3 | −21.4 | 20.4 | 23.0 / 11.3 | 2.29 s |
-| `perlabel` | 9.0 | −23.1 | 20.0 | 5.8 | 33.3 | −2.4 | 9.3 | 9.4 / 8.6 | 2.14 s |
-| `examples` | 1.9 | −30.2 | 100 | 1.0 | 0.0 | −35.7 | 1.9 | 4.2 / – | 1.78 s |
-| `lang` | 27.2 | −4.9 | 34.8 | 22.3 | 42.9 | +7.2 | 37.0 | 32.9 / 22.2 | 2.42 s |
-| `nonelast` | 36.8 | +4.7 | 32.3 | 42.7 | 71.4 | +35.7 | 57.4 | 41.5 / 32.5 | 2.79 s |
-| `firstline` | 31.1 | −1.0 | 40.6 | 25.2 | 33.3 | −2.4 | 38.9 | 32.9 / 29.5 | 2.38 s |
-| `pinned` | 32.1 | ±0.0 | 41.5 | 26.2 | 35.7 | ±0.0 | 40.7 | 32.9 / 31.5 | (3.08 s) |
-| `plausible` | 33.0 | +0.9 | 36.6 | 30.1 | 47.6 | +11.9 | 46.3 | 34.9 / 31.3 | 2.37 s |
-| `model` (SmolLM2-135M) | 23.1 | −9.0 | 28.6 | 19.4 | 47.6 | +11.9 | 31.5 | 26.6 / 19.3 | 1.19 s |
+| nothing (shipped baseline) | 38.2 | | 55.6 | 29.1 | 21.4 | | 38.9 | 44.2 / 32.5 | 2.56 s |
+| `completion` | 27.1 | −11.1 | 60.0 | 17.5 | 9.5 | −11.9 | 29.6 | 39.4 / 14.9 | 2.67 s |
+| `perlabel` | 21.2 | −17.0 | 48.1 | 13.6 | 21.4 | ±0.0 | 20.4 | 29.2 / 14.3 | 3.20 s |
+| `examples` | 17.7 | −20.5 | 100 | 9.7 | 0.0 | −21.4 | 14.8 | 29.1 / 6.9 | 2.27 s |
+| `lang` | 35.2 | −3.0 | 50.0 | 27.2 | 26.2 | +4.8 | 38.9 | 44.2 / 26.8 | 2.55 s |
+| `nonelast` | 39.4 | +1.2 | 42.2 | 36.9 | 47.6 | +26.2 | 53.7 | 48.9 / 31.1 | 3.17 s |
+| `firstline` | 38.2 | ±0.0 | 55.6 | 29.1 | 19.0 | −2.4 | 38.9 | 44.2 / 32.5 | 2.64 s |
+| `pinned` | 38.2 | ±0.0 | 55.6 | 29.1 | 21.4 | ±0.0 | 38.9 | 44.2 / 32.5 | 2.53 s |
+| `plausible` | 39.5 | +1.3 | 49.3 | 33.0 | 33.3 | +11.9 | 44.4 | 46.5 / 32.6 | 2.56 s |
+| `model` (SmolLM2-135M) | 26.9 | −11.3 | 43.9 | 19.4 | 31.0 | +9.6 | 27.8 | 32.9 / 20.0 | 1.43 s |
+| `patterns` | 29.5 | −8.7 | 47.8 | 21.4 | 21.4 | ±0.0 | 31.5 | 31.0 / 28.2 | 2.56 s |
+| `confidence` | 39.5 | +1.3 | 47.3 | 34.0 | 38.1 | +16.7 | 48.1 | 44.2 / 35.2 | 2.37 s |
+| `stopwords` | 38.2 | ±0.0 | 55.6 | 29.1 | 21.4 | ±0.0 | 38.9 | 44.2 / 32.5 | 2.56 s |
 
-The baseline equals the extension's bench numbers at d42c466 (LOG V1: 32.1 /
-41.5 / 26.2 / FP 35.7), so the lab baseline is the shipped behaviour.
+The baseline equals the extension's bench numbers at ebf077f (LOG V2: 38.2 /
+55.6 / 29.1 / FP 21.4), so the lab baseline is the shipped behaviour.
 
 What it says (tune96 only; differences under ~8 F1 points are noise):
 
-- **Carrying most of the gain:** example demonstrations (−30 F1 without
-  them), one request per label (−23; the all-labels request breaks the
-  answer format on 25% of prompts, mostly by answering the prompt) and completion framing (−15).
+- **Carrying most of the gain:** example demonstrations (−20 F1 without
+  them), one request per label (−17; the all-labels request breaks the
+  answer format on some prompts, mostly by answering the prompt), completion
+  framing (−11) and the example patterns (−9, all through recall: the
+  patterns find identifiers the model misses and add no false positive).
   Without the framing, false positives drop, but only because recall
-  collapses.
-- **The language match** helps French only (FR F1 31.5 → 22.2 without it),
-  and lowers the FP rate by 7 points.
+  collapses. The patterns soften every model-side switch (the PR #26 run
+  had −30, −23 and −15 for the first three), because they keep finding
+  identifiers whatever the prompt.
+- **The language match** helps French only (FR F1 32.5 → 26.8 without it),
+  and lowers the FP rate by 5 points.
 - **Precision and false-positive levers, not F1 levers:** NONE last (without
-  it, F1 is +4.7 but 71% of negatives get flagged) and the plausibility filter
-  (−12 FP points for −0.9 F1). A proposal that trades FP for recall should be
-  compared with these two.
-- **Near-neutral on quality:** the first-line stop (−1 F1, within noise). It
-  bounds latency (without it, 2 prompts hit the 30 s deadline and p95 rises
-  6.4 s → 7.3 s) and keeps the answer format fixed. Pinned decoding changes
-  nothing on SmolLM2, as expected: identical outputs. Its latency is in
-  parentheses because that row came from a cached earlier run, so the timing
-  is not comparable. It matters for Qwen2.5-0.5B.
-- **The model switch:** the design on SmolLM2-135M loses 9 F1 points and
-  flags 12 points more negatives, at half the latency.
+  it, F1 is +1 but 48% of negatives get flagged), the confidence filter (−17
+  FP points for −1.3 F1) and the plausibility filter (−12 FP points for −1.3
+  F1). A proposal that trades FP for recall should be compared with these
+  three.
+- **Near-neutral on quality:** the first-line stop (F1 ±0, FP −2.4 without
+  it: within noise). It bounds latency and keeps the answer format fixed.
+  Pinned decoding changes nothing on SmolLM2, as expected: identical outputs.
+  It matters for Qwen2.5-0.5B. The stop-word fix is ±0 here: the one tune96
+  case it affected (legal-en-040, LOG "Fix: overfit words") is now dropped by
+  the confidence filter anyway; it is a correctness fix against tuning-set
+  overfitting, not a quality lever.
+- **The model switch:** the design on SmolLM2-135M loses 11 F1 points and
+  flags 10 points more negatives, at about half the latency.
 
 The held-out split was not used for this ablation. Its one-shot numbers
-for the whole design are in the PR #26 table below.
+for the whole design are in the PR #26 and PR #32 tables below.
 
 ## Extension PR #26: per-label completion framing with label examples
 
@@ -226,10 +244,9 @@ finding, against 11% before. That is the main open problem (REPORT.md).
   FP 48% to 32 / 42 / 36% with the filter, and exact F1 26 → 29 (T4, D1). The
   filter is nearly free on F1 and cuts the FP rate by 12 points. On
   confirm48 it was neutral (30 → 31, D3).
-- **Known deviation:** the extension's stop-word list still contains
-  "simple" and "terms", copied from one overfit tune96 case. The lab
-  recommends removing them (LOG "Fix: overfit words", no held-out effect).
-  The baseline uses the extension's own list.
+- **Stop words:** the list first contained "simple" and "terms", copied
+  from one overfit tune96 case; PR #32 removed them (item 12). The baseline
+  uses the extension's own list.
 - **Off:** every anchored passage is kept.
 
 ### 9. SmolLM2-360M default, SmolLM2-135M removed (`model`)
@@ -260,12 +277,94 @@ model is not loaded now includes the preparation time. The bench and the lab
 time generations on an already loaded model with prepared prefixes, so they
 do not measure this. It has no switch.
 
+## Extension PR #32: example-derived patterns and an answer-confidence filter
+
+https://github.com/mmarsot/InsustyPromptCoach/pull/32, merge commit
+b4f96b1 (2026-09-27 16:13 UTC). Items 10-12 as one change: lab `raw-pl-lang`
++ `basic` + `cmin0.2` + `patterns` (LOG C2-C3, H2, P1), benched as branch
+commit ebf077f, whose sources equal the merge's. The requests are unchanged;
+the engine now reports each completion answer's confidence
+(`SlmReviewRuntime.answerProbability`, recorded by a pass-through logits
+processor, so decoding is unaffected).
+
+Evidence, SmolLM2-360M, bench on ebf077f (LOG V2; runs
+`runs/ext-ebf077f-tune96-smol360/`, `runs/ext-ebf077f-test-smol360/`), each
+part switched off by replaying the cached answers (`npm run components`):
+
+| set | variant | F1 | precision | recall | detection | FP rate | EN / FR F1 |
+|---|---|---|---|---|---|---|---|
+| tune96 | before (PR #26 design) | 32.0% | 40.9% | 26.2% | 40.7% | 38.1% | 32.5 / 31.5 |
+| tune96 | patterns only | 39.5% | 47.3% | 34.0% | 48.1% | 38.1% | 44.2 / 35.2 |
+| tune96 | confidence filter only | 29.5% | 47.8% | 21.4% | 31.5% | 21.4% | 31.0 / 28.2 |
+| tune96 | **PR #32 (both)** | **38.2%** | **55.6%** | 29.1% | 38.9% | **21.4%** | 44.2 / 32.5 |
+| **held-out test** | before (PR #26 design) | 27.4% | 32.2% | 23.9% | 41.8% | 44.6% | 25.8 / 29.0 |
+| **held-out test** | patterns only | 34.0% | 38.4% | 30.4% | 49.6% | 45.5% | 31.9 / 35.9 |
+| **held-out test** | confidence filter only | 26.1% | 36.2% | 20.4% | 36.2% | 33.7% | 25.0 / 27.0 |
+| **held-out test** | **PR #32 (both)** | **33.2%** | **43.3%** | 27.0% | 44.0% | **35.6%** | 31.8 / 34.5 |
+
+The configuration was fixed on the dev sets (tune96, confirm48) before the
+one-shot held-out check. On the held-out split the PR's findings equal the
+lab's `basic + cmin0.2 + patterns` case by case (242/242); held-out p50 2.6 s,
+p95 9.3 s, no timeouts.
+
+### 10. Example-derived patterns (`patterns`)
+
+- **What:** each label example containing an identifier-like token becomes
+  a regular expression: literal prefix, separators and domain suffix,
+  generalized digit and code runs (`acct-00918-BZ` →
+  `acct-\p{N}{3,8}-[\p{L}\p{N}]{1,6}`); plain names give none. Matches join
+  the model's findings under the same label, without repeating a span the
+  model found (`src/slm-patterns.ts`; lab `src/lab/patterns.ts`).
+- **Evidence:** the model nearly missed identifier-like labels on the
+  held-out split (internal hosts 8% recall, account refs 7%, internal
+  services 0%). The patterns are 85-100% precise and add +7 to +10 F1 on
+  every set at almost no FP cost (LOG P1): held-out 27.4 → 34.0, with the
+  filter 26.1 → 33.2 (V2). Caveat: the fictional identifiers follow each
+  company's format consistently; users whose examples do not share a format
+  with their real identifiers gain less. Standalone money/percent patterns
+  were within noise and not shipped (P2).
+- **Off:** the model's findings only.
+
+### 11. Answer-confidence filter at 0.2 (`confidence`)
+
+- **What:** a label's answer whose least likely generated token (the final
+  line break, EOS or cap excluded) has probability below 0.2 counts as NONE
+  (`SLM_MIN_ANSWER_PROBABILITY`). The lab's `minAnswerProbability` uses the
+  same rule on probabilities rounded to 4 decimals.
+- **Evidence:** thresholds swept on tune96, confirmed unchanged on
+  confirm48 (LOG C2-C3): at 0.2, FP 36 → 21% on tune96 and 50 → 44% on
+  confirm48, F1 within 2 points. Held-out one-shot: FP 44.6 → 33.7% for −1.3
+  F1 without patterns, 45.5 → 35.6% for −0.8 F1 with them (H2, V2). The
+  probability at the first token (P(NONE), T2) was anti-informative; the
+  weakest answer token tracks correctness. 0.3 cuts FP further (held-out
+  25% without the patterns) for 4 F1 points: a candidate sensitivity
+  setting, not shipped.
+- **Note:** the extension records probabilities only for completion
+  framing; the lab applies the filter to whatever answer the configuration
+  produces, so in `shipped-no-completion` it also filters chat answers.
+- **Off:** every anchored answer kept (no probabilities recorded, so the
+  requests equal the PR #26 baseline's).
+
+### 12. Overfit stop words removed (`stopwords`)
+
+- **What:** "simple" and "terms" left the plausibility filter's stop-word
+  list (item 8).
+- **Evidence:** both came from one tune96 false positive ("simple terms" in
+  legal-en-040), so the filter was tuned on the tuning set. Removing them:
+  tune96 FP 36 → 38% (that case), confirm48 and held-out unchanged (LOG "Fix:
+  overfit words in the plausibility filter's stop-word list"). A correctness
+  fix, not a quality lever.
+- **Off:** the plausibility filter also drops passages made only of stop
+  words plus "simple"/"terms" (`extraStopWords`).
+
 ## Rejected proposals
 
 Proposals measured against the `shipped` baseline that did not ship. Their
 lab configurations stay in `src/lab/configs.ts` (added on top of `shipped`,
 off unless selected), so they can be rerun or revisited, but they are not
-switches of the baseline.
+switches of the baseline. Those measured before PR #32 keep that baseline
+(`BEFORE_PR32` in `src/lab/shipped.ts`), so their cached results still mean
+what the LOG says.
 
 ### Segment x label Yes/No classification (captain's spec v1.1, 2026-09-27)
 

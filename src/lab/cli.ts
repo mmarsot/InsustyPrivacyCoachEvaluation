@@ -26,7 +26,7 @@ import { CACHE_DIR, MODEL_CACHE_DIR, ROOT } from "../paths.ts";
 import type { ResultRecord } from "../run/jobs.ts";
 import { metrics, type Metrics } from "../score/aggregate.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
-import { buildMessages, buildRaw, configCategories, detectLang, filterLines, plausibleLines, maskPassages, isRequestLike, shapeSimilarity, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
+import { answerConfidence, buildMessages, buildRaw, configCategories, detectLang, filterLines, plausibleLines, withExtraStopWords, maskPassages, isRequestLike, shapeSimilarity, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
 import { labelPatterns, patternFindings } from "./patterns.ts";
@@ -366,11 +366,16 @@ function score(allParts: Planned[], cache: Map<string, LabRecord>, agree?: Set<s
       return confFilter!.startsWith("cmin") ? Math.min(...probs) : probs.reduce((a, b) => a + b, 0) / probs.length;
     };
     const lowConfidence = confFilter !== undefined && r.tokenProbs !== undefined && confOf() < Number(confFilter.replace(/^(conf|cmin)/, ""));
-    const gated = lowConfidence || (part.config.noneGate !== null && (r.pNone ?? 0) >= part.config.noneGate);
+    // The shipped confidence filter (extension PR #32): an answer without recorded probabilities is kept.
+    const minP = part.config.minAnswerProbability;
+    const shippedConfidence = minP !== null && r.tokenProbs !== undefined ? answerConfidence(r.tokenProbs, r.generatedTokens) : undefined;
+    const unconfident = minP !== null && shippedConfidence !== undefined && shippedConfidence < minP;
+    const gated = lowConfidence || unconfident || (part.config.noneGate !== null && (r.pNone ?? 0) >= part.config.noneGate);
     const json = gated ? "NONE" : part.config.output === "json" ? jsonToLines(r.output) : r.output;
     const lines = part.part && part.config.passageOnly ? passagesToLines(json, part.part) : json;
     const relaxed = relaxedAnchor ? relaxLines(lines, p.c.text) : lines;
-    const shipped = part.config.plausibilityFilter ? plausibleLines(relaxed, refPlausible) : relaxed;
+    const isPlausible = refPlausible && withExtraStopWords(refPlausible, part.config.extraStopWords);
+    const shipped = part.config.plausibilityFilter ? plausibleLines(relaxed, isPlausible) : relaxed;
     const basic = postFilters.includes("basic") ? filterLines(shipped) : shipped;
     const parsed = postFilters.includes("request")
       ? basic
@@ -413,9 +418,9 @@ function score(allParts: Planned[], cache: Map<string, LabRecord>, agree?: Set<s
     const kept = findings.filter((f) => usedChecks.some((ch) => ch.label === f.category && overlaps(f, ch.seg) && ch.answer !== "no"));
     findings.splice(0, findings.length, ...kept);
   }
-  // Example-derived patterns (src/lab/patterns.ts): `patterns` adds their
-  // matches to the model's findings, `patonly` keeps only them.
-  if (postFilters.includes("patterns") || postFilters.includes("patonly")) {
+  // Example-derived patterns (src/lab/patterns.ts): `patterns` (or a config's
+  // `examplePatterns`) adds their matches to the model's findings, `patonly` keeps only them.
+  if (p.config.examplePatterns || postFilters.includes("patterns") || postFilters.includes("patonly")) {
     const matches = deadline ? [] : patternFindings(p.c.text, labelPatterns(p.profile.labels, { figures: postFilters.includes("figs") }));
     if (postFilters.includes("patonly")) findings.splice(0, findings.length);
     for (const m of matches) if (!findings.some((f) => f.category === m.category && f.start === m.start && f.end === m.end)) findings.push(m);

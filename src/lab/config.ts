@@ -117,6 +117,22 @@ export interface LabConfig {
    */
   plausibilityFilter: boolean;
   /**
+   * Words the plausibility filter also treats as stop words. The extension's
+   * list had "simple" and "terms" until PR #32 (see `withExtraStopWords`).
+   */
+  extraStopWords: string[];
+  /**
+   * Answer-confidence filter, as the extension ships it (PR #32): a label's
+   * answer whose least likely token (`answerConfidence`) is below this
+   * probability counts as NONE. Needs `recordConfidence`; null = off.
+   */
+  minAnswerProbability: number | null;
+  /**
+   * Example-derived patterns (src/lab/patterns.ts, extension PR #32): their
+   * matches join the model's findings, like `--filter patterns`.
+   */
+  examplePatterns: boolean;
+  /**
    * Segment classification (src/lab/segment.ts): one Yes/No request per
    * (segment, custom label), either as the whole review (`classify`) or as a
    * second stage on this configuration's own per-label findings (`verify`).
@@ -198,6 +214,9 @@ export const REF_CONFIG: LabConfig = {
   templateKwargs: {},
   demoLanguage: "auto",
   plausibilityFilter: false,
+  extraStopWords: [],
+  minAnswerProbability: null,
+  examplePatterns: false,
 };
 
 export interface RefTexts {
@@ -522,6 +541,30 @@ export function filterLines(raw: string): string {
     return !words.every((w) => STOPWORDS.has(w.toLowerCase()));
   });
   return kept.some((l) => l.trim()) ? kept.join("\n") : "NONE";
+}
+
+/**
+ * `isPlausible` that also rejects a passage made only of stop words and
+ * `extra` words, with the extension's passage normalization (its stop-word
+ * list equals `STOPWORDS`).
+ */
+export function withExtraStopWords(isPlausible: (passage: string) => boolean, extra: readonly string[]): (passage: string) => boolean {
+  if (!extra.length) return isPlausible;
+  const stop = new Set([...STOPWORDS, ...extra.map((w) => w.toLowerCase())]);
+  return (passage) => {
+    const value = passage.trim().replace(/^["'`“‘«]+|["'`”’».,;:!?]+$/gu, "");
+    return isPlausible(passage) && !value.split(/\s+/u).every((w) => stop.has(w.toLowerCase()));
+  };
+}
+
+/**
+ * An answer's confidence as the extension computes it (`answerProbability`,
+ * PR #32): the lowest recorded token probability, leaving out the last
+ * generated token (the line break, EOS or cap that ended the answer).
+ */
+export function answerConfidence(tokenProbs: readonly number[], generatedTokens: number): number | undefined {
+  const answer = tokenProbs.slice(0, Math.max(1, generatedTokens - 1));
+  return answer.length ? Math.min(...answer) : undefined;
 }
 
 /**

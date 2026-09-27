@@ -1160,3 +1160,41 @@ through the ref's `reviewPrompt` with the filter and/or the patterns off; the
   answer) is a small part of it.
 - As in P1: the patterns carry the F1 gain (+6.6 held-out) and the filter the
   FP drop (−9.9 held-out with patterns) for −0.8 F1.
+
+### A2. Leave-one-out ablation after PR #32 (tune96, SmolLM2-360M, `ablate-tune96-smollm2-360m`)
+
+Extension PR #32 merged as b4f96b1 (sources equal to the benched ebf077f).
+The lab's `shipped` baseline now records answer probabilities and applies
+the confidence filter (`minAnswerProbability: 0.2`) and the example
+patterns (`examplePatterns`), with the extension's own stop-word list (the
+ref's `isPlausiblePassage` at `main`). New switches: `patterns`,
+`confidence`, `stopwords` (`extraStopWords` restores "simple"/"terms").
+The segment configurations of S1-S4 keep the PR #26 baseline
+(`BEFORE_PR32`). `npm run ablate -- --set tune96 --model smollm2-360m`,
+extension `main` @ 71a29e3 (#33 only changes WebGPU probing); two reruns
+were needed because the memory guard killed the worker while other lanes
+held RAM (cached requests are kept).
+
+| switched off | F1o | ΔF1 | P | R | FPR | ΔFPR | det | EN / FR F1 | p50 |
+|---|---|---|---|---|---|---|---|---|---|
+| nothing (shipped) | 38.2 | | 55.6 | 29.1 | 21.4 | | 38.9 | 44.2 / 32.5 | 2.56 s |
+| completion framing | 27.1 | −11.1 | 60.0 | 17.5 | 9.5 | −11.9 | 29.6 | 39.4 / 14.9 | 2.67 s |
+| one request per label | 21.2 | −17.0 | 48.1 | 13.6 | 21.4 | ±0 | 20.4 | 29.2 / 14.3 | 3.20 s |
+| label-example demos | 17.7 | −20.5 | 100 | 9.7 | 0.0 | −21.4 | 14.8 | 29.1 / 6.9 | 2.27 s |
+| language-matched demos | 35.2 | −3.0 | 50.0 | 27.2 | 26.2 | +4.8 | 38.9 | 44.2 / 26.8 | 2.55 s |
+| NONE demo last | 39.4 | +1.2 | 42.2 | 36.9 | 47.6 | +26.2 | 53.7 | 48.9 / 31.1 | 3.17 s |
+| first-line stop + 48 cap | 38.2 | ±0 | 55.6 | 29.1 | 19.0 | −2.4 | 38.9 | 44.2 / 32.5 | 2.64 s |
+| pinned decoding | 38.2 | ±0 | 55.6 | 29.1 | 21.4 | ±0 | 38.9 | 44.2 / 32.5 | 2.53 s |
+| plausibility filter | 39.5 | +1.3 | 49.3 | 33.0 | 33.3 | +11.9 | 44.4 | 46.5 / 32.6 | 2.56 s |
+| SmolLM2-360M default (135M) | 26.9 | −11.3 | 43.9 | 19.4 | 31.0 | +9.6 | 27.8 | 32.9 / 20.0 | 1.43 s |
+| example patterns | 29.5 | −8.7 | 47.8 | 21.4 | 21.4 | ±0 | 31.5 | 31.0 / 28.2 | 2.56 s |
+| confidence filter 0.2 | 39.5 | +1.3 | 47.3 | 34.0 | 38.1 | +16.7 | 48.1 | 44.2 / 35.2 | 2.37 s |
+| stop-word fix | 38.2 | ±0 | 55.6 | 29.1 | 21.4 | ±0 | 38.9 | 44.2 / 32.5 | 2.56 s |
+
+The baseline equals the bench's ebf077f numbers (V2) to the decimal. The
+patterns now carry part of the gain on their own (−8.7 F1 without them, no
+FP change) and soften every model-side switch (examples −20 vs −30 in A1,
+per-label −17 vs −23, completion −11 vs −15). The confidence filter is the
+largest FP lever after NONE-last (−16.7 FP points for −1.3 F1). The
+stop-word fix is ±0: its one tune96 case ("simple terms" in legal-en-040) is
+now dropped by the confidence filter. Ledger: `docs/shipped-improvements.md`.

@@ -13,16 +13,18 @@ extension ships.
   the bench confirms it reproduces the lab byte for byte). On the held-out
   test split it more than doubles F1 (12% → 27%), finds 3.5x more passages,
   never times out and answers in 2.4 s instead of 10 s.
-- **Next, add example-derived patterns** (pure code, no model cost): each
-  label example that looks like an identifier (`acct-00918-BZ`,
-  `db-07.int.corp.net`, `ticket #558120`) becomes a regular expression whose
-  matches join the model's findings. Held-out F1 27% → **34%**, FP rate
-  unchanged. It fixes the model's blind spot (ids, hosts, codes).
-- **Its weakness is false positives** (45% of negatives on the held-out
-  split, vs 11% before). The best fix found: drop a label's answer when its
-  least likely token has probability below 0.2. With the patterns: held-out
-  **F1 33%, precision 43%, FP 36%**. Recommended, ideally exposed as a
-  sensitivity setting.
+- **Example-derived patterns and the confidence filter have shipped too**
+  (extension PR #32, merge b4f96b1; benched as ebf077f, which reproduces the
+  lab case by case, LOG V2). Each label example that looks like an
+  identifier (`acct-00918-BZ`, `db-07.int.corp.net`, `ticket #558120`)
+  becomes a regular expression whose matches join the model's findings
+  (held-out F1 27% → 34%), and a label's answer whose least likely token has
+  probability below 0.2 counts as NONE (held-out FP 46% → 36%). Together:
+  held-out **F1 33%, precision 43%, FP 36%**.
+- **False positives remain the main weakness** (36% of held-out negatives,
+  vs 11% for the old chat design). A threshold of 0.3 cuts them to 25% for
+  4 F1 points (measured without the patterns): a candidate sensitivity
+  setting.
 - **Models:** SmolLM2-360M as default is right. Qwen2.5-0.5B, Gemma 3 270M
   and LFM2.5-350M all fail the keep/add criterion (below). SmolLM2-135M only
   becomes marginally useful with the new design (F1 ~30% on dev, FP 80%).
@@ -30,12 +32,13 @@ extension ships.
   but the extension's WebGPU q4 weights halve the quality; use fp32/fp16 on
   WebGPU, keep WASM q8 as the default.
 
-- **Shipped baseline:** extension PR #26 (merge 372c8ff) ships the
-  completion design. It is the lab's `shipped` configuration, with one
-  switch per improvement (`docs/shipped-improvements.md`). A leave-one-out
-  ablation on tune96 (LOG A1) shows that example demonstrations, one request
-  per label and completion framing carry the F1 gain, while NONE-last and
-  the plausibility filter are false-positive levers. Measure new proposals
+- **Shipped baseline:** extension PR #26 (merge 372c8ff) and PR #32 (merge
+  b4f96b1). It is the lab's `shipped` configuration, with one switch per
+  improvement (`docs/shipped-improvements.md`). The leave-one-out ablation
+  on tune96 (LOG A2) shows that example demonstrations, one request per
+  label, completion framing and the example patterns carry the F1 gain,
+  while NONE-last, the confidence filter and the plausibility filter are
+  false-positive levers. Measure new proposals
   with `npm run ablate -- --with <config>`.
 - **Rejected: segment x label Yes/No classification** (captain's spec v1.1).
   Code cuts the prompt into sentences, the model answers Yes/No per
@@ -113,28 +116,21 @@ lab summary's truncation). (LOG V1.)
 
 ## Recommended next changes to the extension
 
-1. **Example-derived patterns** (biggest remaining gain, no model cost).
-   Port `src/lab/patterns.ts` (about 60 lines, unit-tested in
-   `tests/patterns.test.ts`): for each custom label, examples containing an
-   identifier-like token (digits, `_ = # @ : /`, or a dotted host) become
-   regular expressions with the literal prefix, separators and domain suffix
-   kept and digit/code runs generalized; plain names give none. Add their
-   matches to the model's findings (they run even when the model is
-   unavailable). Held-out F1 +7 points, precision 85% on their own. (LOG P1.)
-2. **Confidence filter**. The engine records the
-   probability of each greedy token while generating (a pass-through logits
-   processor, cheap) and returns the minimum with the answer; `reviewPrompt`
-   drops answers below a threshold. 0.2 recommended; could be a sensitivity
-   setting (0 = today's behaviour). Dev: tune96 FP 38% → 21%, confirm48
-   50% → 44%, F1 −2 / +2. Held-out: see the table above. (LOG C2-C3, H2.)
-3. **Remove "simple" and "terms" from `PASSAGE_STOP_WORDS`**: they were added
-   for one dev case in the lab and copied over; no effect on held-out.
-4. (Not recommended any more) **recall mode:** re-asking a label on the text
+Done in PR #32 (merge b4f96b1): example-derived patterns, the confidence
+filter at 0.2, and removing "simple"/"terms" from the stop words (LOG P1,
+C2-C3, H2, V2; ledger items 10-12).
+
+1. **Confidence threshold as a sensitivity setting** (optional): 0.3 cuts
+   the held-out FP rate to 25% for about 4 F1 points (LOG H2, measured
+   without the patterns).
+2. **Patterns without the model:** they run in `reviewPrompt` after the
+   model requests; they could also run when Local AI is unavailable.
+3. (Not recommended any more) **recall mode:** re-asking a label on the text
    with its found passages masked raised recall, but once the patterns are in
    it adds no held-out F1 (34% either way) and costs about 1 s. (LOG I1-I2, H3, P1.)
-5. **WebGPU path:** do not use q4 (it halves quality); use fp32, or fp16 on
+4. **WebGPU path:** do not use q4 (it halves quality); use fp32, or fp16 on
    GPUs with `shader-f16`; keep WASM q8 as default. (LOG G2-G3.)
-6. **Free the fetched weight buffers after session creation** (the Node
+5. **Free the fetched weight buffers after session creation** (the Node
    workers now force a GC after load: Qwen2.5-0.5B RSS 3.34 → 2.36 GB).
 
 ## Model decisions (completion design + plausibility filter, dev sets)

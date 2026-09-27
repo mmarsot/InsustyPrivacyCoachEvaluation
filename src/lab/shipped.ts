@@ -2,8 +2,8 @@
  * The Local AI redaction design the extension ships, as a lab baseline with
  * one switch per shipped improvement (ledger: docs/shipped-improvements.md).
  *
- * `SHIPPED_CONFIG` renders the extension's requests (parity: experiments/LOG.md
- * V1, tests/shipped.test.ts). Each component's `off` overrides turn exactly
+ * `SHIPPED_CONFIG` renders the extension's requests and filters its answers
+ * like the extension (parity: experiments/LOG.md V1, V2, tests/shipped.test.ts). Each component's `off` overrides turn exactly
  * that improvement off on the baseline and become the lab configuration
  * `shipped-no-<id>`; `npm run ablate` runs the leave-one-out grid. A new
  * proposal is a configuration added on top of `shipped` in src/lab/configs.ts.
@@ -20,7 +20,7 @@ const EXT_PR = (n: number) => `https://github.com/mmarsot/InsustyPromptCoach/pul
 export const SHIPPED_MODEL = "smollm2-360m";
 
 export const SHIPPED_CONFIG: LabConfig = withOverrides(REF_CONFIG, "shipped", {
-  note: "Extension as shipped (PR #26): per-label completion, example demos, NONE last, first line, pinned greedy, plausibility filter",
+  note: "Extension as shipped (PR #26, #32): per-label completion, example demos, NONE last, first line, pinned greedy, plausibility filter, confidence filter 0.2, example patterns",
   raw: true,
   perLabel: true,
   passageOnly: true,
@@ -40,7 +40,22 @@ export const SHIPPED_CONFIG: LabConfig = withOverrides(REF_CONFIG, "shipped", {
   repetitionPenalty: 1,
   noRepeatNgram: 0,
   plausibilityFilter: true,
+  recordConfidence: true,
+  minAnswerProbability: 0.2,
+  examplePatterns: true,
 });
+
+/**
+ * Overrides that turn off everything PR #32 shipped, for configurations that
+ * must keep meaning what they meant on the PR #26 baseline (the rejected
+ * proposals cited in experiments/LOG.md).
+ */
+export const BEFORE_PR32: Partial<LabConfig> = {
+  recordConfidence: false,
+  minAnswerProbability: null,
+  examplePatterns: false,
+  extraStopWords: ["simple", "terms"],
+};
 
 export interface ShippedComponent {
   /** Switch id: the leave-one-out configuration is `shipped-no-<id>`. */
@@ -130,6 +145,28 @@ export const SHIPPED_COMPONENTS: ShippedComponent[] = [
     pr: EXT_PR(26),
     offModel: "smollm2-135m",
     offNote: "baseline on SmolLM2-135M, the previous default",
+  },
+  {
+    id: "patterns",
+    title: "Example-derived patterns next to the model",
+    pr: EXT_PR(32),
+    off: { examplePatterns: false },
+    offNote: "the model's findings only",
+  },
+  {
+    id: "confidence",
+    title: "Answer-confidence filter (least likely token < 0.2 counts as NONE)",
+    pr: EXT_PR(32),
+    // Recording is pass-through: without it the requests equal the PR #26 baseline's.
+    off: { minAnswerProbability: null, recordConfidence: false },
+    offNote: "every anchored answer kept whatever its token probabilities",
+  },
+  {
+    id: "stopwords",
+    title: "Overfit stop words \"simple\" and \"terms\" removed from the plausibility filter",
+    pr: EXT_PR(32),
+    off: { extraStopWords: ["simple", "terms"] },
+    offNote: "the plausibility filter also drops passages made only of stop words and \"simple\"/\"terms\" (the PR #26 list)",
   },
 ];
 

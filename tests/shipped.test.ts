@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { Profile } from "../src/dataset/schema.ts";
-import { buildRaw, plausibleLines, type RefTexts } from "../src/lab/config.ts";
+import { answerConfidence, buildRaw, plausibleLines, withExtraStopWords, type RefTexts } from "../src/lab/config.ts";
 import { LAB_CONFIGS } from "../src/lab/configs.ts";
-import { SHIPPED_COMPONENTS, SHIPPED_CONFIG, shippedOffId } from "../src/lab/shipped.ts";
+import { BEFORE_PR32, SHIPPED_COMPONENTS, SHIPPED_CONFIG, shippedOffId } from "../src/lab/shipped.ts";
 
 const ref: RefTexts = { defaultPrompt: "", outputSchema: "", labelHeader: "", builtin: [] };
 const profile: Profile = {
@@ -56,4 +56,29 @@ test("the plausibility filter uses the given predicate and keeps NONE", () => {
   assert.equal(plausibleLines("CLIENT: Acme\nCLIENT: ab", plausible), "CLIENT: Acme");
   assert.equal(plausibleLines("CLIENT: ab", plausible), "NONE");
   assert.equal(plausibleLines("NONE", plausible), "NONE");
+});
+
+test("the confidence filter only runs on recorded probabilities", () => {
+  for (const config of Object.values(LAB_CONFIGS))
+    if (config.minAnswerProbability !== null) assert.ok(config.recordConfidence, config.id);
+});
+
+test("answer confidence is the extension's: lowest probability without the terminating token", () => {
+  assert.equal(answerConfidence([0.9, 0.3, 0.05], 3), 0.3);
+  assert.equal(answerConfidence([0.1], 1), 0.1);
+  assert.equal(answerConfidence([], 0), undefined);
+});
+
+test("extra stop words restore the PR #26 plausibility list", () => {
+  const ref = (p: string) => p.trim().length >= 3;
+  const old = withExtraStopWords(ref, ["simple", "terms"]);
+  assert.equal(old("simple terms"), false);
+  assert.equal(old("in Simple terms."), false);
+  assert.equal(old("simple Acme"), true);
+  assert.equal(withExtraStopWords(ref, [])("simple terms"), true);
+});
+
+test("rejected proposals keep their PR #26 baseline", () => {
+  const seg = LAB_CONFIGS["seg-verify-raw"]!;
+  for (const [key, value] of Object.entries(BEFORE_PR32)) assert.deepEqual(seg[key as keyof typeof seg], value, key);
 });

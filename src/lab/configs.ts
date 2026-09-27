@@ -7,7 +7,7 @@
  */
 import { REF_CONFIG, withOverrides, type LabConfig } from "./config.ts";
 import type { SegmentMode } from "./segment.ts";
-import { shippedConfigs } from "./shipped.ts";
+import { BEFORE_PR32, shippedConfigs } from "./shipped.ts";
 
 const defs: LabConfig[] = [REF_CONFIG];
 const add = (base: string, id: string, note: string, overrides: Partial<LabConfig>) => {
@@ -173,7 +173,8 @@ defs.push(...shippedConfigs());
 // Configurations that differ only in `decision` render the same requests and share the cache.
 const SEG: SegmentMode = { use: "classify", framing: "chat", context: "whole", demos: 4, decision: "text" };
 const addSeg = (id: string, note: string, segment: Partial<SegmentMode>) => {
-  add("shipped", id, note, { segment: { ...SEG, ...segment } });
+  // On the PR #26 baseline they were measured against (BEFORE_PR32), so they keep their meaning.
+  add("shipped", id, note, { ...BEFORE_PR32, segment: { ...SEG, ...segment } });
   add(id, `${id}-logit`, `${note}; constrained decoding: P(Yes) vs P(No) at the first token`, { segment: { ...SEG, ...segment, decision: "logit" } });
   for (const t of [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95])
     add(id, `${id}-p${t}`, `${note}; Yes when P(Yes)/(P(Yes)+P(No)) >= ${t}`, { segment: { ...SEG, ...segment, decision: t } });
