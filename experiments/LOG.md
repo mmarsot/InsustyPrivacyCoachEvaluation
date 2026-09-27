@@ -630,3 +630,26 @@ into three groups: fragments of the user's request ("Rédige en anglais",
 The request filter is a small free gain on tune96 and neutral on confirm48;
 shape-based label resolution loses more true positives than it removes false
 ones. Dedup remains the only strong FP lever, at a recall cost.
+
+### C2-C3. Answer-confidence filter (SmolLM2-360M raw-pl-lang, runs `c2-conf-tune96`, `c3-conf-confirm48`)
+
+The lab worker now records the probability of each greedy token
+(`recordConfidence`, a pass-through logits processor). Scoring-time filters:
+`conf<t>` drops a label's answer when the mean token probability is below
+t; `cmin<t>` when the lowest one is. Thresholds swept on tune96, then applied
+unchanged to confirm48.
+
+| filters | tune96 F1 | P | R | FPR | confirm48 F1 | P | R | FPR |
+|---|---|---|---|---|---|---|---|---|
+| basic | 32 | 42 | 26 | 36 | 31 | 38 | 25 | 50 |
+| basic + conf0.6 | 30 | 44 | 23 | 31 | | | | |
+| basic + conf0.7 | 29 | 43 | 21 | 29 | | | | |
+| **basic + cmin0.2** | 30 | 48 | 21 | 21 | **33** | 45 | 25 | 44 |
+| **basic + cmin0.3** | 29 | 57 | 19 | **14** | 31 | 50 | 22 | 38 |
+| basic + cmin0.4 | 20 | 54 | 13 | 7 | | | | |
+
+Unlike P(NONE) at the first token (T2, anti-informative), the weakest token
+of the answer tracks correctness: `cmin` raises precision and lowers the FP
+rate on both sets, F1 within 3 points or better. It is a natural "sensitivity"
+setting for the extension (the engine would return the lowest token
+probability of the answer; `reviewPrompt` drops answers below the threshold).
