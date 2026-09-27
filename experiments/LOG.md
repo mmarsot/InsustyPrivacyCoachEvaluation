@@ -725,3 +725,23 @@ Earlier rows that say "basic" were scored with the old list.
 
 The English-first SmolLM2 needs the English instruction; only the
 demonstrations should follow the prompt's language.
+
+### E10-E11. uint8 weights instead of q8 (SmolLM2-360M, raw-pl-lang)
+
+The model repo ships `model_uint8.onnx` (same size, different quantization)
+next to `model_quantized.onnx` (q8, byte-identical to `model_int8.onnx`).
+
+| set | weights | filters | F1o | P | R | F1x | FPR |
+|---|---|---|---|---|---|---|---|
+| tune96 | q8 | basic | 32 | 41 | 26 | 28 | 38 |
+| tune96 | uint8 | basic | 36 | 38 | 34 | 24 | 50 |
+| tune96 | q8 | basic + cmin0.2 | 30 | 48 | 21 | 26 | 21 |
+| tune96 | uint8 | basic + cmin0.2 | 35 | 43 | 30 | 24 | 38 |
+| confirm48 | q8 | basic | 31 | 38 | 25 | 29 | 50 |
+| confirm48 | uint8 | basic | 35 | 38 | 32 | 26 | 75 |
+| confirm48 | q8 | basic + cmin0.2 | 33 | 45 | 25 | 30 | 44 |
+| confirm48 | uint8 | basic + cmin0.2 | 33 | 38 | 29 | 23 | 75 |
+
+uint8 answers more often: higher recall, much higher FP rate and lower
+exact-match F1. Once the confidence filter is applied, q8 matches its F1 with
+far fewer false positives. Keep q8.

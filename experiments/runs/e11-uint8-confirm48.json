@@ -1,0 +1,684 @@
+{
+ "name": "e11-uint8-confirm48",
+ "set": "confirm48",
+ "ext": {
+  "ref": "main",
+  "sha": "c853cfc162a975df5f8ff0f76f03448a32cb840c"
+ },
+ "at": "2026-09-27T04:41:39.749Z",
+ "summary": [
+  {
+   "model": "smollm2-360m",
+   "dtype": "uint8",
+   "config": "raw-pl-lang-conf",
+   "note": "raw-pl-lang recording per-token answer probabilities (confidence filters at scoring time)",
+   "overall": {
+    "cases": 48,
+    "f1": 0.339,
+    "precision": 0.358,
+    "recall": 0.322,
+    "exactF1": 0.25,
+    "detection": 0.469,
+    "fpr": 0.813,
+    "compliance": 1,
+    "p50ms": 2345,
+    "p95ms": 5535,
+    "tokens": 13,
+    "failures": {
+     "ok": 41,
+     "hallucinated": 7
+    }
+   },
+   "en": {
+    "cases": 24,
+    "f1": 0.344,
+    "precision": 0.393,
+    "recall": 0.306,
+    "exactF1": 0.25,
+    "detection": 0.5,
+    "fpr": 0.875,
+    "compliance": 1,
+    "p50ms": 2233,
+    "p95ms": 5210,
+    "tokens": 14,
+    "failures": {
+     "ok": 20,
+     "hallucinated": 4
+    }
+   },
+   "fr": {
+    "cases": 24,
+    "f1": 0.333,
+    "precision": 0.32,
+    "recall": 0.348,
+    "exactF1": 0.25,
+    "detection": 0.438,
+    "fpr": 0.75,
+    "compliance": 1,
+    "p50ms": 2396,
+    "p95ms": 5535,
+    "tokens": 11,
+    "failures": {
+     "ok": 21,
+     "hallucinated": 3
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "agency-en-017",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1205,
+   "output": "[CLIENT_NAME]  NONE\n\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "agency-en-044",
+   "failure": "ok",
+   "found": 2,
+   "expected": 4,
+   "predicted": [
+    "+CLIENT_NAME: Brightwell Insurance",
+    "+CAMPAIGN_CODENAME: OSPREY-26"
+   ],
+   "ms": 4869,
+   "output": "[CLIENT_NAME]  Brightwell Insurance\n\n[CAMPAIGN_CODENAME]  OSPREY-26\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "agency-en-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: Studio Maréchal",
+    "-CAMPAIGN_CODENAME: Studio Maréchal"
+   ],
+   "ms": 1413,
+   "output": "[CLIENT_NAME]  Studio Maréchal\n\n[CAMPAIGN_CODENAME]  Studio Maréchal\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "agency-fr-015",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Ciné Lumen",
+    "-CAMPAIGN_CODENAME: Ciné Lumen"
+   ],
+   "ms": 1702,
+   "output": "[CLIENT_NAME]  Ciné Lumen\n\n[CAMPAIGN_CODENAME]  Ciné Lumen\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "agency-fr-047",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Colibri",
+    "+CAMPAIGN_CODENAME: Colibri"
+   ],
+   "ms": 1442,
+   "output": "[CLIENT_NAME]  Colibri\n\n[CAMPAIGN_CODENAME]  Colibri\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "agency-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: Pièces Jaunes",
+    "-CAMPAIGN_CODENAME: Pièces Jaunes"
+   ],
+   "ms": 2345,
+   "output": "[CLIENT_NAME]  Pièces Jaunes\n\n[CAMPAIGN_CODENAME]  Pièces Jaunes\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "dev-en-010",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_ID: 660213"
+   ],
+   "ms": 5210,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  write a sql query that returns all failed payouts from the last 7 days for merchant_id=660213, grouped by day w/ count and total amount\n\n[CUSTOMER_ID]  660213\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "dev-en-045",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_SERVICE: upload to http://10.13.0.57:9000/exports",
+    "+CUSTOMER_ID: tenant_id=70031"
+   ],
+   "ms": 8802,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  upload to http://10.13.0.57:9000/exports\n\n[CUSTOMER_ID]  tenant_id=70031\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "dev-en-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_ID: cus_example123"
+   ],
+   "ms": 2522,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  cus_example123\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "dev-fr-014",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3917,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "dev-fr-045",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 6013,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  cus_9b77d013\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "dev-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_ID: 1"
+   ],
+   "ms": 3693,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  192.168.1.1\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "finance-en-015",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+UNPUBLISHED_FIGURE: Q3 revenue landed at £1.356bn",
+    "-INTERNAL_FORECAST: Q3 revenue landed at £1.356bn"
+   ],
+   "ms": 3198,
+   "output": "[UNPUBLISHED_FIGURE]  Q3 revenue landed at £1.356bn\n\n[INTERNAL_FORECAST]  Q3 revenue landed at £1.356bn\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "finance-en-028",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 5,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: revenue_gbp_m"
+   ],
+   "ms": 4462,
+   "output": "[UNPUBLISHED_FIGURE]  revenue_gbp_m\n\n[INTERNAL_FORECAST]  5.1%\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "finance-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Project Titan",
+    "-INTERNAL_FORECAST: Apple's \"Project Titan\""
+   ],
+   "ms": 1851,
+   "output": "[UNPUBLISHED_FIGURE]  Project Titan\n\n[INTERNAL_FORECAST]  Apple's \"Project Titan\"\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "finance-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: CA"
+   ],
+   "ms": 2162,
+   "output": "[UNPUBLISHED_FIGURE]  CA\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "finance-fr-036",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 2016,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  script of webcast\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "finance-fr-048",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_FORECAST: CA T3"
+   ],
+   "ms": 2848,
+   "output": "[UNPUBLISHED_FIGURE]  CA T3 1,41Md£\n\n[INTERNAL_FORECAST]  CA T3\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "hr-en-017",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CANDIDATE_NAME: Aurelio Bassi",
+    "+SOURCE_COMPANY: Quillon Systems"
+   ],
+   "ms": 2091,
+   "output": "[CANDIDATE_NAME]  Aurelio Bassi\n\n[SOURCE_COMPANY]  Quillon Systems\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "hr-en-024",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1571,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  level E5\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "hr-en-051",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4190,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  45 minutes\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "hr-fr-009",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+CANDIDATE_NAME: Maxence Poulain"
+   ],
+   "ms": 2396,
+   "output": "[CANDIDATE_NAME]  Maxence Poulain\n\n[SOURCE_COMPANY]  NONE\n\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "hr-fr-023",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CANDIDATE_NAME: T. Ferrand",
+    "+COMPENSATION: 72 fixe + BSPCE"
+   ],
+   "ms": 2554,
+   "output": "[CANDIDATE_NAME]  T. Ferrand\n\n[SOURCE_COMPANY]  NONE\n\n\n[COMPENSATION]  72 fixe + BSPCE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "hr-fr-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2808,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  NONE\n\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "legal-en-006",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-DEAL_CODENAME: Group Legal",
+    "+DEAL_VALUE: £94.5 million"
+   ],
+   "ms": 2897,
+   "output": "[DEAL_CODENAME]  Group Legal\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  £94.5 million\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "legal-en-024",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1811,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n\n[DEAL_VALUE]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "legal-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_VALUE: 10 min"
+   ],
+   "ms": 1836,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n\n[DEAL_VALUE]  10 min\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "legal-fr-008",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: Liméra",
+    "+DEAL_TARGET: Liméra"
+   ],
+   "ms": 2759,
+   "output": "[DEAL_CODENAME]  Liméra\n\n[DEAL_TARGET]  Liméra\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "legal-fr-025",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 5535,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "legal-fr-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: Fellbeck Tooling",
+    "-DEAL_TARGET: Fellbeck Tooling",
+    "-DEAL_VALUE: 12"
+   ],
+   "ms": 3701,
+   "output": "[DEAL_CODENAME]  Fellbeck Tooling\n\n[DEAL_TARGET]  Fellbeck Tooling\n\n[DEAL_VALUE]  12\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "research-en-014",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2314,
+   "output": "[STUDY_NAME]  Rnf12 knockdown\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "research-en-026",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1731,
+   "output": "[STUDY_NAME]  FK group\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "research-en-028",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: UK Biobank",
+    "-PARTNER_LAB: UK Biobank",
+    "-EARLY_RESULT: 3 bullets each"
+   ],
+   "ms": 2233,
+   "output": "[STUDY_NAME]  UK Biobank\n\n[PARTNER_LAB]  UK Biobank\n\n[EARLY_RESULT]  3 bullets each\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "research-fr-006",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+STUDY_NAME: NX-311"
+   ],
+   "ms": 3303,
+   "output": "[STUDY_NAME]  NX-311\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "research-fr-020",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PARTNER_LAB: Julien"
+   ],
+   "ms": 2710,
+   "output": "[STUDY_NAME]  NONE\n\n[PARTNER_LAB]  Julien\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "research-fr-042",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Petit rappel",
+    "-EARLY_RESULT: 80 de la salle 214 sera dégivré"
+   ],
+   "ms": 4799,
+   "output": "[STUDY_NAME]  Petit rappel\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  -80 de la salle 214 sera dégivré\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "sales-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1810,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "sales-en-041",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+UNRELEASED_PRODUCT: #proj-tidewater",
+    "-PROSPECT_NAME: #proj-tidewater"
+   ],
+   "ms": 2444,
+   "output": "[UNRELEASED_PRODUCT]  #proj-tidewater\n\n[PROSPECT_NAME]  #proj-tidewater\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "sales-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Acme Corp",
+    "-PROSPECT_NAME: Acme Corp"
+   ],
+   "ms": 2666,
+   "output": "[UNRELEASED_PRODUCT]  Acme Corp\n\n[PROSPECT_NAME]  Acme Corp\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "sales-fr-029",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PROSPECT_NAME: Nacelle"
+   ],
+   "ms": 2255,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  NACELLE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "sales-fr-014",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PROSPECT_NAME: DAF"
+   ],
+   "ms": 1698,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  DAF\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "sales-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-PROSPECT_NAME: ACV"
+   ],
+   "ms": 1297,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  ACV\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "support-en-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 2007,
+   "output": "[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "support-en-050",
+   "failure": "ok",
+   "found": 2,
+   "expected": 6,
+   "predicted": [
+    "+CUSTOMER_NAME: lachlan mcbride",
+    "+ACCOUNT_REF: ORD-4467-1025"
+   ],
+   "ms": 3339,
+   "output": "[CUSTOMER_NAME]  Lachlan McBride\n\n[ACCOUNT_REF]  ORD-4467-1025\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "support-en-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: Parcelio Support"
+   ],
+   "ms": 1914,
+   "output": "[CUSTOMER_NAME]  Parcelio Support\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "support-fr-016",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_NAME: Ghislaine Poirot"
+   ],
+   "ms": 1840,
+   "output": "[CUSTOMER_NAME]  Ghislaine Poirot\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "support-fr-020",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1389,
+   "output": "[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-conf",
+   "caseId": "support-fr-026",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1902,
+   "output": "[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  NONE\n"
+  }
+ ]
+}

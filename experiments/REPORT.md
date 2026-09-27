@@ -216,6 +216,10 @@ effect on the held-out split, and they are an overfit.
 | Relaxed anchoring (keep the longest matching word run) | Recall ±0, FP rate +10-14 points. |
 | Confidence gate on P(first token = NONE) | Anti-informative: removes true positives faster than false ones. |
 | raw-pl tweaks: lower-case cue, two-passage demo, no instruction, `"""` delimiters, counter-example demo, two NONE demos, examples in the description | All equal or worse than `raw-pl` / `raw-pl-lang`. |
+| Three example demonstrations instead of two | F1 −4, FP +9 (LOG E8). |
+| French instruction line for French prompts | French F1 31 → 17 (LOG E9). |
+| `uint8` weights instead of q8 | More recall, far more false positives; no gain once the confidence filter applies (LOG E10-E11). |
+| Shape-based label resolution for passages claimed by two labels | Loses more true positives than false ones (LOG T5). |
 
 ## Findings that matter for the extension
 
