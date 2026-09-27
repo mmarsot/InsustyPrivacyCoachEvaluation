@@ -151,4 +151,8 @@ add("raw-pl-lang-conf", "raw-pl-lang-iter3", "raw-pl-lang-conf re-asking each la
 
 add("raw-pl-lang-conf", "raw-pl-lang-ex3", "raw-pl-lang-conf with three example demonstrations (all examples)", { shots: ["ex-pos3-auto", "clean-neg-auto"] });
 
+add("raw-pl-lang-conf", "raw-pl-lang-frinstr", "raw-pl-lang-conf with a French instruction line for French prompts", {
+  instructionFr: "Copie les passages {label} de chaque texte, exactement comme ils sont écrits. {label} : {description} Écris NONE quand le texte n'en contient pas.",
+});
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));

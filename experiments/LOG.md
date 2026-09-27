@@ -715,3 +715,13 @@ copied the list (`PASSAGE_STOP_WORDS`, d42c466). Removed from the lab; effect:
 tune96 FP rate 36 -> 38% (that one case), confirm48 and held-out unchanged
 (held-out F1 27, FP 45%). Recommended: drop both words in the extension too.
 Earlier rows that say "basic" were scored with the old list.
+
+### E9. French instruction line for French prompts (tune96, `e9-frinstr-tune96`)
+
+| config | filters | F1o | P | R | FPR | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|
+| raw-pl-lang (English instruction, language-matched demos) | basic | 32 | 41 | 26 | 38 | 33 | 31 |
+| raw-pl-lang-frinstr (French instruction for French prompts) | basic | 25 | 34 | 19 | 33 | 33 | **17** |
+
+The English-first SmolLM2 needs the English instruction; only the
+demonstrations should follow the prompt's language.

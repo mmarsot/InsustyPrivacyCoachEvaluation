@@ -83,6 +83,8 @@ export interface LabConfig {
    * Configs with a gate record that probability (same cache for every threshold).
    */
   noneGate: number | null;
+  /** Raw configs: instruction used instead of `instruction` when the scanned text looks French. */
+  instructionFr?: string;
   /** Forbid EOS for the first N tokens; 0 = off. */
   minNewTokens: number;
   /** Repetition penalty on the answer's own tokens only (prompt excluded); 0 = off. */
@@ -334,12 +336,13 @@ export function buildMessages(config: LabConfig, profile: Profile, ref: RefTexts
 
 /** Completion-framed request (config.raw): a reusable prefix and the per-case suffix. */
 export function buildRaw(config: LabConfig, profile: Profile, ref: RefTexts, text = "", langText = text) {
-  const instructions = composeInstructions(config, profile, ref);
+  const lang = detectLang(langText);
+  const instructions = composeInstructions(lang === "fr" && config.instructionFr ? { ...config, instruction: config.instructionFr } : config, profile, ref);
   const label = profile.labels[0]?.label ?? "";
   const vars = { label, name: label.toLowerCase().replace(/_/g, " ") };
   const user = (text: string) => fill(config.user, { ...vars, text, instructions: "" });
   const prefill = fill(config.prefill, vars);
-  const shots = buildShots(config, profile, detectLang(langText))
+  const shots = buildShots(config, profile, lang)
     .map((shot) => `${user(shot.text)}${prefill}${prefill.endsWith(":") ? " " : ""}${shot.answer}\n\n`)
     .join("");
   return {
