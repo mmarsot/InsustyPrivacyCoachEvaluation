@@ -66,8 +66,11 @@ SmolLM2-360M through the bench (`npm run bench -- --tier full --split test`):
 | + confidence filter, min token prob < 0.3 (lab) | 23% | 37% | 17% | 30% | 25% | 100% | 0 | 2.4 s | | 22% | 24% |
 | + example-derived patterns (lab) | **34%** | 38% | **30%** | **50%** | 46% | 100% | 0 | 2.4 s | | 32% | 36% |
 | **+ patterns + confidence filter 0.2 (lab)** | 33% | **43%** | 27% | 44% | 36% | 100% | 0 | 2.4 s | | 32% | 34% |
+| **same, extension PR #32 (ebf077f, bench)** | 33.2% | **43%** | 27.0% | 44% | 36% | 100% | 0 | 2.6 s | 9.3 s | 32% | 34.5% |
 
-(LOG H1, H2, P1. The lab's unfiltered row reproduces the bench's d42c466 numbers.)
+(LOG H1, H2, P1, V2. The lab's unfiltered row reproduces the bench's d42c466
+numbers; the bench run of PR #32 reproduces the lab's patterns + filter
+findings case by case.)
 
 ## The recommended design
 

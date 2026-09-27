@@ -1,0 +1,39 @@
+{
+  "name": "ext-ebf077f-test-smol360",
+  "tier": "full",
+  "split": "test",
+  "cases": 242,
+  "instructions": [
+    "current"
+  ],
+  "labelVariants": [
+    "desc"
+  ],
+  "models": [
+    {
+      "id": "onnx-community/SmolLM2-360M-Instruct-ONNX",
+      "jobs": 242,
+      "computed": 242,
+      "loadMs": 3131,
+      "threads": 4,
+      "wallMs": 932443,
+      "peakRssMb": 2206
+    }
+  ],
+  "ext": {
+    "ref": "ebf077f",
+    "sha": "ebf077f5d880b5d5ab64997d185d3c43d13d447f",
+    "subject": "no-mistakes(document): Clarify that diagnostics do not show answer confidence",
+    "committedAt": "2026-09-27T17:25:20+02:00",
+    "transformersRange": "^3.8.1"
+  },
+  "datasetHash": "3c9142bb5592c1adb3abb4eee4fca65311c2f09ee2113721ac152d316a8b7d5a",
+  "runtime": "onnxruntime-web WASM (q8) in Node 24.18.0 via @huggingface/transformers; deterministic greedy decoding; generation budget 30 s per request (from the ref)",
+  "machine": "Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz x8, 7.1 GiB RAM, linux",
+  "node": "24.18.0",
+  "startedAt": "2026-09-27T15:51:46.290Z",
+  "finishedAt": "2026-09-27T16:07:20.282Z",
+  "estimateSeconds": 1550,
+  "wallSeconds": 934,
+  "incomplete": 0
+}

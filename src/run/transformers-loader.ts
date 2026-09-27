@@ -3,8 +3,9 @@
  * Transformers.js to the `SlmRuntimeLoader` interface that the ref's
  * `SlmEngine` expects. The adapters below mirror model-worker.ts (chat
  * template rendering, token encode/decode without special tokens, greedy
- * decoding with a per-token stop callback, prefix KV prefill) because that
- * file is a browser worker entry point and cannot be imported.
+ * decoding with a per-token stop callback and, when the ref asks, per-token
+ * answer probabilities, prefix KV prefill) because that file is a browser
+ * worker entry point and cannot be imported.
  *
  * Runtime: `onnxruntime-node` is aliased to `onnxruntime-web` in package.json
  * (the extension does the same), so inference runs on ONNX Runtime's WASM
@@ -23,6 +24,8 @@ import {
   AutoModelForCausalLM,
   AutoTokenizer,
   env,
+  LogitsProcessor,
+  LogitsProcessorList,
   ones,
   StoppingCriteria,
   StoppingCriteriaList,
@@ -54,6 +57,8 @@ interface GenerateOptions {
   /** Decoding settings the engine pins (completion refs: greedy, no repetition penalty). */
   settings?: Record<string, unknown>;
   shouldStop(generated: readonly number[]): boolean;
+  /** Receives the probability of each generated token's greedy choice (refs with the answer-confidence filter). */
+  onTokenProbability?(probability: number): void;
 }
 
 export const idsTensor = (ids: readonly number[]): Tensor =>
@@ -70,6 +75,34 @@ class CallbackStoppingCriteria extends StoppingCriteria {
     return input_ids.map((sequence) =>
       this.shouldStop((sequence as (number | bigint)[]).slice(this.promptLength).map(Number)),
     );
+  }
+}
+
+/** Softmax probability of the largest logit (the ref's `greedyTokenProbability`). */
+function greedyTokenProbability(logits: ArrayLike<number>): number {
+  let max = Number.NEGATIVE_INFINITY;
+  for (let index = 0; index < logits.length; index++) max = Math.max(max, logits[index] ?? Number.NEGATIVE_INFINITY);
+  let total = 0;
+  for (let index = 0; index < logits.length; index++) total += Math.exp((logits[index] ?? Number.NEGATIVE_INFINITY) - max);
+  return 1 / total;
+}
+
+/**
+ * Like model-worker.ts's TokenProbabilityRecorder: a pass-through logits
+ * processor reporting each step's greedy-token probability. It never changes
+ * the logits, so decoding is unaffected; non-float32 logits record nothing.
+ */
+class TokenProbabilityRecorder extends LogitsProcessor {
+  constructor(private readonly record: (probability: number) => void) {
+    super();
+  }
+  override _call(_input_ids: bigint[][], logits: Tensor): Tensor {
+    if (logits.type === "float32") {
+      const data = logits.data as Float32Array;
+      const vocabulary = logits.dims.at(-1) ?? data.length;
+      this.record(greedyTokenProbability(data.subarray(data.length - vocabulary)));
+    }
+    return logits;
   }
 }
 
@@ -104,6 +137,11 @@ export function adaptModel(model: PreTrainedModel) {
     async generate(options: GenerateOptions) {
       const criteria = new StoppingCriteriaList();
       criteria.push(new CallbackStoppingCriteria(options.ids.length, options.shouldStop));
+      let processors: LogitsProcessorList | undefined;
+      if (options.onTokenProbability) {
+        processors = new LogitsProcessorList();
+        processors.push(new TokenProbabilityRecorder(options.onTokenProbability));
+      }
       const parameters = {
         input_ids: idsTensor(options.ids),
         attention_mask: ones([1, options.ids.length]),
@@ -117,6 +155,7 @@ export function adaptModel(model: PreTrainedModel) {
         // Like model-worker.ts: the engine's pinned settings override the model's generation_config.
         ...(options.settings ?? {}),
         stopping_criteria: criteria,
+        ...(processors ? { logits_processor: processors } : {}),
       };
       const output = (await model.generate(parameters as unknown as Parameters<PreTrainedModel["generate"]>[0])) as Tensor;
       const sequence = (output.tolist() as (number | bigint)[][])[0] ?? [];

@@ -382,6 +382,9 @@ Other commands:
 - `npm run compare -- runs/A runs/B` writes an HTML diff of two runs, computed
   on the configurations and cases they share.
 - `npm run report -- runs/A` re-renders the report from `results.jsonl`.
+- `npm run components -- <bench arguments>` scores a completed run of a ref
+  with the answer-confidence filter and example patterns (PR #32 and later)
+  with each part switched off, by replaying its cached answers (no model).
 - `npm test` runs the scorer, dashboard data and playground unit tests (the
   playground ones use a fake model process, no weights).
 - `npm run typecheck` runs the type checker.

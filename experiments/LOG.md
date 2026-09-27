@@ -1121,3 +1121,42 @@ Not done (experiment stopped): the confirm48 and held-out checks, and a
 second model. Runs: `experiments/runs/s1-seg-iter32.json`,
 `s3-seg-variants-iter32.json`, `s4-seg-tune96.json` (cut run: `shipped` on
 96 cases, the `seg-*` rows on 45), `s4-seg-tune96-45.json`.
+
+### V2. Parity of the patterns + confidence-filter implementation (extension PR #32, fm/slm-patterns-confidence-filter, ebf077f)
+
+`npm run bench -- --ref ebf077f --models smollm2-360m` with `--set tune96`
+(run `runs/ext-ebf077f-tune96-smol360/`), then once with `--tier full --split
+test` (run `runs/ext-ebf077f-test-smol360/`; the configuration was fixed on
+the dev sets before, P1). The bench's Node loader now honours the ref's
+optional `SlmGenerateOptions.onTokenProbability` with a pass-through logits
+processor equivalent to the extension's `TokenProbabilityRecorder` (refs that
+do not pass it decode exactly as before), so the bench measures the ref's own
+confidence filter (`SLM_MIN_ANSWER_PROBABILITY` 0.2 on
+`answerProbability`), patterns (`src/slm-patterns.ts`) and stop-word list.
+Components: `npm run components` (same arguments) replays the cached answers
+through the ref's `reviewPrompt` with the filter and/or the patterns off; the
+"both on" replay reproduces all cached findings.
+
+| set | variant | F1o | P | R | F1x | det | FPR | EN F1 / FPR | FR F1 / FPR | lab (F1o / P / R / F1x / det / FPR) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| tune96 | **filter + patterns (shipped by the PR)** | 38.2 | 55.6 | 29.1 | 34.4 | 38.9 | 21.4 | 44.2 / 19.0 | 32.5 / 23.8 | 38 / 56 / 29 / 34 / 39 / 21 |
+| tune96 | patterns only | 39.5 | 47.3 | 34.0 | 36.2 | 48.1 | 38.1 | 44.2 / 38.1 | 35.2 / 38.1 | 40 / 47 / 34 / 36 / 48 / 38 |
+| tune96 | filter only | 29.5 | 47.8 | 21.4 | 25.5 | 31.5 | 21.4 | 31.0 / 19.0 | 28.2 / 23.8 | 30 / 48 / 21 / 26 / – / 21 (C2, old stop words) |
+| tune96 | neither | 32.0 | 40.9 | 26.2 | 28.4 | 40.7 | 38.1 | 32.5 / 38.1 | 31.5 / 38.1 | 32 / 41 / 26 / 28 / 41 / 38 |
+| held-out | **filter + patterns** | 33.2 | 43.3 | 27.0 | 26.6 | 44.0 | 35.6 | 31.8 / 34.6 | 34.5 / 36.7 | 33 / 43 / 27 / 27 / 44 / 36 |
+| held-out | patterns only | 34.0 | 38.4 | 30.4 | 26.5 | 49.6 | 45.5 | 31.9 / 51.9 | 35.9 / 38.8 | 34 / 38 / 30 / 27 / 50 / 46 |
+| held-out | filter only | 26.1 | 36.2 | 20.4 | 20.0 | 36.2 | 33.7 | 25.0 / 32.7 | 27.0 / 34.7 | 26 / 36 / 20 / 20 / 36 / 34 |
+| held-out | neither | 27.4 | 32.2 | 23.9 | 20.5 | 41.8 | 44.6 | 25.8 / 51.9 | 29.0 / 36.7 | 27 / 32 / 24 / 20 / 42 / 45 (H1) |
+
+- Verdict: **parity, no gap.** Every lab number is reproduced to the rounding;
+  on the held-out split the predicted findings of all 242 cases equal the
+  lab's `h4-patterns-basic-cmin0.2-patterns` run case by case.
+- The model answers are unchanged by the PR: all 96 tune96 raw outputs are
+  byte-identical to d42c466's (the recorder is pass-through). All 240 tune96
+  requests carried an `answerProbability`; 59 were below 0.2 and dropped.
+- Latency: held-out p50 2.6 s, p95 9.3 s (d42c466: 2.4 / 8.8 s), 16 min for
+  242 cases, peak RSS 2.2 GB. The run shared the machine with other lanes;
+  one softmax over the vocabulary per generated token (~15 tokens per
+  answer) is a small part of it.
+- As in P1: the patterns carry the F1 gain (+6.6 held-out) and the filter the
+  FP drop (−9.9 held-out with patterns) for −0.8 F1.
