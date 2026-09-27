@@ -118,6 +118,24 @@ iter32, onnxruntime-web 1.24.3 (prefix reuse works): `raw-pl-lang` F1 39%
 negative (FP rate 100%; 40% after the basic + dedup filters, F1 31%), p50
 8.4 s, peak RSS 2.5 GB. Not yet run on tune96/confirm48.
 
+## GPU (WebGPU) on this laptop
+
+- **Reaching the NVIDIA GPU:** a normal (headful) Chrome started with
+  `--enable-features=Vulkan` exposes the GTX 1050 as the default and
+  high-performance WebGPU adapter (Intel for low-power). Without that flag
+  Chrome offers only SwiftShader, and headless Chrome cannot create a Vulkan
+  instance at all. No PRIME variables or ANGLE flags needed. (LOG G1.)
+- **q4 halves the quality.** The extension uses q4 weights on WebGPU; with
+  the new framing, SmolLM2-360M scores F1 15% on WebGPU q4 and 21% on WASM
+  q4, versus 36-38% with q8. (LOG G2.)
+- **q8 on WebGPU is unusable** (~28 s per request; its operators fall back
+  to the CPU), and the GTX 1050 has no fp16.
+- **fp32 on WebGPU keeps q8 quality and is fast:** SmolLM2-135M F1 21% on
+  both, 0.66 s per request on the GPU, 1.9 s per prompt without any prefix
+  cache (WASM needs its cached prefix to reach 1.6 s). (LOG G3.)
+- Recommendation for the extension's WebGPU path: use fp32 (or fp16 on GPUs
+  that have `shader-f16`) instead of q4, and keep WASM q8 as the default.
+
 ## What has been ruled out
 
 | idea | result |
