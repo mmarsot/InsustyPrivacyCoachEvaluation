@@ -8,8 +8,8 @@ extension ships.
 
 ## Summary
 
-- **Ship the per-label completion design on SmolLM2-360M** (already
-  implemented in the extension, branch `fm/slm-completion-framing`, d42c466;
+- **The per-label completion design on SmolLM2-360M has shipped** (extension
+  PR #26, merge 372c8ff; benched as branch commit d42c466;
   the bench confirms it reproduces the lab byte for byte). On the held-out
   test split it more than doubles F1 (12% → 27%), finds 3.5x more passages,
   never times out and answers in 2.4 s instead of 10 s.
@@ -29,6 +29,14 @@ extension ships.
 - **GPU:** reachable on this laptop (Chrome with `--enable-features=Vulkan`),
   but the extension's WebGPU q4 weights halve the quality; use fp32/fp16 on
   WebGPU, keep WASM q8 as the default.
+
+- **Shipped baseline:** extension PR #26 (merge 372c8ff) ships the
+  completion design. It is the lab's `shipped` configuration, with one
+  switch per improvement (`docs/shipped-improvements.md`). A leave-one-out
+  ablation on tune96 (LOG A1) shows that example demonstrations, one request
+  per label and completion framing carry the F1 gain, while NONE-last and
+  the plausibility filter are false-positive levers. Measure new proposals
+  with `npm run ablate -- --with <config>`.
 
 Sets: `tune96` (96 dev cases, 54 positive / 42 negative, half EN half FR) for
 tuning, `confirm48` (48 disjoint dev cases) to confirm, `heldout-test` (the

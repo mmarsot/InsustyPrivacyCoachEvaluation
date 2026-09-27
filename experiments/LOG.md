@@ -864,3 +864,32 @@ It invents its own keys ("tagline_1", "client", "campaign_code"), fills every
 key with something (copying whole sentences), and is 4-5x slower. (The
 "answered" failure count and 0% format compliance are the line-protocol
 analysis reading JSON; the F1 uses the converted lines.) Not competitive.
+
+### A1. Leave-one-out ablation of the shipped design (tune96, SmolLM2-360M, `ablate-tune96-smollm2-360m`)
+
+Extension PR #26 (merge 372c8ff) shipped the `raw-pl-lang` + basic-filter
+design. The lab now has it as the `shipped` configuration (`src/lab/shipped.ts`;
+240/240 tune96 requests byte-identical to extension `main` @ b2c4ca1, filter =
+the ref's own `isPlausiblePassage`), with one `shipped-no-<switch>` per
+improvement. `npm run ablate -- --set tune96 --model smollm2-360m`:
+
+| switched off | F1o | ΔF1 | P | R | FPR | ΔFPR | det | EN / FR F1 | p50 |
+|---|---|---|---|---|---|---|---|---|---|
+| nothing (shipped) | 32.1 | | 41.5 | 26.2 | 35.7 | | 40.7 | 32.9 / 31.5 | 2.37 s |
+| completion framing (chat template instead) | 16.7 | −15.4 | 37.9 | 10.7 | 14.3 | −21.4 | 20.4 | 23.0 / 11.3 | 2.29 s |
+| one request per label (one request for all labels) | 9.0 | −23.1 | 20.0 | 5.8 | 33.3 | −2.4 | 9.3 | 9.4 / 8.6 | 2.14 s |
+| label-example demos (NONE demo only) | 1.9 | −30.2 | 100 | 1.0 | 0.0 | −35.7 | 1.9 | 4.2 / – | 1.78 s |
+| language-matched demos (English only) | 27.2 | −4.9 | 34.8 | 22.3 | 42.9 | +7.2 | 37.0 | 32.9 / 22.2 | 2.42 s |
+| NONE demo last (NONE first) | 36.8 | +4.7 | 32.3 | 42.7 | 71.4 | +35.7 | 57.4 | 41.5 / 32.5 | 2.79 s |
+| first-line stop + 48 cap (ref line stop, no cap) | 31.1 | −1.0 | 40.6 | 25.2 | 33.3 | −2.4 | 38.9 | 32.9 / 29.5 | 2.38 s |
+| pinned decoding (generation_config) | 32.1 | ±0 | 41.5 | 26.2 | 35.7 | ±0 | 40.7 | 32.9 / 31.5 | (cached) |
+| plausibility filter | 33.0 | +0.9 | 36.6 | 30.1 | 47.6 | +11.9 | 46.3 | 34.9 / 31.3 | 2.37 s |
+| SmolLM2-360M default (SmolLM2-135M) | 23.1 | −9.0 | 28.6 | 19.4 | 47.6 | +11.9 | 31.5 | 26.6 / 19.3 | 1.19 s |
+
+The baseline reproduces the bench's d42c466 numbers (V1). Examples,
+per-label requests and completion framing carry the F1 gain. NONE-last and the
+plausibility filter are false-positive levers (off: F1 +5 / +1, FP +36 / +12).
+The first-line stop is quality-neutral but bounds latency (off: 2 deadline
+timeouts, p95 6.4 → 7.3 s). Pinned decoding is a no-op on SmolLM2 (it matters
+for Qwen2.5's shipped 1.1 penalty). Ledger with the per-improvement evidence:
+`docs/shipped-improvements.md`.

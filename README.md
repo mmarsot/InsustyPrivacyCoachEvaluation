@@ -270,6 +270,23 @@ candidate models (`models/candidates.json`). Each named configuration in
   `experiments/LOG.md`, and the current best configuration with its evidence
   is `experiments/REPORT.md`.
 
+### Shipped baseline and ablations
+
+```bash
+npm run ablate -- --set tune96 --model smollm2-360m            # leave-one-out grid
+npm run ablate -- --set tune96 --with <config>[,<config>]      # plus proposals on top
+```
+
+The `shipped` lab configuration (`src/lab/shipped.ts`) renders the requests
+the extension ships byte for byte, and each improvement recorded in
+[`docs/shipped-improvements.md`](docs/shipped-improvements.md) has a switch:
+`shipped-no-<switch>` is the baseline with that one improvement turned off.
+`npm run ablate` runs the baseline, every switch and any `--with` proposals
+(configurations added on top of `shipped` in `src/lab/configs.ts`) through
+the lab, and writes the deltas vs the baseline to
+`experiments/ablations/<name>.md`. The model switch reruns the baseline on
+the previous default model in a second worker, after the first one exits.
+
 ## How it runs the extension's code
 
 The runner never modifies the extension clone. It resolves the ref to a commit
@@ -366,8 +383,8 @@ src/score/      per-case scoring and aggregation
 src/report/     HTML report, run comparison
 src/dashboard/  local dashboard (read-only server + static page)
 src/playground/ chat playground: request logic, model host process, its manager
-src/lab/        prompt-engineering lab: configurations, renderer, worker, parity check
-experiments/    lab iteration sets, run summaries, LOG.md, REPORT.md, RESEARCH.md
+src/lab/        prompt-engineering lab: configurations, shipped baseline + switches, ablation, renderer, worker, parity check
+experiments/    lab iteration sets, run summaries, ablation tables, LOG.md, REPORT.md, RESEARCH.md
 src/cli/        validate, split, bench, report, compare
 runs/           committed run outputs
 cache/          (untracked) model weights, extracted refs, result cache
