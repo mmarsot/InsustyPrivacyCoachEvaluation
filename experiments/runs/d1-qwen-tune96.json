@@ -1,0 +1,1253 @@
+{
+ "name": "d1-qwen-tune96",
+ "set": "tune96",
+ "ext": {
+  "ref": "main",
+  "sha": "c853cfc162a975df5f8ff0f76f03448a32cb840c"
+ },
+ "at": "2026-09-27T01:10:11.721Z",
+ "summary": [
+  {
+   "model": "qwen2.5-0.5b",
+   "dtype": "q8",
+   "config": "raw-pl-lang",
+   "note": "raw-pl with demonstrations in the scanned text's language (detected by stop words)",
+   "overall": {
+    "cases": 96,
+    "f1": 0.245,
+    "precision": 0.288,
+    "recall": 0.214,
+    "exactF1": 0.205,
+    "detection": 0.333,
+    "fpr": 0.548,
+    "compliance": 1,
+    "p50ms": 5398,
+    "p95ms": 17700,
+    "tokens": 28,
+    "failures": {
+     "ok": 31,
+     "hallucinated": 65
+    }
+   },
+   "en": {
+    "cases": 48,
+    "f1": 0.231,
+    "precision": 0.227,
+    "recall": 0.234,
+    "exactF1": 0.198,
+    "detection": 0.333,
+    "fpr": 0.619,
+    "compliance": 1,
+    "p50ms": 5435,
+    "p95ms": 17480,
+    "tokens": 31,
+    "failures": {
+     "ok": 13,
+     "hallucinated": 35
+    }
+   },
+   "fr": {
+    "cases": 48,
+    "f1": 0.259,
+    "precision": 0.379,
+    "recall": 0.196,
+    "exactF1": 0.212,
+    "detection": 0.333,
+    "fpr": 0.476,
+    "compliance": 1,
+    "p50ms": 5347,
+    "p95ms": 17700,
+    "tokens": 25,
+    "failures": {
+     "ok": 18,
+     "hallucinated": 30
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-001",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Halvard Cycles"
+   ],
+   "ms": 3953,
+   "output": "[CLIENT_NAME]  Halvard Cycles\n\n\n[CAMPAIGN_CODENAME]  Halvard E-Bikes for City Commuters\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Louis",
+    "-CAMPAIGN_CODENAME: Louis"
+   ],
+   "ms": 2517,
+   "output": "[CLIENT_NAME]  Louis\n\n\n[CAMPAIGN_CODENAME]  Louis\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2375,
+   "output": "[CLIENT_NAME]  NONE\n\n\n[CAMPAIGN_CODENAME]  Black Friday Sneakers Sequences\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: halvard"
+   ],
+   "ms": 1845,
+   "output": "[CLIENT_NAME]  Halvard\n\n\n[CAMPAIGN_CODENAME]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-018",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2875,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  SSH_PORT_FORWARDING\n\n\n[CUSTOMER_ID]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-007",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4049,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  KEYCLOAK_TOKEN_ENDPOINT_FAILED\n\n\n[CUSTOMER_ID]  customer_id\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_ID: Cadence"
+   ],
+   "ms": 3358,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  cadence\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_SERVICE: customer,endpoint_host,status,attempts",
+    "+CUSTOMER_ID: cus_mP02zzLc"
+   ],
+   "ms": 8953,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  customer,endpoint_host,status,attempts\n\n\n[CUSTOMER_ID]  cus_mP02zzLc\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-005",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 6801,
+   "output": "[UNPUBLISHED_FIGURE]  Europe's margin at 8.1% not 9%\n\n\n[INTERNAL_FORECAST]  Europe misses its H2 target by 0.1%, but Europe's margin is now at 8.1%.\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-fr-038",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 17700,
+   "output": "[UNPUBLISHED_FIGURE]  100% de la valeur de la cible sur le compte de financement (CFC) est enregistrée dans le tableau ci-dessous. Le CFC est un compteur de revenus qui permet de suivre\n[INTERNAL_FORECAST]  €106,900,000,000,000,000,000,000,000,000,000,000"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-032",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4879,
+   "output": "[UNPUBLISHED_FIGURE]  dividend payout ratio 38.2%\n\n[INTERNAL_FORECAST]  Dividend Yield = (Dividends / Share Price) x 100%\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Clôture des entités à J+3, consolidation à J+5 et première version du board pack à J+7",
+    "-INTERNAL_FORECAST: Clôture des entités à J+3, consolidation à J+5 et première version du board pack à J+7"
+   ],
+   "ms": 11525,
+   "output": "[UNPUBLISHED_FIGURE]  Clôture des entités à J+3, consolidation à J+5 et première version du board pack à J+7\n\n\n[INTERNAL_FORECAST]  Clôture des entités à J+3, consolidation à J+5 et première version du board pack à J+7\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CANDIDATE_NAME: Kofi",
+    "-SOURCE_COMPANY: Kofi",
+    "-COMPENSATION: Kofi"
+   ],
+   "ms": 3622,
+   "output": "[CANDIDATE_NAME]  Kofi\n\n\n[SOURCE_COMPANY]  Kofi\n\n\n[COMPENSATION]  Kofi\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+COMPENSATION: 75K€ minimum sinon il bouge pas"
+   ],
+   "ms": 5065,
+   "output": "[CANDIDATE_NAME]  NONE\n\n\n[SOURCE_COMPANY]  NONE\n\n\n[COMPENSATION]  75K€ minimum sinon il bouge pas\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-fr-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6095,
+   "output": "[CANDIDATE_NAME]  NONE\n\n\n[SOURCE_COMPANY]  NONE\n\n\n[COMPENSATION]  Rappel de rémunération annuelle de l'Apec\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 3,
+   "expected": 4,
+   "predicted": [
+    "+CANDIDATE_NAME: J. Lindqvist",
+    "-SOURCE_COMPANY: J. Lindqvist",
+    "+COMPENSATION: 188 base / 12% bonus, HM is buying lunch for the whole team"
+   ],
+   "ms": 7756,
+   "output": "[CANDIDATE_NAME]  J. Lindqvist\n\n\n[SOURCE_COMPANY]  J. Lindqvist\n\n\n[COMPENSATION]  188 base / 12% bonus, HM is buying lunch for the whole team\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-en-003",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: sanity check before friday"
+   ],
+   "ms": 17480,
+   "output": "[DEAL_CODENAME]  Sanity Check Before Friday\n\n\n[DEAL_TARGET]  QUICK Q - IS $1.1 BNL FOR VESSANT TOO RICH IF THEIR EBITDA IS ~70M? BOARD WANTS A SANITY CHECK BEFORE FRIDAY\n\n\n[DEAL_VALUE]  Q1 2016 revenue was $1.1bn and EBITDA was $70m. The company's CEO says he wants to see more than that in the comin"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-fr-005",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-DEAL_CODENAME: confidentialité"
+   ],
+   "ms": 9022,
+   "output": "[DEAL_CODENAME]  Confidentialité\n\n\n[DEAL_TARGET]  NONE\n\n\n[DEAL_VALUE]  \"Harrowgate Industries et Sorvane Industrie sont en contact direct avec chaque autre discussion sur le sujet, mais n'ayant pas d'autre intention que de discuter de manière générale sur les questions liées à l"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-en-033",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_TARGET: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a"
+   ],
+   "ms": 11581,
+   "output": "[DEAL_CODENAME]  No deal found\n\n\n[DEAL_TARGET]  FOR THE PRECEDENT FILE: OUR ACQUISITION OF FELLBECK TOOLING (ANNOUNCED AND COMPLETED IN 2023 FOR £41M, PRESS RELEASE STILL ON THE WEBSITE) USED A\n[DEAL_VALUE]  €41m enterprise value\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-fr-045",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [
+    "-DEAL_CODENAME: Phare"
+   ],
+   "ms": 5398,
+   "output": "[DEAL_CODENAME]  Phare\n\n\n[DEAL_TARGET]  NONE\n\n\n[DEAL_VALUE]  €41 M€ finalisé (public)\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-en-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PARTNER_LAB: recap email"
+   ],
+   "ms": 9158,
+   "output": "[STUDY_NAME]  NONE\n\n\n[PARTNER_LAB]  Recap Email\n\n\n[EARLY_RESULT]  a 38% reduction in plaque load\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-fr-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6866,
+   "output": "[STUDY_NAME]  Récap de l'Équipe STP\n\n\n[PARTNER_LAB]  NONE\n\n\n[EARLY_RESULT]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-fr-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 9372,
+   "output": "[STUDY_NAME]  ONR-2016-3589\n\n\n[PARTNER_LAB]  ONR\n\n\n[EARLY_RESULT]  mention le financement ANR et Inserm\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-en-034",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: macrophage polarization in fibrotic liver"
+   ],
+   "ms": 9304,
+   "output": "[STUDY_NAME]  Macrophage polarization in fibrotic liver\n\n\n[PARTNER_LAB]  draft of cover letter to eLife editors\n\n[EARLY_RESULT]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Pembrook Dental Group",
+    "-PROSPECT_NAME: follow-up questions"
+   ],
+   "ms": 3471,
+   "output": "[UNRELEASED_PRODUCT]  Pembrook Dental Group\n\n\n[PROSPECT_NAME]  Follow-up Questions\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-fr-041",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1612,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  NO\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-en-039",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-PROSPECT_NAME: lenovo thinkpad"
+   ],
+   "ms": 5134,
+   "output": "[UNRELEASED_PRODUCT]  Lenovo ThinkPad X1 Carbon (K5) vs Lenovo ThinkPad X1 Carbon (K7)\n\n\n[PROSPECT_NAME]  Lenovo ThinkPad\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2429,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  None\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-en-007",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Imogen Castellanos"
+   ],
+   "ms": 3230,
+   "output": "[CUSTOMER_NAME]  Imogen Castellanos\n\n\n[ACCOUNT_REF]  CUSTOMER ORDER DETAILS\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-fr-019",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2926,
+   "output": "[CUSTOMER_NAME]  Madame Karadeniz\n\n[ACCOUNT_REF]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: Kévin d'après l'avis de passage"
+   ],
+   "ms": 5713,
+   "output": "[CUSTOMER_NAME]  Kévin d'après l'avis de passage\n\n\n[ACCOUNT_REF]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-CUSTOMER_NAME: Support Bot v2",
+    "+ACCOUNT_REF: PX-742018"
+   ],
+   "ms": 5207,
+   "output": "[CUSTOMER_NAME]  Support Bot v2\n\n\n[ACCOUNT_REF]  PX-742018\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-014",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Grenadine & Co"
+   ],
+   "ms": 3447,
+   "output": "[CLIENT_NAME]  Grenadine & Co\n\n\n[CAMPAIGN_CODENAME]  Love the Colour Palette Keep It\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-025",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: media recap"
+   ],
+   "ms": 1744,
+   "output": "[CLIENT_NAME]  Media Recap\n\n\n[CAMPAIGN_CODENAME]  Media Recap Agenda\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-032",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: One Show"
+   ],
+   "ms": 3700,
+   "output": "[CLIENT_NAME]  One Show\n\n\n[CAMPAIGN_CODENAME]  What's The Difference Between A D&AD Pencil And A One Show Pencil?\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CAMPAIGN_CODENAME: What's a good structure for a 20-minute new business pitch presentation?"
+   ],
+   "ms": 4003,
+   "output": "[CLIENT_NAME]  None\n\n\n[CAMPAIGN_CODENAME]  WHAT'S A GOOD STRUCTURE FOR A 20-MINUTE NEW BUSINESS PITCH PRESENTATION?\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-011",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Mutuelle Arvelle"
+   ],
+   "ms": 2751,
+   "output": "[CLIENT_NAME]  Mutuelle Arvelle\n\n\n[CAMPAIGN_CODENAME]  ON\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-045",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CLIENT_NAME: Banque Castellane",
+    "+CAMPAIGN_CODENAME: Projet Ardoise"
+   ],
+   "ms": 3415,
+   "output": "[CLIENT_NAME]  Banque Castellane\n\n\n[CAMPAIGN_CODENAME]  Projet Ardoise\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: Project Kuiper",
+    "-CAMPAIGN_CODENAME: pros and cons"
+   ],
+   "ms": 2574,
+   "output": "[CLIENT_NAME]  Project Kuiper\n\n\n[CAMPAIGN_CODENAME]  Pros and Cons\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-026",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: Parce que je le vaux bien"
+   ],
+   "ms": 9609,
+   "output": "[CLIENT_NAME]  Parce que je le vaux bien\n\n\n[CAMPAIGN_CODENAME]  NONE Text: Qu'est-ce qui fait que le bonheur ? Pourquoi est-ce que c'est important ? Pourquoi est-ce que c'est nécessaire ? Pourquoi est-ce que c'est essentiel ? Pourquoi est-ce que"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-015",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-INTERNAL_HOST: OPS-2291"
+   ],
+   "ms": 4919,
+   "output": "[INTERNAL_HOST]  Ops-2291\n\n\n[INTERNAL_SERVICE]  rotate-kafka-cert\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-046",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-INTERNAL_SERVICE: quillmark.net",
+    "-CUSTOMER_ID: pg-primary-02.int.quillmark.net"
+   ],
+   "ms": 5197,
+   "output": "[INTERNAL_HOST]  grafana.corp.qmk\n\n\n[INTERNAL_SERVICE]  quillmark.net\n\n\n[CUSTOMER_ID]  pg-primary-02.int.quillmark.net\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_SERVICE: host.docker.internal"
+   ],
+   "ms": 3891,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  host.docker.internal\n\n\n[CUSTOMER_ID]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_HOST: parse_ts",
+    "-INTERNAL_SERVICE: ValueError"
+   ],
+   "ms": 4634,
+   "output": "[INTERNAL_HOST]  parse_ts\n\n\n[INTERNAL_SERVICE]  ValueError\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-011",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6544,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  CUSTOMER_ID\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-024",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3754,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  55120\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-036",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_SERVICE: rsyslog"
+   ],
+   "ms": 3032,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  rsyslog\n\n\n[CUSTOMER_ID]  CUSTOMER_ID\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-032",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_HOST: on",
+    "-INTERNAL_SERVICE: tenant_id"
+   ],
+   "ms": 3033,
+   "output": "[INTERNAL_HOST]  ON\n\n\n[INTERNAL_SERVICE]  tenant_id\n\n\n[CUSTOMER_ID]  CUSTOMER_ID\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-003",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 8489,
+   "output": "[UNPUBLISHED_FIGURE]  Q3 volume down by 1.2%, price mix up by 4.1%\n\n\n[INTERNAL_FORECAST]  Q3 volumes fell 1.2% and price mix increased by 4.1%\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-031",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 11471,
+   "output": "[UNPUBLISHED_FIGURE]  YOY Bridge: mix = 56.9%, ebitmgn = 12.2%\n\n[INTERNAL_FORECAST]  Q3 Preliminary: Revenue: R141bn, GM: 40.8%, EBITMGN: 12.2%\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5467,
+   "output": "[UNPUBLISHED_FIGURE]  Adjusted Operating Profit 418m Statutory Operating Profit 371m\n\n\n[INTERNAL_FORECAST]  Adjusted operating profit = Operating profit after tax\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-012",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6592,
+   "output": "[UNPUBLISHED_FIGURE]  Q3 guidance of 3-4% organic sales growth at the interim in July\n\n\n[INTERNAL_FORECAST]  FY26 guidance of 3-4% organic sales growth at the interim\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-fr-002",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 5347,
+   "output": "[UNPUBLISHED_FIGURE]  ROC annuel à 396 M£ et CA annuel de 5,49 Md£\n\n\n[INTERNAL_FORECAST]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-fr-027",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: 5,51 Md£",
+    "+INTERNAL_FORECAST: 5,51 Md£"
+   ],
+   "ms": 6013,
+   "output": "[UNPUBLISHED_FIGURE]  5,51 Md£\n\n\n[INTERNAL_FORECAST]  5,51 Md£\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-fr-049",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 16185,
+   "output": "[UNPUBLISHED_FIGURE]  Model of a forecast over 12 months in Excel with figures to be used for training: three product lines, monthly sales starting at 100, 250 and 400, +2% per month,\n[INTERNAL_FORECAST]  Three Gases of Products, CA Monthly at 100, 250 and 400, +2% per Month, and a Total Line\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-fr-011",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: 2 lignes de commentaire, ton neutre"
+   ],
+   "ms": 4198,
+   "output": "[UNPUBLISHED_FIGURE]  2 lignes de commentaire, ton neutre\n\n\n[INTERNAL_FORECAST]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-en-001",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-SOURCE_COMPANY: Declan"
+   ],
+   "ms": 4965,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  DECLAN\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-en-046",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: Nadia Haddad"
+   ],
+   "ms": 5815,
+   "output": "[CANDIDATE_NAME]  Nadia Haddad\n\n\n[SOURCE_COMPANY]  NOAH HADDAD\n\n\n[COMPENSATION]  Thank you for your support, I am happy to be here again.\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-en-033",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CANDIDATE_NAME: Jane Smith"
+   ],
+   "ms": 5865,
+   "output": "[CANDIDATE_NAME]  Jane Smith\n\n\n[SOURCE_COMPANY]  Interviewer Training Module 3: Writing Evidence-Based Feedback\n\n[COMPENSATION]  Written Evidence-Based Feedback (WBEF)\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-en-027",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-SOURCE_COMPANY: Hyundai"
+   ],
+   "ms": 2874,
+   "output": "[CANDIDATE_NAME]  NONE\n\n\n[SOURCE_COMPANY]  Hyundai\n\n[COMPENSATION]  €46 million\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-fr-010",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: Margaux Delorme"
+   ],
+   "ms": 4689,
+   "output": "[CANDIDATE_NAME]  Margaux Delorme\n\n\n[SOURCE_COMPANY]  NONE\n\n\n[COMPENSATION]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-fr-044",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 12,
+   "predicted": [
+    "+CANDIDATE_NAME: Awa Diallo"
+   ],
+   "ms": 6509,
+   "output": "[CANDIDATE_NAME]  Awa Diallo\n\n[SOURCE_COMPANY]  NONE\n\n\n[COMPENSATION]  IC4 ; IC3 ; IC4\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-fr-031",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3557,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  NONE\n\n\n[COMPENSATION]  On boardé\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "hr-fr-042",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3494,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  NONE\n\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-en-017",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5435,
+   "output": "[DEAL_CODENAME]  Project Bramble – Closing Checklist\n\n\n[DEAL_TARGET]  Project Bramble – closing checklist\n\n\n[DEAL_VALUE]  [ ] final report and analysis\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-en-049",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [
+    "-DEAL_VALUE: WARN  vdr.watermark retry 1/3"
+   ],
+   "ms": 12019,
+   "output": "[DEAL_CODENAME]  No Deal\n\n\n[DEAL_TARGET]  NONE\n\n\n[DEAL_VALUE]  WARN  vdr.watermark retry 1/3\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-en-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 24750,
+   "output": "[DEAL_CODENAME]  Earn-Out Example: A company purchases a startup for $10 million upfront and then pays out based on the success of the startup’s revenue growth over two years. If the startup generates enough revenue to meet its target, the purchase price would\n[DEAL_TARGET]  Explain with a simple ex"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-en-040",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 13450,
+   "output": "[DEAL_CODENAME]  What's the difference between warranty and indemnity in a share purchase agreement?\n\n\n[DEAL_TARGET]  WHAT IS THE DIFFERENCE BETWEEN A WARRENY AND AN INDOMINITY IN A SHARE PURCHASE AGREEMENT?\n\n\n[DEAL_VALUE]  A warranty is a contract that provides assurance that the goods are fit for "
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-fr-016",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 12632,
+   "output": "[DEAL_CODENAME]  Acquéreur offre 100% des titres pour 22,40 € par action payable en numéraire à la date de réalisation.\n\n\n[DEAL_TARGET]  Offer of Acquirer for 100% shares payable in cash at the time of completion. €22.40 per share. (Date of Completion)\n\n\n[DEAL_VALUE]  €22.40 par action\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-fr-047",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 14703,
+   "output": "[DEAL_CODENAME]  Hikai for the signature of the operation Castine after nine months of negotiation, this is for the card of the team.\n\n\n[DEAL_TARGET]  Ce message est destiné à une personne qui souhaite faire un bon travail en tant que client. Il s'agit d'un message de remerciement et de gratitude po"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-fr-031",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 10949,
+   "output": "[DEAL_CODENAME]  Cfi call Analystes OK\n\n\n[DEAL_TARGET]  NONE\n\n\n[DEAL_VALUE]  €40000000000000000000000000000000000000000000000"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "legal-fr-036",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5448,
+   "output": "[DEAL_CODENAME]  Rapport d'opérations genériques\n\n\n[DEAL_TARGET]  NONE\n\n\n[DEAL_VALUE]  €600 million\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-en-013",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 18010,
+   "output": "[STUDY_NAME]  NONE\n\n\n[PARTNER_LAB]  INSTITUTE BEAULAC 14:00: THEY WANT CO-SEASONAL ON THE MOUSE PAPER. HANNA: NO, CO-SENIOR MAX. FOLLOW UP IN WRITING TMRW\n\n\n[EARLY_RESULT]  A follow-up request from Institut Beaulac at 14:00: They want me to be co-first on the mouse paper. Hanna: No, I'm co-senior. F"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-en-025",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 6772,
+   "output": "[STUDY_NAME]  NONE\n\n\n[PARTNER_LAB]  Institut Varenne\n\n\n[EARLY_RESULT]  a 38% reduction in plaque load\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-en-030",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8695,
+   "output": "[STUDY_NAME]  NONE\n\n\n[PARTNER_LAB]  NONE\n\n\n[EARLY_RESULT]  we want 80% power to detect 25% difference in tumor volume, alpha 0.05, SD asume ~30% from literature. How many mice per group?\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-en-044",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 10502,
+   "output": "[STUDY_NAME]  NONE\n\n\n[PARTNER_LAB]  NO\n\n\n[EARLY_RESULT]  order list: pipete tips 200ul x10 boxes, 15ml falcons, parafilm, trizol (check expiry!!), new gloves size S. can u sort by vendor catalog and make"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-fr-010",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 12514,
+   "output": "[STUDY_NAME]  Study TR-417\n\n\n[PARTNER_LAB]  NONE\n\n\n[EARLY_RESULT]  A 38% reduction in plaque load\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-fr-050",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 7058,
+   "output": "[STUDY_NAME]  Réponses ;260;100;30 %\n\n[PARTNER_LAB]  NONE\n\n\n[EARLY_RESULT]  ; ; ;\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-fr-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 18667,
+   "output": "[STUDY_NAME]  Study 417\n\n\n[PARTNER_LAB]  On can't use a double quote in this case. It's not allowed to use a double quote in this case. You can't use a double quote here because it would be considered an error and could cause problems for other users who might\n[EARLY_RESULT]  « Une recherche menée p"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "research-fr-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3525,
+   "output": "[STUDY_NAME]  NONE\n\n\n[PARTNER_LAB]  NONE\n\n\n[EARLY_RESULT]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-en-033",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+UNRELEASED_PRODUCT: Marlowe",
+    "-PROSPECT_NAME: Marlowe"
+   ],
+   "ms": 2628,
+   "output": "[UNRELEASED_PRODUCT]  Marlowe\n\n\n[PROSPECT_NAME]  Marlowe\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-en-029",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PROSPECT_NAME: out of office message"
+   ],
+   "ms": 2384,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  OUT OF OFFICE MESSAGE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Project Titan",
+    "-PROSPECT_NAME: Apple's Project Titan"
+   ],
+   "ms": 2595,
+   "output": "[UNRELEASED_PRODUCT]  PROJECT TITAN\n\n\n[PROSPECT_NAME]  Apple's Project Titan\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-en-009",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: 6",
+    "-PROSPECT_NAME: stalker"
+   ],
+   "ms": 2281,
+   "output": "[UNRELEASED_PRODUCT]  6\n\n\n[PROSPECT_NAME]  Stalker\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-fr-015",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3210,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  Cooperativa Agrivelle\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-fr-031",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+PROSPECT_NAME: Menuiseries Rouvray"
+   ],
+   "ms": 7285,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  Menuiseries Rouvray\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-fr-012",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-PROSPECT_NAME: Draxon Systems"
+   ],
+   "ms": 9135,
+   "output": "[UNRELEASED_PRODUCT]  DRAXON SYSTEMS A ANNOUNCED HIER SA NEW TABLET DURCIE AU SALON VIVA TECH, CESTA TOUTA LA PRESSE. DONNE M'3 ELEMENTS DE LANGAGE SI\n[PROSPECT_NAME]  DRAXON SYSTEMS\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "sales-fr-048",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3866,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  None\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-en-011",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-ACCOUNT_REF: cx"
+   ],
+   "ms": 8530,
+   "output": "[CUSTOMER_NAME]  Thank you Gideon! We are always here to help and provide excellent service. If there is anything else we can do please don't hesitate to contact us. #supportteam #customerlove #CX #CustomerSupport #GideonAchter\n[ACCOUNT_REF]  CX\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-en-020",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9234,
+   "output": "[CUSTOMER_NAME]  Hi there! I'm here to help. Could you please provide more details about what happened? It's important that we understand the situation properly. Thank you. Customer service representative\n\n\n[ACCOUNT_REF]  CUSTOMER SWORE SHE NEVER GOT THE CONFIRMATION MAIL AND NOW ITS SHOWING AS DISP"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-en-033",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: fun tweet about our new weekend delivery slots"
+   ],
+   "ms": 5866,
+   "output": "[CUSTOMER_NAME]  Fun Tweet About Our New Weekend Delivery Slots:\n\n\n[ACCOUNT_REF]  Tweet #NewDeliverySlots #SatelliteLaunch #ProjectKuiper #CarrierScansFix #SpaceInternet #DeliveredSoon\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-en-041",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-ACCOUNT_REF: INR first then refunds. chat was quiet after 5. lunch cover tmrw 1-2 is me"
+   ],
+   "ms": 10908,
+   "output": "[CUSTOMER_NAME]  Handover 18:00 - Queue at 143 open, 12 breaches SLA, pls do INR first then refunds. Chat was quiet after 5. Lunch cover tmrw 1-2 is\n[ACCOUNT_REF]  INR first then refunds. chat was quiet after 5. lunch cover tmrw 1-2 is me\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-fr-017",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Mr Leopold Hartmann",
+    "+ACCOUNT_REF: ORD-2750-6481"
+   ],
+   "ms": 6031,
+   "output": "[CUSTOMER_NAME]  Mr Leopold Hartmann\n\n[ACCOUNT_REF]  ORD-2750-6481\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-fr-021",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 5309,
+   "output": "[CUSTOMER_NAME]  Madame Lefebvre\n\n\n[ACCOUNT_REF]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: Emmanuel Macron"
+   ],
+   "ms": 3767,
+   "output": "[CUSTOMER_NAME]  Emmanuel Macron\n\n\n[ACCOUNT_REF]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "support-fr-033",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 21008,
+   "output": "[CUSTOMER_NAME]  Avoir une bonne idée de post pour annoncer vos créneaux de livraison est un bon plan 🙏\n\n\n[ACCOUNT_REF]  Votre message est bien fait, mais je ne suis pas sûr de savoir comment vous allez organiser vos livraisons. Pourriez-vous me donner quelques conseils ou des recommandations ? Je "
+  }
+ ]
+}

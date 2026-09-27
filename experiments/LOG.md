@@ -506,3 +506,27 @@ fast without a prefix cache as WASM is with one. The GTX 1050 cannot run
 fp16, and q4 costs half the F1 (G2), so fp32 is the only good WebGPU option
 on this GPU; for the 360M that is a 1.45 GB download and upload.
 (For the 135M, `raw-pl-lang` scores below `raw-pl`, 21 vs 30 on iter32.)
+
+### D1-D3. Keep Qwen2.5-0.5B? (captain's criterion: F1 within ~5 points of SmolLM2-360M or clearly better in French, FP rate no worse)
+
+raw-pl-lang, q8 WASM, prefix cache on (runs `d1-qwen-tune96`, `d2-qwen-confirm48`,
+`d3-smol360-confirm48`, filtered rescoring `d1-tune96-basic`, `d23-confirm48-basic`).
+Qwen2.5-0.5B loaded with a 600 MB margin (its peak is now ~3.1 GB with the GC
+fix; ~3.8 GB was available): RSS 2.27 GB after load, never below 1.9 GB free.
+
+| set | model | F1o | P | R | F1x | det | FPR | p50s | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| tune96 | SmolLM2-360M | 33 | 37 | 30 | 26 | 46 | 48 | 3.1 | 35 | 31 |
+| tune96 | SmolLM2-360M + basic | 32 | 42 | 26 | 29 | 41 | 36 | 3.1 | 33 | 31 |
+| tune96 | Qwen2.5-0.5B | 25 | 29 | 21 | 20 | 33 | 55 | 5.4 | 23 | 26 |
+| tune96 | Qwen2.5-0.5B + basic | 24 | 31 | 19 | 22 | 33 | 45 | 5.4 | 21 | 27 |
+| confirm48 | SmolLM2-360M | 30 | 37 | 25 | 28 | 38 | 50 | 3.1 | 27 | 35 |
+| confirm48 | SmolLM2-360M + basic | 31 | 38 | 25 | 29 | 38 | 50 | 3.1 | 27 | 36 |
+| confirm48 | Qwen2.5-0.5B | 24 | 32 | 19 | 16 | 28 | 56 | 6.3 | 24 | 23 |
+| confirm48 | Qwen2.5-0.5B + basic | 24 | 32 | 19 | 16 | 28 | 56 | 6.3 | 24 | 23 |
+
+With raw-pl-lang, Qwen2.5-0.5B is 6-8 F1 points below SmolLM2-360M on both
+sets, worse in French, with a higher FP rate and twice the latency; many of
+its passages fail anchoring because it paraphrases or re-cases them. Its
+English-demo framing (`raw-pl`, best on iter32) is being checked on both sets
+before the verdict.

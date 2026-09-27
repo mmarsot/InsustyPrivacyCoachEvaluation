@@ -1,0 +1,445 @@
+{
+ "name": "q1-qwen-tune96",
+ "set": "tune96",
+ "ext": {
+  "ref": "main",
+  "sha": "1ddf0251071c8992ac804aee2c3145dffdefc1af"
+ },
+ "at": "2026-09-27T01:01:13.356Z",
+ "summary": [
+  {
+   "model": "qwen2.5-0.5b",
+   "dtype": "q8",
+   "config": "raw-pl-lang",
+   "note": "raw-pl with demonstrations in the scanned text's language (detected by stop words)",
+   "overall": {
+    "cases": 30,
+    "f1": 0.275,
+    "precision": 0.269,
+    "recall": 0.28,
+    "exactF1": 0.275,
+    "detection": 0.353,
+    "fpr": 0.692,
+    "compliance": 1,
+    "p50ms": 3891,
+    "p95ms": 9609,
+    "tokens": 18,
+    "failures": {
+     "ok": 9,
+     "hallucinated": 21
+    }
+   },
+   "en": {
+    "cases": 18,
+    "f1": 0.2,
+    "precision": 0.231,
+    "recall": 0.176,
+    "exactF1": 0.2,
+    "detection": 0.3,
+    "fpr": 0.5,
+    "compliance": 1,
+    "p50ms": 4634,
+    "p95ms": 11471,
+    "tokens": 22,
+    "failures": {
+     "ok": 4,
+     "hallucinated": 14
+    }
+   },
+   "fr": {
+    "cases": 12,
+    "f1": 0.381,
+    "precision": 0.308,
+    "recall": 0.5,
+    "exactF1": 0.381,
+    "detection": 0.429,
+    "fpr": 1,
+    "compliance": 1,
+    "p50ms": 3033,
+    "p95ms": 9609,
+    "tokens": 13,
+    "failures": {
+     "ok": 5,
+     "hallucinated": 7
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-001",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Halvard Cycles"
+   ],
+   "ms": 3953,
+   "output": "[CLIENT_NAME]  Halvard Cycles\n\n\n[CAMPAIGN_CODENAME]  Halvard E-Bikes for City Commuters\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Louis",
+    "-CAMPAIGN_CODENAME: Louis"
+   ],
+   "ms": 2517,
+   "output": "[CLIENT_NAME]  Louis\n\n\n[CAMPAIGN_CODENAME]  Louis\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2375,
+   "output": "[CLIENT_NAME]  NONE\n\n\n[CAMPAIGN_CODENAME]  Black Friday Sneakers Sequences\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: halvard"
+   ],
+   "ms": 1845,
+   "output": "[CLIENT_NAME]  Halvard\n\n\n[CAMPAIGN_CODENAME]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-018",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2875,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  SSH_PORT_FORWARDING\n\n\n[CUSTOMER_ID]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-007",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4049,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  KEYCLOAK_TOKEN_ENDPOINT_FAILED\n\n\n[CUSTOMER_ID]  customer_id\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_ID: Cadence"
+   ],
+   "ms": 3358,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  cadence\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_SERVICE: customer,endpoint_host,status,attempts",
+    "+CUSTOMER_ID: cus_mP02zzLc"
+   ],
+   "ms": 8953,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  customer,endpoint_host,status,attempts\n\n\n[CUSTOMER_ID]  cus_mP02zzLc\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-005",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 6801,
+   "output": "[UNPUBLISHED_FIGURE]  Europe's margin at 8.1% not 9%\n\n\n[INTERNAL_FORECAST]  Europe misses its H2 target by 0.1%, but Europe's margin is now at 8.1%.\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-032",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4879,
+   "output": "[UNPUBLISHED_FIGURE]  dividend payout ratio 38.2%\n\n[INTERNAL_FORECAST]  Dividend Yield = (Dividends / Share Price) x 100%\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-014",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Grenadine & Co"
+   ],
+   "ms": 3447,
+   "output": "[CLIENT_NAME]  Grenadine & Co\n\n\n[CAMPAIGN_CODENAME]  Love the Colour Palette Keep It\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-025",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: media recap"
+   ],
+   "ms": 1744,
+   "output": "[CLIENT_NAME]  Media Recap\n\n\n[CAMPAIGN_CODENAME]  Media Recap Agenda\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-032",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: One Show"
+   ],
+   "ms": 3700,
+   "output": "[CLIENT_NAME]  One Show\n\n\n[CAMPAIGN_CODENAME]  What's The Difference Between A D&AD Pencil And A One Show Pencil?\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CAMPAIGN_CODENAME: What's a good structure for a 20-minute new business pitch presentation?"
+   ],
+   "ms": 4003,
+   "output": "[CLIENT_NAME]  None\n\n\n[CAMPAIGN_CODENAME]  WHAT'S A GOOD STRUCTURE FOR A 20-MINUTE NEW BUSINESS PITCH PRESENTATION?\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-011",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Mutuelle Arvelle"
+   ],
+   "ms": 2751,
+   "output": "[CLIENT_NAME]  Mutuelle Arvelle\n\n\n[CAMPAIGN_CODENAME]  ON\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-045",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CLIENT_NAME: Banque Castellane",
+    "+CAMPAIGN_CODENAME: Projet Ardoise"
+   ],
+   "ms": 3415,
+   "output": "[CLIENT_NAME]  Banque Castellane\n\n\n[CAMPAIGN_CODENAME]  Projet Ardoise\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: Project Kuiper",
+    "-CAMPAIGN_CODENAME: pros and cons"
+   ],
+   "ms": 2574,
+   "output": "[CLIENT_NAME]  Project Kuiper\n\n\n[CAMPAIGN_CODENAME]  Pros and Cons\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "agency-fr-026",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: Parce que je le vaux bien"
+   ],
+   "ms": 9609,
+   "output": "[CLIENT_NAME]  Parce que je le vaux bien\n\n\n[CAMPAIGN_CODENAME]  NONE Text: Qu'est-ce qui fait que le bonheur ? Pourquoi est-ce que c'est important ? Pourquoi est-ce que c'est nécessaire ? Pourquoi est-ce que c'est essentiel ? Pourquoi est-ce que"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-015",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-INTERNAL_HOST: OPS-2291"
+   ],
+   "ms": 4919,
+   "output": "[INTERNAL_HOST]  Ops-2291\n\n\n[INTERNAL_SERVICE]  rotate-kafka-cert\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-046",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-INTERNAL_SERVICE: quillmark.net",
+    "-CUSTOMER_ID: pg-primary-02.int.quillmark.net"
+   ],
+   "ms": 5197,
+   "output": "[INTERNAL_HOST]  grafana.corp.qmk\n\n\n[INTERNAL_SERVICE]  quillmark.net\n\n\n[CUSTOMER_ID]  pg-primary-02.int.quillmark.net\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_SERVICE: host.docker.internal"
+   ],
+   "ms": 3891,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  host.docker.internal\n\n\n[CUSTOMER_ID]  NONE\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-en-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_HOST: parse_ts",
+    "-INTERNAL_SERVICE: ValueError"
+   ],
+   "ms": 4634,
+   "output": "[INTERNAL_HOST]  parse_ts\n\n\n[INTERNAL_SERVICE]  ValueError\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-011",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6544,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  CUSTOMER_ID\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-024",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3754,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  NONE\n\n\n[CUSTOMER_ID]  55120\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-036",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_SERVICE: rsyslog"
+   ],
+   "ms": 3032,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  rsyslog\n\n\n[CUSTOMER_ID]  CUSTOMER_ID\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "dev-fr-032",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_HOST: on",
+    "-INTERNAL_SERVICE: tenant_id"
+   ],
+   "ms": 3033,
+   "output": "[INTERNAL_HOST]  ON\n\n\n[INTERNAL_SERVICE]  tenant_id\n\n\n[CUSTOMER_ID]  CUSTOMER_ID\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-003",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 8489,
+   "output": "[UNPUBLISHED_FIGURE]  Q3 volume down by 1.2%, price mix up by 4.1%\n\n\n[INTERNAL_FORECAST]  Q3 volumes fell 1.2% and price mix increased by 4.1%\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-031",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 11471,
+   "output": "[UNPUBLISHED_FIGURE]  YOY Bridge: mix = 56.9%, ebitmgn = 12.2%\n\n[INTERNAL_FORECAST]  Q3 Preliminary: Revenue: R141bn, GM: 40.8%, EBITMGN: 12.2%\n\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5467,
+   "output": "[UNPUBLISHED_FIGURE]  Adjusted Operating Profit 418m Statutory Operating Profit 371m\n\n\n[INTERNAL_FORECAST]  Adjusted operating profit = Operating profit after tax\n"
+  },
+  {
+   "model": "qwen2.5-0.5b",
+   "config": "raw-pl-lang",
+   "caseId": "finance-en-012",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6592,
+   "output": "[UNPUBLISHED_FIGURE]  Q3 guidance of 3-4% organic sales growth at the interim in July\n\n\n[INTERNAL_FORECAST]  FY26 guidance of 3-4% organic sales growth at the interim\n\n"
+  }
+ ]
+}
