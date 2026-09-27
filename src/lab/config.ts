@@ -430,7 +430,7 @@ export function relaxLines(raw: string, text: string): string {
 }
 
 const STOPWORDS = new Set(
-  "a an the and or of to in on at for with by is are be it this that ok yes no none simple terms le la les un une des du de et ou à au en pour par sur avec est ce ça oui non".split(" "),
+  "a an the and or of to in on at for with by is are be it this that ok yes no none le la les un une des du de et ou à au en pour par sur avec est ce ça oui non".split(" "),
 );
 
 /**

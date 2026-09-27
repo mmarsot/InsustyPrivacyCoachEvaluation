@@ -706,3 +706,12 @@ A recall option, not a clear default.
 
 A third positive demonstration makes the model answer more often (FP +9)
 without finding more. Two example demos plus the NONE demo stay.
+
+### Fix: overfit words in the plausibility filter's stop-word list
+
+The basic filter's stop-word list contained "simple" and "terms", taken from
+one tune96 false positive ("simple terms" in legal-en-040). The extension
+copied the list (`PASSAGE_STOP_WORDS`, d42c466). Removed from the lab; effect:
+tune96 FP rate 36 -> 38% (that one case), confirm48 and held-out unchanged
+(held-out F1 27, FP 45%). Recommended: drop both words in the extension too.
+Earlier rows that say "basic" were scored with the old list.

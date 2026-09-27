@@ -198,6 +198,12 @@ negative (FP rate 100%; 40% after the basic + dedup filters, F1 31%), p50
 - Recommendation for the extension's WebGPU path: use fp32 (or fp16 on GPUs
   that have `shader-f16`) instead of q4, and keep WASM q8 as the default.
 
+## Small fix for the extension
+
+`PASSAGE_STOP_WORDS` (d42c466) contains "simple" and "terms", copied from
+the lab, where they had been added for a single dev case. Drop them: no
+effect on the held-out split, and they are an overfit.
+
 ## What has been ruled out
 
 | idea | result |
