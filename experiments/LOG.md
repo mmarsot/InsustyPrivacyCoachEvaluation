@@ -583,3 +583,24 @@ a handful of 48); the lab now prints `INCOMPLETE` for such rows instead of a
 silently partial summary. Not retried. On the complete iter32 run, raw-pl gave
 Qwen EN F1 55 but FR 14, so it cannot meet the "clearly better in French"
 branch of the criterion either; the D1-D3 verdict (drop Qwen2.5-0.5B) stands.
+
+### H1. Held-out test split, one shot (bench path; runs `test-dc91f36-smol360`, `test-d42c466-smol360`)
+
+All 242 test cases (never used for any tuning), SmolLM2-360M, q8 WASM,
+through `npm run bench -- --tier full --split test`.
+
+| design | F1o | P | R | F1x | det | FPR | comp | timeouts | p50 | p95 | EN F1 / FPR | FR F1 / FPR |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| shipped chat design (dc91f36) | 12.0 | 44.2 | 6.9 | 8.4 | 11.3 | 10.9 | 33 | 34 | 10.0 s | 30.1 s | 13.1 / 3.8 | 11.0 / 18.4 |
+| completion design (extension d42c466) | **27.4** | 32.2 | **23.9** | 20.5 | **41.8** | 44.6 | **100** | **0** | **2.4 s** | 8.8 s | 25.8 / 51.9 | 29.0 / 36.7 |
+
+By case type (detection / FP rate), completion design: clear positives 42.5%
+detected, subtle 29.4%, hard 55.6% (FP 60%), look-alike negatives FP 45.3%,
+clean negatives FP 40.6%. Shipped design: clear 13.8%, subtle 11.8%, hard
+3.7%, look-alike FP 17.2%, clean FP 0%.
+
+The tuning-set gain holds on unseen data (F1 x2.3, recall x3.5, detection
+x3.7, no timeouts, latency /4), slightly lower in absolute terms than on the
+dev sets (27 vs 31-32). The cost is the false-positive rate (45% vs 11%),
+including 41% of clean texts: the model answers a passage for some label in
+most prompts. That is the main thing left to fix.

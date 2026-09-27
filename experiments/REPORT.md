@@ -11,6 +11,20 @@ tuning, `confirm48` (48 dev cases, disjoint) to confirm, `iter32` (subset of
 tune96) for quick screens. With 32 cases, differences under ~15 F1 points
 are noise; with 96, under ~8.
 
+## Held-out confirmation (test split, 242 cases, never used for tuning)
+
+SmolLM2-360M through the bench, shipped chat design vs the recommended
+completion design as implemented in the extension (d42c466):
+
+| design | F1 | precision | recall | detection | FP rate | format OK | timeouts | p50 | p95 | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| shipped chat (dc91f36) | 12.0% | 44% | 6.9% | 11% | 11% | 33% | 34 | 10.0 s | 30.1 s | 13% | 11% |
+| **completion (d42c466)** | **27.4%** | 32% | **23.9%** | **42%** | 45% | 100% | 0 | **2.4 s** | 8.8 s | 26% | 29% |
+
+The gain holds on unseen data (recall x3.5, detection x3.7, latency /4, no
+timeouts). The open problem is false positives: 45% of negatives get a
+finding, including 41% of clean texts. (LOG H1.)
+
 ## Recommendation (current best): `raw-pl-lang` on SmolLM2-360M
 
 SmolLM2-360M on tune96:
