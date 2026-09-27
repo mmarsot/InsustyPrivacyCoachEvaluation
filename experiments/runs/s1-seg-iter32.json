@@ -1,0 +1,4681 @@
+{
+ "name": "s1-seg-iter32",
+ "set": "iter32",
+ "ext": {
+  "ref": "main",
+  "sha": "b2c4ca153ea1cb3c992bdf2877de0265b273a4be"
+ },
+ "at": "2026-09-27T13:51:33.121Z",
+ "summary": [
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "shipped",
+   "note": "Extension as shipped (PR #26): per-label completion, example demos, NONE last, first line, pinned greedy, plausibility filter",
+   "overall": {
+    "cases": 32,
+    "f1": 0.344,
+    "precision": 0.423,
+    "recall": 0.289,
+    "exactF1": 0.313,
+    "detection": 0.455,
+    "fpr": 0.6,
+    "compliance": 1,
+    "p50ms": 2459,
+    "p95ms": 5374,
+    "tokens": 13,
+    "failures": {
+     "ok": 30,
+     "hallucinated": 2
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.353,
+    "precision": 0.462,
+    "recall": 0.286,
+    "exactF1": 0.353,
+    "detection": 0.455,
+    "fpr": 0.4,
+    "compliance": 1,
+    "p50ms": 2350,
+    "p95ms": 5374,
+    "tokens": 14,
+    "failures": {
+     "ok": 15,
+     "hallucinated": 1
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.333,
+    "precision": 0.385,
+    "recall": 0.294,
+    "exactF1": 0.267,
+    "detection": 0.455,
+    "fpr": 0.8,
+    "compliance": 1,
+    "p50ms": 2523,
+    "p95ms": 6420,
+    "tokens": 13,
+    "failures": {
+     "ok": 15,
+     "hallucinated": 1
+    }
+   },
+   "seg": {
+    "segments": 116,
+    "segPrecision": 0.524,
+    "segRecall": 0.355,
+    "overRedaction": 0.557,
+    "redactedChars": 307,
+    "requestsPerPrompt": 2.5,
+    "checks": 0,
+    "unresolvedRate": null,
+    "incompleteCases": 0,
+    "checkAuc": null,
+    "checkPrecision": null,
+    "checkRecall": null,
+    "yesRate": null,
+    "falseYesRate": null,
+    "meanPYesPos": null,
+    "meanPYesNeg": null,
+    "positiveChecks": 0,
+    "negativeChecks": 0
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "seg-yn",
+   "note": "Spec v1.1: sentence segments x labels, chat template, policy + 4 demos, whole-prompt BEFORE/TARGET/AFTER, strict Yes/No",
+   "overall": {
+    "cases": 32,
+    "f1": 0.219,
+    "precision": 0.126,
+    "recall": 0.868,
+    "exactF1": 0,
+    "detection": 0.864,
+    "fpr": 1,
+    "compliance": 0.625,
+    "p50ms": 5694,
+    "p95ms": 54666,
+    "tokens": 20,
+    "failures": {
+     "ok": 20,
+     "echo": 11,
+     "answered": 1
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.243,
+    "precision": 0.142,
+    "recall": 0.857,
+    "exactF1": 0,
+    "detection": 0.818,
+    "fpr": 1,
+    "compliance": 0.375,
+    "p50ms": 5272,
+    "p95ms": 58042,
+    "tokens": 23,
+    "failures": {
+     "ok": 6,
+     "echo": 9,
+     "answered": 1
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.196,
+    "precision": 0.11,
+    "recall": 0.882,
+    "exactF1": 0,
+    "detection": 0.909,
+    "fpr": 1,
+    "compliance": 0.875,
+    "p50ms": 6355,
+    "p95ms": 29478,
+    "tokens": 17,
+    "failures": {
+     "ok": 14,
+     "echo": 2
+    }
+   },
+   "seg": {
+    "segments": 116,
+    "segPrecision": 0.279,
+    "segRecall": 1,
+    "overRedaction": 0.909,
+    "redactedChars": 5300,
+    "requestsPerPrompt": 9,
+    "checks": 288,
+    "unresolvedRate": 0.118,
+    "incompleteCases": 0.375,
+    "checkAuc": 0.485,
+    "checkPrecision": 0.129,
+    "checkRecall": 0.861,
+    "yesRate": 0.833,
+    "falseYesRate": 0.829,
+    "meanPYesPos": 0.685,
+    "meanPYesNeg": 0.692,
+    "positiveChecks": 36,
+    "negativeChecks": 252
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "seg-yn-logit",
+   "note": "Spec v1.1: sentence segments x labels, chat template, policy + 4 demos, whole-prompt BEFORE/TARGET/AFTER, strict Yes/No; constrained decoding: P(Yes) vs P(No) at the first token",
+   "overall": {
+    "cases": 32,
+    "f1": 0.215,
+    "precision": 0.121,
+    "recall": 0.947,
+    "exactF1": 0,
+    "detection": 0.955,
+    "fpr": 1,
+    "compliance": 1,
+    "p50ms": 5694,
+    "p95ms": 54666,
+    "tokens": 20,
+    "failures": {
+     "ok": 32
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.235,
+    "precision": 0.133,
+    "recall": 1,
+    "exactF1": 0,
+    "detection": 1,
+    "fpr": 1,
+    "compliance": 1,
+    "p50ms": 5272,
+    "p95ms": 58042,
+    "tokens": 23,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.192,
+    "precision": 0.107,
+    "recall": 0.882,
+    "exactF1": 0,
+    "detection": 0.909,
+    "fpr": 1,
+    "compliance": 1,
+    "p50ms": 6355,
+    "p95ms": 29478,
+    "tokens": 17,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "seg": {
+    "segments": 116,
+    "segPrecision": 0.267,
+    "segRecall": 1,
+    "overRedaction": 0.912,
+    "redactedChars": 5484,
+    "requestsPerPrompt": 9,
+    "checks": 288,
+    "unresolvedRate": 0,
+    "incompleteCases": 0,
+    "checkAuc": 0.485,
+    "checkPrecision": 0.125,
+    "checkRecall": 0.944,
+    "yesRate": 0.948,
+    "falseYesRate": 0.948,
+    "meanPYesPos": 0.685,
+    "meanPYesNeg": 0.692,
+    "positiveChecks": 36,
+    "negativeChecks": 252
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "seg-yn-p0.8",
+   "note": "Spec v1.1: sentence segments x labels, chat template, policy + 4 demos, whole-prompt BEFORE/TARGET/AFTER, strict Yes/No; Yes when P(Yes)/(P(Yes)+P(No)) >= 0.8",
+   "overall": {
+    "cases": 32,
+    "f1": 0.166,
+    "precision": 0.151,
+    "recall": 0.184,
+    "exactF1": 0,
+    "detection": 0.273,
+    "fpr": 0.5,
+    "compliance": 1,
+    "p50ms": 5694,
+    "p95ms": 54666,
+    "tokens": 20,
+    "failures": {
+     "ok": 32
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.173,
+    "precision": 0.136,
+    "recall": 0.238,
+    "exactF1": 0,
+    "detection": 0.364,
+    "fpr": 0.4,
+    "compliance": 1,
+    "p50ms": 5272,
+    "p95ms": 58042,
+    "tokens": 23,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.154,
+    "precision": 0.222,
+    "recall": 0.118,
+    "exactF1": 0,
+    "detection": 0.182,
+    "fpr": 0.6,
+    "compliance": 1,
+    "p50ms": 6355,
+    "p95ms": 29478,
+    "tokens": 17,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "seg": {
+    "segments": 116,
+    "segPrecision": 0.317,
+    "segRecall": 0.419,
+    "overRedaction": 0.895,
+    "redactedChars": 1652,
+    "requestsPerPrompt": 9,
+    "checks": 288,
+    "unresolvedRate": 0,
+    "incompleteCases": 0,
+    "checkAuc": 0.485,
+    "checkPrecision": 0.167,
+    "checkRecall": 0.25,
+    "yesRate": 0.188,
+    "falseYesRate": 0.179,
+    "meanPYesPos": 0.685,
+    "meanPYesNeg": 0.692,
+    "positiveChecks": 36,
+    "negativeChecks": 252
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "seg-yn-p0.9",
+   "note": "Spec v1.1: sentence segments x labels, chat template, policy + 4 demos, whole-prompt BEFORE/TARGET/AFTER, strict Yes/No; Yes when P(Yes)/(P(Yes)+P(No)) >= 0.9",
+   "overall": {
+    "cases": 32,
+    "f1": 0.045,
+    "precision": 0.167,
+    "recall": 0.026,
+    "exactF1": 0,
+    "detection": 0.045,
+    "fpr": 0.2,
+    "compliance": 1,
+    "p50ms": 5694,
+    "p95ms": 54666,
+    "tokens": 20,
+    "failures": {
+     "ok": 32
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.074,
+    "precision": 0.167,
+    "recall": 0.048,
+    "exactF1": 0,
+    "detection": 0.091,
+    "fpr": 0.4,
+    "compliance": 1,
+    "p50ms": 5272,
+    "p95ms": 58042,
+    "tokens": 23,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 6355,
+    "p95ms": 29478,
+    "tokens": 17,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "seg": {
+    "segments": 116,
+    "segPrecision": 0.2,
+    "segRecall": 0.032,
+    "overRedaction": 0.922,
+    "redactedChars": 154,
+    "requestsPerPrompt": 9,
+    "checks": 288,
+    "unresolvedRate": 0,
+    "incompleteCases": 0,
+    "checkAuc": 0.485,
+    "checkPrecision": 0.167,
+    "checkRecall": 0.028,
+    "yesRate": 0.021,
+    "falseYesRate": 0.02,
+    "meanPYesPos": 0.685,
+    "meanPYesNeg": 0.692,
+    "positiveChecks": 36,
+    "negativeChecks": 252
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "seg-yn-raw",
+   "note": "seg-yn in completion framing (the shipped framing, no chat template)",
+   "overall": {
+    "cases": 32,
+    "f1": 0.248,
+    "precision": 0.204,
+    "recall": 0.316,
+    "exactF1": 0,
+    "detection": 0.318,
+    "fpr": 0.4,
+    "compliance": 0.906,
+    "p50ms": 6701,
+    "p95ms": 55764,
+    "tokens": 18,
+    "failures": {
+     "ok": 29,
+     "answered": 3
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.2,
+    "precision": 0.172,
+    "recall": 0.238,
+    "exactF1": 0,
+    "detection": 0.364,
+    "fpr": 0.4,
+    "compliance": 0.813,
+    "p50ms": 4970,
+    "p95ms": 65200,
+    "tokens": 20,
+    "failures": {
+     "ok": 13,
+     "answered": 3
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.311,
+    "precision": 0.25,
+    "recall": 0.412,
+    "exactF1": 0,
+    "detection": 0.273,
+    "fpr": 0.4,
+    "compliance": 1,
+    "p50ms": 6701,
+    "p95ms": 32237,
+    "tokens": 17,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "seg": {
+    "segments": 116,
+    "segPrecision": 0.41,
+    "segRecall": 0.516,
+    "overRedaction": 0.864,
+    "redactedChars": 1992,
+    "requestsPerPrompt": 9,
+    "checks": 288,
+    "unresolvedRate": 0.017,
+    "incompleteCases": 0.094,
+    "checkAuc": 0.618,
+    "checkPrecision": 0.2,
+    "checkRecall": 0.278,
+    "yesRate": 0.174,
+    "falseYesRate": 0.159,
+    "meanPYesPos": 0.423,
+    "meanPYesNeg": 0.369,
+    "positiveChecks": 36,
+    "negativeChecks": 252
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "seg-yn-raw-logit",
+   "note": "seg-yn in completion framing (the shipped framing, no chat template); constrained decoding: P(Yes) vs P(No) at the first token",
+   "overall": {
+    "cases": 32,
+    "f1": 0.233,
+    "precision": 0.185,
+    "recall": 0.316,
+    "exactF1": 0,
+    "detection": 0.318,
+    "fpr": 0.5,
+    "compliance": 1,
+    "p50ms": 6701,
+    "p95ms": 55764,
+    "tokens": 18,
+    "failures": {
+     "ok": 32
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.189,
+    "precision": 0.156,
+    "recall": 0.238,
+    "exactF1": 0,
+    "detection": 0.364,
+    "fpr": 0.4,
+    "compliance": 1,
+    "p50ms": 4970,
+    "p95ms": 65200,
+    "tokens": 20,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.293,
+    "precision": 0.227,
+    "recall": 0.412,
+    "exactF1": 0,
+    "detection": 0.273,
+    "fpr": 0.6,
+    "compliance": 1,
+    "p50ms": 6701,
+    "p95ms": 32237,
+    "tokens": 17,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "seg": {
+    "segments": 116,
+    "segPrecision": 0.381,
+    "segRecall": 0.516,
+    "overRedaction": 0.871,
+    "redactedChars": 2098,
+    "requestsPerPrompt": 9,
+    "checks": 288,
+    "unresolvedRate": 0,
+    "incompleteCases": 0,
+    "checkAuc": 0.618,
+    "checkPrecision": 0.182,
+    "checkRecall": 0.278,
+    "yesRate": 0.191,
+    "falseYesRate": 0.179,
+    "meanPYesPos": 0.423,
+    "meanPYesNeg": 0.369,
+    "positiveChecks": 36,
+    "negativeChecks": 252
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "seg-yn-raw-p0.8",
+   "note": "seg-yn in completion framing (the shipped framing, no chat template); Yes when P(Yes)/(P(Yes)+P(No)) >= 0.8",
+   "overall": {
+    "cases": 32,
+    "f1": 0,
+    "precision": 0,
+    "recall": 0,
+    "exactF1": 0,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 6701,
+    "p95ms": 55764,
+    "tokens": 18,
+    "failures": {
+     "ok": 32
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0,
+    "precision": 0,
+    "recall": 0,
+    "exactF1": 0,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 4970,
+    "p95ms": 65200,
+    "tokens": 20,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 6701,
+    "p95ms": 32237,
+    "tokens": 17,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "seg": {
+    "segments": 116,
+    "segPrecision": 1,
+    "segRecall": 0.032,
+    "overRedaction": 0.721,
+    "redactedChars": 61,
+    "requestsPerPrompt": 9,
+    "checks": 288,
+    "unresolvedRate": 0,
+    "incompleteCases": 0,
+    "checkAuc": 0.618,
+    "checkPrecision": 0,
+    "checkRecall": 0,
+    "yesRate": 0.003,
+    "falseYesRate": 0.004,
+    "meanPYesPos": 0.423,
+    "meanPYesNeg": 0.369,
+    "positiveChecks": 36,
+    "negativeChecks": 252
+   }
+  },
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "seg-yn-raw-p0.9",
+   "note": "seg-yn in completion framing (the shipped framing, no chat template); Yes when P(Yes)/(P(Yes)+P(No)) >= 0.9",
+   "overall": {
+    "cases": 32,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 6701,
+    "p95ms": 55764,
+    "tokens": 18,
+    "failures": {
+     "ok": 32
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 4970,
+    "p95ms": 65200,
+    "tokens": 20,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": null,
+    "precision": null,
+    "recall": 0,
+    "exactF1": null,
+    "detection": 0,
+    "fpr": 0,
+    "compliance": 1,
+    "p50ms": 6701,
+    "p95ms": 32237,
+    "tokens": 17,
+    "failures": {
+     "ok": 16
+    }
+   },
+   "seg": {
+    "segments": 116,
+    "segPrecision": null,
+    "segRecall": 0,
+    "overRedaction": null,
+    "redactedChars": 0,
+    "requestsPerPrompt": 9,
+    "checks": 288,
+    "unresolvedRate": 0,
+    "incompleteCases": 0,
+    "checkAuc": 0.618,
+    "checkPrecision": null,
+    "checkRecall": 0,
+    "yesRate": 0,
+    "falseYesRate": 0,
+    "meanPYesPos": 0.423,
+    "meanPYesNeg": 0.369,
+    "positiveChecks": 36,
+    "negativeChecks": 252
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Halvard Cycles"
+   ],
+   "ms": 1475,
+   "output": "[CLIENT_NAME]  Halvard Cycles\n\n[CAMPAIGN_CODENAME]  NONE\n\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Louis",
+    "+CAMPAIGN_CODENAME: Grand Nord"
+   ],
+   "ms": 2096,
+   "output": "[CLIENT_NAME]  Louis\n\n[CAMPAIGN_CODENAME]  Grand Nord\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1093,
+   "output": "[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: halvard"
+   ],
+   "ms": 1587,
+   "output": "[CLIENT_NAME]  Halvard\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1910,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2765,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2571,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 5374,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 3695,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 1437,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2504,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  our final divdivid was 38.2p per share paid in may\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_FORECAST: J+3"
+   ],
+   "ms": 2123,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  J+3\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CANDIDATE_NAME: Kofi",
+    "-SOURCE_COMPANY: Kofi"
+   ],
+   "ms": 2034,
+   "output": "[CANDIDATE_NAME]  Kofi\n\n[SOURCE_COMPANY]  Kofi\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+SOURCE_COMPANY: Norvik Dynamics"
+   ],
+   "ms": 2523,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  Norvik Dynamics\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-SOURCE_COMPANY: l'Apec"
+   ],
+   "ms": 2829,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  L'Apec\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 2,
+   "expected": 4,
+   "predicted": [
+    "+CANDIDATE_NAME: J. Lindqvist",
+    "-SOURCE_COMPANY: J. Lindqvist",
+    "+COMPENSATION: 188 base"
+   ],
+   "ms": 2459,
+   "output": "[CANDIDATE_NAME]  J. Lindqvist\n\n[SOURCE_COMPANY]  J. Lindqvist\n\n[COMPENSATION]  188 base\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1570,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2158,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: Fellbeck Tooling"
+   ],
+   "ms": 2698,
+   "output": "[DEAL_CODENAME]  Fellbeck Tooling\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+DEAL_VALUE: 31,5 M€"
+   ],
+   "ms": 4839,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  31,5 M€\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "research-en-004",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3303,
+   "output": "[STUDY_NAME]  HELIOS-2\n\n[PARTNER_LAB]  the Okonkwo lab at Delft\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "research-fr-004",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+PARTNER_LAB: Solenne Biotech"
+   ],
+   "ms": 3964,
+   "output": "[STUDY_NAME]  NONE\n\n[PARTNER_LAB]  Solenne Biotech\n\n[EARLY_RESULT] \n- 1.000\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: eLife",
+    "-PARTNER_LAB: Rédige en anglais"
+   ],
+   "ms": 6420,
+   "output": "[STUDY_NAME]  eLife\n\n[PARTNER_LAB]  Rédige en anglais\n\n[EARLY_RESULT]  Rédige en anglais une lettre d'accompagnement aux éditeurs de eLife pour notre manuscrit sur la polarisation des macrophages. Mentionne le financement ANR et Ins"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: macrophage polarization in fibrotic liver",
+    "-PARTNER_LAB: the Wellcome Trust and the European Research Council"
+   ],
+   "ms": 3422,
+   "output": "[STUDY_NAME]  macrophage polarization in fibrotic liver\n\n[PARTNER_LAB]  The Wellcome Trust and the European Research Council\n\n[EARLY_RESULT]  Mention funding from the Wellcome Trust and the European Research Council\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Pembrook Dental Group",
+    "+PROSPECT_NAME: Pembrook Dental Group"
+   ],
+   "ms": 2350,
+   "output": "[UNRELEASED_PRODUCT]  Pembrook Dental Group\n\n[PROSPECT_NAME]  Pembrook Dental Group\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1598,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1193,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Hotels Delacroix",
+    "-PROSPECT_NAME: Mme Roussel"
+   ],
+   "ms": 3123,
+   "output": "[UNRELEASED_PRODUCT]  Hotels Delacroix\n\n[PROSPECT_NAME]  Mme Roussel\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1582,
+   "output": "[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1474,
+   "output": "[CUSTOMER_NAME]  NONE\n\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: Kévin d'après l'avis de passage"
+   ],
+   "ms": 3318,
+   "output": "[CUSTOMER_NAME]  Kévin d'après l'avis de passage\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "shipped",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+CUSTOMER_NAME: Seraphina Kowalski",
+    "-ACCOUNT_REF: sku"
+   ],
+   "ms": 3267,
+   "output": "[CUSTOMER_NAME]  Seraphina Kowalski\n\n[ACCOUNT_REF]  sku\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "agency-en-001",
+   "failure": "echo",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Can you help me write three tagline options for Halvard Cycles?",
+    "-CAMPAIGN_CODENAME: Can you help me write three tagline options for Halvard Cycles?",
+    "-CAMPAIGN_CODENAME: They're launching an e-bike for city commuters in spring.",
+    "-CAMPAIGN_CODENAME: Tone should be witty but not smug, max 6 words each."
+   ],
+   "ms": 4456,
+   "output": "[CLIENT_NAME #0] yes 0.68\n[CLIENT_NAME #1] unresolved \"Target: \\\"They\" 0.69\n[CLIENT_NAME #2] unresolved \"Target: \\\"T\" 0.79\n[CAMPAIGN_CODENAME #0] yes 0.59\n[CAMPAIGN_CODENAME #1] yes 0.69\n[CAMPAIGN_CODENAME #2] yes 0.63"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Objet : Point hebdo",
+    "-CLIENT_NAME: Bonjour Sophie,",
+    "-CLIENT_NAME: Opération Grand Nord : storyboards validés lundi, animatique en cours, PPM prévue le 18.",
+    "-CLIENT_NAME: Pas de point bloquant de notre côté, nous attendons seulement la validation des droits musicaux par le juridique du client.",
+    "-CLIENT_NAME: Bien à vous,",
+    "-CLIENT_NAME: Louis",
+    "-CAMPAIGN_CODENAME: Objet : Point hebdo",
+    "-CAMPAIGN_CODENAME: Bonjour Sophie,",
+    "+CAMPAIGN_CODENAME: Opération Grand Nord : storyboards validés lundi, animatique en cours, PPM prévue le 18.",
+    "-CAMPAIGN_CODENAME: Pas de point bloquant de notre côté, nous attendons seulement la validation des droits musicaux par le juridique du client.",
+    "-CAMPAIGN_CODENAME: Bien à vous,",
+    "-CAMPAIGN_CODENAME: Louis"
+   ],
+   "ms": 11981,
+   "output": "[CLIENT_NAME #0] yes 0.68\n[CLIENT_NAME #1] yes 0.65\n[CLIENT_NAME #2] yes 0.68\n[CLIENT_NAME #3] yes 0.59\n[CLIENT_NAME #4] yes 0.58\n[CLIENT_NAME #5] yes 0.70\n[CAMPAIGN_CODENAME #0] yes 0.65\n[CAMPAIGN_CODENAME #1] yes 0.63\n[CAMPAIGN_CODENAME #2] yes 0.54\n[CAMPAIGN_CODENAME #3] yes 0.67\n[CAMPAIGN_CODENA"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: plan a 4 email black friday sequense for a DTC sneaker brand.",
+    "-CLIENT_NAME: subjet lines + one line sumary for each, nothing to spammy pls",
+    "-CAMPAIGN_CODENAME: plan a 4 email black friday sequense for a DTC sneaker brand.",
+    "-CAMPAIGN_CODENAME: subjet lines + one line sumary for each, nothing to spammy pls"
+   ],
+   "ms": 2110,
+   "output": "[CLIENT_NAME #0] yes 0.51\n[CLIENT_NAME #1] yes 0.71\n[CAMPAIGN_CODENAME #0] yes 0.56\n[CAMPAIGN_CODENAME #1] yes 0.63"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CAMPAIGN_CODENAME: tu peux rendre ça plus percutant : « le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse »"
+   ],
+   "ms": 1233,
+   "output": "[CLIENT_NAME #0] no 0.49\n[CAMPAIGN_CODENAME #0] yes 0.61"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "dev-en-018",
+   "failure": "echo",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: how do i setup ssh port fowarding thru bastion-eu1.int.quillmark.net so i can reach postgres from my laptop, i allways forget the -L syntax smh"
+   ],
+   "ms": 2171,
+   "output": "[INTERNAL_HOST #0] yes 0.65\n[INTERNAL_SERVICE #0] unresolved \"Target: \\\"Please\" 0.67\n[CUSTOMER_ID #0] no 0.35"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: keycloak.corp.qmk me renvoi une 401 sur le token endpoint alors que le client secret est bon, g verifié 3 fois...",
+    "-INTERNAL_HOST: qqun a deja eu ca ??",
+    "-INTERNAL_SERVICE: keycloak.corp.qmk me renvoi une 401 sur le token endpoint alors que le client secret est bon, g verifié 3 fois...",
+    "-CUSTOMER_ID: keycloak.corp.qmk me renvoi une 401 sur le token endpoint alors que le client secret est bon, g verifié 3 fois...",
+    "-CUSTOMER_ID: qqun a deja eu ca ??"
+   ],
+   "ms": 4662,
+   "output": "[INTERNAL_HOST #0] yes 0.59\n[INTERNAL_HOST #1] yes 0.66\n[INTERNAL_SERVICE #0] yes 0.55\n[INTERNAL_SERVICE #1] no 0.41\n[CUSTOMER_ID #0] yes 0.63\n[CUSTOMER_ID #1] yes 0.60"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_HOST: Uber a open-sourcé Cadence et ensuite les créateurs ont fait Temporal, c'est bien ça ?",
+    "-INTERNAL_HOST: on hesite entre Temporal et un simple cron pour nos workflows de relance",
+    "-INTERNAL_SERVICE: Uber a open-sourcé Cadence et ensuite les créateurs ont fait Temporal, c'est bien ça ?",
+    "-INTERNAL_SERVICE: on hesite entre Temporal et un simple cron pour nos workflows de relance",
+    "-CUSTOMER_ID: on hesite entre Temporal et un simple cron pour nos workflows de relance"
+   ],
+   "ms": 5100,
+   "output": "[INTERNAL_HOST #0] yes 0.82\n[INTERNAL_HOST #1] yes 0.72\n[INTERNAL_SERVICE #0] yes 0.76\n[INTERNAL_SERVICE #1] yes 0.70\n[CUSTOMER_ID #0] no 0.40\n[CUSTOMER_ID #1] yes 0.70"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "dev-en-047",
+   "failure": "echo",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_HOST: Here's a CSV of the failed webhook deliveries from yesterday.",
+    "-INTERNAL_HOST: Can you tell me which customer has the most failures and what the most common status code is?",
+    "-INTERNAL_HOST: customer,endpoint_host,status,attempts",
+    "-INTERNAL_HOST: cus_mP02zzLc,hooks.slack.com,500,5",
+    "-INTERNAL_HOST: acct-40051-AR,webhook.site,410,1",
+    "-INTERNAL_HOST: cus_mP02zzLc,hooks.slack.com,504,5",
+    "-INTERNAL_SERVICE: Here's a CSV of the failed webhook deliveries from yesterday.",
+    "-INTERNAL_SERVICE: customer,endpoint_host,status,attempts",
+    "-INTERNAL_SERVICE: cus_mP02zzLc,hooks.slack.com,500,5",
+    "-INTERNAL_SERVICE: acct-40051-AR,webhook.site,410,1",
+    "-INTERNAL_SERVICE: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "-INTERNAL_SERVICE: cus_mP02zzLc,hooks.slack.com,504,5",
+    "-CUSTOMER_ID: Here's a CSV of the failed webhook deliveries from yesterday.",
+    "-CUSTOMER_ID: Can you tell me which customer has the most failures and what the most common status code is?",
+    "+CUSTOMER_ID: cus_mP02zzLc,hooks.slack.com,500,5",
+    "+CUSTOMER_ID: acct-40051-AR,webhook.site,410,1",
+    "+CUSTOMER_ID: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "+CUSTOMER_ID: cus_mP02zzLc,hooks.slack.com,504,5"
+   ],
+   "ms": 58042,
+   "output": "[INTERNAL_HOST #0] yes 0.78\n[INTERNAL_HOST #1] yes 0.73\n[INTERNAL_HOST #2] yes 0.58\n[INTERNAL_HOST #3] yes 0.75\n[INTERNAL_HOST #4] yes 0.77\n[INTERNAL_HOST #5] yes 0.62\n[INTERNAL_HOST #6] unresolved \"Target: \\\"The\" 0.83\n[INTERNAL_HOST #7] yes 0.74\n[INTERNAL_HOST #8] yes 0.66\n[INTERNAL_SERVICE #0] yes"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: whats a nicer way to say this to the regional MDs: 'Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%'",
+    "+INTERNAL_FORECAST: whats a nicer way to say this to the regional MDs: 'Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%'"
+   ],
+   "ms": 1260,
+   "output": "[UNPUBLISHED_FIGURE #0] yes 0.60\n[INTERNAL_FORECAST #0] yes 0.52"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "+UNPUBLISHED_FIGURE: stp resume pr mon n+1 elle lit rien de long : flash aout CA 452M£ pr le mois, taux d'EBIT 11,7 et conversion cash 82% .",
+    "-UNPUBLISHED_FIGURE: merci !!",
+    "-INTERNAL_FORECAST: stp resume pr mon n+1 elle lit rien de long : flash aout CA 452M£ pr le mois, taux d'EBIT 11,7 et conversion cash 82% .",
+    "-INTERNAL_FORECAST: merci !!"
+   ],
+   "ms": 3664,
+   "output": "[UNPUBLISHED_FIGURE #0] yes 0.65\n[UNPUBLISHED_FIGURE #1] yes 0.73\n[INTERNAL_FORECAST #0] yes 0.67\n[INTERNAL_FORECAST #1] yes 0.72"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "finance-en-032",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_FORECAST: our final divi last yr was 38.2p per share paid in may, how do i explain divdend cover to a new grad in plain english"
+   ],
+   "ms": 1356,
+   "output": "[UNPUBLISHED_FIGURE #0] unresolved \"Answer: No\" 0.45\n[INTERNAL_FORECAST #0] yes 0.56"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "finance-fr-040",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Bonjour à tous,",
+    "-UNPUBLISHED_FIGURE: Vous trouverez ci-joint le calendrier de clôture T3.",
+    "-UNPUBLISHED_FIGURE: Clôture des entités à J+3, consolidation à J+5 et première version du board pack à J+7.",
+    "-UNPUBLISHED_FIGURE: Merci de me signaler d'ici vendredi si ces dates posent problème à vos équipes.",
+    "-UNPUBLISHED_FIGURE: Cordialement,",
+    "-UNPUBLISHED_FIGURE: Claire",
+    "-INTERNAL_FORECAST: Clôture des entités à J+3, consolidation à J+5 et première version du board pack à J+7.",
+    "-INTERNAL_FORECAST: Cordialement,",
+    "-INTERNAL_FORECAST: Claire"
+   ],
+   "ms": 15252,
+   "output": "[UNPUBLISHED_FIGURE #0] yes 0.80\n[UNPUBLISHED_FIGURE #1] yes 0.82\n[UNPUBLISHED_FIGURE #2] yes 0.63\n[UNPUBLISHED_FIGURE #3] yes 0.73\n[UNPUBLISHED_FIGURE #4] yes 0.79\n[UNPUBLISHED_FIGURE #5] yes 0.78\n[INTERNAL_FORECAST #0] no 0.34\n[INTERNAL_FORECAST #1] unresolved \"Answer: No\" 0.52\n[INTERNAL_FORECAST "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CANDIDATE_NAME: Hi Kofi,",
+    "-CANDIDATE_NAME: Thank you for taking the time to meet our team on Thursday.",
+    "-CANDIDATE_NAME: I'm happy to share that we'd like to invite you to the final round.",
+    "-CANDIDATE_NAME: Could you let me know your availability for a two-hour block next week?",
+    "-CANDIDATE_NAME: Best regards",
+    "-SOURCE_COMPANY: Hi Kofi,",
+    "-SOURCE_COMPANY: Thank you for taking the time to meet our team on Thursday.",
+    "-SOURCE_COMPANY: I'm happy to share that we'd like to invite you to the final round.",
+    "-SOURCE_COMPANY: Could you let me know your availability for a two-hour block next week?",
+    "-SOURCE_COMPANY: Best regards",
+    "-COMPENSATION: Hi Kofi,",
+    "-COMPENSATION: Thank you for taking the time to meet our team on Thursday.",
+    "-COMPENSATION: I'm happy to share that we'd like to invite you to the final round.",
+    "-COMPENSATION: Could you let me know your availability for a two-hour block next week?",
+    "-COMPENSATION: Best regards"
+   ],
+   "ms": 13798,
+   "output": "[CANDIDATE_NAME #0] yes 0.63\n[CANDIDATE_NAME #1] yes 0.67\n[CANDIDATE_NAME #2] yes 0.74\n[CANDIDATE_NAME #3] yes 0.73\n[CANDIDATE_NAME #4] yes 0.70\n[SOURCE_COMPANY #0] yes 0.78\n[SOURCE_COMPANY #1] yes 0.69\n[SOURCE_COMPANY #2] yes 0.70\n[SOURCE_COMPANY #3] yes 0.74\n[SOURCE_COMPANY #4] yes 0.66\n[COMPENSAT"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: entretient avec Thibault Ferrand : bon niv en ROS, un peu leger en c++.",
+    "-CANDIDATE_NAME: chez Norvik Dynamics depuis 4ans, preavis 3 mois, veut 75K€ minimum sinon il bouge pas",
+    "-SOURCE_COMPANY: entretient avec Thibault Ferrand : bon niv en ROS, un peu leger en c++.",
+    "+SOURCE_COMPANY: chez Norvik Dynamics depuis 4ans, preavis 3 mois, veut 75K€ minimum sinon il bouge pas"
+   ],
+   "ms": 5059,
+   "output": "[CANDIDATE_NAME #0] yes 0.63\n[CANDIDATE_NAME #1] yes 0.59\n[SOURCE_COMPANY #0] yes 0.69\n[SOURCE_COMPANY #1] yes 0.83\n[COMPENSATION #0] no 0.48\n[COMPENSATION #1] no 0.40"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CANDIDATE_NAME: Où est-ce que je peux trouver le détail par région pour préparer une présentation ?",
+    "-SOURCE_COMPANY: D'après l'étude de rémunération annuelle de l'Apec, les ingénieurs en robotique confirmés sont plutôt bien payés en région lyonnaise.",
+    "-SOURCE_COMPANY: Où est-ce que je peux trouver le détail par région pour préparer une présentation ?",
+    "-COMPENSATION: Où est-ce que je peux trouver le détail par région pour préparer une présentation ?"
+   ],
+   "ms": 6355,
+   "output": "[CANDIDATE_NAME #0] no 0.44\n[CANDIDATE_NAME #1] yes 0.51\n[SOURCE_COMPANY #0] yes 0.64\n[SOURCE_COMPANY #1] yes 0.72\n[COMPENSATION #0] no 0.46\n[COMPENSATION #1] yes 0.60"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 4,
+   "expected": 4,
+   "predicted": [
+    "-CANDIDATE_NAME: Signed!!",
+    "+CANDIDATE_NAME: J. Lindqvist accepted at IC5 🎉 188 base / 12% bonus, HM is buying lunch for the whole team",
+    "-SOURCE_COMPANY: Signed!!",
+    "-SOURCE_COMPANY: J. Lindqvist accepted at IC5 🎉 188 base / 12% bonus, HM is buying lunch for the whole team",
+    "-COMPENSATION: Signed!!",
+    "+COMPENSATION: J. Lindqvist accepted at IC5 🎉 188 base / 12% bonus, HM is buying lunch for the whole team"
+   ],
+   "ms": 3924,
+   "output": "[CANDIDATE_NAME #0] yes 0.70\n[CANDIDATE_NAME #1] yes 0.56\n[SOURCE_COMPANY #0] yes 0.56\n[SOURCE_COMPANY #1] yes 0.73\n[COMPENSATION #0] yes 0.77\n[COMPENSATION #1] yes 0.78"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: quick q - is $1.1bn for Vessant too rich if their EBITDA is ~70m?",
+    "-DEAL_CODENAME: board wants a sanity check before friday",
+    "+DEAL_TARGET: quick q - is $1.1bn for Vessant too rich if their EBITDA is ~70m?",
+    "-DEAL_TARGET: board wants a sanity check before friday",
+    "+DEAL_VALUE: quick q - is $1.1bn for Vessant too rich if their EBITDA is ~70m?",
+    "-DEAL_VALUE: board wants a sanity check before friday"
+   ],
+   "ms": 3546,
+   "output": "[DEAL_CODENAME #0] yes 0.52\n[DEAL_CODENAME #1] yes 0.65\n[DEAL_TARGET #0] yes 0.57\n[DEAL_TARGET #1] yes 0.54\n[DEAL_VALUE #0] yes 0.81\n[DEAL_VALUE #1] yes 0.89"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-DEAL_CODENAME: Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement.",
+    "-DEAL_CODENAME: Droit français, ton sobre.",
+    "+DEAL_TARGET: Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement.",
+    "-DEAL_TARGET: Droit français, ton sobre.",
+    "-DEAL_VALUE: Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement.",
+    "-DEAL_VALUE: Droit français, ton sobre."
+   ],
+   "ms": 5132,
+   "output": "[DEAL_CODENAME #0] yes 0.64\n[DEAL_CODENAME #1] yes 0.66\n[DEAL_TARGET #0] yes 0.75\n[DEAL_TARGET #1] yes 0.89\n[DEAL_VALUE #0] yes 0.66\n[DEAL_VALUE #1] yes 0.79"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_CODENAME: Could be a useful template for future deals.",
+    "-DEAL_TARGET: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_TARGET: Could be a useful template for future deals.",
+    "-DEAL_VALUE: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_VALUE: Could be a useful template for future deals."
+   ],
+   "ms": 5272,
+   "output": "[DEAL_CODENAME #0] yes 0.61\n[DEAL_CODENAME #1] yes 0.85\n[DEAL_TARGET #0] yes 0.56\n[DEAL_TARGET #1] yes 0.75\n[DEAL_VALUE #0] yes 0.74\n[DEAL_VALUE #1] yes 0.93"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "-DEAL_CODENAME: pourquoi Excel m'affiche tout dans une seule colonne quand j'ouvre l'export ?",
+    "-DEAL_CODENAME: ```",
+    "-DEAL_CODENAME: code_projet;cible;valeur_entreprise;statut",
+    "+DEAL_CODENAME: Belvédère;Sorvane Industrie;31,5 M€;LOI signée",
+    "-DEAL_CODENAME: Phare;-;-;projet interne SI",
+    "-DEAL_CODENAME: Archive-2023;Fellbeck Tooling;41 M£;finalisé (public)",
+    "-DEAL_TARGET: pourquoi Excel m'affiche tout dans une seule colonne quand j'ouvre l'export ?",
+    "-DEAL_TARGET: ```",
+    "-DEAL_TARGET: code_projet;cible;valeur_entreprise;statut",
+    "+DEAL_TARGET: Belvédère;Sorvane Industrie;31,5 M€;LOI signée",
+    "-DEAL_TARGET: Phare;-;-;projet interne SI",
+    "-DEAL_VALUE: pourquoi Excel m'affiche tout dans une seule colonne quand j'ouvre l'export ?",
+    "-DEAL_VALUE: ```",
+    "-DEAL_VALUE: code_projet;cible;valeur_entreprise;statut",
+    "+DEAL_VALUE: Belvédère;Sorvane Industrie;31,5 M€;LOI signée",
+    "-DEAL_VALUE: Phare;-;-;projet interne SI",
+    "-DEAL_VALUE: Archive-2023;Fellbeck Tooling;41 M£;finalisé (public)"
+   ],
+   "ms": 29478,
+   "output": "[DEAL_CODENAME #0] yes 0.61\n[DEAL_CODENAME #1] yes 0.74\n[DEAL_CODENAME #2] yes 0.78\n[DEAL_CODENAME #3] yes 0.71\n[DEAL_CODENAME #4] yes 0.76\n[DEAL_CODENAME #5] yes 0.79\n[DEAL_CODENAME #6] yes 0.64\n[DEAL_TARGET #0] yes 0.51\n[DEAL_TARGET #1] yes 0.68\n[DEAL_TARGET #2] yes 0.70\n[DEAL_TARGET #3] yes 0.51\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "research-en-004",
+   "failure": "echo",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: lab mtg 12/3",
+    "-STUDY_NAME: - Sam: qPCR repeats done, Il6 down again in KO",
+    "-STUDY_NAME: - me: send updated SOP to Quillon Biosciences b4 fri",
+    "-STUDY_NAME: - Hanna: renewal draft due end of month",
+    "-STUDY_NAME: - order RIPA + protease inhib",
+    "-STUDY_NAME: turn this into a short recap email for the group pls",
+    "-PARTNER_LAB: lab mtg 12/3",
+    "-PARTNER_LAB: - Sam: qPCR repeats done, Il6 down again in KO",
+    "-PARTNER_LAB: - order RIPA + protease inhib",
+    "-PARTNER_LAB: turn this into a short recap email for the group pls",
+    "-EARLY_RESULT: lab mtg 12/3",
+    "-EARLY_RESULT: - Sam: qPCR repeats done, Il6 down again in KO",
+    "-EARLY_RESULT: - order RIPA + protease inhib",
+    "-EARLY_RESULT: turn this into a short recap email for the group pls"
+   ],
+   "ms": 21301,
+   "output": "[STUDY_NAME #0] yes 0.82\n[STUDY_NAME #1] yes 0.83\n[STUDY_NAME #2] yes 0.77\n[STUDY_NAME #3] yes 0.82\n[STUDY_NAME #4] yes 0.80\n[STUDY_NAME #5] yes 0.85\n[PARTNER_LAB #0] yes 0.52\n[PARTNER_LAB #1] yes 0.59\n[PARTNER_LAB #2] unresolved \"Target: \\\"Please\" 0.60\n[PARTNER_LAB #3] unresolved \"Target: \\\"Please\""
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: réu labo 04/02",
+    "-STUDY_NAME: - Julien : qPCR refaites, Il6 tjs en baisse chez les KO",
+    "-STUDY_NAME: - moi : envoyer le protocole maj à Solenne Biotech avant vendredi",
+    "-STUDY_NAME: - Hélène : dossier ANR à boucler fin du mois",
+    "-STUDY_NAME: - commander RIPA",
+    "-PARTNER_LAB: réu labo 04/02",
+    "-PARTNER_LAB: - Julien : qPCR refaites, Il6 tjs en baisse chez les KO",
+    "+PARTNER_LAB: - moi : envoyer le protocole maj à Solenne Biotech avant vendredi",
+    "-PARTNER_LAB: - Hélène : dossier ANR à boucler fin du mois",
+    "-PARTNER_LAB: - commander RIPA",
+    "-PARTNER_LAB: fais-en un petit mail récap pour l'équipe stp",
+    "-EARLY_RESULT: réu labo 04/02",
+    "-EARLY_RESULT: - Julien : qPCR refaites, Il6 tjs en baisse chez les KO",
+    "-EARLY_RESULT: - moi : envoyer le protocole maj à Solenne Biotech avant vendredi",
+    "-EARLY_RESULT: - Hélène : dossier ANR à boucler fin du mois",
+    "-EARLY_RESULT: - commander RIPA",
+    "-EARLY_RESULT: fais-en un petit mail récap pour l'équipe stp"
+   ],
+   "ms": 26232,
+   "output": "[STUDY_NAME #0] yes 0.54\n[STUDY_NAME #1] yes 0.59\n[STUDY_NAME #2] yes 0.76\n[STUDY_NAME #3] yes 0.59\n[STUDY_NAME #4] yes 0.71\n[STUDY_NAME #5] no 0.48\n[PARTNER_LAB #0] yes 0.77\n[PARTNER_LAB #1] yes 0.73\n[PARTNER_LAB #2] yes 0.84\n[PARTNER_LAB #3] yes 0.71\n[PARTNER_LAB #4] yes 0.70\n[PARTNER_LAB #5] yes "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Rédige en anglais une lettre d'accompagnement aux éditeurs de eLife pour notre manuscrit sur la polarisation des macrophages.",
+    "-STUDY_NAME: Mentionne le financement ANR et Inserm.",
+    "-STUDY_NAME: Une page max.",
+    "-PARTNER_LAB: Rédige en anglais une lettre d'accompagnement aux éditeurs de eLife pour notre manuscrit sur la polarisation des macrophages.",
+    "-PARTNER_LAB: Mentionne le financement ANR et Inserm.",
+    "-PARTNER_LAB: Une page max.",
+    "-EARLY_RESULT: Rédige en anglais une lettre d'accompagnement aux éditeurs de eLife pour notre manuscrit sur la polarisation des macrophages.",
+    "-EARLY_RESULT: Mentionne le financement ANR et Inserm.",
+    "-EARLY_RESULT: Une page max."
+   ],
+   "ms": 8690,
+   "output": "[STUDY_NAME #0] yes 0.54\n[STUDY_NAME #1] yes 0.70\n[STUDY_NAME #2] yes 0.88\n[PARTNER_LAB #0] yes 0.72\n[PARTNER_LAB #1] yes 0.79\n[PARTNER_LAB #2] yes 0.72\n[EARLY_RESULT #0] yes 0.80\n[EARLY_RESULT #1] yes 0.74\n[EARLY_RESULT #2] yes 0.83"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "research-en-034",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Draft a cover letter to the eLife editors for our manuscript on macrophage polarization in fibrotic liver.",
+    "-STUDY_NAME: Mention funding from the Wellcome Trust and the European Research Council.",
+    "-PARTNER_LAB: Mention funding from the Wellcome Trust and the European Research Council.",
+    "-PARTNER_LAB: Keep it to one page.",
+    "-EARLY_RESULT: Draft a cover letter to the eLife editors for our manuscript on macrophage polarization in fibrotic liver.",
+    "-EARLY_RESULT: Mention funding from the Wellcome Trust and the European Research Council.",
+    "-EARLY_RESULT: Keep it to one page."
+   ],
+   "ms": 7466,
+   "output": "[STUDY_NAME #0] yes 0.89\n[STUDY_NAME #1] yes 0.85\n[STUDY_NAME #2] unresolved \"Target: \\\"Please\" 0.88\n[PARTNER_LAB #0] no 0.44\n[PARTNER_LAB #1] yes 0.67\n[PARTNER_LAB #2] yes 0.67\n[EARLY_RESULT #0] yes 0.71\n[EARLY_RESULT #1] yes 0.86\n[EARLY_RESULT #2] yes 0.91"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Discovery notes - Pembrook Dental Group"
+   ],
+   "ms": 16047,
+   "output": "[UNRELEASED_PRODUCT #0] yes 0.84\n[UNRELEASED_PRODUCT #1] unresolved \"Target: \\\"Target\" 0.85\n[UNRELEASED_PRODUCT #2] unresolved \"Target: \\\"Dec\" 0.89\n[UNRELEASED_PRODUCT #3] unresolved \"Target: \\\"Please\" 0.90\n[UNRELEASED_PRODUCT #4] unresolved \"Target: \\\"Please\" 0.81\n[UNRELEASED_PRODUCT #5] unresolved"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+UNRELEASED_PRODUCT: petite question avant mon call : j'ai le droit de dire au prospect que le pulse edge gère le mode hors ligne ?",
+    "-UNRELEASED_PRODUCT: l'équipe produit m'a dit \"normalement oui\" mdr",
+    "-PROSPECT_NAME: petite question avant mon call : j'ai le droit de dire au prospect que le pulse edge gère le mode hors ligne ?",
+    "-PROSPECT_NAME: l'équipe produit m'a dit \"normalement oui\" mdr"
+   ],
+   "ms": 4080,
+   "output": "[UNRELEASED_PRODUCT #0] yes 0.57\n[UNRELEASED_PRODUCT #1] yes 0.64\n[PROSPECT_NAME #0] yes 0.75\n[PROSPECT_NAME #1] yes 0.75"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "sales-en-039",
+   "failure": "echo",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: customer asked me n i have no clue lol.",
+    "-UNRELEASED_PRODUCT: also r the K5s still supported or did we EOL them",
+    "-PROSPECT_NAME: wat do u guys think of the new lenovo thinkpad docks vs the K7??",
+    "-PROSPECT_NAME: also r the K5s still supported or did we EOL them"
+   ],
+   "ms": 5694,
+   "output": "[UNRELEASED_PRODUCT #0] unresolved \"Answer: No\" 0.58\n[UNRELEASED_PRODUCT #1] yes 0.76\n[UNRELEASED_PRODUCT #2] yes 0.76\n[PROSPECT_NAME #0] yes 0.66\n[PROSPECT_NAME #1] unresolved \"Target: \\\"please\" 0.72\n[PROSPECT_NAME #2] yes 0.70"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "sales-fr-030",
+   "failure": "echo",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: tu peux verifier le ton de ce mail ?",
+    "-UNRELEASED_PRODUCT: Bonjour Mme Roussel, je vous confirme notre rendez-vous du 30.",
+    "-UNRELEASED_PRODUCT: J'ai proposé à notre ingénieur avant-vente de se joindre à nous afin de répondre aux questions techniques soulevées par les Hotels Delacroix la semaine dernière.",
+    "-UNRELEASED_PRODUCT: À bientôt.",
+    "-PROSPECT_NAME: tu peux verifier le ton de ce mail ?",
+    "-PROSPECT_NAME: je le trouve un peu sec",
+    "-PROSPECT_NAME: Bonjour Mme Roussel, je vous confirme notre rendez-vous du 30.",
+    "+PROSPECT_NAME: J'ai proposé à notre ingénieur avant-vente de se joindre à nous afin de répondre aux questions techniques soulevées par les Hotels Delacroix la semaine dernière.",
+    "-PROSPECT_NAME: À bientôt."
+   ],
+   "ms": 15263,
+   "output": "[UNRELEASED_PRODUCT #0] yes 0.50\n[UNRELEASED_PRODUCT #1] unresolved \"Answer: No\" 0.59\n[UNRELEASED_PRODUCT #2] yes 0.66\n[UNRELEASED_PRODUCT #3] yes 0.66\n[UNRELEASED_PRODUCT #4] yes 0.56\n[PROSPECT_NAME #0] yes 0.72\n[PROSPECT_NAME #1] yes 0.59\n[PROSPECT_NAME #2] yes 0.73\n[PROSPECT_NAME #3] yes 0.79\n[PR"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "support-en-007",
+   "failure": "echo",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "-CUSTOMER_NAME: translate into spanish for the customer, keep it formal pls:",
+    "+CUSTOMER_NAME: \"Dear Ms Imogen Castellanos, your order has been split into two parcels.",
+    "-CUSTOMER_NAME: The first one arrived yesterday; the second one, tracking number PCL5519027734ES, should reach you on Thursday.",
+    "-CUSTOMER_NAME: We apologise for any inconvenience.\"",
+    "-ACCOUNT_REF: translate into spanish for the customer, keep it formal pls:",
+    "+ACCOUNT_REF: The first one arrived yesterday; the second one, tracking number PCL5519027734ES, should reach you on Thursday.",
+    "-ACCOUNT_REF: We apologise for any inconvenience.\""
+   ],
+   "ms": 11136,
+   "output": "[CUSTOMER_NAME #0] yes 0.75\n[CUSTOMER_NAME #1] yes 0.76\n[CUSTOMER_NAME #2] yes 0.76\n[CUSTOMER_NAME #3] yes 0.69\n[ACCOUNT_REF #0] yes 0.76\n[ACCOUNT_REF #1] unresolved \"Answer: No\" 0.81\n[ACCOUNT_REF #2] yes 0.87\n[ACCOUNT_REF #3] yes 0.87"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_NAME: Quelqu'un a déjà vu le colis de Mme Karadeniz ?",
+    "-CUSTOMER_NAME: Il apparaît comme livré à Toulouse alors que la commande part à Nantes.",
+    "-CUSTOMER_NAME: Je vérifie avec le transporteur mais c'est bizarre.",
+    "-ACCOUNT_REF: Quelqu'un a déjà vu le colis de Mme Karadeniz ?",
+    "-ACCOUNT_REF: Il apparaît comme livré à Toulouse alors que la commande part à Nantes.",
+    "-ACCOUNT_REF: Je vérifie avec le transporteur mais c'est bizarre."
+   ],
+   "ms": 7043,
+   "output": "[CUSTOMER_NAME #0] yes 0.52\n[CUSTOMER_NAME #1] yes 0.59\n[CUSTOMER_NAME #2] yes 0.64\n[ACCOUNT_REF #0] yes 0.66\n[ACCOUNT_REF #1] yes 0.64\n[ACCOUNT_REF #2] yes 0.74"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: tu peux rendre cette réclamation au transporteur plus formelle ?",
+    "-CUSTOMER_NAME: Bonjour, votre livreur (Kévin d'après l'avis de passage) a noté que personne n'était présent mais notre client affirme qu'il était chez lui toute l'aprem.",
+    "-CUSTOMER_NAME: Pouvez vous nous transmettre les données GPS de la tentative de livraison.",
+    "-CUSTOMER_NAME: Merci, le service client Parcelio",
+    "-ACCOUNT_REF: Pouvez vous nous transmettre les données GPS de la tentative de livraison.",
+    "-ACCOUNT_REF: Merci, le service client Parcelio"
+   ],
+   "ms": 13517,
+   "output": "[CUSTOMER_NAME #0] yes 0.62\n[CUSTOMER_NAME #1] yes 0.54\n[CUSTOMER_NAME #2] yes 0.65\n[CUSTOMER_NAME #3] yes 0.63\n[ACCOUNT_REF #0] no 0.43\n[ACCOUNT_REF #1] no 0.37\n[ACCOUNT_REF #2] yes 0.59\n[ACCOUNT_REF #3] yes 0.68"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn",
+   "caseId": "support-en-045",
+   "failure": "echo",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "-CUSTOMER_NAME: This JSON from the order API shows the wrong delivery status, what field should I look at?",
+    "-CUSTOMER_NAME: ```json",
+    "-CUSTOMER_NAME: {",
+    "-CUSTOMER_NAME: \"order_id\": \"ORD-5906-3321\",",
+    "-CUSTOMER_NAME: \"account_id\": \"PX-742018\",",
+    "+CUSTOMER_NAME: \"customer\": {\"full_name\": \"Seraphina Kowalski\", \"tier\": \"plus\"},",
+    "-CUSTOMER_NAME: \"handled_by\": \"Support Bot v2\",",
+    "-CUSTOMER_NAME: \"shipment\": {\"carrier\": \"DPD\", \"status\": \"IN_TRANSIT\", \"last_event\": \"DLV\", \"http_status\": 200},",
+    "-CUSTOMER_NAME: \"sku\": \"PMB-L-200\"",
+    "-CUSTOMER_NAME: }",
+    "-CUSTOMER_NAME: ```",
+    "-ACCOUNT_REF: ```json",
+    "+ACCOUNT_REF: \"account_id\": \"PX-742018\",",
+    "-ACCOUNT_REF: \"customer\": {\"full_name\": \"Seraphina Kowalski\", \"tier\": \"plus\"},",
+    "-ACCOUNT_REF: \"shipment\": {\"carrier\": \"DPD\", \"status\": \"IN_TRANSIT\", \"last_event\": \"DLV\", \"http_status\": 200},",
+    "-ACCOUNT_REF: \"sku\": \"PMB-L-200\"",
+    "-ACCOUNT_REF: ```"
+   ],
+   "ms": 54666,
+   "output": "[CUSTOMER_NAME #0] yes 0.74\n[CUSTOMER_NAME #1] yes 0.70\n[CUSTOMER_NAME #2] yes 0.79\n[CUSTOMER_NAME #3] yes 0.67\n[CUSTOMER_NAME #4] yes 0.68\n[CUSTOMER_NAME #5] yes 0.58\n[CUSTOMER_NAME #6] yes 0.63\n[CUSTOMER_NAME #7] yes 0.69\n[CUSTOMER_NAME #8] yes 0.58\n[CUSTOMER_NAME #9] yes 0.78\n[CUSTOMER_NAME #10] "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Can you help me write three tagline options for Halvard Cycles?",
+    "-CLIENT_NAME: They're launching an e-bike for city commuters in spring.",
+    "-CLIENT_NAME: Tone should be witty but not smug, max 6 words each.",
+    "-CAMPAIGN_CODENAME: Can you help me write three tagline options for Halvard Cycles?",
+    "-CAMPAIGN_CODENAME: They're launching an e-bike for city commuters in spring.",
+    "-CAMPAIGN_CODENAME: Tone should be witty but not smug, max 6 words each."
+   ],
+   "ms": 4456,
+   "output": "[CLIENT_NAME #0] yes 0.68\n[CLIENT_NAME #1] yes 0.69\n[CLIENT_NAME #2] yes 0.79\n[CAMPAIGN_CODENAME #0] yes 0.59\n[CAMPAIGN_CODENAME #1] yes 0.69\n[CAMPAIGN_CODENAME #2] yes 0.63"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Objet : Point hebdo",
+    "-CLIENT_NAME: Bonjour Sophie,",
+    "-CLIENT_NAME: Opération Grand Nord : storyboards validés lundi, animatique en cours, PPM prévue le 18.",
+    "-CLIENT_NAME: Pas de point bloquant de notre côté, nous attendons seulement la validation des droits musicaux par le juridique du client.",
+    "-CLIENT_NAME: Bien à vous,",
+    "-CLIENT_NAME: Louis",
+    "-CAMPAIGN_CODENAME: Objet : Point hebdo",
+    "-CAMPAIGN_CODENAME: Bonjour Sophie,",
+    "+CAMPAIGN_CODENAME: Opération Grand Nord : storyboards validés lundi, animatique en cours, PPM prévue le 18.",
+    "-CAMPAIGN_CODENAME: Pas de point bloquant de notre côté, nous attendons seulement la validation des droits musicaux par le juridique du client.",
+    "-CAMPAIGN_CODENAME: Bien à vous,",
+    "-CAMPAIGN_CODENAME: Louis"
+   ],
+   "ms": 11981,
+   "output": "[CLIENT_NAME #0] yes 0.68\n[CLIENT_NAME #1] yes 0.65\n[CLIENT_NAME #2] yes 0.68\n[CLIENT_NAME #3] yes 0.59\n[CLIENT_NAME #4] yes 0.58\n[CLIENT_NAME #5] yes 0.70\n[CAMPAIGN_CODENAME #0] yes 0.65\n[CAMPAIGN_CODENAME #1] yes 0.63\n[CAMPAIGN_CODENAME #2] yes 0.54\n[CAMPAIGN_CODENAME #3] yes 0.67\n[CAMPAIGN_CODENA"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: plan a 4 email black friday sequense for a DTC sneaker brand.",
+    "-CLIENT_NAME: subjet lines + one line sumary for each, nothing to spammy pls",
+    "-CAMPAIGN_CODENAME: plan a 4 email black friday sequense for a DTC sneaker brand.",
+    "-CAMPAIGN_CODENAME: subjet lines + one line sumary for each, nothing to spammy pls"
+   ],
+   "ms": 2110,
+   "output": "[CLIENT_NAME #0] yes 0.51\n[CLIENT_NAME #1] yes 0.71\n[CAMPAIGN_CODENAME #0] yes 0.56\n[CAMPAIGN_CODENAME #1] yes 0.63"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CAMPAIGN_CODENAME: tu peux rendre ça plus percutant : « le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse »"
+   ],
+   "ms": 1233,
+   "output": "[CLIENT_NAME #0] no 0.49\n[CAMPAIGN_CODENAME #0] yes 0.61"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: how do i setup ssh port fowarding thru bastion-eu1.int.quillmark.net so i can reach postgres from my laptop, i allways forget the -L syntax smh",
+    "-INTERNAL_SERVICE: how do i setup ssh port fowarding thru bastion-eu1.int.quillmark.net so i can reach postgres from my laptop, i allways forget the -L syntax smh"
+   ],
+   "ms": 2171,
+   "output": "[INTERNAL_HOST #0] yes 0.65\n[INTERNAL_SERVICE #0] yes 0.67\n[CUSTOMER_ID #0] no 0.35"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: keycloak.corp.qmk me renvoi une 401 sur le token endpoint alors que le client secret est bon, g verifié 3 fois...",
+    "-INTERNAL_HOST: qqun a deja eu ca ??",
+    "-INTERNAL_SERVICE: keycloak.corp.qmk me renvoi une 401 sur le token endpoint alors que le client secret est bon, g verifié 3 fois...",
+    "-CUSTOMER_ID: keycloak.corp.qmk me renvoi une 401 sur le token endpoint alors que le client secret est bon, g verifié 3 fois...",
+    "-CUSTOMER_ID: qqun a deja eu ca ??"
+   ],
+   "ms": 4662,
+   "output": "[INTERNAL_HOST #0] yes 0.59\n[INTERNAL_HOST #1] yes 0.66\n[INTERNAL_SERVICE #0] yes 0.55\n[INTERNAL_SERVICE #1] no 0.41\n[CUSTOMER_ID #0] yes 0.63\n[CUSTOMER_ID #1] yes 0.60"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_HOST: Uber a open-sourcé Cadence et ensuite les créateurs ont fait Temporal, c'est bien ça ?",
+    "-INTERNAL_HOST: on hesite entre Temporal et un simple cron pour nos workflows de relance",
+    "-INTERNAL_SERVICE: Uber a open-sourcé Cadence et ensuite les créateurs ont fait Temporal, c'est bien ça ?",
+    "-INTERNAL_SERVICE: on hesite entre Temporal et un simple cron pour nos workflows de relance",
+    "-CUSTOMER_ID: on hesite entre Temporal et un simple cron pour nos workflows de relance"
+   ],
+   "ms": 5100,
+   "output": "[INTERNAL_HOST #0] yes 0.82\n[INTERNAL_HOST #1] yes 0.72\n[INTERNAL_SERVICE #0] yes 0.76\n[INTERNAL_SERVICE #1] yes 0.70\n[CUSTOMER_ID #0] no 0.40\n[CUSTOMER_ID #1] yes 0.70"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_HOST: Here's a CSV of the failed webhook deliveries from yesterday.",
+    "-INTERNAL_HOST: Can you tell me which customer has the most failures and what the most common status code is?",
+    "-INTERNAL_HOST: customer,endpoint_host,status,attempts",
+    "-INTERNAL_HOST: cus_mP02zzLc,hooks.slack.com,500,5",
+    "-INTERNAL_HOST: acct-40051-AR,webhook.site,410,1",
+    "-INTERNAL_HOST: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "-INTERNAL_HOST: cus_mP02zzLc,hooks.slack.com,504,5",
+    "-INTERNAL_SERVICE: Here's a CSV of the failed webhook deliveries from yesterday.",
+    "-INTERNAL_SERVICE: Can you tell me which customer has the most failures and what the most common status code is?",
+    "-INTERNAL_SERVICE: customer,endpoint_host,status,attempts",
+    "-INTERNAL_SERVICE: cus_mP02zzLc,hooks.slack.com,500,5",
+    "-INTERNAL_SERVICE: acct-40051-AR,webhook.site,410,1",
+    "-INTERNAL_SERVICE: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "-INTERNAL_SERVICE: cus_mP02zzLc,hooks.slack.com,504,5",
+    "-CUSTOMER_ID: Here's a CSV of the failed webhook deliveries from yesterday.",
+    "-CUSTOMER_ID: Can you tell me which customer has the most failures and what the most common status code is?",
+    "-CUSTOMER_ID: customer,endpoint_host,status,attempts",
+    "+CUSTOMER_ID: cus_mP02zzLc,hooks.slack.com,500,5",
+    "+CUSTOMER_ID: acct-40051-AR,webhook.site,410,1",
+    "+CUSTOMER_ID: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "+CUSTOMER_ID: cus_mP02zzLc,hooks.slack.com,504,5"
+   ],
+   "ms": 58042,
+   "output": "[INTERNAL_HOST #0] yes 0.78\n[INTERNAL_HOST #1] yes 0.73\n[INTERNAL_HOST #2] yes 0.58\n[INTERNAL_HOST #3] yes 0.75\n[INTERNAL_HOST #4] yes 0.77\n[INTERNAL_HOST #5] yes 0.62\n[INTERNAL_HOST #6] yes 0.83\n[INTERNAL_HOST #7] yes 0.74\n[INTERNAL_HOST #8] yes 0.66\n[INTERNAL_SERVICE #0] yes 0.59\n[INTERNAL_SERVICE"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: whats a nicer way to say this to the regional MDs: 'Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%'",
+    "+INTERNAL_FORECAST: whats a nicer way to say this to the regional MDs: 'Europe is going to miss its H2 target, we now see Europe margin at 8.1% not 9%'"
+   ],
+   "ms": 1260,
+   "output": "[UNPUBLISHED_FIGURE #0] yes 0.60\n[INTERNAL_FORECAST #0] yes 0.52"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "+UNPUBLISHED_FIGURE: stp resume pr mon n+1 elle lit rien de long : flash aout CA 452M£ pr le mois, taux d'EBIT 11,7 et conversion cash 82% .",
+    "-UNPUBLISHED_FIGURE: merci !!",
+    "-INTERNAL_FORECAST: stp resume pr mon n+1 elle lit rien de long : flash aout CA 452M£ pr le mois, taux d'EBIT 11,7 et conversion cash 82% .",
+    "-INTERNAL_FORECAST: merci !!"
+   ],
+   "ms": 3664,
+   "output": "[UNPUBLISHED_FIGURE #0] yes 0.65\n[UNPUBLISHED_FIGURE #1] yes 0.73\n[INTERNAL_FORECAST #0] yes 0.67\n[INTERNAL_FORECAST #1] yes 0.72"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_FORECAST: our final divi last yr was 38.2p per share paid in may, how do i explain divdend cover to a new grad in plain english"
+   ],
+   "ms": 1356,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.45\n[INTERNAL_FORECAST #0] yes 0.56"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Bonjour à tous,",
+    "-UNPUBLISHED_FIGURE: Vous trouverez ci-joint le calendrier de clôture T3.",
+    "-UNPUBLISHED_FIGURE: Clôture des entités à J+3, consolidation à J+5 et première version du board pack à J+7.",
+    "-UNPUBLISHED_FIGURE: Merci de me signaler d'ici vendredi si ces dates posent problème à vos équipes.",
+    "-UNPUBLISHED_FIGURE: Cordialement,",
+    "-UNPUBLISHED_FIGURE: Claire",
+    "-INTERNAL_FORECAST: Vous trouverez ci-joint le calendrier de clôture T3.",
+    "-INTERNAL_FORECAST: Clôture des entités à J+3, consolidation à J+5 et première version du board pack à J+7.",
+    "-INTERNAL_FORECAST: Merci de me signaler d'ici vendredi si ces dates posent problème à vos équipes.",
+    "-INTERNAL_FORECAST: Cordialement,",
+    "-INTERNAL_FORECAST: Claire"
+   ],
+   "ms": 15252,
+   "output": "[UNPUBLISHED_FIGURE #0] yes 0.80\n[UNPUBLISHED_FIGURE #1] yes 0.82\n[UNPUBLISHED_FIGURE #2] yes 0.63\n[UNPUBLISHED_FIGURE #3] yes 0.73\n[UNPUBLISHED_FIGURE #4] yes 0.79\n[UNPUBLISHED_FIGURE #5] yes 0.78\n[INTERNAL_FORECAST #0] no 0.34\n[INTERNAL_FORECAST #1] yes 0.52\n[INTERNAL_FORECAST #2] yes 0.57\n[INTERN"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CANDIDATE_NAME: Hi Kofi,",
+    "-CANDIDATE_NAME: Thank you for taking the time to meet our team on Thursday.",
+    "-CANDIDATE_NAME: I'm happy to share that we'd like to invite you to the final round.",
+    "-CANDIDATE_NAME: Could you let me know your availability for a two-hour block next week?",
+    "-CANDIDATE_NAME: Best regards",
+    "-SOURCE_COMPANY: Hi Kofi,",
+    "-SOURCE_COMPANY: Thank you for taking the time to meet our team on Thursday.",
+    "-SOURCE_COMPANY: I'm happy to share that we'd like to invite you to the final round.",
+    "-SOURCE_COMPANY: Could you let me know your availability for a two-hour block next week?",
+    "-SOURCE_COMPANY: Best regards",
+    "-COMPENSATION: Hi Kofi,",
+    "-COMPENSATION: Thank you for taking the time to meet our team on Thursday.",
+    "-COMPENSATION: I'm happy to share that we'd like to invite you to the final round.",
+    "-COMPENSATION: Could you let me know your availability for a two-hour block next week?",
+    "-COMPENSATION: Best regards"
+   ],
+   "ms": 13798,
+   "output": "[CANDIDATE_NAME #0] yes 0.63\n[CANDIDATE_NAME #1] yes 0.67\n[CANDIDATE_NAME #2] yes 0.74\n[CANDIDATE_NAME #3] yes 0.73\n[CANDIDATE_NAME #4] yes 0.70\n[SOURCE_COMPANY #0] yes 0.78\n[SOURCE_COMPANY #1] yes 0.69\n[SOURCE_COMPANY #2] yes 0.70\n[SOURCE_COMPANY #3] yes 0.74\n[SOURCE_COMPANY #4] yes 0.66\n[COMPENSAT"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: entretient avec Thibault Ferrand : bon niv en ROS, un peu leger en c++.",
+    "-CANDIDATE_NAME: chez Norvik Dynamics depuis 4ans, preavis 3 mois, veut 75K€ minimum sinon il bouge pas",
+    "-SOURCE_COMPANY: entretient avec Thibault Ferrand : bon niv en ROS, un peu leger en c++.",
+    "+SOURCE_COMPANY: chez Norvik Dynamics depuis 4ans, preavis 3 mois, veut 75K€ minimum sinon il bouge pas"
+   ],
+   "ms": 5059,
+   "output": "[CANDIDATE_NAME #0] yes 0.63\n[CANDIDATE_NAME #1] yes 0.59\n[SOURCE_COMPANY #0] yes 0.69\n[SOURCE_COMPANY #1] yes 0.83\n[COMPENSATION #0] no 0.48\n[COMPENSATION #1] no 0.40"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CANDIDATE_NAME: Où est-ce que je peux trouver le détail par région pour préparer une présentation ?",
+    "-SOURCE_COMPANY: D'après l'étude de rémunération annuelle de l'Apec, les ingénieurs en robotique confirmés sont plutôt bien payés en région lyonnaise.",
+    "-SOURCE_COMPANY: Où est-ce que je peux trouver le détail par région pour préparer une présentation ?",
+    "-COMPENSATION: Où est-ce que je peux trouver le détail par région pour préparer une présentation ?"
+   ],
+   "ms": 6355,
+   "output": "[CANDIDATE_NAME #0] no 0.44\n[CANDIDATE_NAME #1] yes 0.51\n[SOURCE_COMPANY #0] yes 0.64\n[SOURCE_COMPANY #1] yes 0.72\n[COMPENSATION #0] no 0.46\n[COMPENSATION #1] yes 0.60"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 4,
+   "expected": 4,
+   "predicted": [
+    "-CANDIDATE_NAME: Signed!!",
+    "+CANDIDATE_NAME: J. Lindqvist accepted at IC5 🎉 188 base / 12% bonus, HM is buying lunch for the whole team",
+    "-SOURCE_COMPANY: Signed!!",
+    "-SOURCE_COMPANY: J. Lindqvist accepted at IC5 🎉 188 base / 12% bonus, HM is buying lunch for the whole team",
+    "-COMPENSATION: Signed!!",
+    "+COMPENSATION: J. Lindqvist accepted at IC5 🎉 188 base / 12% bonus, HM is buying lunch for the whole team"
+   ],
+   "ms": 3924,
+   "output": "[CANDIDATE_NAME #0] yes 0.70\n[CANDIDATE_NAME #1] yes 0.56\n[SOURCE_COMPANY #0] yes 0.56\n[SOURCE_COMPANY #1] yes 0.73\n[COMPENSATION #0] yes 0.77\n[COMPENSATION #1] yes 0.78"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: quick q - is $1.1bn for Vessant too rich if their EBITDA is ~70m?",
+    "-DEAL_CODENAME: board wants a sanity check before friday",
+    "+DEAL_TARGET: quick q - is $1.1bn for Vessant too rich if their EBITDA is ~70m?",
+    "-DEAL_TARGET: board wants a sanity check before friday",
+    "+DEAL_VALUE: quick q - is $1.1bn for Vessant too rich if their EBITDA is ~70m?",
+    "-DEAL_VALUE: board wants a sanity check before friday"
+   ],
+   "ms": 3546,
+   "output": "[DEAL_CODENAME #0] yes 0.52\n[DEAL_CODENAME #1] yes 0.65\n[DEAL_TARGET #0] yes 0.57\n[DEAL_TARGET #1] yes 0.54\n[DEAL_VALUE #0] yes 0.81\n[DEAL_VALUE #1] yes 0.89"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-DEAL_CODENAME: Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement.",
+    "-DEAL_CODENAME: Droit français, ton sobre.",
+    "+DEAL_TARGET: Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement.",
+    "-DEAL_TARGET: Droit français, ton sobre.",
+    "-DEAL_VALUE: Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement.",
+    "-DEAL_VALUE: Droit français, ton sobre."
+   ],
+   "ms": 5132,
+   "output": "[DEAL_CODENAME #0] yes 0.64\n[DEAL_CODENAME #1] yes 0.66\n[DEAL_TARGET #0] yes 0.75\n[DEAL_TARGET #1] yes 0.89\n[DEAL_VALUE #0] yes 0.66\n[DEAL_VALUE #1] yes 0.79"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_CODENAME: Could be a useful template for future deals.",
+    "-DEAL_TARGET: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_TARGET: Could be a useful template for future deals.",
+    "-DEAL_VALUE: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_VALUE: Could be a useful template for future deals."
+   ],
+   "ms": 5272,
+   "output": "[DEAL_CODENAME #0] yes 0.61\n[DEAL_CODENAME #1] yes 0.85\n[DEAL_TARGET #0] yes 0.56\n[DEAL_TARGET #1] yes 0.75\n[DEAL_VALUE #0] yes 0.74\n[DEAL_VALUE #1] yes 0.93"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "-DEAL_CODENAME: pourquoi Excel m'affiche tout dans une seule colonne quand j'ouvre l'export ?",
+    "-DEAL_CODENAME: ```",
+    "-DEAL_CODENAME: code_projet;cible;valeur_entreprise;statut",
+    "+DEAL_CODENAME: Belvédère;Sorvane Industrie;31,5 M€;LOI signée",
+    "-DEAL_CODENAME: Phare;-;-;projet interne SI",
+    "-DEAL_CODENAME: Archive-2023;Fellbeck Tooling;41 M£;finalisé (public)",
+    "-DEAL_TARGET: pourquoi Excel m'affiche tout dans une seule colonne quand j'ouvre l'export ?",
+    "-DEAL_TARGET: ```",
+    "-DEAL_TARGET: code_projet;cible;valeur_entreprise;statut",
+    "+DEAL_TARGET: Belvédère;Sorvane Industrie;31,5 M€;LOI signée",
+    "-DEAL_TARGET: Phare;-;-;projet interne SI",
+    "-DEAL_VALUE: pourquoi Excel m'affiche tout dans une seule colonne quand j'ouvre l'export ?",
+    "-DEAL_VALUE: ```",
+    "-DEAL_VALUE: code_projet;cible;valeur_entreprise;statut",
+    "+DEAL_VALUE: Belvédère;Sorvane Industrie;31,5 M€;LOI signée",
+    "-DEAL_VALUE: Phare;-;-;projet interne SI",
+    "-DEAL_VALUE: Archive-2023;Fellbeck Tooling;41 M£;finalisé (public)"
+   ],
+   "ms": 29478,
+   "output": "[DEAL_CODENAME #0] yes 0.61\n[DEAL_CODENAME #1] yes 0.74\n[DEAL_CODENAME #2] yes 0.78\n[DEAL_CODENAME #3] yes 0.71\n[DEAL_CODENAME #4] yes 0.76\n[DEAL_CODENAME #5] yes 0.79\n[DEAL_CODENAME #6] yes 0.64\n[DEAL_TARGET #0] yes 0.51\n[DEAL_TARGET #1] yes 0.68\n[DEAL_TARGET #2] yes 0.70\n[DEAL_TARGET #3] yes 0.51\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "research-en-004",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: lab mtg 12/3",
+    "-STUDY_NAME: - Sam: qPCR repeats done, Il6 down again in KO",
+    "-STUDY_NAME: - me: send updated SOP to Quillon Biosciences b4 fri",
+    "-STUDY_NAME: - Hanna: renewal draft due end of month",
+    "-STUDY_NAME: - order RIPA + protease inhib",
+    "-STUDY_NAME: turn this into a short recap email for the group pls",
+    "-PARTNER_LAB: lab mtg 12/3",
+    "-PARTNER_LAB: - Sam: qPCR repeats done, Il6 down again in KO",
+    "+PARTNER_LAB: - me: send updated SOP to Quillon Biosciences b4 fri",
+    "-PARTNER_LAB: - Hanna: renewal draft due end of month",
+    "-PARTNER_LAB: - order RIPA + protease inhib",
+    "-PARTNER_LAB: turn this into a short recap email for the group pls",
+    "-EARLY_RESULT: lab mtg 12/3",
+    "-EARLY_RESULT: - Sam: qPCR repeats done, Il6 down again in KO",
+    "-EARLY_RESULT: - me: send updated SOP to Quillon Biosciences b4 fri",
+    "-EARLY_RESULT: - Hanna: renewal draft due end of month",
+    "-EARLY_RESULT: - order RIPA + protease inhib",
+    "-EARLY_RESULT: turn this into a short recap email for the group pls"
+   ],
+   "ms": 21301,
+   "output": "[STUDY_NAME #0] yes 0.82\n[STUDY_NAME #1] yes 0.83\n[STUDY_NAME #2] yes 0.77\n[STUDY_NAME #3] yes 0.82\n[STUDY_NAME #4] yes 0.80\n[STUDY_NAME #5] yes 0.85\n[PARTNER_LAB #0] yes 0.52\n[PARTNER_LAB #1] yes 0.59\n[PARTNER_LAB #2] yes 0.60\n[PARTNER_LAB #3] yes 0.61\n[PARTNER_LAB #4] yes 0.77\n[PARTNER_LAB #5] yes"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: réu labo 04/02",
+    "-STUDY_NAME: - Julien : qPCR refaites, Il6 tjs en baisse chez les KO",
+    "-STUDY_NAME: - moi : envoyer le protocole maj à Solenne Biotech avant vendredi",
+    "-STUDY_NAME: - Hélène : dossier ANR à boucler fin du mois",
+    "-STUDY_NAME: - commander RIPA",
+    "-PARTNER_LAB: réu labo 04/02",
+    "-PARTNER_LAB: - Julien : qPCR refaites, Il6 tjs en baisse chez les KO",
+    "+PARTNER_LAB: - moi : envoyer le protocole maj à Solenne Biotech avant vendredi",
+    "-PARTNER_LAB: - Hélène : dossier ANR à boucler fin du mois",
+    "-PARTNER_LAB: - commander RIPA",
+    "-PARTNER_LAB: fais-en un petit mail récap pour l'équipe stp",
+    "-EARLY_RESULT: réu labo 04/02",
+    "-EARLY_RESULT: - Julien : qPCR refaites, Il6 tjs en baisse chez les KO",
+    "-EARLY_RESULT: - moi : envoyer le protocole maj à Solenne Biotech avant vendredi",
+    "-EARLY_RESULT: - Hélène : dossier ANR à boucler fin du mois",
+    "-EARLY_RESULT: - commander RIPA",
+    "-EARLY_RESULT: fais-en un petit mail récap pour l'équipe stp"
+   ],
+   "ms": 26232,
+   "output": "[STUDY_NAME #0] yes 0.54\n[STUDY_NAME #1] yes 0.59\n[STUDY_NAME #2] yes 0.76\n[STUDY_NAME #3] yes 0.59\n[STUDY_NAME #4] yes 0.71\n[STUDY_NAME #5] no 0.48\n[PARTNER_LAB #0] yes 0.77\n[PARTNER_LAB #1] yes 0.73\n[PARTNER_LAB #2] yes 0.84\n[PARTNER_LAB #3] yes 0.71\n[PARTNER_LAB #4] yes 0.70\n[PARTNER_LAB #5] yes "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Rédige en anglais une lettre d'accompagnement aux éditeurs de eLife pour notre manuscrit sur la polarisation des macrophages.",
+    "-STUDY_NAME: Mentionne le financement ANR et Inserm.",
+    "-STUDY_NAME: Une page max.",
+    "-PARTNER_LAB: Rédige en anglais une lettre d'accompagnement aux éditeurs de eLife pour notre manuscrit sur la polarisation des macrophages.",
+    "-PARTNER_LAB: Mentionne le financement ANR et Inserm.",
+    "-PARTNER_LAB: Une page max.",
+    "-EARLY_RESULT: Rédige en anglais une lettre d'accompagnement aux éditeurs de eLife pour notre manuscrit sur la polarisation des macrophages.",
+    "-EARLY_RESULT: Mentionne le financement ANR et Inserm.",
+    "-EARLY_RESULT: Une page max."
+   ],
+   "ms": 8690,
+   "output": "[STUDY_NAME #0] yes 0.54\n[STUDY_NAME #1] yes 0.70\n[STUDY_NAME #2] yes 0.88\n[PARTNER_LAB #0] yes 0.72\n[PARTNER_LAB #1] yes 0.79\n[PARTNER_LAB #2] yes 0.72\n[EARLY_RESULT #0] yes 0.80\n[EARLY_RESULT #1] yes 0.74\n[EARLY_RESULT #2] yes 0.83"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Draft a cover letter to the eLife editors for our manuscript on macrophage polarization in fibrotic liver.",
+    "-STUDY_NAME: Mention funding from the Wellcome Trust and the European Research Council.",
+    "-STUDY_NAME: Keep it to one page.",
+    "-PARTNER_LAB: Mention funding from the Wellcome Trust and the European Research Council.",
+    "-PARTNER_LAB: Keep it to one page.",
+    "-EARLY_RESULT: Draft a cover letter to the eLife editors for our manuscript on macrophage polarization in fibrotic liver.",
+    "-EARLY_RESULT: Mention funding from the Wellcome Trust and the European Research Council.",
+    "-EARLY_RESULT: Keep it to one page."
+   ],
+   "ms": 7466,
+   "output": "[STUDY_NAME #0] yes 0.89\n[STUDY_NAME #1] yes 0.85\n[STUDY_NAME #2] yes 0.88\n[PARTNER_LAB #0] no 0.44\n[PARTNER_LAB #1] yes 0.67\n[PARTNER_LAB #2] yes 0.67\n[EARLY_RESULT #0] yes 0.71\n[EARLY_RESULT #1] yes 0.86\n[EARLY_RESULT #2] yes 0.91"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Discovery notes - Pembrook Dental Group",
+    "-UNRELEASED_PRODUCT: Current setup: 60 clinics, a mix of older K5 docks and laptops",
+    "-UNRELEASED_PRODUCT: Decision by: end of Q4",
+    "-UNRELEASED_PRODUCT: Competitors in the mix: Draxon",
+    "-UNRELEASED_PRODUCT: Pain: front-desk devices fail during peak hours",
+    "-UNRELEASED_PRODUCT: Write 3 follow-up questions I should ask on the next call.",
+    "+PROSPECT_NAME: Discovery notes - Pembrook Dental Group",
+    "-PROSPECT_NAME: Current setup: 60 clinics, a mix of older K5 docks and laptops",
+    "-PROSPECT_NAME: Decision by: end of Q4",
+    "-PROSPECT_NAME: Competitors in the mix: Draxon",
+    "-PROSPECT_NAME: Pain: front-desk devices fail during peak hours",
+    "-PROSPECT_NAME: Write 3 follow-up questions I should ask on the next call."
+   ],
+   "ms": 16047,
+   "output": "[UNRELEASED_PRODUCT #0] yes 0.84\n[UNRELEASED_PRODUCT #1] yes 0.85\n[UNRELEASED_PRODUCT #2] yes 0.89\n[UNRELEASED_PRODUCT #3] yes 0.90\n[UNRELEASED_PRODUCT #4] yes 0.81\n[UNRELEASED_PRODUCT #5] yes 0.86\n[PROSPECT_NAME #0] yes 0.75\n[PROSPECT_NAME #1] yes 0.83\n[PROSPECT_NAME #2] yes 0.85\n[PROSPECT_NAME #3]"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+UNRELEASED_PRODUCT: petite question avant mon call : j'ai le droit de dire au prospect que le pulse edge gère le mode hors ligne ?",
+    "-UNRELEASED_PRODUCT: l'équipe produit m'a dit \"normalement oui\" mdr",
+    "-PROSPECT_NAME: petite question avant mon call : j'ai le droit de dire au prospect que le pulse edge gère le mode hors ligne ?",
+    "-PROSPECT_NAME: l'équipe produit m'a dit \"normalement oui\" mdr"
+   ],
+   "ms": 4080,
+   "output": "[UNRELEASED_PRODUCT #0] yes 0.57\n[UNRELEASED_PRODUCT #1] yes 0.64\n[PROSPECT_NAME #0] yes 0.75\n[PROSPECT_NAME #1] yes 0.75"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: wat do u guys think of the new lenovo thinkpad docks vs the K7??",
+    "-UNRELEASED_PRODUCT: customer asked me n i have no clue lol.",
+    "-UNRELEASED_PRODUCT: also r the K5s still supported or did we EOL them",
+    "-PROSPECT_NAME: wat do u guys think of the new lenovo thinkpad docks vs the K7??",
+    "-PROSPECT_NAME: customer asked me n i have no clue lol.",
+    "-PROSPECT_NAME: also r the K5s still supported or did we EOL them"
+   ],
+   "ms": 5694,
+   "output": "[UNRELEASED_PRODUCT #0] yes 0.58\n[UNRELEASED_PRODUCT #1] yes 0.76\n[UNRELEASED_PRODUCT #2] yes 0.76\n[PROSPECT_NAME #0] yes 0.66\n[PROSPECT_NAME #1] yes 0.72\n[PROSPECT_NAME #2] yes 0.70"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: tu peux verifier le ton de ce mail ?",
+    "-UNRELEASED_PRODUCT: je le trouve un peu sec",
+    "-UNRELEASED_PRODUCT: Bonjour Mme Roussel, je vous confirme notre rendez-vous du 30.",
+    "-UNRELEASED_PRODUCT: J'ai proposé à notre ingénieur avant-vente de se joindre à nous afin de répondre aux questions techniques soulevées par les Hotels Delacroix la semaine dernière.",
+    "-UNRELEASED_PRODUCT: À bientôt.",
+    "-PROSPECT_NAME: tu peux verifier le ton de ce mail ?",
+    "-PROSPECT_NAME: je le trouve un peu sec",
+    "-PROSPECT_NAME: Bonjour Mme Roussel, je vous confirme notre rendez-vous du 30.",
+    "+PROSPECT_NAME: J'ai proposé à notre ingénieur avant-vente de se joindre à nous afin de répondre aux questions techniques soulevées par les Hotels Delacroix la semaine dernière.",
+    "-PROSPECT_NAME: À bientôt."
+   ],
+   "ms": 15263,
+   "output": "[UNRELEASED_PRODUCT #0] yes 0.50\n[UNRELEASED_PRODUCT #1] yes 0.59\n[UNRELEASED_PRODUCT #2] yes 0.66\n[UNRELEASED_PRODUCT #3] yes 0.66\n[UNRELEASED_PRODUCT #4] yes 0.56\n[PROSPECT_NAME #0] yes 0.72\n[PROSPECT_NAME #1] yes 0.59\n[PROSPECT_NAME #2] yes 0.73\n[PROSPECT_NAME #3] yes 0.79\n[PROSPECT_NAME #4] yes "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "-CUSTOMER_NAME: translate into spanish for the customer, keep it formal pls:",
+    "+CUSTOMER_NAME: \"Dear Ms Imogen Castellanos, your order has been split into two parcels.",
+    "-CUSTOMER_NAME: The first one arrived yesterday; the second one, tracking number PCL5519027734ES, should reach you on Thursday.",
+    "-CUSTOMER_NAME: We apologise for any inconvenience.\"",
+    "-ACCOUNT_REF: translate into spanish for the customer, keep it formal pls:",
+    "-ACCOUNT_REF: \"Dear Ms Imogen Castellanos, your order has been split into two parcels.",
+    "+ACCOUNT_REF: The first one arrived yesterday; the second one, tracking number PCL5519027734ES, should reach you on Thursday.",
+    "-ACCOUNT_REF: We apologise for any inconvenience.\""
+   ],
+   "ms": 11136,
+   "output": "[CUSTOMER_NAME #0] yes 0.75\n[CUSTOMER_NAME #1] yes 0.76\n[CUSTOMER_NAME #2] yes 0.76\n[CUSTOMER_NAME #3] yes 0.69\n[ACCOUNT_REF #0] yes 0.76\n[ACCOUNT_REF #1] yes 0.81\n[ACCOUNT_REF #2] yes 0.87\n[ACCOUNT_REF #3] yes 0.87"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_NAME: Quelqu'un a déjà vu le colis de Mme Karadeniz ?",
+    "-CUSTOMER_NAME: Il apparaît comme livré à Toulouse alors que la commande part à Nantes.",
+    "-CUSTOMER_NAME: Je vérifie avec le transporteur mais c'est bizarre.",
+    "-ACCOUNT_REF: Quelqu'un a déjà vu le colis de Mme Karadeniz ?",
+    "-ACCOUNT_REF: Il apparaît comme livré à Toulouse alors que la commande part à Nantes.",
+    "-ACCOUNT_REF: Je vérifie avec le transporteur mais c'est bizarre."
+   ],
+   "ms": 7043,
+   "output": "[CUSTOMER_NAME #0] yes 0.52\n[CUSTOMER_NAME #1] yes 0.59\n[CUSTOMER_NAME #2] yes 0.64\n[ACCOUNT_REF #0] yes 0.66\n[ACCOUNT_REF #1] yes 0.64\n[ACCOUNT_REF #2] yes 0.74"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: tu peux rendre cette réclamation au transporteur plus formelle ?",
+    "-CUSTOMER_NAME: Bonjour, votre livreur (Kévin d'après l'avis de passage) a noté que personne n'était présent mais notre client affirme qu'il était chez lui toute l'aprem.",
+    "-CUSTOMER_NAME: Pouvez vous nous transmettre les données GPS de la tentative de livraison.",
+    "-CUSTOMER_NAME: Merci, le service client Parcelio",
+    "-ACCOUNT_REF: Pouvez vous nous transmettre les données GPS de la tentative de livraison.",
+    "-ACCOUNT_REF: Merci, le service client Parcelio"
+   ],
+   "ms": 13517,
+   "output": "[CUSTOMER_NAME #0] yes 0.62\n[CUSTOMER_NAME #1] yes 0.54\n[CUSTOMER_NAME #2] yes 0.65\n[CUSTOMER_NAME #3] yes 0.63\n[ACCOUNT_REF #0] no 0.43\n[ACCOUNT_REF #1] no 0.37\n[ACCOUNT_REF #2] yes 0.59\n[ACCOUNT_REF #3] yes 0.68"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-logit",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "-CUSTOMER_NAME: This JSON from the order API shows the wrong delivery status, what field should I look at?",
+    "-CUSTOMER_NAME: ```json",
+    "-CUSTOMER_NAME: {",
+    "-CUSTOMER_NAME: \"order_id\": \"ORD-5906-3321\",",
+    "-CUSTOMER_NAME: \"account_id\": \"PX-742018\",",
+    "+CUSTOMER_NAME: \"customer\": {\"full_name\": \"Seraphina Kowalski\", \"tier\": \"plus\"},",
+    "-CUSTOMER_NAME: \"handled_by\": \"Support Bot v2\",",
+    "-CUSTOMER_NAME: \"shipment\": {\"carrier\": \"DPD\", \"status\": \"IN_TRANSIT\", \"last_event\": \"DLV\", \"http_status\": 200},",
+    "-CUSTOMER_NAME: \"sku\": \"PMB-L-200\"",
+    "-CUSTOMER_NAME: }",
+    "-CUSTOMER_NAME: ```",
+    "-ACCOUNT_REF: This JSON from the order API shows the wrong delivery status, what field should I look at?",
+    "-ACCOUNT_REF: ```json",
+    "-ACCOUNT_REF: {",
+    "+ACCOUNT_REF: \"order_id\": \"ORD-5906-3321\",",
+    "+ACCOUNT_REF: \"account_id\": \"PX-742018\",",
+    "-ACCOUNT_REF: \"customer\": {\"full_name\": \"Seraphina Kowalski\", \"tier\": \"plus\"},",
+    "-ACCOUNT_REF: \"handled_by\": \"Support Bot v2\",",
+    "-ACCOUNT_REF: \"shipment\": {\"carrier\": \"DPD\", \"status\": \"IN_TRANSIT\", \"last_event\": \"DLV\", \"http_status\": 200},",
+    "-ACCOUNT_REF: \"sku\": \"PMB-L-200\"",
+    "-ACCOUNT_REF: }",
+    "-ACCOUNT_REF: ```"
+   ],
+   "ms": 54666,
+   "output": "[CUSTOMER_NAME #0] yes 0.74\n[CUSTOMER_NAME #1] yes 0.70\n[CUSTOMER_NAME #2] yes 0.79\n[CUSTOMER_NAME #3] yes 0.67\n[CUSTOMER_NAME #4] yes 0.68\n[CUSTOMER_NAME #5] yes 0.58\n[CUSTOMER_NAME #6] yes 0.63\n[CUSTOMER_NAME #7] yes 0.69\n[CUSTOMER_NAME #8] yes 0.58\n[CUSTOMER_NAME #9] yes 0.78\n[CUSTOMER_NAME #10] "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4456,
+   "output": "[CLIENT_NAME #0] no 0.68\n[CLIENT_NAME #1] no 0.69\n[CLIENT_NAME #2] no 0.79\n[CAMPAIGN_CODENAME #0] no 0.59\n[CAMPAIGN_CODENAME #1] no 0.69\n[CAMPAIGN_CODENAME #2] no 0.63"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11981,
+   "output": "[CLIENT_NAME #0] no 0.68\n[CLIENT_NAME #1] no 0.65\n[CLIENT_NAME #2] no 0.68\n[CLIENT_NAME #3] no 0.59\n[CLIENT_NAME #4] no 0.58\n[CLIENT_NAME #5] no 0.70\n[CAMPAIGN_CODENAME #0] no 0.65\n[CAMPAIGN_CODENAME #1] no 0.63\n[CAMPAIGN_CODENAME #2] no 0.54\n[CAMPAIGN_CODENAME #3] no 0.67\n[CAMPAIGN_CODENAME #4] no "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2110,
+   "output": "[CLIENT_NAME #0] no 0.51\n[CLIENT_NAME #1] no 0.71\n[CAMPAIGN_CODENAME #0] no 0.56\n[CAMPAIGN_CODENAME #1] no 0.63"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1233,
+   "output": "[CLIENT_NAME #0] no 0.49\n[CAMPAIGN_CODENAME #0] no 0.61"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2171,
+   "output": "[INTERNAL_HOST #0] no 0.65\n[INTERNAL_SERVICE #0] no 0.67\n[CUSTOMER_ID #0] no 0.35"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4662,
+   "output": "[INTERNAL_HOST #0] no 0.59\n[INTERNAL_HOST #1] no 0.66\n[INTERNAL_SERVICE #0] no 0.55\n[INTERNAL_SERVICE #1] no 0.41\n[CUSTOMER_ID #0] no 0.63\n[CUSTOMER_ID #1] no 0.60"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_HOST: Uber a open-sourcé Cadence et ensuite les créateurs ont fait Temporal, c'est bien ça ?"
+   ],
+   "ms": 5100,
+   "output": "[INTERNAL_HOST #0] yes 0.82\n[INTERNAL_HOST #1] no 0.72\n[INTERNAL_SERVICE #0] no 0.76\n[INTERNAL_SERVICE #1] no 0.70\n[CUSTOMER_ID #0] no 0.40\n[CUSTOMER_ID #1] no 0.70"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_HOST: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "-INTERNAL_SERVICE: acct-40051-AR,webhook.site,410,1",
+    "-INTERNAL_SERVICE: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "-CUSTOMER_ID: Can you tell me which customer has the most failures and what the most common status code is?",
+    "+CUSTOMER_ID: cus_mP02zzLc,hooks.slack.com,500,5",
+    "+CUSTOMER_ID: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "+CUSTOMER_ID: cus_mP02zzLc,hooks.slack.com,504,5"
+   ],
+   "ms": 58042,
+   "output": "[INTERNAL_HOST #0] no 0.78\n[INTERNAL_HOST #1] no 0.73\n[INTERNAL_HOST #2] no 0.58\n[INTERNAL_HOST #3] no 0.75\n[INTERNAL_HOST #4] no 0.77\n[INTERNAL_HOST #5] no 0.62\n[INTERNAL_HOST #6] yes 0.83\n[INTERNAL_HOST #7] no 0.74\n[INTERNAL_HOST #8] no 0.66\n[INTERNAL_SERVICE #0] no 0.59\n[INTERNAL_SERVICE #1] no 0"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1260,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.60\n[INTERNAL_FORECAST #0] no 0.52"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 3664,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.65\n[UNPUBLISHED_FIGURE #1] no 0.73\n[INTERNAL_FORECAST #0] no 0.67\n[INTERNAL_FORECAST #1] no 0.72"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1356,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.45\n[INTERNAL_FORECAST #0] no 0.56"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Bonjour à tous,",
+    "-UNPUBLISHED_FIGURE: Vous trouverez ci-joint le calendrier de clôture T3."
+   ],
+   "ms": 15252,
+   "output": "[UNPUBLISHED_FIGURE #0] yes 0.80\n[UNPUBLISHED_FIGURE #1] yes 0.82\n[UNPUBLISHED_FIGURE #2] no 0.63\n[UNPUBLISHED_FIGURE #3] no 0.73\n[UNPUBLISHED_FIGURE #4] no 0.79\n[UNPUBLISHED_FIGURE #5] no 0.78\n[INTERNAL_FORECAST #0] no 0.34\n[INTERNAL_FORECAST #1] no 0.52\n[INTERNAL_FORECAST #2] no 0.57\n[INTERNAL_FOR"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-COMPENSATION: Hi Kofi,",
+    "-COMPENSATION: Thank you for taking the time to meet our team on Thursday.",
+    "-COMPENSATION: I'm happy to share that we'd like to invite you to the final round."
+   ],
+   "ms": 13798,
+   "output": "[CANDIDATE_NAME #0] no 0.63\n[CANDIDATE_NAME #1] no 0.67\n[CANDIDATE_NAME #2] no 0.74\n[CANDIDATE_NAME #3] no 0.73\n[CANDIDATE_NAME #4] no 0.70\n[SOURCE_COMPANY #0] no 0.78\n[SOURCE_COMPANY #1] no 0.69\n[SOURCE_COMPANY #2] no 0.70\n[SOURCE_COMPANY #3] no 0.74\n[SOURCE_COMPANY #4] no 0.66\n[COMPENSATION #0] ye"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+SOURCE_COMPANY: chez Norvik Dynamics depuis 4ans, preavis 3 mois, veut 75K€ minimum sinon il bouge pas"
+   ],
+   "ms": 5059,
+   "output": "[CANDIDATE_NAME #0] no 0.63\n[CANDIDATE_NAME #1] no 0.59\n[SOURCE_COMPANY #0] no 0.69\n[SOURCE_COMPANY #1] yes 0.83\n[COMPENSATION #0] no 0.48\n[COMPENSATION #1] no 0.40"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6355,
+   "output": "[CANDIDATE_NAME #0] no 0.44\n[CANDIDATE_NAME #1] no 0.51\n[SOURCE_COMPANY #0] no 0.64\n[SOURCE_COMPANY #1] no 0.72\n[COMPENSATION #0] no 0.46\n[COMPENSATION #1] no 0.60"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 3924,
+   "output": "[CANDIDATE_NAME #0] no 0.70\n[CANDIDATE_NAME #1] no 0.56\n[SOURCE_COMPANY #0] no 0.56\n[SOURCE_COMPANY #1] no 0.73\n[COMPENSATION #0] no 0.77\n[COMPENSATION #1] no 0.78"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+DEAL_VALUE: quick q - is $1.1bn for Vessant too rich if their EBITDA is ~70m?",
+    "-DEAL_VALUE: board wants a sanity check before friday"
+   ],
+   "ms": 3546,
+   "output": "[DEAL_CODENAME #0] no 0.52\n[DEAL_CODENAME #1] no 0.65\n[DEAL_TARGET #0] no 0.57\n[DEAL_TARGET #1] no 0.54\n[DEAL_VALUE #0] yes 0.81\n[DEAL_VALUE #1] yes 0.89"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-DEAL_TARGET: Droit français, ton sobre."
+   ],
+   "ms": 5132,
+   "output": "[DEAL_CODENAME #0] no 0.64\n[DEAL_CODENAME #1] no 0.66\n[DEAL_TARGET #0] no 0.75\n[DEAL_TARGET #1] yes 0.89\n[DEAL_VALUE #0] no 0.66\n[DEAL_VALUE #1] no 0.79"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: Could be a useful template for future deals.",
+    "-DEAL_VALUE: Could be a useful template for future deals."
+   ],
+   "ms": 5272,
+   "output": "[DEAL_CODENAME #0] no 0.61\n[DEAL_CODENAME #1] yes 0.85\n[DEAL_TARGET #0] no 0.56\n[DEAL_TARGET #1] no 0.75\n[DEAL_VALUE #0] no 0.74\n[DEAL_VALUE #1] yes 0.93"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 29478,
+   "output": "[DEAL_CODENAME #0] no 0.61\n[DEAL_CODENAME #1] no 0.74\n[DEAL_CODENAME #2] no 0.78\n[DEAL_CODENAME #3] no 0.71\n[DEAL_CODENAME #4] no 0.76\n[DEAL_CODENAME #5] no 0.79\n[DEAL_CODENAME #6] no 0.64\n[DEAL_TARGET #0] no 0.51\n[DEAL_TARGET #1] no 0.68\n[DEAL_TARGET #2] no 0.70\n[DEAL_TARGET #3] no 0.51\n[DEAL_TARGE"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "research-en-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: lab mtg 12/3",
+    "-STUDY_NAME: - Sam: qPCR repeats done, Il6 down again in KO",
+    "-STUDY_NAME: - Hanna: renewal draft due end of month",
+    "-STUDY_NAME: turn this into a short recap email for the group pls",
+    "-EARLY_RESULT: - Sam: qPCR repeats done, Il6 down again in KO",
+    "-EARLY_RESULT: - order RIPA + protease inhib",
+    "-EARLY_RESULT: turn this into a short recap email for the group pls"
+   ],
+   "ms": 21301,
+   "output": "[STUDY_NAME #0] yes 0.82\n[STUDY_NAME #1] yes 0.83\n[STUDY_NAME #2] no 0.77\n[STUDY_NAME #3] yes 0.82\n[STUDY_NAME #4] no 0.80\n[STUDY_NAME #5] yes 0.85\n[PARTNER_LAB #0] no 0.52\n[PARTNER_LAB #1] no 0.59\n[PARTNER_LAB #2] no 0.60\n[PARTNER_LAB #3] no 0.61\n[PARTNER_LAB #4] no 0.77\n[PARTNER_LAB #5] no 0.73\n[E"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+PARTNER_LAB: - moi : envoyer le protocole maj à Solenne Biotech avant vendredi",
+    "-EARLY_RESULT: fais-en un petit mail récap pour l'équipe stp"
+   ],
+   "ms": 26232,
+   "output": "[STUDY_NAME #0] no 0.54\n[STUDY_NAME #1] no 0.59\n[STUDY_NAME #2] no 0.76\n[STUDY_NAME #3] no 0.59\n[STUDY_NAME #4] no 0.71\n[STUDY_NAME #5] no 0.48\n[PARTNER_LAB #0] no 0.77\n[PARTNER_LAB #1] no 0.73\n[PARTNER_LAB #2] yes 0.84\n[PARTNER_LAB #3] no 0.71\n[PARTNER_LAB #4] no 0.70\n[PARTNER_LAB #5] no 0.78\n[EARL"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Une page max.",
+    "-EARLY_RESULT: Une page max."
+   ],
+   "ms": 8690,
+   "output": "[STUDY_NAME #0] no 0.54\n[STUDY_NAME #1] no 0.70\n[STUDY_NAME #2] yes 0.88\n[PARTNER_LAB #0] no 0.72\n[PARTNER_LAB #1] no 0.79\n[PARTNER_LAB #2] no 0.72\n[EARLY_RESULT #0] no 0.80\n[EARLY_RESULT #1] no 0.74\n[EARLY_RESULT #2] yes 0.83"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Draft a cover letter to the eLife editors for our manuscript on macrophage polarization in fibrotic liver.",
+    "-STUDY_NAME: Mention funding from the Wellcome Trust and the European Research Council.",
+    "-STUDY_NAME: Keep it to one page.",
+    "-EARLY_RESULT: Mention funding from the Wellcome Trust and the European Research Council.",
+    "-EARLY_RESULT: Keep it to one page."
+   ],
+   "ms": 7466,
+   "output": "[STUDY_NAME #0] yes 0.89\n[STUDY_NAME #1] yes 0.85\n[STUDY_NAME #2] yes 0.88\n[PARTNER_LAB #0] no 0.44\n[PARTNER_LAB #1] no 0.67\n[PARTNER_LAB #2] no 0.67\n[EARLY_RESULT #0] no 0.71\n[EARLY_RESULT #1] yes 0.86\n[EARLY_RESULT #2] yes 0.91"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Discovery notes - Pembrook Dental Group",
+    "-UNRELEASED_PRODUCT: Current setup: 60 clinics, a mix of older K5 docks and laptops",
+    "-UNRELEASED_PRODUCT: Decision by: end of Q4",
+    "-UNRELEASED_PRODUCT: Competitors in the mix: Draxon",
+    "-UNRELEASED_PRODUCT: Pain: front-desk devices fail during peak hours",
+    "-UNRELEASED_PRODUCT: Write 3 follow-up questions I should ask on the next call.",
+    "-PROSPECT_NAME: Current setup: 60 clinics, a mix of older K5 docks and laptops",
+    "-PROSPECT_NAME: Decision by: end of Q4",
+    "-PROSPECT_NAME: Competitors in the mix: Draxon",
+    "-PROSPECT_NAME: Pain: front-desk devices fail during peak hours",
+    "-PROSPECT_NAME: Write 3 follow-up questions I should ask on the next call."
+   ],
+   "ms": 16047,
+   "output": "[UNRELEASED_PRODUCT #0] yes 0.84\n[UNRELEASED_PRODUCT #1] yes 0.85\n[UNRELEASED_PRODUCT #2] yes 0.89\n[UNRELEASED_PRODUCT #3] yes 0.90\n[UNRELEASED_PRODUCT #4] yes 0.81\n[UNRELEASED_PRODUCT #5] yes 0.86\n[PROSPECT_NAME #0] no 0.75\n[PROSPECT_NAME #1] yes 0.83\n[PROSPECT_NAME #2] yes 0.85\n[PROSPECT_NAME #3] "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4080,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.57\n[UNRELEASED_PRODUCT #1] no 0.64\n[PROSPECT_NAME #0] no 0.75\n[PROSPECT_NAME #1] no 0.75"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5694,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.58\n[UNRELEASED_PRODUCT #1] no 0.76\n[UNRELEASED_PRODUCT #2] no 0.76\n[PROSPECT_NAME #0] no 0.66\n[PROSPECT_NAME #1] no 0.72\n[PROSPECT_NAME #2] no 0.70"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 15263,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.50\n[UNRELEASED_PRODUCT #1] no 0.59\n[UNRELEASED_PRODUCT #2] no 0.66\n[UNRELEASED_PRODUCT #3] no 0.66\n[UNRELEASED_PRODUCT #4] no 0.56\n[PROSPECT_NAME #0] no 0.72\n[PROSPECT_NAME #1] no 0.59\n[PROSPECT_NAME #2] no 0.73\n[PROSPECT_NAME #3] no 0.79\n[PROSPECT_NAME #4] no 0.69"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "-ACCOUNT_REF: \"Dear Ms Imogen Castellanos, your order has been split into two parcels.",
+    "+ACCOUNT_REF: The first one arrived yesterday; the second one, tracking number PCL5519027734ES, should reach you on Thursday.",
+    "-ACCOUNT_REF: We apologise for any inconvenience.\""
+   ],
+   "ms": 11136,
+   "output": "[CUSTOMER_NAME #0] no 0.75\n[CUSTOMER_NAME #1] no 0.76\n[CUSTOMER_NAME #2] no 0.76\n[CUSTOMER_NAME #3] no 0.69\n[ACCOUNT_REF #0] no 0.76\n[ACCOUNT_REF #1] yes 0.81\n[ACCOUNT_REF #2] yes 0.87\n[ACCOUNT_REF #3] yes 0.87"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7043,
+   "output": "[CUSTOMER_NAME #0] no 0.52\n[CUSTOMER_NAME #1] no 0.59\n[CUSTOMER_NAME #2] no 0.64\n[ACCOUNT_REF #0] no 0.66\n[ACCOUNT_REF #1] no 0.64\n[ACCOUNT_REF #2] no 0.74"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 13517,
+   "output": "[CUSTOMER_NAME #0] no 0.62\n[CUSTOMER_NAME #1] no 0.54\n[CUSTOMER_NAME #2] no 0.65\n[CUSTOMER_NAME #3] no 0.63\n[ACCOUNT_REF #0] no 0.43\n[ACCOUNT_REF #1] no 0.37\n[ACCOUNT_REF #2] no 0.59\n[ACCOUNT_REF #3] no 0.68"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.8",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-ACCOUNT_REF: ```json",
+    "+ACCOUNT_REF: \"order_id\": \"ORD-5906-3321\",",
+    "-ACCOUNT_REF: \"shipment\": {\"carrier\": \"DPD\", \"status\": \"IN_TRANSIT\", \"last_event\": \"DLV\", \"http_status\": 200},",
+    "-ACCOUNT_REF: ```"
+   ],
+   "ms": 54666,
+   "output": "[CUSTOMER_NAME #0] no 0.74\n[CUSTOMER_NAME #1] no 0.70\n[CUSTOMER_NAME #2] no 0.79\n[CUSTOMER_NAME #3] no 0.67\n[CUSTOMER_NAME #4] no 0.68\n[CUSTOMER_NAME #5] no 0.58\n[CUSTOMER_NAME #6] no 0.63\n[CUSTOMER_NAME #7] no 0.69\n[CUSTOMER_NAME #8] no 0.58\n[CUSTOMER_NAME #9] no 0.78\n[CUSTOMER_NAME #10] no 0.68\n[A"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4456,
+   "output": "[CLIENT_NAME #0] no 0.68\n[CLIENT_NAME #1] no 0.69\n[CLIENT_NAME #2] no 0.79\n[CAMPAIGN_CODENAME #0] no 0.59\n[CAMPAIGN_CODENAME #1] no 0.69\n[CAMPAIGN_CODENAME #2] no 0.63"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 11981,
+   "output": "[CLIENT_NAME #0] no 0.68\n[CLIENT_NAME #1] no 0.65\n[CLIENT_NAME #2] no 0.68\n[CLIENT_NAME #3] no 0.59\n[CLIENT_NAME #4] no 0.58\n[CLIENT_NAME #5] no 0.70\n[CAMPAIGN_CODENAME #0] no 0.65\n[CAMPAIGN_CODENAME #1] no 0.63\n[CAMPAIGN_CODENAME #2] no 0.54\n[CAMPAIGN_CODENAME #3] no 0.67\n[CAMPAIGN_CODENAME #4] no "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2110,
+   "output": "[CLIENT_NAME #0] no 0.51\n[CLIENT_NAME #1] no 0.71\n[CAMPAIGN_CODENAME #0] no 0.56\n[CAMPAIGN_CODENAME #1] no 0.63"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1233,
+   "output": "[CLIENT_NAME #0] no 0.49\n[CAMPAIGN_CODENAME #0] no 0.61"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2171,
+   "output": "[INTERNAL_HOST #0] no 0.65\n[INTERNAL_SERVICE #0] no 0.67\n[CUSTOMER_ID #0] no 0.35"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4662,
+   "output": "[INTERNAL_HOST #0] no 0.59\n[INTERNAL_HOST #1] no 0.66\n[INTERNAL_SERVICE #0] no 0.55\n[INTERNAL_SERVICE #1] no 0.41\n[CUSTOMER_ID #0] no 0.63\n[CUSTOMER_ID #1] no 0.60"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5100,
+   "output": "[INTERNAL_HOST #0] no 0.82\n[INTERNAL_HOST #1] no 0.72\n[INTERNAL_SERVICE #0] no 0.76\n[INTERNAL_SERVICE #1] no 0.70\n[CUSTOMER_ID #0] no 0.40\n[CUSTOMER_ID #1] no 0.70"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+CUSTOMER_ID: cus_mP02zzLc,hooks.slack.com,504,5"
+   ],
+   "ms": 58042,
+   "output": "[INTERNAL_HOST #0] no 0.78\n[INTERNAL_HOST #1] no 0.73\n[INTERNAL_HOST #2] no 0.58\n[INTERNAL_HOST #3] no 0.75\n[INTERNAL_HOST #4] no 0.77\n[INTERNAL_HOST #5] no 0.62\n[INTERNAL_HOST #6] no 0.83\n[INTERNAL_HOST #7] no 0.74\n[INTERNAL_HOST #8] no 0.66\n[INTERNAL_SERVICE #0] no 0.59\n[INTERNAL_SERVICE #1] no 0."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1260,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.60\n[INTERNAL_FORECAST #0] no 0.52"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 3664,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.65\n[UNPUBLISHED_FIGURE #1] no 0.73\n[INTERNAL_FORECAST #0] no 0.67\n[INTERNAL_FORECAST #1] no 0.72"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1356,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.45\n[INTERNAL_FORECAST #0] no 0.56"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 15252,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.80\n[UNPUBLISHED_FIGURE #1] no 0.82\n[UNPUBLISHED_FIGURE #2] no 0.63\n[UNPUBLISHED_FIGURE #3] no 0.73\n[UNPUBLISHED_FIGURE #4] no 0.79\n[UNPUBLISHED_FIGURE #5] no 0.78\n[INTERNAL_FORECAST #0] no 0.34\n[INTERNAL_FORECAST #1] no 0.52\n[INTERNAL_FORECAST #2] no 0.57\n[INTERNAL_FOREC"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13798,
+   "output": "[CANDIDATE_NAME #0] no 0.63\n[CANDIDATE_NAME #1] no 0.67\n[CANDIDATE_NAME #2] no 0.74\n[CANDIDATE_NAME #3] no 0.73\n[CANDIDATE_NAME #4] no 0.70\n[SOURCE_COMPANY #0] no 0.78\n[SOURCE_COMPANY #1] no 0.69\n[SOURCE_COMPANY #2] no 0.70\n[SOURCE_COMPANY #3] no 0.74\n[SOURCE_COMPANY #4] no 0.66\n[COMPENSATION #0] no"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 5059,
+   "output": "[CANDIDATE_NAME #0] no 0.63\n[CANDIDATE_NAME #1] no 0.59\n[SOURCE_COMPANY #0] no 0.69\n[SOURCE_COMPANY #1] no 0.83\n[COMPENSATION #0] no 0.48\n[COMPENSATION #1] no 0.40"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 6355,
+   "output": "[CANDIDATE_NAME #0] no 0.44\n[CANDIDATE_NAME #1] no 0.51\n[SOURCE_COMPANY #0] no 0.64\n[SOURCE_COMPANY #1] no 0.72\n[COMPENSATION #0] no 0.46\n[COMPENSATION #1] no 0.60"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 3924,
+   "output": "[CANDIDATE_NAME #0] no 0.70\n[CANDIDATE_NAME #1] no 0.56\n[SOURCE_COMPANY #0] no 0.56\n[SOURCE_COMPANY #1] no 0.73\n[COMPENSATION #0] no 0.77\n[COMPENSATION #1] no 0.78"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 3546,
+   "output": "[DEAL_CODENAME #0] no 0.52\n[DEAL_CODENAME #1] no 0.65\n[DEAL_TARGET #0] no 0.57\n[DEAL_TARGET #1] no 0.54\n[DEAL_VALUE #0] no 0.81\n[DEAL_VALUE #1] no 0.89"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 5132,
+   "output": "[DEAL_CODENAME #0] no 0.64\n[DEAL_CODENAME #1] no 0.66\n[DEAL_TARGET #0] no 0.75\n[DEAL_TARGET #1] no 0.89\n[DEAL_VALUE #0] no 0.66\n[DEAL_VALUE #1] no 0.79"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_VALUE: Could be a useful template for future deals."
+   ],
+   "ms": 5272,
+   "output": "[DEAL_CODENAME #0] no 0.61\n[DEAL_CODENAME #1] no 0.85\n[DEAL_TARGET #0] no 0.56\n[DEAL_TARGET #1] no 0.75\n[DEAL_VALUE #0] no 0.74\n[DEAL_VALUE #1] yes 0.93"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 29478,
+   "output": "[DEAL_CODENAME #0] no 0.61\n[DEAL_CODENAME #1] no 0.74\n[DEAL_CODENAME #2] no 0.78\n[DEAL_CODENAME #3] no 0.71\n[DEAL_CODENAME #4] no 0.76\n[DEAL_CODENAME #5] no 0.79\n[DEAL_CODENAME #6] no 0.64\n[DEAL_TARGET #0] no 0.51\n[DEAL_TARGET #1] no 0.68\n[DEAL_TARGET #2] no 0.70\n[DEAL_TARGET #3] no 0.51\n[DEAL_TARGE"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "research-en-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 21301,
+   "output": "[STUDY_NAME #0] no 0.82\n[STUDY_NAME #1] no 0.83\n[STUDY_NAME #2] no 0.77\n[STUDY_NAME #3] no 0.82\n[STUDY_NAME #4] no 0.80\n[STUDY_NAME #5] no 0.85\n[PARTNER_LAB #0] no 0.52\n[PARTNER_LAB #1] no 0.59\n[PARTNER_LAB #2] no 0.60\n[PARTNER_LAB #3] no 0.61\n[PARTNER_LAB #4] no 0.77\n[PARTNER_LAB #5] no 0.73\n[EARLY"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 26232,
+   "output": "[STUDY_NAME #0] no 0.54\n[STUDY_NAME #1] no 0.59\n[STUDY_NAME #2] no 0.76\n[STUDY_NAME #3] no 0.59\n[STUDY_NAME #4] no 0.71\n[STUDY_NAME #5] no 0.48\n[PARTNER_LAB #0] no 0.77\n[PARTNER_LAB #1] no 0.73\n[PARTNER_LAB #2] no 0.84\n[PARTNER_LAB #3] no 0.71\n[PARTNER_LAB #4] no 0.70\n[PARTNER_LAB #5] no 0.78\n[EARLY"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8690,
+   "output": "[STUDY_NAME #0] no 0.54\n[STUDY_NAME #1] no 0.70\n[STUDY_NAME #2] no 0.88\n[PARTNER_LAB #0] no 0.72\n[PARTNER_LAB #1] no 0.79\n[PARTNER_LAB #2] no 0.72\n[EARLY_RESULT #0] no 0.80\n[EARLY_RESULT #1] no 0.74\n[EARLY_RESULT #2] no 0.83"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-EARLY_RESULT: Keep it to one page."
+   ],
+   "ms": 7466,
+   "output": "[STUDY_NAME #0] no 0.89\n[STUDY_NAME #1] no 0.85\n[STUDY_NAME #2] no 0.88\n[PARTNER_LAB #0] no 0.44\n[PARTNER_LAB #1] no 0.67\n[PARTNER_LAB #2] no 0.67\n[EARLY_RESULT #0] no 0.71\n[EARLY_RESULT #1] no 0.86\n[EARLY_RESULT #2] yes 0.91"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Competitors in the mix: Draxon",
+    "-PROSPECT_NAME: Competitors in the mix: Draxon",
+    "-PROSPECT_NAME: Pain: front-desk devices fail during peak hours"
+   ],
+   "ms": 16047,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.84\n[UNRELEASED_PRODUCT #1] no 0.85\n[UNRELEASED_PRODUCT #2] no 0.89\n[UNRELEASED_PRODUCT #3] yes 0.90\n[UNRELEASED_PRODUCT #4] no 0.81\n[UNRELEASED_PRODUCT #5] no 0.86\n[PROSPECT_NAME #0] no 0.75\n[PROSPECT_NAME #1] no 0.83\n[PROSPECT_NAME #2] no 0.85\n[PROSPECT_NAME #3] yes 0.9"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4080,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.57\n[UNRELEASED_PRODUCT #1] no 0.64\n[PROSPECT_NAME #0] no 0.75\n[PROSPECT_NAME #1] no 0.75"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 5694,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.58\n[UNRELEASED_PRODUCT #1] no 0.76\n[UNRELEASED_PRODUCT #2] no 0.76\n[PROSPECT_NAME #0] no 0.66\n[PROSPECT_NAME #1] no 0.72\n[PROSPECT_NAME #2] no 0.70"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 15263,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.50\n[UNRELEASED_PRODUCT #1] no 0.59\n[UNRELEASED_PRODUCT #2] no 0.66\n[UNRELEASED_PRODUCT #3] no 0.66\n[UNRELEASED_PRODUCT #4] no 0.56\n[PROSPECT_NAME #0] no 0.72\n[PROSPECT_NAME #1] no 0.59\n[PROSPECT_NAME #2] no 0.73\n[PROSPECT_NAME #3] no 0.79\n[PROSPECT_NAME #4] no 0.69"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 11136,
+   "output": "[CUSTOMER_NAME #0] no 0.75\n[CUSTOMER_NAME #1] no 0.76\n[CUSTOMER_NAME #2] no 0.76\n[CUSTOMER_NAME #3] no 0.69\n[ACCOUNT_REF #0] no 0.76\n[ACCOUNT_REF #1] no 0.81\n[ACCOUNT_REF #2] no 0.87\n[ACCOUNT_REF #3] no 0.87"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 7043,
+   "output": "[CUSTOMER_NAME #0] no 0.52\n[CUSTOMER_NAME #1] no 0.59\n[CUSTOMER_NAME #2] no 0.64\n[ACCOUNT_REF #0] no 0.66\n[ACCOUNT_REF #1] no 0.64\n[ACCOUNT_REF #2] no 0.74"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 13517,
+   "output": "[CUSTOMER_NAME #0] no 0.62\n[CUSTOMER_NAME #1] no 0.54\n[CUSTOMER_NAME #2] no 0.65\n[CUSTOMER_NAME #3] no 0.63\n[ACCOUNT_REF #0] no 0.43\n[ACCOUNT_REF #1] no 0.37\n[ACCOUNT_REF #2] no 0.59\n[ACCOUNT_REF #3] no 0.68"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-p0.9",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 54666,
+   "output": "[CUSTOMER_NAME #0] no 0.74\n[CUSTOMER_NAME #1] no 0.70\n[CUSTOMER_NAME #2] no 0.79\n[CUSTOMER_NAME #3] no 0.67\n[CUSTOMER_NAME #4] no 0.68\n[CUSTOMER_NAME #5] no 0.58\n[CUSTOMER_NAME #6] no 0.63\n[CUSTOMER_NAME #7] no 0.69\n[CUSTOMER_NAME #8] no 0.58\n[CUSTOMER_NAME #9] no 0.78\n[CUSTOMER_NAME #10] no 0.68\n[A"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CAMPAIGN_CODENAME: They're launching an e-bike for city commuters in spring."
+   ],
+   "ms": 4099,
+   "output": "[CLIENT_NAME #0] no 0.38\n[CLIENT_NAME #1] no 0.49\n[CLIENT_NAME #2] no 0.28\n[CAMPAIGN_CODENAME #0] no 0.42\n[CAMPAIGN_CODENAME #1] yes 0.61\n[CAMPAIGN_CODENAME #2] no 0.32"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Bien à vous,"
+   ],
+   "ms": 15345,
+   "output": "[CLIENT_NAME #0] no 0.34\n[CLIENT_NAME #1] no 0.31\n[CLIENT_NAME #2] no 0.37\n[CLIENT_NAME #3] no 0.20\n[CLIENT_NAME #4] yes 0.56\n[CLIENT_NAME #5] no 0.28\n[CAMPAIGN_CODENAME #0] no 0.23\n[CAMPAIGN_CODENAME #1] no 0.23\n[CAMPAIGN_CODENAME #2] no 0.37\n[CAMPAIGN_CODENAME #3] no 0.32\n[CAMPAIGN_CODENAME #4] no"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2290,
+   "output": "[CLIENT_NAME #0] no 0.30\n[CLIENT_NAME #1] no 0.25\n[CAMPAIGN_CODENAME #0] no 0.45\n[CAMPAIGN_CODENAME #1] no 0.25"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: tu peux rendre ça plus percutant : « le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse »"
+   ],
+   "ms": 1286,
+   "output": "[CLIENT_NAME #0] yes 0.52\n[CAMPAIGN_CODENAME #0] no 0.22"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2084,
+   "output": "[INTERNAL_HOST #0] no 0.38\n[INTERNAL_SERVICE #0] no 0.25\n[CUSTOMER_ID #0] no 0.19"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4631,
+   "output": "[INTERNAL_HOST #0] no 0.28\n[INTERNAL_HOST #1] no 0.23\n[INTERNAL_SERVICE #0] no 0.35\n[INTERNAL_SERVICE #1] no 0.29\n[CUSTOMER_ID #0] no 0.48\n[CUSTOMER_ID #1] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4790,
+   "output": "[INTERNAL_HOST #0] no 0.30\n[INTERNAL_HOST #1] no 0.27\n[INTERNAL_SERVICE #0] no 0.35\n[INTERNAL_SERVICE #1] no 0.40\n[CUSTOMER_ID #0] no 0.45\n[CUSTOMER_ID #1] no 0.43"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_HOST: cus_mP02zzLc,hooks.slack.com,500,5",
+    "-INTERNAL_HOST: acct-40051-AR,webhook.site,410,1",
+    "-INTERNAL_HOST: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "-INTERNAL_HOST: cus_mP02zzLc,hooks.slack.com,504,5",
+    "-INTERNAL_SERVICE: acct-40051-AR,webhook.site,410,1",
+    "-INTERNAL_SERVICE: cus_mP02zzLc,hooks.slack.com,500,5",
+    "-INTERNAL_SERVICE: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "-INTERNAL_SERVICE: cus_mP02zzLc,hooks.slack.com,504,5",
+    "+CUSTOMER_ID: org_4f1c9a2e,hooks.zapier.com,429,3"
+   ],
+   "ms": 65200,
+   "output": "[INTERNAL_HOST #0] no 0.22\n[INTERNAL_HOST #1] no 0.13\n[INTERNAL_HOST #2] no 0.28\n[INTERNAL_HOST #3] yes 0.51\n[INTERNAL_HOST #4] yes 0.51\n[INTERNAL_HOST #5] no 0.42\n[INTERNAL_HOST #6] yes 0.58\n[INTERNAL_HOST #7] yes 0.67\n[INTERNAL_HOST #8] yes 0.52\n[INTERNAL_SERVICE #0] no 0.25\n[INTERNAL_SERVICE #1] "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1270,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.10\n[INTERNAL_FORECAST #0] no 0.22"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "+UNPUBLISHED_FIGURE: stp resume pr mon n+1 elle lit rien de long : flash aout CA 452M£ pr le mois, taux d'EBIT 11,7 et conversion cash 82% ."
+   ],
+   "ms": 3060,
+   "output": "[UNPUBLISHED_FIGURE #0] yes 0.58\n[UNPUBLISHED_FIGURE #1] no 0.20\n[INTERNAL_FORECAST #0] no 0.42\n[INTERNAL_FORECAST #1] no 0.28"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "finance-en-032",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1271,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.09\n[INTERNAL_FORECAST #0] unresolved \" \\\"how much did\" 0.15"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 14144,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.21\n[UNPUBLISHED_FIGURE #1] no 0.50\n[UNPUBLISHED_FIGURE #2] no 0.38\n[UNPUBLISHED_FIGURE #3] no 0.29\n[UNPUBLISHED_FIGURE #4] no 0.43\n[UNPUBLISHED_FIGURE #5] no 0.25\n[INTERNAL_FORECAST #0] no 0.35\n[INTERNAL_FORECAST #1] no 0.34\n[INTERNAL_FORECAST #2] no 0.19\n[INTERNAL_FOREC"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CANDIDATE_NAME: Thank you for taking the time to meet our team on Thursday."
+   ],
+   "ms": 15553,
+   "output": "[CANDIDATE_NAME #0] no 0.38\n[CANDIDATE_NAME #1] yes 0.58\n[CANDIDATE_NAME #2] no 0.50\n[CANDIDATE_NAME #3] no 0.42\n[CANDIDATE_NAME #4] no 0.33\n[SOURCE_COMPANY #0] no 0.44\n[SOURCE_COMPANY #1] no 0.37\n[SOURCE_COMPANY #2] no 0.37\n[SOURCE_COMPANY #3] no 0.21\n[SOURCE_COMPANY #4] no 0.17\n[COMPENSATION #0] n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [
+    "-SOURCE_COMPANY: entretient avec Thibault Ferrand : bon niv en ROS, un peu leger en c++."
+   ],
+   "ms": 6701,
+   "output": "[CANDIDATE_NAME #0] no 0.29\n[CANDIDATE_NAME #1] no 0.19\n[SOURCE_COMPANY #0] yes 0.53\n[SOURCE_COMPANY #1] no 0.23\n[COMPENSATION #0] no 0.39\n[COMPENSATION #1] no 0.13"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7280,
+   "output": "[CANDIDATE_NAME #0] no 0.48\n[CANDIDATE_NAME #1] no 0.27\n[SOURCE_COMPANY #0] no 0.39\n[SOURCE_COMPANY #1] no 0.13\n[COMPENSATION #0] no 0.10\n[COMPENSATION #1] no 0.07"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 1,
+   "expected": 4,
+   "predicted": [
+    "-CANDIDATE_NAME: Signed!!",
+    "+CANDIDATE_NAME: J. Lindqvist accepted at IC5 🎉 188 base / 12% bonus, HM is buying lunch for the whole team"
+   ],
+   "ms": 4335,
+   "output": "[CANDIDATE_NAME #0] yes 0.60\n[CANDIDATE_NAME #1] yes 0.62\n[SOURCE_COMPANY #0] no 0.32\n[SOURCE_COMPANY #1] no 0.26\n[COMPENSATION #0] no 0.29\n[COMPENSATION #1] no 0.27"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 4970,
+   "output": "[DEAL_CODENAME #0] no 0.20\n[DEAL_CODENAME #1] no 0.26\n[DEAL_TARGET #0] no 0.36\n[DEAL_TARGET #1] no 0.31\n[DEAL_VALUE #0] no 0.37\n[DEAL_VALUE #1] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-DEAL_CODENAME: Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement."
+   ],
+   "ms": 4628,
+   "output": "[DEAL_CODENAME #0] yes 0.57\n[DEAL_CODENAME #1] no 0.39\n[DEAL_TARGET #0] no 0.48\n[DEAL_TARGET #1] no 0.23\n[DEAL_VALUE #0] no 0.33\n[DEAL_VALUE #1] no 0.30"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_TARGET: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_VALUE: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_VALUE: Could be a useful template for future deals."
+   ],
+   "ms": 7363,
+   "output": "[DEAL_CODENAME #0] yes 0.54\n[DEAL_CODENAME #1] no 0.27\n[DEAL_TARGET #0] yes 0.71\n[DEAL_TARGET #1] no 0.33\n[DEAL_VALUE #0] yes 0.54\n[DEAL_VALUE #1] yes 0.54"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "-DEAL_CODENAME: pourquoi Excel m'affiche tout dans une seule colonne quand j'ouvre l'export ?",
+    "-DEAL_CODENAME: code_projet;cible;valeur_entreprise;statut",
+    "+DEAL_CODENAME: Belvédère;Sorvane Industrie;31,5 M€;LOI signée",
+    "-DEAL_CODENAME: Phare;-;-;projet interne SI",
+    "-DEAL_CODENAME: Archive-2023;Fellbeck Tooling;41 M£;finalisé (public)",
+    "+DEAL_TARGET: Belvédère;Sorvane Industrie;31,5 M€;LOI signée",
+    "+DEAL_VALUE: Belvédère;Sorvane Industrie;31,5 M€;LOI signée"
+   ],
+   "ms": 32237,
+   "output": "[DEAL_CODENAME #0] yes 0.58\n[DEAL_CODENAME #1] no 0.50\n[DEAL_CODENAME #2] yes 0.61\n[DEAL_CODENAME #3] yes 0.65\n[DEAL_CODENAME #4] yes 0.56\n[DEAL_CODENAME #5] yes 0.60\n[DEAL_CODENAME #6] no 0.46\n[DEAL_TARGET #0] no 0.44\n[DEAL_TARGET #1] no 0.31\n[DEAL_TARGET #2] no 0.33\n[DEAL_TARGET #3] yes 0.61\n[DEAL"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "research-en-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: - me: send updated SOP to Quillon Biosciences b4 fri",
+    "-PARTNER_LAB: - order RIPA + protease inhib"
+   ],
+   "ms": 29728,
+   "output": "[STUDY_NAME #0] no 0.41\n[STUDY_NAME #1] no 0.44\n[STUDY_NAME #2] yes 0.62\n[STUDY_NAME #3] no 0.42\n[STUDY_NAME #4] no 0.42\n[STUDY_NAME #5] no 0.16\n[PARTNER_LAB #0] no 0.41\n[PARTNER_LAB #1] no 0.34\n[PARTNER_LAB #2] no 0.47\n[PARTNER_LAB #3] no 0.41\n[PARTNER_LAB #4] yes 0.55\n[PARTNER_LAB #5] no 0.31\n[EAR"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: fais-en un petit mail récap pour l'équipe stp",
+    "-EARLY_RESULT: - Julien : qPCR refaites, Il6 tjs en baisse chez les KO"
+   ],
+   "ms": 25235,
+   "output": "[STUDY_NAME #0] no 0.46\n[STUDY_NAME #1] no 0.49\n[STUDY_NAME #2] no 0.34\n[STUDY_NAME #3] no 0.25\n[STUDY_NAME #4] no 0.38\n[STUDY_NAME #5] yes 0.54\n[PARTNER_LAB #0] no 0.31\n[PARTNER_LAB #1] no 0.32\n[PARTNER_LAB #2] no 0.44\n[PARTNER_LAB #3] no 0.36\n[PARTNER_LAB #4] no 0.48\n[PARTNER_LAB #5] no 0.34\n[EARL"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Mentionne le financement ANR et Inserm."
+   ],
+   "ms": 8477,
+   "output": "[STUDY_NAME #0] no 0.48\n[STUDY_NAME #1] yes 0.55\n[STUDY_NAME #2] no 0.41\n[PARTNER_LAB #0] no 0.34\n[PARTNER_LAB #1] no 0.50\n[PARTNER_LAB #2] no 0.40\n[EARLY_RESULT #0] no 0.42\n[EARLY_RESULT #1] no 0.42\n[EARLY_RESULT #2] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Draft a cover letter to the eLife editors for our manuscript on macrophage polarization in fibrotic liver.",
+    "-STUDY_NAME: Mention funding from the Wellcome Trust and the European Research Council.",
+    "-EARLY_RESULT: Mention funding from the Wellcome Trust and the European Research Council."
+   ],
+   "ms": 9057,
+   "output": "[STUDY_NAME #0] yes 0.55\n[STUDY_NAME #1] yes 0.59\n[STUDY_NAME #2] no 0.31\n[PARTNER_LAB #0] no 0.43\n[PARTNER_LAB #1] no 0.43\n[PARTNER_LAB #2] no 0.27\n[EARLY_RESULT #0] no 0.46\n[EARLY_RESULT #1] yes 0.50\n[EARLY_RESULT #2] no 0.49"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13549,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.27\n[UNRELEASED_PRODUCT #1] no 0.24\n[UNRELEASED_PRODUCT #2] no 0.41\n[UNRELEASED_PRODUCT #3] no 0.31\n[UNRELEASED_PRODUCT #4] no 0.18\n[UNRELEASED_PRODUCT #5] no 0.19\n[PROSPECT_NAME #0] no 0.27\n[PROSPECT_NAME #1] no 0.27\n[PROSPECT_NAME #2] no 0.26\n[PROSPECT_NAME #3] no 0.25\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3530,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.37\n[UNRELEASED_PRODUCT #1] no 0.22\n[PROSPECT_NAME #0] no 0.40\n[PROSPECT_NAME #1] no 0.40"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4564,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.21\n[UNRELEASED_PRODUCT #1] no 0.33\n[UNRELEASED_PRODUCT #2] no 0.15\n[PROSPECT_NAME #0] no 0.37\n[PROSPECT_NAME #1] no 0.30\n[PROSPECT_NAME #2] no 0.16"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Bonjour Mme Roussel, je vous confirme notre rendez-vous du 30.",
+    "-UNRELEASED_PRODUCT: À bientôt.",
+    "-PROSPECT_NAME: je le trouve un peu sec",
+    "-PROSPECT_NAME: Bonjour Mme Roussel, je vous confirme notre rendez-vous du 30."
+   ],
+   "ms": 17283,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.50\n[UNRELEASED_PRODUCT #1] no 0.44\n[UNRELEASED_PRODUCT #2] yes 0.58\n[UNRELEASED_PRODUCT #3] no 0.35\n[UNRELEASED_PRODUCT #4] yes 0.57\n[PROSPECT_NAME #0] no 0.44\n[PROSPECT_NAME #1] yes 0.51\n[PROSPECT_NAME #2] yes 0.58\n[PROSPECT_NAME #3] no 0.45\n[PROSPECT_NAME #4] no 0.33"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: \"Dear Ms Imogen Castellanos, your order has been split into two parcels.",
+    "-ACCOUNT_REF: translate into spanish for the customer, keep it formal pls:",
+    "-ACCOUNT_REF: \"Dear Ms Imogen Castellanos, your order has been split into two parcels.",
+    "+ACCOUNT_REF: The first one arrived yesterday; the second one, tracking number PCL5519027734ES, should reach you on Thursday.",
+    "-ACCOUNT_REF: We apologise for any inconvenience.\""
+   ],
+   "ms": 7981,
+   "output": "[CUSTOMER_NAME #0] no 0.49\n[CUSTOMER_NAME #1] yes 0.51\n[CUSTOMER_NAME #2] no 0.41\n[CUSTOMER_NAME #3] no 0.23\n[ACCOUNT_REF #0] yes 0.65\n[ACCOUNT_REF #1] yes 0.81\n[ACCOUNT_REF #2] yes 0.73\n[ACCOUNT_REF #3] yes 0.51"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6013,
+   "output": "[CUSTOMER_NAME #0] no 0.34\n[CUSTOMER_NAME #1] no 0.34\n[CUSTOMER_NAME #2] no 0.29\n[ACCOUNT_REF #0] no 0.39\n[ACCOUNT_REF #1] no 0.35\n[ACCOUNT_REF #2] no 0.35"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-ACCOUNT_REF: Pouvez vous nous transmettre les données GPS de la tentative de livraison."
+   ],
+   "ms": 12402,
+   "output": "[CUSTOMER_NAME #0] no 0.32\n[CUSTOMER_NAME #1] no 0.35\n[CUSTOMER_NAME #2] no 0.37\n[CUSTOMER_NAME #3] no 0.24\n[ACCOUNT_REF #0] no 0.37\n[ACCOUNT_REF #1] no 0.28\n[ACCOUNT_REF #2] yes 0.59\n[ACCOUNT_REF #3] no 0.43"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw",
+   "caseId": "support-en-045",
+   "failure": "answered",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-CUSTOMER_NAME: \"handled_by\": \"Support Bot v2\",",
+    "+ACCOUNT_REF: \"order_id\": \"ORD-5906-3321\","
+   ],
+   "ms": 55764,
+   "output": "[CUSTOMER_NAME #0] unresolved \" \\\"CUSTOM\" 0.10\n[CUSTOMER_NAME #1] no 0.51\n[CUSTOMER_NAME #2] unresolved \" \\\"CUSTOM\" 0.49\n[CUSTOMER_NAME #3] no 0.50\n[CUSTOMER_NAME #4] no 0.35\n[CUSTOMER_NAME #5] no 0.49\n[CUSTOMER_NAME #6] yes 0.54\n[CUSTOMER_NAME #7] no 0.35\n[CUSTOMER_NAME #8] no 0.30\n[CUSTOMER_NAME #"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CAMPAIGN_CODENAME: They're launching an e-bike for city commuters in spring."
+   ],
+   "ms": 4099,
+   "output": "[CLIENT_NAME #0] no 0.38\n[CLIENT_NAME #1] no 0.49\n[CLIENT_NAME #2] no 0.28\n[CAMPAIGN_CODENAME #0] no 0.42\n[CAMPAIGN_CODENAME #1] yes 0.61\n[CAMPAIGN_CODENAME #2] no 0.32"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CLIENT_NAME: Bien à vous,"
+   ],
+   "ms": 15345,
+   "output": "[CLIENT_NAME #0] no 0.34\n[CLIENT_NAME #1] no 0.31\n[CLIENT_NAME #2] no 0.37\n[CLIENT_NAME #3] no 0.20\n[CLIENT_NAME #4] yes 0.56\n[CLIENT_NAME #5] no 0.28\n[CAMPAIGN_CODENAME #0] no 0.23\n[CAMPAIGN_CODENAME #1] no 0.23\n[CAMPAIGN_CODENAME #2] no 0.37\n[CAMPAIGN_CODENAME #3] no 0.32\n[CAMPAIGN_CODENAME #4] no"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2290,
+   "output": "[CLIENT_NAME #0] no 0.30\n[CLIENT_NAME #1] no 0.25\n[CAMPAIGN_CODENAME #0] no 0.45\n[CAMPAIGN_CODENAME #1] no 0.25"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: tu peux rendre ça plus percutant : « le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse »"
+   ],
+   "ms": 1286,
+   "output": "[CLIENT_NAME #0] yes 0.52\n[CAMPAIGN_CODENAME #0] no 0.22"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2084,
+   "output": "[INTERNAL_HOST #0] no 0.38\n[INTERNAL_SERVICE #0] no 0.25\n[CUSTOMER_ID #0] no 0.19"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4631,
+   "output": "[INTERNAL_HOST #0] no 0.28\n[INTERNAL_HOST #1] no 0.23\n[INTERNAL_SERVICE #0] no 0.35\n[INTERNAL_SERVICE #1] no 0.29\n[CUSTOMER_ID #0] no 0.48\n[CUSTOMER_ID #1] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4790,
+   "output": "[INTERNAL_HOST #0] no 0.30\n[INTERNAL_HOST #1] no 0.27\n[INTERNAL_SERVICE #0] no 0.35\n[INTERNAL_SERVICE #1] no 0.40\n[CUSTOMER_ID #0] no 0.45\n[CUSTOMER_ID #1] no 0.43"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_HOST: cus_mP02zzLc,hooks.slack.com,500,5",
+    "-INTERNAL_HOST: acct-40051-AR,webhook.site,410,1",
+    "-INTERNAL_HOST: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "-INTERNAL_HOST: cus_mP02zzLc,hooks.slack.com,504,5",
+    "-INTERNAL_SERVICE: acct-40051-AR,webhook.site,410,1",
+    "-INTERNAL_SERVICE: cus_mP02zzLc,hooks.slack.com,500,5",
+    "-INTERNAL_SERVICE: org_4f1c9a2e,hooks.zapier.com,429,3",
+    "-INTERNAL_SERVICE: cus_mP02zzLc,hooks.slack.com,504,5",
+    "+CUSTOMER_ID: org_4f1c9a2e,hooks.zapier.com,429,3"
+   ],
+   "ms": 65200,
+   "output": "[INTERNAL_HOST #0] no 0.22\n[INTERNAL_HOST #1] no 0.13\n[INTERNAL_HOST #2] no 0.28\n[INTERNAL_HOST #3] yes 0.51\n[INTERNAL_HOST #4] yes 0.51\n[INTERNAL_HOST #5] no 0.42\n[INTERNAL_HOST #6] yes 0.58\n[INTERNAL_HOST #7] yes 0.67\n[INTERNAL_HOST #8] yes 0.52\n[INTERNAL_SERVICE #0] no 0.25\n[INTERNAL_SERVICE #1] "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1270,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.10\n[INTERNAL_FORECAST #0] no 0.22"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "+UNPUBLISHED_FIGURE: stp resume pr mon n+1 elle lit rien de long : flash aout CA 452M£ pr le mois, taux d'EBIT 11,7 et conversion cash 82% ."
+   ],
+   "ms": 3060,
+   "output": "[UNPUBLISHED_FIGURE #0] yes 0.58\n[UNPUBLISHED_FIGURE #1] no 0.20\n[INTERNAL_FORECAST #0] no 0.42\n[INTERNAL_FORECAST #1] no 0.28"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1271,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.09\n[INTERNAL_FORECAST #0] no 0.15"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Vous trouverez ci-joint le calendrier de clôture T3."
+   ],
+   "ms": 14144,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.21\n[UNPUBLISHED_FIGURE #1] yes 0.50\n[UNPUBLISHED_FIGURE #2] no 0.38\n[UNPUBLISHED_FIGURE #3] no 0.29\n[UNPUBLISHED_FIGURE #4] no 0.43\n[UNPUBLISHED_FIGURE #5] no 0.25\n[INTERNAL_FORECAST #0] no 0.35\n[INTERNAL_FORECAST #1] no 0.34\n[INTERNAL_FORECAST #2] no 0.19\n[INTERNAL_FORE"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CANDIDATE_NAME: Thank you for taking the time to meet our team on Thursday.",
+    "-CANDIDATE_NAME: I'm happy to share that we'd like to invite you to the final round."
+   ],
+   "ms": 15553,
+   "output": "[CANDIDATE_NAME #0] no 0.38\n[CANDIDATE_NAME #1] yes 0.58\n[CANDIDATE_NAME #2] yes 0.50\n[CANDIDATE_NAME #3] no 0.42\n[CANDIDATE_NAME #4] no 0.33\n[SOURCE_COMPANY #0] no 0.44\n[SOURCE_COMPANY #1] no 0.37\n[SOURCE_COMPANY #2] no 0.37\n[SOURCE_COMPANY #3] no 0.21\n[SOURCE_COMPANY #4] no 0.17\n[COMPENSATION #0] "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [
+    "-SOURCE_COMPANY: entretient avec Thibault Ferrand : bon niv en ROS, un peu leger en c++."
+   ],
+   "ms": 6701,
+   "output": "[CANDIDATE_NAME #0] no 0.29\n[CANDIDATE_NAME #1] no 0.19\n[SOURCE_COMPANY #0] yes 0.53\n[SOURCE_COMPANY #1] no 0.23\n[COMPENSATION #0] no 0.39\n[COMPENSATION #1] no 0.13"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7280,
+   "output": "[CANDIDATE_NAME #0] no 0.48\n[CANDIDATE_NAME #1] no 0.27\n[SOURCE_COMPANY #0] no 0.39\n[SOURCE_COMPANY #1] no 0.13\n[COMPENSATION #0] no 0.10\n[COMPENSATION #1] no 0.07"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 1,
+   "expected": 4,
+   "predicted": [
+    "-CANDIDATE_NAME: Signed!!",
+    "+CANDIDATE_NAME: J. Lindqvist accepted at IC5 🎉 188 base / 12% bonus, HM is buying lunch for the whole team"
+   ],
+   "ms": 4335,
+   "output": "[CANDIDATE_NAME #0] yes 0.60\n[CANDIDATE_NAME #1] yes 0.62\n[SOURCE_COMPANY #0] no 0.32\n[SOURCE_COMPANY #1] no 0.26\n[COMPENSATION #0] no 0.29\n[COMPENSATION #1] no 0.27"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 4970,
+   "output": "[DEAL_CODENAME #0] no 0.20\n[DEAL_CODENAME #1] no 0.26\n[DEAL_TARGET #0] no 0.36\n[DEAL_TARGET #1] no 0.31\n[DEAL_VALUE #0] no 0.37\n[DEAL_VALUE #1] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-DEAL_CODENAME: Rédige une clause de confidentialité qui couvre l'existence même des discussions entre Harrowgate Industries et Sorvane Industrie concernant un éventuel rapprochement."
+   ],
+   "ms": 4628,
+   "output": "[DEAL_CODENAME #0] yes 0.57\n[DEAL_CODENAME #1] no 0.39\n[DEAL_TARGET #0] no 0.48\n[DEAL_TARGET #1] no 0.23\n[DEAL_VALUE #0] no 0.33\n[DEAL_VALUE #1] no 0.30"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_TARGET: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_VALUE: For the precedent file: our acquisition of Fellbeck Tooling (announced and completed in 2023 for £41m, press release still on the website) used a locked-box mechanism with a 12-month leakage period.",
+    "-DEAL_VALUE: Could be a useful template for future deals."
+   ],
+   "ms": 7363,
+   "output": "[DEAL_CODENAME #0] yes 0.54\n[DEAL_CODENAME #1] no 0.27\n[DEAL_TARGET #0] yes 0.71\n[DEAL_TARGET #1] no 0.33\n[DEAL_VALUE #0] yes 0.54\n[DEAL_VALUE #1] yes 0.54"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "-DEAL_CODENAME: pourquoi Excel m'affiche tout dans une seule colonne quand j'ouvre l'export ?",
+    "-DEAL_CODENAME: code_projet;cible;valeur_entreprise;statut",
+    "+DEAL_CODENAME: Belvédère;Sorvane Industrie;31,5 M€;LOI signée",
+    "-DEAL_CODENAME: Phare;-;-;projet interne SI",
+    "-DEAL_CODENAME: Archive-2023;Fellbeck Tooling;41 M£;finalisé (public)",
+    "+DEAL_TARGET: Belvédère;Sorvane Industrie;31,5 M€;LOI signée",
+    "+DEAL_VALUE: Belvédère;Sorvane Industrie;31,5 M€;LOI signée"
+   ],
+   "ms": 32237,
+   "output": "[DEAL_CODENAME #0] yes 0.58\n[DEAL_CODENAME #1] no 0.50\n[DEAL_CODENAME #2] yes 0.61\n[DEAL_CODENAME #3] yes 0.65\n[DEAL_CODENAME #4] yes 0.56\n[DEAL_CODENAME #5] yes 0.60\n[DEAL_CODENAME #6] no 0.46\n[DEAL_TARGET #0] no 0.44\n[DEAL_TARGET #1] no 0.31\n[DEAL_TARGET #2] no 0.33\n[DEAL_TARGET #3] yes 0.61\n[DEAL"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "research-en-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: - me: send updated SOP to Quillon Biosciences b4 fri",
+    "-PARTNER_LAB: - order RIPA + protease inhib"
+   ],
+   "ms": 29728,
+   "output": "[STUDY_NAME #0] no 0.41\n[STUDY_NAME #1] no 0.44\n[STUDY_NAME #2] yes 0.62\n[STUDY_NAME #3] no 0.42\n[STUDY_NAME #4] no 0.42\n[STUDY_NAME #5] no 0.16\n[PARTNER_LAB #0] no 0.41\n[PARTNER_LAB #1] no 0.34\n[PARTNER_LAB #2] no 0.47\n[PARTNER_LAB #3] no 0.41\n[PARTNER_LAB #4] yes 0.55\n[PARTNER_LAB #5] no 0.31\n[EAR"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: fais-en un petit mail récap pour l'équipe stp",
+    "-EARLY_RESULT: - Julien : qPCR refaites, Il6 tjs en baisse chez les KO"
+   ],
+   "ms": 25235,
+   "output": "[STUDY_NAME #0] no 0.46\n[STUDY_NAME #1] no 0.49\n[STUDY_NAME #2] no 0.34\n[STUDY_NAME #3] no 0.25\n[STUDY_NAME #4] no 0.38\n[STUDY_NAME #5] yes 0.54\n[PARTNER_LAB #0] no 0.31\n[PARTNER_LAB #1] no 0.32\n[PARTNER_LAB #2] no 0.44\n[PARTNER_LAB #3] no 0.36\n[PARTNER_LAB #4] no 0.48\n[PARTNER_LAB #5] no 0.34\n[EARL"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Mentionne le financement ANR et Inserm.",
+    "-PARTNER_LAB: Mentionne le financement ANR et Inserm."
+   ],
+   "ms": 8477,
+   "output": "[STUDY_NAME #0] no 0.48\n[STUDY_NAME #1] yes 0.55\n[STUDY_NAME #2] no 0.41\n[PARTNER_LAB #0] no 0.34\n[PARTNER_LAB #1] yes 0.50\n[PARTNER_LAB #2] no 0.40\n[EARLY_RESULT #0] no 0.42\n[EARLY_RESULT #1] no 0.42\n[EARLY_RESULT #2] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: Draft a cover letter to the eLife editors for our manuscript on macrophage polarization in fibrotic liver.",
+    "-STUDY_NAME: Mention funding from the Wellcome Trust and the European Research Council.",
+    "-EARLY_RESULT: Mention funding from the Wellcome Trust and the European Research Council."
+   ],
+   "ms": 9057,
+   "output": "[STUDY_NAME #0] yes 0.55\n[STUDY_NAME #1] yes 0.59\n[STUDY_NAME #2] no 0.31\n[PARTNER_LAB #0] no 0.43\n[PARTNER_LAB #1] no 0.43\n[PARTNER_LAB #2] no 0.27\n[EARLY_RESULT #0] no 0.46\n[EARLY_RESULT #1] yes 0.50\n[EARLY_RESULT #2] no 0.49"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13549,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.27\n[UNRELEASED_PRODUCT #1] no 0.24\n[UNRELEASED_PRODUCT #2] no 0.41\n[UNRELEASED_PRODUCT #3] no 0.31\n[UNRELEASED_PRODUCT #4] no 0.18\n[UNRELEASED_PRODUCT #5] no 0.19\n[PROSPECT_NAME #0] no 0.27\n[PROSPECT_NAME #1] no 0.27\n[PROSPECT_NAME #2] no 0.26\n[PROSPECT_NAME #3] no 0.25\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3530,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.37\n[UNRELEASED_PRODUCT #1] no 0.22\n[PROSPECT_NAME #0] no 0.40\n[PROSPECT_NAME #1] no 0.40"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4564,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.21\n[UNRELEASED_PRODUCT #1] no 0.33\n[UNRELEASED_PRODUCT #2] no 0.15\n[PROSPECT_NAME #0] no 0.37\n[PROSPECT_NAME #1] no 0.30\n[PROSPECT_NAME #2] no 0.16"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Bonjour Mme Roussel, je vous confirme notre rendez-vous du 30.",
+    "-UNRELEASED_PRODUCT: À bientôt.",
+    "-PROSPECT_NAME: je le trouve un peu sec",
+    "-PROSPECT_NAME: Bonjour Mme Roussel, je vous confirme notre rendez-vous du 30."
+   ],
+   "ms": 17283,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.50\n[UNRELEASED_PRODUCT #1] no 0.44\n[UNRELEASED_PRODUCT #2] yes 0.58\n[UNRELEASED_PRODUCT #3] no 0.35\n[UNRELEASED_PRODUCT #4] yes 0.57\n[PROSPECT_NAME #0] no 0.44\n[PROSPECT_NAME #1] yes 0.51\n[PROSPECT_NAME #2] yes 0.58\n[PROSPECT_NAME #3] no 0.45\n[PROSPECT_NAME #4] no 0.33"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: \"Dear Ms Imogen Castellanos, your order has been split into two parcels.",
+    "-ACCOUNT_REF: translate into spanish for the customer, keep it formal pls:",
+    "-ACCOUNT_REF: \"Dear Ms Imogen Castellanos, your order has been split into two parcels.",
+    "+ACCOUNT_REF: The first one arrived yesterday; the second one, tracking number PCL5519027734ES, should reach you on Thursday.",
+    "-ACCOUNT_REF: We apologise for any inconvenience.\""
+   ],
+   "ms": 7981,
+   "output": "[CUSTOMER_NAME #0] no 0.49\n[CUSTOMER_NAME #1] yes 0.51\n[CUSTOMER_NAME #2] no 0.41\n[CUSTOMER_NAME #3] no 0.23\n[ACCOUNT_REF #0] yes 0.65\n[ACCOUNT_REF #1] yes 0.81\n[ACCOUNT_REF #2] yes 0.73\n[ACCOUNT_REF #3] yes 0.51"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6013,
+   "output": "[CUSTOMER_NAME #0] no 0.34\n[CUSTOMER_NAME #1] no 0.34\n[CUSTOMER_NAME #2] no 0.29\n[ACCOUNT_REF #0] no 0.39\n[ACCOUNT_REF #1] no 0.35\n[ACCOUNT_REF #2] no 0.35"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-ACCOUNT_REF: Pouvez vous nous transmettre les données GPS de la tentative de livraison."
+   ],
+   "ms": 12402,
+   "output": "[CUSTOMER_NAME #0] no 0.32\n[CUSTOMER_NAME #1] no 0.35\n[CUSTOMER_NAME #2] no 0.37\n[CUSTOMER_NAME #3] no 0.24\n[ACCOUNT_REF #0] no 0.37\n[ACCOUNT_REF #1] no 0.28\n[ACCOUNT_REF #2] yes 0.59\n[ACCOUNT_REF #3] no 0.43"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-logit",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "-CUSTOMER_NAME: ```json",
+    "-CUSTOMER_NAME: \"order_id\": \"ORD-5906-3321\",",
+    "-CUSTOMER_NAME: \"handled_by\": \"Support Bot v2\",",
+    "+ACCOUNT_REF: \"order_id\": \"ORD-5906-3321\","
+   ],
+   "ms": 55764,
+   "output": "[CUSTOMER_NAME #0] no 0.10\n[CUSTOMER_NAME #1] yes 0.51\n[CUSTOMER_NAME #2] no 0.49\n[CUSTOMER_NAME #3] yes 0.50\n[CUSTOMER_NAME #4] no 0.35\n[CUSTOMER_NAME #5] no 0.49\n[CUSTOMER_NAME #6] yes 0.54\n[CUSTOMER_NAME #7] no 0.35\n[CUSTOMER_NAME #8] no 0.30\n[CUSTOMER_NAME #9] no 0.40\n[CUSTOMER_NAME #10] no 0.20"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4099,
+   "output": "[CLIENT_NAME #0] no 0.38\n[CLIENT_NAME #1] no 0.49\n[CLIENT_NAME #2] no 0.28\n[CAMPAIGN_CODENAME #0] no 0.42\n[CAMPAIGN_CODENAME #1] no 0.61\n[CAMPAIGN_CODENAME #2] no 0.32"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 15345,
+   "output": "[CLIENT_NAME #0] no 0.34\n[CLIENT_NAME #1] no 0.31\n[CLIENT_NAME #2] no 0.37\n[CLIENT_NAME #3] no 0.20\n[CLIENT_NAME #4] no 0.56\n[CLIENT_NAME #5] no 0.28\n[CAMPAIGN_CODENAME #0] no 0.23\n[CAMPAIGN_CODENAME #1] no 0.23\n[CAMPAIGN_CODENAME #2] no 0.37\n[CAMPAIGN_CODENAME #3] no 0.32\n[CAMPAIGN_CODENAME #4] no "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2290,
+   "output": "[CLIENT_NAME #0] no 0.30\n[CLIENT_NAME #1] no 0.25\n[CAMPAIGN_CODENAME #0] no 0.45\n[CAMPAIGN_CODENAME #1] no 0.25"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1286,
+   "output": "[CLIENT_NAME #0] no 0.52\n[CAMPAIGN_CODENAME #0] no 0.22"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2084,
+   "output": "[INTERNAL_HOST #0] no 0.38\n[INTERNAL_SERVICE #0] no 0.25\n[CUSTOMER_ID #0] no 0.19"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4631,
+   "output": "[INTERNAL_HOST #0] no 0.28\n[INTERNAL_HOST #1] no 0.23\n[INTERNAL_SERVICE #0] no 0.35\n[INTERNAL_SERVICE #1] no 0.29\n[CUSTOMER_ID #0] no 0.48\n[CUSTOMER_ID #1] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4790,
+   "output": "[INTERNAL_HOST #0] no 0.30\n[INTERNAL_HOST #1] no 0.27\n[INTERNAL_SERVICE #0] no 0.35\n[INTERNAL_SERVICE #1] no 0.40\n[CUSTOMER_ID #0] no 0.45\n[CUSTOMER_ID #1] no 0.43"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 65200,
+   "output": "[INTERNAL_HOST #0] no 0.22\n[INTERNAL_HOST #1] no 0.13\n[INTERNAL_HOST #2] no 0.28\n[INTERNAL_HOST #3] no 0.51\n[INTERNAL_HOST #4] no 0.51\n[INTERNAL_HOST #5] no 0.42\n[INTERNAL_HOST #6] no 0.58\n[INTERNAL_HOST #7] no 0.67\n[INTERNAL_HOST #8] no 0.52\n[INTERNAL_SERVICE #0] no 0.25\n[INTERNAL_SERVICE #1] no 0."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1270,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.10\n[INTERNAL_FORECAST #0] no 0.22"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 3060,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.58\n[UNPUBLISHED_FIGURE #1] no 0.20\n[INTERNAL_FORECAST #0] no 0.42\n[INTERNAL_FORECAST #1] no 0.28"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1271,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.09\n[INTERNAL_FORECAST #0] no 0.15"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 14144,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.21\n[UNPUBLISHED_FIGURE #1] no 0.50\n[UNPUBLISHED_FIGURE #2] no 0.38\n[UNPUBLISHED_FIGURE #3] no 0.29\n[UNPUBLISHED_FIGURE #4] no 0.43\n[UNPUBLISHED_FIGURE #5] no 0.25\n[INTERNAL_FORECAST #0] no 0.35\n[INTERNAL_FORECAST #1] no 0.34\n[INTERNAL_FORECAST #2] no 0.19\n[INTERNAL_FOREC"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 15553,
+   "output": "[CANDIDATE_NAME #0] no 0.38\n[CANDIDATE_NAME #1] no 0.58\n[CANDIDATE_NAME #2] no 0.50\n[CANDIDATE_NAME #3] no 0.42\n[CANDIDATE_NAME #4] no 0.33\n[SOURCE_COMPANY #0] no 0.44\n[SOURCE_COMPANY #1] no 0.37\n[SOURCE_COMPANY #2] no 0.37\n[SOURCE_COMPANY #3] no 0.21\n[SOURCE_COMPANY #4] no 0.17\n[COMPENSATION #0] no"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 6701,
+   "output": "[CANDIDATE_NAME #0] no 0.29\n[CANDIDATE_NAME #1] no 0.19\n[SOURCE_COMPANY #0] no 0.53\n[SOURCE_COMPANY #1] no 0.23\n[COMPENSATION #0] no 0.39\n[COMPENSATION #1] no 0.13"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7280,
+   "output": "[CANDIDATE_NAME #0] no 0.48\n[CANDIDATE_NAME #1] no 0.27\n[SOURCE_COMPANY #0] no 0.39\n[SOURCE_COMPANY #1] no 0.13\n[COMPENSATION #0] no 0.10\n[COMPENSATION #1] no 0.07"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 4335,
+   "output": "[CANDIDATE_NAME #0] no 0.60\n[CANDIDATE_NAME #1] no 0.62\n[SOURCE_COMPANY #0] no 0.32\n[SOURCE_COMPANY #1] no 0.26\n[COMPENSATION #0] no 0.29\n[COMPENSATION #1] no 0.27"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 4970,
+   "output": "[DEAL_CODENAME #0] no 0.20\n[DEAL_CODENAME #1] no 0.26\n[DEAL_TARGET #0] no 0.36\n[DEAL_TARGET #1] no 0.31\n[DEAL_VALUE #0] no 0.37\n[DEAL_VALUE #1] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4628,
+   "output": "[DEAL_CODENAME #0] no 0.57\n[DEAL_CODENAME #1] no 0.39\n[DEAL_TARGET #0] no 0.48\n[DEAL_TARGET #1] no 0.23\n[DEAL_VALUE #0] no 0.33\n[DEAL_VALUE #1] no 0.30"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7363,
+   "output": "[DEAL_CODENAME #0] no 0.54\n[DEAL_CODENAME #1] no 0.27\n[DEAL_TARGET #0] no 0.71\n[DEAL_TARGET #1] no 0.33\n[DEAL_VALUE #0] no 0.54\n[DEAL_VALUE #1] no 0.54"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 32237,
+   "output": "[DEAL_CODENAME #0] no 0.58\n[DEAL_CODENAME #1] no 0.50\n[DEAL_CODENAME #2] no 0.61\n[DEAL_CODENAME #3] no 0.65\n[DEAL_CODENAME #4] no 0.56\n[DEAL_CODENAME #5] no 0.60\n[DEAL_CODENAME #6] no 0.46\n[DEAL_TARGET #0] no 0.44\n[DEAL_TARGET #1] no 0.31\n[DEAL_TARGET #2] no 0.33\n[DEAL_TARGET #3] no 0.61\n[DEAL_TARGE"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "research-en-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 29728,
+   "output": "[STUDY_NAME #0] no 0.41\n[STUDY_NAME #1] no 0.44\n[STUDY_NAME #2] no 0.62\n[STUDY_NAME #3] no 0.42\n[STUDY_NAME #4] no 0.42\n[STUDY_NAME #5] no 0.16\n[PARTNER_LAB #0] no 0.41\n[PARTNER_LAB #1] no 0.34\n[PARTNER_LAB #2] no 0.47\n[PARTNER_LAB #3] no 0.41\n[PARTNER_LAB #4] no 0.55\n[PARTNER_LAB #5] no 0.31\n[EARLY"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 25235,
+   "output": "[STUDY_NAME #0] no 0.46\n[STUDY_NAME #1] no 0.49\n[STUDY_NAME #2] no 0.34\n[STUDY_NAME #3] no 0.25\n[STUDY_NAME #4] no 0.38\n[STUDY_NAME #5] no 0.54\n[PARTNER_LAB #0] no 0.31\n[PARTNER_LAB #1] no 0.32\n[PARTNER_LAB #2] no 0.44\n[PARTNER_LAB #3] no 0.36\n[PARTNER_LAB #4] no 0.48\n[PARTNER_LAB #5] no 0.34\n[EARLY"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8477,
+   "output": "[STUDY_NAME #0] no 0.48\n[STUDY_NAME #1] no 0.55\n[STUDY_NAME #2] no 0.41\n[PARTNER_LAB #0] no 0.34\n[PARTNER_LAB #1] no 0.50\n[PARTNER_LAB #2] no 0.40\n[EARLY_RESULT #0] no 0.42\n[EARLY_RESULT #1] no 0.42\n[EARLY_RESULT #2] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 9057,
+   "output": "[STUDY_NAME #0] no 0.55\n[STUDY_NAME #1] no 0.59\n[STUDY_NAME #2] no 0.31\n[PARTNER_LAB #0] no 0.43\n[PARTNER_LAB #1] no 0.43\n[PARTNER_LAB #2] no 0.27\n[EARLY_RESULT #0] no 0.46\n[EARLY_RESULT #1] no 0.50\n[EARLY_RESULT #2] no 0.49"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13549,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.27\n[UNRELEASED_PRODUCT #1] no 0.24\n[UNRELEASED_PRODUCT #2] no 0.41\n[UNRELEASED_PRODUCT #3] no 0.31\n[UNRELEASED_PRODUCT #4] no 0.18\n[UNRELEASED_PRODUCT #5] no 0.19\n[PROSPECT_NAME #0] no 0.27\n[PROSPECT_NAME #1] no 0.27\n[PROSPECT_NAME #2] no 0.26\n[PROSPECT_NAME #3] no 0.25\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3530,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.37\n[UNRELEASED_PRODUCT #1] no 0.22\n[PROSPECT_NAME #0] no 0.40\n[PROSPECT_NAME #1] no 0.40"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4564,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.21\n[UNRELEASED_PRODUCT #1] no 0.33\n[UNRELEASED_PRODUCT #2] no 0.15\n[PROSPECT_NAME #0] no 0.37\n[PROSPECT_NAME #1] no 0.30\n[PROSPECT_NAME #2] no 0.16"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 17283,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.50\n[UNRELEASED_PRODUCT #1] no 0.44\n[UNRELEASED_PRODUCT #2] no 0.58\n[UNRELEASED_PRODUCT #3] no 0.35\n[UNRELEASED_PRODUCT #4] no 0.57\n[PROSPECT_NAME #0] no 0.44\n[PROSPECT_NAME #1] no 0.51\n[PROSPECT_NAME #2] no 0.58\n[PROSPECT_NAME #3] no 0.45\n[PROSPECT_NAME #4] no 0.33"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-ACCOUNT_REF: \"Dear Ms Imogen Castellanos, your order has been split into two parcels."
+   ],
+   "ms": 7981,
+   "output": "[CUSTOMER_NAME #0] no 0.49\n[CUSTOMER_NAME #1] no 0.51\n[CUSTOMER_NAME #2] no 0.41\n[CUSTOMER_NAME #3] no 0.23\n[ACCOUNT_REF #0] no 0.65\n[ACCOUNT_REF #1] yes 0.81\n[ACCOUNT_REF #2] no 0.73\n[ACCOUNT_REF #3] no 0.51"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6013,
+   "output": "[CUSTOMER_NAME #0] no 0.34\n[CUSTOMER_NAME #1] no 0.34\n[CUSTOMER_NAME #2] no 0.29\n[ACCOUNT_REF #0] no 0.39\n[ACCOUNT_REF #1] no 0.35\n[ACCOUNT_REF #2] no 0.35"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 12402,
+   "output": "[CUSTOMER_NAME #0] no 0.32\n[CUSTOMER_NAME #1] no 0.35\n[CUSTOMER_NAME #2] no 0.37\n[CUSTOMER_NAME #3] no 0.24\n[ACCOUNT_REF #0] no 0.37\n[ACCOUNT_REF #1] no 0.28\n[ACCOUNT_REF #2] no 0.59\n[ACCOUNT_REF #3] no 0.43"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.8",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 55764,
+   "output": "[CUSTOMER_NAME #0] no 0.10\n[CUSTOMER_NAME #1] no 0.51\n[CUSTOMER_NAME #2] no 0.49\n[CUSTOMER_NAME #3] no 0.50\n[CUSTOMER_NAME #4] no 0.35\n[CUSTOMER_NAME #5] no 0.49\n[CUSTOMER_NAME #6] no 0.54\n[CUSTOMER_NAME #7] no 0.35\n[CUSTOMER_NAME #8] no 0.30\n[CUSTOMER_NAME #9] no 0.40\n[CUSTOMER_NAME #10] no 0.20\n[A"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4099,
+   "output": "[CLIENT_NAME #0] no 0.38\n[CLIENT_NAME #1] no 0.49\n[CLIENT_NAME #2] no 0.28\n[CAMPAIGN_CODENAME #0] no 0.42\n[CAMPAIGN_CODENAME #1] no 0.61\n[CAMPAIGN_CODENAME #2] no 0.32"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 15345,
+   "output": "[CLIENT_NAME #0] no 0.34\n[CLIENT_NAME #1] no 0.31\n[CLIENT_NAME #2] no 0.37\n[CLIENT_NAME #3] no 0.20\n[CLIENT_NAME #4] no 0.56\n[CLIENT_NAME #5] no 0.28\n[CAMPAIGN_CODENAME #0] no 0.23\n[CAMPAIGN_CODENAME #1] no 0.23\n[CAMPAIGN_CODENAME #2] no 0.37\n[CAMPAIGN_CODENAME #3] no 0.32\n[CAMPAIGN_CODENAME #4] no "
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2290,
+   "output": "[CLIENT_NAME #0] no 0.30\n[CLIENT_NAME #1] no 0.25\n[CAMPAIGN_CODENAME #0] no 0.45\n[CAMPAIGN_CODENAME #1] no 0.25"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1286,
+   "output": "[CLIENT_NAME #0] no 0.52\n[CAMPAIGN_CODENAME #0] no 0.22"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2084,
+   "output": "[INTERNAL_HOST #0] no 0.38\n[INTERNAL_SERVICE #0] no 0.25\n[CUSTOMER_ID #0] no 0.19"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4631,
+   "output": "[INTERNAL_HOST #0] no 0.28\n[INTERNAL_HOST #1] no 0.23\n[INTERNAL_SERVICE #0] no 0.35\n[INTERNAL_SERVICE #1] no 0.29\n[CUSTOMER_ID #0] no 0.48\n[CUSTOMER_ID #1] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4790,
+   "output": "[INTERNAL_HOST #0] no 0.30\n[INTERNAL_HOST #1] no 0.27\n[INTERNAL_SERVICE #0] no 0.35\n[INTERNAL_SERVICE #1] no 0.40\n[CUSTOMER_ID #0] no 0.45\n[CUSTOMER_ID #1] no 0.43"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 65200,
+   "output": "[INTERNAL_HOST #0] no 0.22\n[INTERNAL_HOST #1] no 0.13\n[INTERNAL_HOST #2] no 0.28\n[INTERNAL_HOST #3] no 0.51\n[INTERNAL_HOST #4] no 0.51\n[INTERNAL_HOST #5] no 0.42\n[INTERNAL_HOST #6] no 0.58\n[INTERNAL_HOST #7] no 0.67\n[INTERNAL_HOST #8] no 0.52\n[INTERNAL_SERVICE #0] no 0.25\n[INTERNAL_SERVICE #1] no 0."
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1270,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.10\n[INTERNAL_FORECAST #0] no 0.22"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 3060,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.58\n[UNPUBLISHED_FIGURE #1] no 0.20\n[INTERNAL_FORECAST #0] no 0.42\n[INTERNAL_FORECAST #1] no 0.28"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1271,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.09\n[INTERNAL_FORECAST #0] no 0.15"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 14144,
+   "output": "[UNPUBLISHED_FIGURE #0] no 0.21\n[UNPUBLISHED_FIGURE #1] no 0.50\n[UNPUBLISHED_FIGURE #2] no 0.38\n[UNPUBLISHED_FIGURE #3] no 0.29\n[UNPUBLISHED_FIGURE #4] no 0.43\n[UNPUBLISHED_FIGURE #5] no 0.25\n[INTERNAL_FORECAST #0] no 0.35\n[INTERNAL_FORECAST #1] no 0.34\n[INTERNAL_FORECAST #2] no 0.19\n[INTERNAL_FOREC"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 15553,
+   "output": "[CANDIDATE_NAME #0] no 0.38\n[CANDIDATE_NAME #1] no 0.58\n[CANDIDATE_NAME #2] no 0.50\n[CANDIDATE_NAME #3] no 0.42\n[CANDIDATE_NAME #4] no 0.33\n[SOURCE_COMPANY #0] no 0.44\n[SOURCE_COMPANY #1] no 0.37\n[SOURCE_COMPANY #2] no 0.37\n[SOURCE_COMPANY #3] no 0.21\n[SOURCE_COMPANY #4] no 0.17\n[COMPENSATION #0] no"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 6701,
+   "output": "[CANDIDATE_NAME #0] no 0.29\n[CANDIDATE_NAME #1] no 0.19\n[SOURCE_COMPANY #0] no 0.53\n[SOURCE_COMPANY #1] no 0.23\n[COMPENSATION #0] no 0.39\n[COMPENSATION #1] no 0.13"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7280,
+   "output": "[CANDIDATE_NAME #0] no 0.48\n[CANDIDATE_NAME #1] no 0.27\n[SOURCE_COMPANY #0] no 0.39\n[SOURCE_COMPANY #1] no 0.13\n[COMPENSATION #0] no 0.10\n[COMPENSATION #1] no 0.07"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 4335,
+   "output": "[CANDIDATE_NAME #0] no 0.60\n[CANDIDATE_NAME #1] no 0.62\n[SOURCE_COMPANY #0] no 0.32\n[SOURCE_COMPANY #1] no 0.26\n[COMPENSATION #0] no 0.29\n[COMPENSATION #1] no 0.27"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 4970,
+   "output": "[DEAL_CODENAME #0] no 0.20\n[DEAL_CODENAME #1] no 0.26\n[DEAL_TARGET #0] no 0.36\n[DEAL_TARGET #1] no 0.31\n[DEAL_VALUE #0] no 0.37\n[DEAL_VALUE #1] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 4628,
+   "output": "[DEAL_CODENAME #0] no 0.57\n[DEAL_CODENAME #1] no 0.39\n[DEAL_TARGET #0] no 0.48\n[DEAL_TARGET #1] no 0.23\n[DEAL_VALUE #0] no 0.33\n[DEAL_VALUE #1] no 0.30"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 7363,
+   "output": "[DEAL_CODENAME #0] no 0.54\n[DEAL_CODENAME #1] no 0.27\n[DEAL_TARGET #0] no 0.71\n[DEAL_TARGET #1] no 0.33\n[DEAL_VALUE #0] no 0.54\n[DEAL_VALUE #1] no 0.54"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 32237,
+   "output": "[DEAL_CODENAME #0] no 0.58\n[DEAL_CODENAME #1] no 0.50\n[DEAL_CODENAME #2] no 0.61\n[DEAL_CODENAME #3] no 0.65\n[DEAL_CODENAME #4] no 0.56\n[DEAL_CODENAME #5] no 0.60\n[DEAL_CODENAME #6] no 0.46\n[DEAL_TARGET #0] no 0.44\n[DEAL_TARGET #1] no 0.31\n[DEAL_TARGET #2] no 0.33\n[DEAL_TARGET #3] no 0.61\n[DEAL_TARGE"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "research-en-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 29728,
+   "output": "[STUDY_NAME #0] no 0.41\n[STUDY_NAME #1] no 0.44\n[STUDY_NAME #2] no 0.62\n[STUDY_NAME #3] no 0.42\n[STUDY_NAME #4] no 0.42\n[STUDY_NAME #5] no 0.16\n[PARTNER_LAB #0] no 0.41\n[PARTNER_LAB #1] no 0.34\n[PARTNER_LAB #2] no 0.47\n[PARTNER_LAB #3] no 0.41\n[PARTNER_LAB #4] no 0.55\n[PARTNER_LAB #5] no 0.31\n[EARLY"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 25235,
+   "output": "[STUDY_NAME #0] no 0.46\n[STUDY_NAME #1] no 0.49\n[STUDY_NAME #2] no 0.34\n[STUDY_NAME #3] no 0.25\n[STUDY_NAME #4] no 0.38\n[STUDY_NAME #5] no 0.54\n[PARTNER_LAB #0] no 0.31\n[PARTNER_LAB #1] no 0.32\n[PARTNER_LAB #2] no 0.44\n[PARTNER_LAB #3] no 0.36\n[PARTNER_LAB #4] no 0.48\n[PARTNER_LAB #5] no 0.34\n[EARLY"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 8477,
+   "output": "[STUDY_NAME #0] no 0.48\n[STUDY_NAME #1] no 0.55\n[STUDY_NAME #2] no 0.41\n[PARTNER_LAB #0] no 0.34\n[PARTNER_LAB #1] no 0.50\n[PARTNER_LAB #2] no 0.40\n[EARLY_RESULT #0] no 0.42\n[EARLY_RESULT #1] no 0.42\n[EARLY_RESULT #2] no 0.31"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 9057,
+   "output": "[STUDY_NAME #0] no 0.55\n[STUDY_NAME #1] no 0.59\n[STUDY_NAME #2] no 0.31\n[PARTNER_LAB #0] no 0.43\n[PARTNER_LAB #1] no 0.43\n[PARTNER_LAB #2] no 0.27\n[EARLY_RESULT #0] no 0.46\n[EARLY_RESULT #1] no 0.50\n[EARLY_RESULT #2] no 0.49"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13549,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.27\n[UNRELEASED_PRODUCT #1] no 0.24\n[UNRELEASED_PRODUCT #2] no 0.41\n[UNRELEASED_PRODUCT #3] no 0.31\n[UNRELEASED_PRODUCT #4] no 0.18\n[UNRELEASED_PRODUCT #5] no 0.19\n[PROSPECT_NAME #0] no 0.27\n[PROSPECT_NAME #1] no 0.27\n[PROSPECT_NAME #2] no 0.26\n[PROSPECT_NAME #3] no 0.25\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3530,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.37\n[UNRELEASED_PRODUCT #1] no 0.22\n[PROSPECT_NAME #0] no 0.40\n[PROSPECT_NAME #1] no 0.40"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 4564,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.21\n[UNRELEASED_PRODUCT #1] no 0.33\n[UNRELEASED_PRODUCT #2] no 0.15\n[PROSPECT_NAME #0] no 0.37\n[PROSPECT_NAME #1] no 0.30\n[PROSPECT_NAME #2] no 0.16"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 17283,
+   "output": "[UNRELEASED_PRODUCT #0] no 0.50\n[UNRELEASED_PRODUCT #1] no 0.44\n[UNRELEASED_PRODUCT #2] no 0.58\n[UNRELEASED_PRODUCT #3] no 0.35\n[UNRELEASED_PRODUCT #4] no 0.57\n[PROSPECT_NAME #0] no 0.44\n[PROSPECT_NAME #1] no 0.51\n[PROSPECT_NAME #2] no 0.58\n[PROSPECT_NAME #3] no 0.45\n[PROSPECT_NAME #4] no 0.33"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 7981,
+   "output": "[CUSTOMER_NAME #0] no 0.49\n[CUSTOMER_NAME #1] no 0.51\n[CUSTOMER_NAME #2] no 0.41\n[CUSTOMER_NAME #3] no 0.23\n[ACCOUNT_REF #0] no 0.65\n[ACCOUNT_REF #1] no 0.81\n[ACCOUNT_REF #2] no 0.73\n[ACCOUNT_REF #3] no 0.51"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 6013,
+   "output": "[CUSTOMER_NAME #0] no 0.34\n[CUSTOMER_NAME #1] no 0.34\n[CUSTOMER_NAME #2] no 0.29\n[ACCOUNT_REF #0] no 0.39\n[ACCOUNT_REF #1] no 0.35\n[ACCOUNT_REF #2] no 0.35"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 12402,
+   "output": "[CUSTOMER_NAME #0] no 0.32\n[CUSTOMER_NAME #1] no 0.35\n[CUSTOMER_NAME #2] no 0.37\n[CUSTOMER_NAME #3] no 0.24\n[ACCOUNT_REF #0] no 0.37\n[ACCOUNT_REF #1] no 0.28\n[ACCOUNT_REF #2] no 0.59\n[ACCOUNT_REF #3] no 0.43"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "seg-yn-raw-p0.9",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 55764,
+   "output": "[CUSTOMER_NAME #0] no 0.10\n[CUSTOMER_NAME #1] no 0.51\n[CUSTOMER_NAME #2] no 0.49\n[CUSTOMER_NAME #3] no 0.50\n[CUSTOMER_NAME #4] no 0.35\n[CUSTOMER_NAME #5] no 0.49\n[CUSTOMER_NAME #6] no 0.54\n[CUSTOMER_NAME #7] no 0.35\n[CUSTOMER_NAME #8] no 0.30\n[CUSTOMER_NAME #9] no 0.40\n[CUSTOMER_NAME #10] no 0.20\n[A"
+  }
+ ]
+}

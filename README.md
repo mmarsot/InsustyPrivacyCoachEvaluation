@@ -191,7 +191,9 @@ It has six views:
   case) results, overall and by language.
 - **Playground.** Talk to one bundled model to see its limits (below).
 - **Lab.** Every `npm run lab` result (`experiments/runs/`), sortable by any
-  metric and by language; tick two rows to compare their outputs case by case.
+  metric and by language, with p95 latency and the segment view; tick two
+  rows to compare their outputs case by case. Runs in progress appear with
+  their partial results (refreshed every 15 s).
 
 ### Chat playground
 
@@ -257,7 +259,20 @@ candidate models (`models/candidates.json`). Each named configuration in
   that record token probabilities), `--anchor relaxed`.
 - Configuration features: per-label passes, completion framing (`raw`),
   language-matched demonstrations, iterative rounds (`iterations`), answer-only
-  repetition penalty, P(NONE) and confidence recording, JSON output mode.
+  repetition penalty, P(NONE) and confidence recording, JSON output mode, and
+  segment Yes/No classification (`segment`, `src/lab/segment.ts`): code cuts
+  the prompt into sentences/clauses with exact offsets and the model answers
+  Yes or No per (segment, label), either as the whole review (`seg-yn*`) or
+  as a second stage on the shipped findings (`seg-verify*`). This proposal
+  was rejected (experiments/LOG.md S1-S4).
+- Every run also prints a segment view: segment precision/recall against
+  "the segment holds an expected passage", over-redaction (redacted
+  characters outside expected passages), requests per prompt and p50/p95 per
+  prompt; Yes/No configurations add the unresolved-check rate and the ROC AUC
+  of P(Yes). `--seg-diag` prints answer forms, P(Yes) histograms and AUC per
+  language and label.
+- While a worker runs, the run file is rewritten every ~30 s with the cases
+  finished so far (`inProgress`), for the dashboard's Lab view.
 - Candidate models run on onnxruntime-web 1.24.3 (`ort: "next"` in
   `models/candidates.json`); `--no-prefix-cache` runs every request whole.
 - `npm run lab:classify` tests the candidate-classification approach, and

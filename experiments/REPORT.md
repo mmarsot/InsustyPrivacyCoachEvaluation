@@ -37,6 +37,17 @@ extension ships.
   per label and completion framing carry the F1 gain, while NONE-last and
   the plausibility filter are false-positive levers. Measure new proposals
   with `npm run ablate -- --with <config>`.
+- **Rejected: segment x label Yes/No classification** (captain's spec v1.1).
+  Code cuts the prompt into sentences, the model answers Yes/No per
+  (sentence, label), and a Yes redacts the whole sentence. With the spec's
+  chat template SmolLM2-360M says Yes to everything (AUC 0.48, FP 100%). In
+  the completion framing it formats well but barely discriminates (AUC
+  0.62-0.63; F1 24-25 vs 34-38 for the shipped design on the same cases).
+  It needs ~9 requests per prompt (p50 2.7x, p95 8-10x), and 83-94% of what
+  it redacts is outside the sensitive passages. As a second-stage verifier of
+  shipped findings it does worse than the confidence filter. Stopped after
+  the iter32 screen and a partial tune96 run. (LOG S1-S4; ledger "Rejected
+  proposals".)
 
 Sets: `tune96` (96 dev cases, 54 positive / 42 negative, half EN half FR) for
 tuning, `confirm48` (48 disjoint dev cases) to confirm, `heldout-test` (the
@@ -200,6 +211,7 @@ demonstrations was the first framing all three bundled models could follow.
 | Removing Qwen's inherited `repetition_penalty: 1.1` alone | Still F1 0 with chat prompts. |
 | Output-format example; JSON extraction protocol | F1 0 on SmolLM2-360M. |
 | Code-proposed candidates + yes/no classification | No discrimination (ROC AUC 0.42-0.56) though candidates cover 93% of expected passages. |
+| Sentence segments + one Yes/No per (segment, label), whole-segment redaction (spec v1.1), also as a verifier of shipped findings | Chat template: always Yes (AUC 0.48). Completion framing: AUC 0.62-0.63, F1 24-25 vs 34-38, ~9 requests per prompt, 83-94% over-redaction. As a verifier (AUC 0.60) it is worse than the confidence filter. (LOG S1-S4) |
 | Relaxed anchoring (keep the longest matching word run) | Recall ±0, FP +10-14 points. |
 | Gate on P(first token = NONE) | Anti-informative. |
 | Completion-design tweaks: lower-case cue, two-passage demo, no instruction, `"""` delimiters, counter-example demo, two NONE demos, examples in the description, three example demos, French instruction line, alternative carrier sentences | Equal or worse. |

@@ -17,6 +17,7 @@
  */
 import type { LabelSpec, Profile } from "../dataset/schema.ts";
 import { composeLabelDescription, INSTRUCTION_VARIANTS, type LabelVariantId } from "../variants.ts";
+import type { SegmentMode } from "./segment.ts";
 
 export interface Shot {
   text: string;
@@ -115,6 +116,12 @@ export interface LabConfig {
    * `filterLines` rule (see `plausibleLines`).
    */
   plausibilityFilter: boolean;
+  /**
+   * Segment classification (src/lab/segment.ts): one Yes/No request per
+   * (segment, custom label), either as the whole review (`classify`) or as a
+   * second stage on this configuration's own per-label findings (`verify`).
+   */
+  segment?: SegmentMode;
 }
 
 /**

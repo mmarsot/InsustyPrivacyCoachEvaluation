@@ -21,6 +21,7 @@ import type { PreTrainedModel, Tensor } from "@huggingface/transformers";
 if (process.env.LAB_ORT === "next") register(new URL("./ort-next-hooks.mjs", import.meta.url));
 const { ones, StoppingCriteria, StoppingCriteriaList, LogitsProcessor, LogitsProcessorList, Tensor: TensorClass } = await import("@huggingface/transformers");
 const { eosIds, idsTensor, loadPretrained, WASM_THREADS, transformersVersion } = await import("../run/transformers-loader.ts");
+const { YES_WORDS, NO_WORDS } = await import("./segment.ts");
 
 export interface LabGen {
   maxNewTokens: number;
@@ -43,6 +44,8 @@ export interface LabGen {
   answerRepetitionPenalty?: number;
   /** Record the probability of each generated token (answer confidence). */
   scoreConfidence?: boolean;
+  /** Record P(Yes) and P(No) (single-token variants, src/lab/segment.ts) at the first generated token. */
+  scoreYesNo?: boolean;
 }
 export interface LabJob {
   key: string;
@@ -77,6 +80,9 @@ export interface LabRecord {
   pNone?: number;
   /** Probability of each generated token under greedy decoding (first 48), when asked. */
   tokenProbs?: number[];
+  /** Probability mass of the Yes / No first tokens at the first generated token, when asked. */
+  pYes?: number;
+  pNo?: number;
   ms: number;
   at: string;
 }
@@ -184,6 +190,10 @@ async function main() {
   emit({ type: "loaded", loadMs: Math.round(performance.now() - t0), threads: WASM_THREADS, transformers: transformersVersion, ort, contextLength });
   const encode = (text: string) => tokenizer.encode(text, { add_special_tokens: false });
   const noneIds = [...new Set([" NONE", "NONE", " None", "None"].map((w) => encode(w)[0]).filter((id): id is number => id !== undefined))];
+  // Yes / No answers: only variants that are one token, so a first token like "Y" never counts.
+  const wordIds = (words: string[]) => [...new Set(words.map((w) => encode(w)).filter((ids) => ids.length === 1).map((ids) => ids[0]!))];
+  const yesIds = wordIds(YES_WORDS);
+  const noIds = wordIds(NO_WORDS);
   const decode = (ids: readonly number[]) => tokenizer.decode([...ids], { skip_special_tokens: true });
   const total = spec.groups.reduce((a, g) => a + g.jobs.length, 0);
   let done = 0;
@@ -222,10 +232,16 @@ async function main() {
       );
       const probe = job.gen.scoreNone ? new FirstStepProbe(noneIds) : undefined;
       const confidence = job.gen.scoreConfidence ? new ConfidenceProbe() : undefined;
-      const processors = probe || confidence || job.gen.answerRepetitionPenalty ? new LogitsProcessorList() : undefined;
+      const yesProbe = job.gen.scoreYesNo ? new FirstStepProbe(yesIds) : undefined;
+      const noProbe = job.gen.scoreYesNo ? new FirstStepProbe(noIds) : undefined;
+      const processors = probe || confidence || yesProbe || job.gen.answerRepetitionPenalty ? new LogitsProcessorList() : undefined;
       if (job.gen.answerRepetitionPenalty) processors!.push(new AnswerRepetitionPenalty(ids.length, job.gen.answerRepetitionPenalty));
       if (probe) processors!.push(probe);
       if (confidence) processors!.push(confidence);
+      if (yesProbe && noProbe) {
+        processors!.push(yesProbe);
+        processors!.push(noProbe);
+      }
       const room = contextLength - ids.length;
       const cap = job.gen.maxNewTokens > 0 ? Math.min(job.gen.maxNewTokens, room) : room;
       const output = (await model.generate({
@@ -255,6 +271,7 @@ async function main() {
         finishReason,
         ...(probe?.p === undefined ? {} : { pNone: probe.p }),
         ...(confidence ? { tokenProbs: confidence.probs.map((x) => Math.round(x * 1e4) / 1e4) } : {}),
+        ...(yesProbe?.p === undefined || noProbe?.p === undefined ? {} : { pYes: Number(yesProbe.p.toPrecision(5)), pNo: Number(noProbe.p.toPrecision(5)) }),
         ms: Math.round(performance.now() - started),
         at: new Date().toISOString(),
       };

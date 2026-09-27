@@ -6,6 +6,7 @@
  * silently changes what a name means).
  */
 import { REF_CONFIG, withOverrides, type LabConfig } from "./config.ts";
+import type { SegmentMode } from "./segment.ts";
 import { shippedConfigs } from "./shipped.ts";
 
 const defs: LabConfig[] = [REF_CONFIG];
@@ -166,5 +167,23 @@ add("raw-pl-lang-conf", "raw-pl-lang-altpos", "raw-pl-lang-conf with the alterna
 // per shipped improvement. Add new proposals below as add("shipped", ...) so
 // `npm run ablate -- --with <id>` measures them against the shipped baseline.
 defs.push(...shippedConfigs());
+
+// --- rejected proposal: segment x label Yes/No classification (captain's spec v1.1, src/lab/segment.ts;
+// LOG S1-S4, docs/shipped-improvements.md "Rejected proposals"). Off unless one of these ids is selected.
+// Configurations that differ only in `decision` render the same requests and share the cache.
+const SEG: SegmentMode = { use: "classify", framing: "chat", context: "whole", demos: 4, decision: "text" };
+const addSeg = (id: string, note: string, segment: Partial<SegmentMode>) => {
+  add("shipped", id, note, { segment: { ...SEG, ...segment } });
+  add(id, `${id}-logit`, `${note}; constrained decoding: P(Yes) vs P(No) at the first token`, { segment: { ...SEG, ...segment, decision: "logit" } });
+  for (const t of [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95])
+    add(id, `${id}-p${t}`, `${note}; Yes when P(Yes)/(P(Yes)+P(No)) >= ${t}`, { segment: { ...SEG, ...segment, decision: t } });
+};
+addSeg("seg-yn", "Spec v1.1: sentence segments x labels, chat template, policy + 4 demos, whole-prompt BEFORE/TARGET/AFTER, strict Yes/No", {});
+addSeg("seg-yn-raw", "seg-yn in completion framing (the shipped framing, no chat template)", { framing: "completion" });
+addSeg("seg-yn-raw-nb", "seg-yn-raw with only the neighboring segments as BEFORE/AFTER (spec's reduced context)", { framing: "completion", context: "neighbors" });
+addSeg("seg-yn-raw-d2", "seg-yn-raw with 2 demonstrations (Yes, then No on a harmless target after sensitive context)", { framing: "completion", demos: 2 });
+addSeg("seg-yn-raw-d0", "seg-yn-raw without demonstrations (policy only)", { framing: "completion", demos: 0 });
+// Hybrid: the shipped per-label findings, each kept only when a segment it overlaps is not a No for its label.
+addSeg("seg-verify-raw", "Shipped findings verified by seg-yn-raw checks of their segments (unresolved keeps the finding)", { use: "verify", framing: "completion" });
 
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));

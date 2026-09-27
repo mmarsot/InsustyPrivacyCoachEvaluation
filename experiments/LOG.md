@@ -893,3 +893,231 @@ The first-line stop is quality-neutral but bounds latency (off: 2 deadline
 timeouts, p95 6.4 → 7.3 s). Pinned decoding is a no-op on SmolLM2 (it matters
 for Qwen2.5's shipped 1.1 penalty). Ledger with the per-improvement evidence:
 `docs/shipped-improvements.md`.
+
+### S1-S4. Segment x label Yes/No classification (captain's spec v1.1): rejected
+
+**Negative result.** The captain's "Sensitive text classification pipeline"
+(spec v1.1, 2026-09-27) was implemented in the lab and screened on
+SmolLM2-360M. The captain stopped it after the iter32 screen and a partial
+tune96 run and rejected it as unsuccessful: confirm48 and the held-out split
+were never run, and no second model was tried (Qwen2.5-0.5B needs ~4.6 GB
+free with the margin; this machine had ~3 GB). The code stays in the lab,
+off unless a `seg-*` configuration is selected. Reasons, in short (details
+in S2-S4):
+
+1. **The spec's chat-template prompt makes SmolLM2-360M answer Yes to
+   everything**: Yes on 83% of the checks whose segment holds nothing of the
+   label, P(Yes) identical on positive and negative checks (ROC AUC 0.48),
+   every negative prompt flagged.
+2. **The shipped completion framing fixes the format but not the
+   judgment**: 98% bare Yes/No answers, but ROC AUC 0.62-0.63, and F1 24-25
+   against 34-38 for the shipped design on the same cases. No P(Yes)
+   threshold helps (AUC is threshold-free); fewer demonstrations or less
+   context make it worse.
+3. **Cost**: 8.8-9 requests per prompt (segments x labels), each re-reading
+   the whole prompt: p50 6.7 s vs 2.5 s (2.7x) and p95 44-56 s vs 5-5.4 s
+   (8-10x).
+4. **Over-redaction**: whole-segment redaction puts 83-94% of the redacted
+   characters outside the expected passages (shipped: 48-56%), even when the
+   flag is right.
+5. **As a second-stage verifier of shipped findings it is no better than
+   what exists**: P(Yes) barely separates correct from wrong shipped findings
+   (AUC 0.60); the best threshold trades 7 F1 points for 13 FP points, where
+   the answer-confidence filter (C2-C3) trades ~2 F1 points for ~15 FP
+   points at no extra request.
+
+This repeats E4 (yes/no over code-proposed candidates, AUC 0.42-0.56) with
+sentence targets, BEFORE/AFTER context, a policy with exclusions and
+matching/non-matching demonstrations: a sub-500M model cannot make the
+policy decision from a description and a few examples, whatever the target
+granularity.
+
+#### S1. Implementation
+
+Proposal: application code cuts the prompt into sentences / clear clauses
+with exact offsets; for each (segment, custom label) the model gets the
+label's policy, a few demonstrations and the segment as TARGET between its
+BEFORE and AFTER text, and answers exactly Yes or No; anything else is
+unresolved (never No); a segment is redacted whole when any label says Yes.
+Lab: `src/lab/segment.ts` (model-free part, `tests/segment.test.ts`), the
+`segment` field of a lab configuration, planning/scoring in `src/lab/cli.ts`,
+configurations `seg-yn*` / `seg-verify*` in `src/lab/configs.ts` (added on
+top of `shipped`, so `npm run ablate -- --with <id>` works).
+
+- **Segmentation** (spec §1): every line is a boundary (paragraphs, list
+  items, table/CSV rows, code lines), then sentences within a line: after
+  `.` `!` `?` `…` runs followed by whitespace, except after abbreviations
+  (Mr., vs., etc., e.g., p.m. ...), initials (K. Anand, M. Lhomme) and a
+  leading list number; decimals and URLs have no whitespace after their dots.
+  `;` + whitespace outside quotes splits clauses. Commas never split.
+  Segments longer than 1000 characters would split at the comma nearest
+  their middle (never triggered: the longest dev/test segment is 290). Whole
+  dataset: 3,605 segments for 809 prompts (median 3, p90 9, max 36), every
+  non-whitespace character covered, and no expected passage crosses a
+  segment boundary. `Intl.Segmenter` was tried first and rejected: it splits
+  after "Mr." / "K." / "M." and inside URLs, and never after a lower-case
+  start ("ok cool. next one?").
+- **Request** (spec §2-4): the spec's six instruction lines; `POLICY:` with
+  `LABEL: description`, `Covered, for example:` the label's examples and
+  `Not covered:` its counter-examples (the dataset has no aliases; the
+  counter-examples are the exclusions); `EXAMPLES:` then `CURRENT INPUT:` with
+  `Before:` / `Target:` / `After:` lines (empty sections left out, as in the
+  spec's pattern) and `Answer:`. Texts are JSON string literals (quotes,
+  backslashes and line breaks escaped: the spec's "quoted or escaped data").
+  Context = the whole prompt. It always fits: over all 8,995 dev+test checks
+  the largest request is 1,069 tokens (prefix at most 398, input 191 on
+  average), under the 2,048-token budget set per check; over budget would
+  fall back to the neighboring segments, and still over budget would be an
+  unresolved check without a request.
+- **Demonstrations** (from each profile, language-matched like the shipped
+  design, carrier sentences reused from it): Yes on a carrier sentence with
+  the label's first example; No on one with another label's first example
+  (the task allowed counter-examples or other labels; several
+  counter-examples are descriptions such as "figures from last year's
+  published annual report" that do not fit in a carrier sentence, so they
+  stay in the policy as exclusions); Yes with the second example; No on a
+  harmless target ("Please make this shorter and friendlier.") after a
+  sensitive BEFORE sentence with the third example (the spec's
+  "sensitive context alone is not sufficient" demonstration). They
+  alternate and end on No (the shipped NONE-last lesson).
+- **Framing** (spec §4 asks for the chat template): `chat` = the instruction
+  as the system message and the rest as the user turn, generation after the
+  assistant header. The captain's addendum allowed the shipped completion
+  framing, so `completion` renders the same text plainly (no template),
+  ending on `Answer:`.
+- **Decoding and answers** (spec §5): greedy, 4-token cap, stop at the first
+  line break; the new tokens only are parsed; Yes/No accepted after trimming
+  whitespace and end markers, any case, one trailing period; everything else
+  (empty, explanations, `Answer: No`, echoed `Target: "…`) is unresolved.
+  The worker also records P(Yes) and P(No) at the first answer token (sum over
+  the single-token variants `Yes`/` Yes`/`yes`/` yes` and the same for No),
+  which gives two more decisions from the same cached requests: `-logit`
+  (constrained decoding: Yes when P(Yes) > P(No)) and `-p<t>` (Yes when
+  P(Yes)/(P(Yes)+P(No)) >= t).
+- **Combining** (spec §6): each Yes is a finding (label, whole segment);
+  labels are independent, so a segment keeps every label that said Yes;
+  unresolved checks add nothing and are counted. Redaction merges overlapping
+  ranges and ranges separated only by whitespace (`redact`, unit-tested on
+  the spec's §7 example).
+- **Prefix reuse / latency**: the instruction, policy and demonstrations are
+  the reusable prefix, per label and language (like the shipped per-label
+  prefixes, not timed); each check prefills its BEFORE/TARGET/AFTER input and
+  decodes 1-2 tokens. Latency per prompt = sum of its checks, sequential.
+- **Scoring**: (a) the bench's passage metrics with each flagged segment as a
+  finding with its label (overlap precision counts a segment as correct when
+  it overlaps an expected passage of that label, however much else it
+  covers); (b) a segment view, printed for every configuration including
+  `shipped`: segment precision/recall against "the segment overlaps an
+  expected passage" (any label), over-redaction = share of redacted
+  non-whitespace characters outside every expected passage, requests per
+  prompt; for Yes/No checks the unresolved rate, cases with an unresolved
+  check, check-level precision/recall, the Yes rate on negative checks and
+  the ROC AUC of P(Yes) (a check is positive when its segment holds a passage
+  of its label, the E4 diagnostic).
+- **Hybrid** (`seg-verify*`, the captain's second-stage idea): the shipped
+  per-label requests as they are, then each shipped finding is kept only when
+  a segment it overlaps is not a No for its label (an unresolved check keeps
+  it). Only the checks of segments with a finding count as requests and
+  latency (the lab computes all checks once, shared with `seg-yn*`).
+  `vAUC` = ROC AUC of P(Yes) between correct and wrong shipped findings.
+
+#### S2. Screen on iter32: chat template (spec) vs completion framing (`s1-seg-iter32`)
+
+SmolLM2-360M, 32 cases, 288 checks per configuration (9.0 per prompt, 36
+positive). `-logit` / `-p<t>` rows reuse the same requests.
+
+| config | F1 | P | R | det | FPR | segP | segR | over-red. | unresolved | req/prompt | p50 s | p95 s | AUC |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| shipped | 34 | 42 | 29 | 46 | 60 | 52 | 36 | 56 | – | 2.5 | 2.5 | 5.4 | – |
+| seg-yn (chat, spec) | 22 | 13 | 87 | 86 | 100 | 28 | 100 | 91 | 12 | 9.0 | 5.7 | 54.7 | 0.48 |
+| seg-yn-logit | 22 | 12 | 95 | 96 | 100 | 27 | 100 | 91 | 0 | 9.0 | 5.7 | 54.7 | 0.48 |
+| seg-yn-p0.8 | 17 | 15 | 18 | 27 | 50 | 32 | 42 | 90 | 0 | 9.0 | 5.7 | 54.7 | 0.48 |
+| seg-yn-raw (completion) | 25 | 20 | 32 | 32 | 40 | 41 | 52 | 86 | 2 | 9.0 | 6.7 | 55.8 | 0.62 |
+| seg-yn-raw-logit | 23 | 18 | 32 | 32 | 50 | 38 | 52 | 87 | 0 | 9.0 | 6.7 | 55.8 | 0.62 |
+
+- **Chat template (the spec as written): always Yes.** The greedy answer is
+  "Yes" on 240 of 288 checks and on 83% of the checks whose segment holds
+  nothing of the label; mean P(Yes)/(P(Yes)+P(No)) is 0.69 on positive and
+  0.69 on negative checks (AUC 0.48). Every negative prompt gets a finding
+  (FP 100%). The 12% unresolved answers continue the demonstration format
+  (`Target: "Please…`) or write `Answer: No` (a No buried in text is
+  unresolved, as the spec says).
+- **Completion framing (captain's addendum): formats well, discriminates
+  weakly.** 98% of answers are a bare Yes/No, mostly No (233/288: the
+  demonstrations end on No), AUC 0.62 (mean normalized P(Yes) 0.42 on
+  positive vs 0.37 on negative checks). F1 25 vs 34 shipped.
+- **Latency:** 9 requests per prompt, each re-reading the whole prompt: p50
+  2.7x and p95 10x the shipped design (the CSV prompt `dev-en-047` takes
+  65 s: 9 segments x 3 labels, ~2.4 s per check).
+- **Over-redaction:** 86-91% of the characters the segment designs redact
+  are outside the expected passages (shipped: 56%). Even a correct flag
+  hides the whole sentence around a two-word name.
+
+#### S3. The spec's variants on iter32: context size and demonstrations (`s3-seg-variants-iter32`)
+
+Completion framing (the better one in S2), one change each.
+
+| config | F1 | P | R | det | FPR | segP | segR | over-red. | unresolved | req/prompt | p50 s | p95 s | AUC |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| seg-yn-raw (whole prompt, 4 demos) | 25 | 20 | 32 | 32 | 40 | 41 | 52 | 86 | 2 | 9.0 | 6.7 | 55.8 | 0.62 |
+| seg-yn-raw-nb (neighbor segments only) | 20 | 15 | 32 | 32 | 50 | 40 | 61 | 87 | 1 | 9.0 | 6.4 | 16.0 | 0.56 |
+| seg-yn-raw-d2 (2 demos: Yes, context No) | 6 | 7 | 5 | 9 | 30 | 15 | 13 | 94 | 2 | 9.0 | 5.5 | 48.4 | 0.59 |
+| seg-yn-raw-d0 (no demos) | 10 | 10 | 11 | 18 | 80 | 14 | 16 | 92 | 39 | 9.0 | 6.6 | 45.9 | 0.54 |
+| seg-yn-raw-d0-logit | 21 | 16 | 34 | 50 | 60 | 28 | 58 | 90 | 0 | 9.0 | 6.6 | 45.9 | 0.54 |
+
+- Neighbor-only context cuts p95 from 56 to 16 s but lowers AUC (0.56),
+  French most (0.62 -> 0.47).
+- Fewer demonstrations lower AUC; without any, 39% of answers are not Yes/No
+  (`A:`, `Output:`, empty, lower-case forms), so the demonstrations are what
+  holds the format. Constrained decoding (`-logit`) removes the unresolved
+  answers but cannot add discrimination.
+- Per-label AUCs are scattered (0.2 to 1.0 on 1-4 positive checks each):
+  no label family is reliably separated.
+- Kept for tuning: whole-prompt context, 4 demonstrations, completion
+  framing (`seg-yn-raw`), with the decision (greedy, logit, P(Yes)
+  threshold) and the hybrid to be tuned on tune96.
+
+#### S4. Partial tune96: thresholds and the verifier hybrid (`s4-seg-tune96`, `s4-seg-tune96-45`)
+
+The tune96 run of `seg-yn-raw` (517 new checks) was killed by the lab's
+memory guard at 121/517 (system MemAvailable below 600 MB with other lanes
+running), then the captain stopped the experiment. 45 of the 96 cases have
+all their checks: the 32 iter32 cases plus 13 agency/dev cases (24 EN / 21
+FR). `s4-seg-tune96-45` rescores the cached requests on exactly those 45
+cases, `shipped` included (nothing computed). From S4 on, the lab used
+extension `main` @ 70263e4 (main advanced during the session; the lab's
+prompts do not depend on it, and `shipped` on all 96 tune96 cases still
+gives 32 / 42 / 26 / FP 36, as in A1). The AUC column of the `seg-verify`
+rows is the verifier AUC (P(Yes) of correct vs wrong shipped findings, 33
+findings).
+
+| config (45 cases) | F1 | P | R | det | FPR | segP | segR | over-red. | unresolved | req/prompt | p50 s | p95 s | AUC |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| shipped | 38 | 46 | 32 | 45 | 44 | 59 | 41 | 48 | – | 2.5 | 2.5 | 5.1 | – |
+| seg-yn-raw (greedy text) | 24 | 19 | 32 | 31 | 31 | 38 | 51 | 87 | 1 | 8.8 | 6.7 | 43.6 | 0.63 |
+| seg-yn-raw-logit (constrained) | 23 | 18 | 32 | 31 | 38 | 35 | 51 | 87 | 0 | 8.8 | 6.7 | 43.6 | 0.63 |
+| seg-yn-raw-p0.3 | 22 | 13 | 75 | 83 | 88 | 25 | 90 | 91 | 0 | 8.8 | 6.7 | 43.6 | 0.63 |
+| seg-yn-raw-p0.4 | 24 | 15 | 55 | 55 | 75 | 30 | 74 | 89 | 0 | 8.8 | 6.7 | 43.6 | 0.63 |
+| seg-yn-raw-p0.6 | 17 | 24 | 13 | 17 | 6 | 46 | 26 | 83 | 0 | 8.8 | 6.7 | 43.6 | 0.63 |
+| seg-verify-raw (greedy) | 18 | 56 | 11 | 14 | 13 | 67 | 15 | 55 | 0 | 3.2 | 3.3 | 6.9 | 0.60 |
+| seg-verify-raw-p0.3 | 31 | 46 | 23 | 35 | 31 | 62 | 33 | 55 | 0 | 3.2 | 3.3 | 6.9 | 0.60 |
+| seg-verify-raw-p0.4 | 25 | 50 | 17 | 24 | 19 | 63 | 26 | 54 | 0 | 3.2 | 3.3 | 6.9 | 0.60 |
+
+(`-p0.5` equals `-logit`.) Check level for `seg-yn-raw` (398 checks, 45
+positive): greedy Yes on 29% of positive and 16% of negative checks (11% in
+negative prompts, 18% in the other segments of positive prompts), check
+precision 19%. Sweeping the P(Yes) threshold only moves along the same weak
+curve: recall rises with the FP rate (p0.3: 75% recall, FP 88%) and F1 stays
+at 17-24, below the shipped 38.
+
+The verifier keeps the shipped design's passage-level findings and adds only
+~0.7 requests per prompt (the checks of segments with a finding), but its
+decisions are close to random on those findings (AUC 0.60). At p0.3 it trades
+7 F1 points for 13 FP points; the greedy decision keeps precision at 56% but
+recall falls to 11%. On the full tune96 set, the answer-confidence filter
+`cmin0.2` gave F1 32 -> 30 for FP 36 -> 21 (C2), with no extra request.
+
+Not done (experiment stopped): the confirm48 and held-out checks, and a
+second model. Runs: `experiments/runs/s1-seg-iter32.json`,
+`s3-seg-variants-iter32.json`, `s4-seg-tune96.json` (cut run: `shipped` on
+96 cases, the `seg-*` rows on 45), `s4-seg-tune96-45.json`.

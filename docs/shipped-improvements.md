@@ -27,6 +27,8 @@ actually ships.
   and add a component to `SHIPPED_COMPONENTS` with a new id. Never change what
   an existing switch means, because results are cached by rendered prompt.
   Then add a section here and rerun the ablation.
+- **Rejected proposals** (end of this page) were measured against this
+  baseline and did not ship. Check them before proposing something similar.
 
 Set sizes: tune96 (96 dev cases, tuning), confirm48 (48 disjoint dev cases),
 iter32 (the first 32 of tune96), held-out test (242 cases, never tuned on).
@@ -257,3 +259,46 @@ review after enabling no longer waits for a manual step, and a review whose
 model is not loaded now includes the preparation time. The bench and the lab
 time generations on an already loaded model with prepared prefixes, so they
 do not measure this. It has no switch.
+
+## Rejected proposals
+
+Proposals measured against the `shipped` baseline that did not ship. Their
+lab configurations stay in `src/lab/configs.ts` (added on top of `shipped`,
+off unless selected), so they can be rerun or revisited, but they are not
+switches of the baseline.
+
+### Segment x label Yes/No classification (captain's spec v1.1, 2026-09-27)
+
+- **What:** code cuts the prompt into sentences or clauses with exact
+  offsets. For each (segment, custom label), the model gets the label's
+  policy (description, examples as covered cases, counter-examples as
+  exclusions), four demonstrations and BEFORE/TARGET/AFTER context, and
+  answers exactly Yes or No. Any other answer is unresolved. A Yes redacts
+  the whole segment. There is also a hybrid: the same check as a second
+  stage that keeps a shipped finding only when its segment is not a No.
+- **Configurations:** `seg-yn` (the spec's chat-template prompt),
+  `seg-yn-raw` (the same text in the shipped completion framing), `-nb`
+  (neighbor segments only), `-d2` / `-d0` (fewer demonstrations), `-logit`
+  (constrained Yes/No decoding) and `-p<t>` (P(Yes) threshold) decisions, and
+  `seg-verify-raw*` (the hybrid). Code: `src/lab/segment.ts`, the `segment`
+  field of a lab configuration.
+- **Result:** rejected by the captain after the iter32 screen and a partial
+  tune96 run (45 of 96 cases). Confirm48 and the held-out split were not run.
+  SmolLM2-360M, [LOG S1-S4](../experiments/LOG.md):
+  - The chat-template prompt answers Yes to everything: Yes on 83% of
+    negative checks, ROC AUC 0.48, FP rate 100% on iter32.
+  - The completion framing formats well but barely discriminates (AUC
+    0.62-0.63). F1 was 25 vs 34 for `shipped` on iter32, and 24 vs 38 on the
+    45 tune96 cases. No threshold, context size or number of demonstrations
+    closes the gap.
+  - It costs 8.8-9 requests per prompt: p50 2.7x and p95 8-10x `shipped`.
+  - Whole-segment redaction puts 83-94% of the redacted characters outside
+    the expected passages (`shipped`: 48-56%).
+  - As a verifier of shipped findings its AUC is 0.60: at best −7 F1 for −13
+    FP points, worse than the answer-confidence filter (about −2 F1 for −15
+    FP, no extra request).
+- **Lesson:** this is the same failure as LOG E4 (yes/no over code-proposed
+  candidates, AUC 0.42-0.56). A sub-500M model cannot judge a policy from a
+  description and a few examples, whatever the target granularity or
+  context. Yes/No designs need a stronger model before they are worth
+  retesting.

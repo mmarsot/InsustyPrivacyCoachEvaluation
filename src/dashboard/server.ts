@@ -342,8 +342,8 @@ const labRuns = () =>
     ? readdirSync(LAB_RUNS_DIR)
         .filter((f) => f.endsWith(".json"))
         .map((f) => {
-          const run = JSON.parse(readFileSync(join(LAB_RUNS_DIR, f), "utf8")) as { name: string; at: string; set: unknown; summary: unknown[] };
-          return { name: run.name, at: run.at, set: run.set, summary: run.summary };
+          const run = JSON.parse(readFileSync(join(LAB_RUNS_DIR, f), "utf8")) as { name: string; at: string; set: unknown; summary: unknown[]; inProgress?: string };
+          return { name: run.name, at: run.at, set: run.set, summary: run.summary, ...(run.inProgress ? { inProgress: run.inProgress } : {}) };
         })
         .sort((a, b) => a.at.localeCompare(b.at))
     : [];
