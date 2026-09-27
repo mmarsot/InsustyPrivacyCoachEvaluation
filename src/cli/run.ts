@@ -187,7 +187,7 @@ for (const m of models) {
       continue;
     }
     const c = byId.get(job.caseId)!;
-    rows.push(scoreResult(c, profiles.get(c.profile)!, record, builtin, api.composeReviewInstructions(job.systemInstruction, job.rules)));
+    rows.push(scoreResult(c, profiles.get(c.profile)!, record, builtin, api.composeReviewInstructions(job.systemInstruction, job.rules), api.kind === "completion"));
   }
 }
 const finishedAt = new Date();

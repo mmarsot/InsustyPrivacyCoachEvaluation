@@ -114,7 +114,7 @@ export class Dashboard {
     if (!row) {
       const c = this.cases.get(job.caseId)!;
       const profile = this.dataset.profiles.find((p) => p.id === c.profile)!;
-      row = scoreResult(c, profile, record, api.reviewCategories([]), this.instructionsFor(api, job));
+      row = scoreResult(c, profile, record, api.reviewCategories([]), this.instructionsFor(api, job), api.kind === "completion");
       this.scored.set(id, row);
     }
     return row;

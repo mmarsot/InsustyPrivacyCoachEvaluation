@@ -548,3 +548,28 @@ Gemma matches or beats SmolLM2-360M on F1 (+1 and +6) through higher recall
 (35-37% vs 25-26%), but flags three negatives out of four (FP rate 75-76%
 vs 36-50%), is 2-3x slower, peaks at 2.5 GB RSS and needs the
 onnxruntime-web upgrade. It fails the "FP rate no worse" criterion.
+
+### V1. Parity of the extension implementation (fm/slm-completion-framing, d42c466)
+
+`npm run bench -- --ext-repo <task copy of InsustyPromptCoach> --ref d42c466
+--set tune96 --models smollm2-360m` (run `runs/ext-d42c466-tune96-smol360/`),
+read-only through `git archive`. The bench now recognizes completion-design
+refs (`src/ext/ref.ts`), fills each rule's new `examples` field from the
+profile, and forwards the engine's pinned decoding settings in the Node loader.
+
+| | F1o | P | R | F1x | det | FPR | EN F1 / FPR | FR F1 / FPR | p50 | p95 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| extension d42c466 (bench) | 32.1 | 41.5 | 26.2 | 28.6 | 40.7 | 35.7 | 32.9 / 33 | 31.5 / 38 | 2.75 s | 9.2 s |
+| lab raw-pl-lang + basic filter | 32 | 42 | 26 | 29 | 41 | 36 | 33 / 33 | 31 / 38 | 3.1 s | |
+
+- Verdict: **parity.** 239 of 240 per-label answers are byte-identical to the
+  lab's (the one mismatch is the lab summary's 300-character truncation), and
+  the extension's `isPlausiblePassage` equals the lab's basic filter.
+- Format compliance 100%; failure modes ok 79, hallucinated 16,
+  echo_instructions 1 (after fixing the bench's analysis of completion
+  answers, which first read them as chat-protocol lines).
+- Latency: p50 2.75 s per prompt; p95 9.2 s (long texts run one request per
+  label and chunk).
+- No gap found in the implementation. Bench-side gaps fixed on the way: new
+  review API signature, `examples` in rules, pinned `settings` forwarded to
+  `generate`, completion answers analyzed with their `LABEL:` cue.

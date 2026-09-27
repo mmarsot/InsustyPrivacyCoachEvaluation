@@ -67,7 +67,7 @@ async function main() {
           const t = performance.now();
           try {
             const result = await engine.review(model ?? spec.model, sel ?? selection, request, api.generationBudgetMs);
-            chunks.push({ output: result.output, runtime: result.runtime, ms: Math.round(performance.now() - t) });
+            chunks.push({ output: result.output, runtime: result.runtime, ms: Math.round(performance.now() - t), ...(request.responsePrefill ? { prefill: request.responsePrefill } : {}) });
             return { output: result.output, runtime: result.runtime };
           } catch (error) {
             chunks.push({ output: "", ms: Math.round(performance.now() - t), error: describe(error) });

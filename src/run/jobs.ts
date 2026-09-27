@@ -32,6 +32,8 @@ export interface ChunkRecord {
   /** Wall-clock time of this model request (generation, prefix already prepared). */
   ms: number;
   error?: string;
+  /** The assistant prefill of the request (completion refs: the `LABEL:` answer cue). */
+  prefill?: string;
 }
 
 export interface ResultRecord {

@@ -174,7 +174,7 @@ export function analyzeLines(output: string, text: string, categories: readonly 
   return result;
 }
 
-export function scoreResult(c: CompiledCase, profile: Profile, record: ResultRecord, builtinLabels: readonly string[], instructions = ""): Scored {
+export function scoreResult(c: CompiledCase, profile: Profile, record: ResultRecord, builtinLabels: readonly string[], instructions = "", completionRef = false): Scored {
   const custom = new Set(profile.labels.map((l) => l.label));
   const customFindings = record.findings.filter((f) => custom.has(f.category));
   const builtinPredicted = record.findings.length - customFindings.length;
@@ -209,7 +209,21 @@ export function scoreResult(c: CompiledCase, profile: Profile, record: ResultRec
 
   const raw = record.chunks.map((ch) => ch.output).join("\n— next chunk —\n");
   const categories = [...custom, ...builtinLabels];
-  const analyses = record.chunks.map((ch) => analyzeLines(ch.output, c.text, categories, instructions));
+  // Completion refs answer one line after a `LABEL:` cue: analyze `LABEL: answer`.
+  // Older records lack the cue; their chunks follow the profile's label order.
+  const cueFor = (i: number, ch: ResultRecord["chunks"][number]) =>
+    ch.prefill ?? (completionRef && record.chunks.length === profile.labels.length ? `${profile.labels[i]!.label}:` : undefined);
+  const analyzed = record.chunks.map((ch, i) => {
+    const cue = cueFor(i, ch);
+    if (!cue || cue.includes("\n")) return ch.output;
+    const answer = ch.output.trimStart().split(/\r?\n/u)[0] ?? "";
+    const parts = answer
+      .split(" | ")
+      .map((part) => part.trim())
+      .filter((part) => part && !/^NONE\.?$/iu.test(part));
+    return parts.length ? parts.map((part) => `${cue} ${part}`).join("\n") : "NONE";
+  });
+  const analyses = analyzed.map((out) => analyzeLines(out, c.text, categories, instructions));
   const sum = (k: Exclude<keyof LineAnalysis, "format">) => analyses.reduce((a, x) => a + x[k], 0);
   const formats = analyses.map((a) => a.format);
   const format: FormatClass = !formats.length
