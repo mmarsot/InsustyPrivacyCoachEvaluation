@@ -27,6 +27,8 @@ import type { RunMeta, RunModelMeta } from "../run/meta.ts";
 import { writeRun } from "../run/outputs.ts";
 import { estimateSeconds, formatDuration as fmt, parseBenchArgs, planJobs, secondsPerCase, splitLabel } from "../run/plan.ts";
 import type { WorkerEvent, WorkerSpec } from "../run/worker.ts";
+import { findLabModel } from "../lab/models.ts";
+import { readMemAvailableMb, waitForMemory } from "../lab/runtime.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
 
 function fail(message: string): never {
@@ -111,6 +113,10 @@ for (const m of models) {
   const meta: RunModelMeta = { id: m.id, jobs: jobs.length, computed: 0 };
   modelMeta.push(meta);
   if (!pending.length) continue;
+  // Same memory rule as the lab: wait (with a heartbeat) until the model's
+  // peak plus a 1.5 GB margin is available, else skip it explicitly.
+  const labModel = findLabModel(m.id);
+  if (labModel && !(await waitForMemory(labModel, Number(process.env.BENCH_MIN_FREE_MB ?? 1500)))) continue;
   const spec: WorkerSpec = { bundle: ext.bundle, extSha: ext.sha, model: m.id, resultFile: cacheFile(ext.sha, m.id), jobs: pending };
   const specFile = join(tmpDir, `jobs-${process.pid}-${m.short}.json`);
   writeFileSync(specFile, JSON.stringify(spec));
@@ -127,6 +133,9 @@ for (const m of models) {
       peak = Math.max(peak, readRssMb(child.pid!, "VmHWM") ?? rss);
       if (rss > maxRssMb) {
         console.error(`[${m.short}] RSS ${rss} MB exceeds --max-rss-mb ${maxRssMb}; stopping this model.`);
+        child.kill("SIGKILL");
+      } else if (readMemAvailableMb() < 600) {
+        console.error(`[${m.short}] system MemAvailable below 600 MB; stopping this model.`);
         child.kill("SIGKILL");
       }
     }, 500);
