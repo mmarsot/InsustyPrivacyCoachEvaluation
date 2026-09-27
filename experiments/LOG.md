@@ -493,3 +493,16 @@ iter32 (80 requests):
 - Prefix KV reuse matters more than the GPU here: Node WASM with the cached
   instruction prefix (2.9 s per case) beats WebGPU without it (5.5 s). The
   extension's engine does not keep the prefix on WebGPU.
+
+### G3. fp32 weights on WebGPU keep the quality (SmolLM2-135M, raw-pl-lang, iter32)
+
+| runtime | weights | F1o | P | R | per-request p50 | per-case p50 |
+|---|---|---|---|---|---|---|
+| Node WASM, prefix cache | q8 | 21 | 25 | 18 | | 1.6 s |
+| Chrome WebGPU (NVIDIA), whole prompt | fp32 | 21 | 20 | 24 | 0.66 s | 1.9 s |
+
+With fp32 weights (540 MB for the 135M) the GPU matches q8 quality and is as
+fast without a prefix cache as WASM is with one. The GTX 1050 cannot run
+fp16, and q4 costs half the F1 (G2), so fp32 is the only good WebGPU option
+on this GPU; for the 360M that is a 1.45 GB download and upload.
+(For the 135M, `raw-pl-lang` scores below `raw-pl`, 21 vs 30 on iter32.)

@@ -24,8 +24,8 @@ export interface LabModel {
   prefixCache: boolean;
 }
 
-/** Measured in this repository (docs/approach.md). */
-const BUNDLED_PEAK: Record<string, number> = { "smollm2-135m": 1100, "smollm2-360m": 1900, "qwen2.5-0.5b": 3450 };
+/** Measured in this repository (docs/approach.md; Qwen2.5-0.5B with the GC after load, experiments/LOG.md E5a). */
+const BUNDLED_PEAK: Record<string, number> = { "smollm2-135m": 1100, "smollm2-360m": 1900, "qwen2.5-0.5b": 3150 };
 
 interface Candidate {
   id: string;
