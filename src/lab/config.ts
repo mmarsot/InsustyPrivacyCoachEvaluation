@@ -87,6 +87,8 @@ export interface LabConfig {
   minNewTokens: number;
   /** Repetition penalty on the answer's own tokens only (prompt excluded); 0 = off. */
   answerRepetitionPenalty: number;
+  /** Record per-token answer probabilities (for `--filter conf<t>` at scoring time). */
+  recordConfidence: boolean;
   /** Extra variables for the chat template (e.g. enable_thinking: false). */
   templateKwargs: Record<string, unknown>;
 }
@@ -152,6 +154,7 @@ export const REF_CONFIG: LabConfig = {
   noneGate: null,
   minNewTokens: 0,
   answerRepetitionPenalty: 0,
+  recordConfidence: false,
   templateKwargs: {},
 };
 
@@ -432,4 +435,37 @@ export function filterLines(raw: string): string {
     return !words.every((w) => STOPWORDS.has(w.toLowerCase()));
   });
   return kept.some((l) => l.trim()) ? kept.join("\n") : "NONE";
+}
+
+const REQUEST_START = /^(?:can you|could you|please|write|rewrite|translate|explain|summari[sz]e|make|help|give|tell|rédige|redige|écris|ecris|traduis|explique|résume|resume|reformule|corrige|fais|donne|aide|peux[- ]tu|pourrais[- ]tu|pouvez[- ]vous|merci de)\b/iu;
+/**
+ * Request filter: drops answer passages that are part of the user's request
+ * to the chatbot rather than data (a question, or a line starting with a
+ * request verb in English or French).
+ */
+export function isRequestLike(passage: string): boolean {
+  const p = passage.trim();
+  return p.includes("?") || REQUEST_START.test(p) || /\b(?:stp|svp|please)\b/iu.test(p);
+}
+
+/** Coarse shape of a passage: what separates an id from a name from a figure. */
+export function passageShape(text: string): number[] {
+  const t = text.trim();
+  const words = t.split(/\s+/u).length;
+  return [
+    /\p{N}/u.test(t) ? 1 : 0,
+    /^\p{Lu}/u.test(t) ? 1 : 0,
+    /[_\-./:@#]/u.test(t) ? 1 : 0,
+    /[%€$£]|\b(?:k|m|bn|md)\b/iu.test(t) ? 1 : 0,
+    words === 1 ? 0 : words === 2 ? 1 : 2,
+    /^[\p{Lu}\p{N}_\-]+$/u.test(t) ? 1 : 0,
+  ];
+}
+
+/** Mean feature agreement between a passage and a label's examples (0..1). */
+export function shapeSimilarity(passage: string, examples: readonly string[]): number {
+  if (!examples.length) return 0;
+  const a = passageShape(passage);
+  const score = (b: number[]) => a.reduce((n, v, i) => n + (v === b[i] ? 1 : 0), 0) / a.length;
+  return examples.reduce((sum, e) => sum + score(passageShape(e)), 0) / examples.length;
 }

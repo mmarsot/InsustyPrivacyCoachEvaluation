@@ -41,6 +41,8 @@ export interface LabGen {
    * answer (not to the prompt, so copying from the scanned text stays free).
    */
   answerRepetitionPenalty?: number;
+  /** Record the probability of each generated token (answer confidence). */
+  scoreConfidence?: boolean;
 }
 export interface LabJob {
   key: string;
@@ -73,6 +75,8 @@ export interface LabRecord {
   finishReason: LabFinish;
   /** P(first generated token starts "NONE"), when the job asked for it. */
   pNone?: number;
+  /** Probability of each generated token under greedy decoding (first 48), when asked. */
+  tokenProbs?: number[];
   ms: number;
   at: string;
 }
@@ -141,6 +145,22 @@ class AnswerRepetitionPenalty extends LogitsProcessor {
   }
 }
 
+/** Records the probability of the greedy choice at every step; logits pass through unchanged. */
+class ConfidenceProbe extends LogitsProcessor {
+  probs: number[] = [];
+  override _call(_inputIds: unknown, logits: Tensor): Tensor {
+    const data = logits.data as Float32Array;
+    const vocab = logits.dims.at(-1)!;
+    const row = data.subarray(data.length - vocab);
+    let max = -Infinity;
+    for (const v of row) if (v > max) max = v;
+    let z = 0;
+    for (const v of row) z += Math.exp(v - max);
+    if (this.probs.length < 48) this.probs.push(1 / z);
+    return logits;
+  }
+}
+
 async function main() {
   const spec = JSON.parse(readFileSync(process.argv[2] ?? "", "utf8")) as LabWorkerSpec;
   const mod = (await import(pathToFileURL(spec.bundle).href)) as { generation?: { LineOutputTracker?: new () => { feed(t: string): boolean } } };
@@ -201,9 +221,11 @@ async function main() {
         }),
       );
       const probe = job.gen.scoreNone ? new FirstStepProbe(noneIds) : undefined;
-      const processors = probe || job.gen.answerRepetitionPenalty ? new LogitsProcessorList() : undefined;
+      const confidence = job.gen.scoreConfidence ? new ConfidenceProbe() : undefined;
+      const processors = probe || confidence || job.gen.answerRepetitionPenalty ? new LogitsProcessorList() : undefined;
       if (job.gen.answerRepetitionPenalty) processors!.push(new AnswerRepetitionPenalty(ids.length, job.gen.answerRepetitionPenalty));
       if (probe) processors!.push(probe);
+      if (confidence) processors!.push(confidence);
       const room = contextLength - ids.length;
       const cap = job.gen.maxNewTokens > 0 ? Math.min(job.gen.maxNewTokens, room) : room;
       const output = (await model.generate({
@@ -232,6 +254,7 @@ async function main() {
         generatedTokens: generated.length,
         finishReason,
         ...(probe?.p === undefined ? {} : { pNone: probe.p }),
+        ...(confidence ? { tokenProbs: confidence.probs.map((x) => Math.round(x * 1e4) / 1e4) } : {}),
         ms: Math.round(performance.now() - started),
         at: new Date().toISOString(),
       };

@@ -604,3 +604,29 @@ x3.7, no timeouts, latency /4), slightly lower in absolute terms than on the
 dev sets (27 vs 31-32). The cost is the false-positive rate (45% vs 11%),
 including 41% of clean texts: the model answers a passage for some label in
 most prompts. That is the main thing left to fix.
+
+### T5. More code-side filters against false positives (rescoring, SmolLM2-360M raw-pl-lang)
+
+Remaining false positives on tune96 negatives after the basic filter fall
+into three groups: fragments of the user's request ("Rédige en anglais",
+"peux-tu simplifier le langage ? ..."), one passage under two labels
+("Jane Smith", "Hyundai", "journald"), and look-alike public entities
+("Fellbeck Tooling", "eLife", "Draxon Systems") that need context.
+
+- `request`: drop passages containing "?" or starting with a request verb
+  (EN/FR list: can you, rewrite, rédige, peux-tu, ...).
+- `shape`: when several labels claim a passage, keep the label whose examples
+  have the most similar shape (digits, capital, separators, currency, word
+  count, all-caps); drop on a tie.
+
+| filters | tune96 F1 | P | R | FPR | confirm48 F1 | P | R | FPR |
+|---|---|---|---|---|---|---|---|---|
+| basic | 32 | 42 | 26 | 36 | 31 | 38 | 25 | 50 |
+| basic + request | **33** | 43 | 26 | **33** | 31 | 38 | 25 | 50 |
+| basic + shape | 29 | 40 | 22 | 36 | 28 | 43 | 20 | 50 |
+| basic + request + shape | 29 | 42 | 22 | 33 | 28 | 43 | 20 | 50 |
+| basic + request + dedup | 30 | 47 | 22 | 26 | 24 | 43 | 17 | 38 |
+
+The request filter is a small free gain on tune96 and neutral on confirm48;
+shape-based label resolution loses more true positives than it removes false
+ones. Dedup remains the only strong FP lever, at a recall cost.

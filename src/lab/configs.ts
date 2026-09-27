@@ -145,4 +145,6 @@ add("raw-pl-lang", "raw-pl-lang-rp105", "raw-pl-lang with repetition_penalty 1.0
 
 for (const p of [1.3, 1.6]) add("raw-pl-lang", `raw-pl-lang-arp${p}`, `raw-pl-lang with a ${p} repetition penalty on the answer's own tokens only`, { answerRepetitionPenalty: p });
 
+add("raw-pl-lang", "raw-pl-lang-conf", "raw-pl-lang recording per-token answer probabilities (confidence filters at scoring time)", { recordConfidence: true });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));

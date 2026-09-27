@@ -26,7 +26,7 @@ import { CACHE_DIR, MODEL_CACHE_DIR, ROOT } from "../paths.ts";
 import type { ResultRecord } from "../run/jobs.ts";
 import { metrics, type Metrics } from "../score/aggregate.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
-import { buildMessages, buildRaw, configCategories, filterLines, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
+import { buildMessages, buildRaw, configCategories, filterLines, isRequestLike, shapeSimilarity, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "./runtime.ts";
@@ -167,7 +167,7 @@ async function plan(model: LabModel): Promise<Planned[]> {
           prefix = rendered.slice(0, at);
           instructions = built.instructions;
         }
-        const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" && !config.stopAtNewline, ...(config.stopAtNewline ? { stopAtNewline: true } : {}), ...(config.noneGate !== null ? { scoreNone: true } : {}), ...(config.minNewTokens ? { minNewTokens: config.minNewTokens } : {}), ...(config.answerRepetitionPenalty ? { answerRepetitionPenalty: config.answerRepetitionPenalty } : {}) };
+        const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" && !config.stopAtNewline, ...(config.stopAtNewline ? { stopAtNewline: true } : {}), ...(config.noneGate !== null ? { scoreNone: true } : {}), ...(config.minNewTokens ? { minNewTokens: config.minNewTokens } : {}), ...(config.answerRepetitionPenalty ? { answerRepetitionPenalty: config.answerRepetitionPenalty } : {}), ...(config.recordConfidence ? { scoreConfidence: true } : {}) };
         // Keys omit defaults added after the first runs, so cached results stay valid.
         const { lineStop, ...keyGen } = gen;
         const key = createHash("sha256").update(JSON.stringify({ model: model.id, dtype, prefix, suffix, gen: lineStop ? keyGen : gen })).digest("hex").slice(0, 32);
@@ -223,15 +223,52 @@ function score(parts: Planned[], cache: Map<string, LabRecord>): Row {
   const findings: ReturnType<typeof validateModelOutput> = [];
   parts.forEach((part, i) => {
     const r = records[i]!;
-    const gated = part.config.noneGate !== null && (r.pNone ?? 0) >= part.config.noneGate;
+    const confFilter = postFilters.find((f) => /^(conf|cmin)\d/.test(f));
+    const confOf = () => {
+      // Tokens of the first answer line: stop at the first probability of a line break is not
+      // known here, so use the tokens up to the generated count on the first line (<= all).
+      const probs = (r.tokenProbs ?? []).slice(0, Math.max(1, r.generatedTokens - 1));
+      if (!probs.length) return 1;
+      return confFilter!.startsWith("cmin") ? Math.min(...probs) : probs.reduce((a, b) => a + b, 0) / probs.length;
+    };
+    const lowConfidence = confFilter !== undefined && r.tokenProbs !== undefined && confOf() < Number(confFilter.replace(/^(conf|cmin)/, ""));
+    const gated = lowConfidence || (part.config.noneGate !== null && (r.pNone ?? 0) >= part.config.noneGate);
     const json = gated ? "NONE" : part.config.output === "json" ? jsonToLines(r.output) : r.output;
     const lines = part.part && part.config.passageOnly ? passagesToLines(json, part.part) : json;
     const relaxed = relaxedAnchor ? relaxLines(lines, p.c.text) : lines;
-    const parsed = postFilters.includes("basic") ? filterLines(relaxed) : relaxed;
+    const basic = postFilters.includes("basic") ? filterLines(relaxed) : relaxed;
+    const parsed = postFilters.includes("request")
+      ? basic
+          .split("\n")
+          .filter((l) => !isRequestLike(l.replace(/^[^:]*:\s*/u, "")))
+          .join("\n") || "NONE"
+      : basic;
     const categories = configCategories(part.config, part.scope, refTexts);
     if (!deadline) findings.push(...validateModelOutput(parsed, { text: p.c.text, offset: 0 }, 0, categories));
     chunks.push({ output: parsed, ms: r.ms, runtime: { backend: "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } });
   });
+  if (postFilters.includes("shape")) {
+    // A passage claimed by several labels keeps only the label whose examples
+    // it resembles most; a tie drops it.
+    const byValue = new Map<string, typeof findings>();
+    for (const f of findings) {
+      const k = (f.value ?? "").toLocaleLowerCase();
+      byValue.set(k, [...(byValue.get(k) ?? []), f]);
+    }
+    const keep = new Set<(typeof findings)[number]>();
+    for (const [value, group] of byValue) {
+      const labels = [...new Set(group.map((f) => f.category))];
+      if (labels.length < 2) {
+        group.forEach((f) => keep.add(f));
+        continue;
+      }
+      const scored = labels
+        .map((label) => ({ label, s: shapeSimilarity(value, p.profile.labels.find((l) => l.label === label)?.examples ?? []) }))
+        .sort((a, b) => b.s - a.s);
+      if (scored[0]!.s > scored[1]!.s) group.filter((f) => f.category === scored[0]!.label).forEach((f) => keep.add(f));
+    }
+    findings.splice(0, findings.length, ...findings.filter((f) => keep.has(f)));
+  }
   if (postFilters.includes("dedup")) {
     const labelsByValue = new Map<string, Set<string>>();
     for (const f of findings) {
