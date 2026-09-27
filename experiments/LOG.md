@@ -778,3 +778,20 @@ Neither part alone explains it; only the combination answers NONE much more
 often. This is prompt-wording sensitivity at the noise level of a 96-case
 set, not a transferable lesson. Demo wording tuning stops here; the original
 prompt (the one the extension implements) stays.
+
+### G7-G8. Does the confidence filter rescue Gemma 3 270M's false positives?
+
+| set | model | filters | F1o | P | R | FPR | p50 |
+|---|---|---|---|---|---|---|---|
+| tune96 | Gemma 3 270M | basic | 33 | 32 | 35 | 76 | 7.7 s |
+| tune96 | Gemma 3 270M | basic + cmin0.2 | 34 | 34 | 34 | 67 | |
+| tune96 | Gemma 3 270M | basic + cmin0.4 | 33 | 36 | 30 | 50 | |
+| tune96 | SmolLM2-360M | basic + cmin0.2 | 30 | 48 | 21 | 21 | 2.5 s |
+| confirm48 | Gemma 3 270M | basic | 37 | 36 | 37 | 75 | 7.3 s |
+| confirm48 | Gemma 3 270M | basic + cmin0.2 | 35 | 36 | 34 | 69 | |
+| confirm48 | Gemma 3 270M | basic + cmin0.4 | 34 | 38 | 31 | 63 | |
+| confirm48 | SmolLM2-360M | basic + cmin0.2 | 33 | 45 | 25 | 44 | 2.4 s |
+
+Gemma's token confidence separates its false positives much less than
+SmolLM2's: even at 0.4 its FP rate stays at 50-63%. Its extra recall does not
+turn into a better operating point; the D4-D5 verdict stands.
