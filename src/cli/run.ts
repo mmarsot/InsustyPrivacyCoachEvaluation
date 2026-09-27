@@ -57,12 +57,13 @@ const installedTransformers = (JSON.parse(readFileSync(join(ROOT, "node_modules/
 if (ext.transformersRange && ext.transformersRange.replace(/^[\^~=]/, "") !== installedTransformers)
   console.warn(`warning: the ref declares @huggingface/transformers ${ext.transformersRange}; the bench runs ${installedTransformers}`);
 
-const { cases, jobsByModel } = planJobs(dataset, options, ext.sha, api.defaultPrompt);
+const { cases, jobsByModel } = planJobs(dataset, options, ext.sha, api.defaultPrompt, api.kind === "completion");
 if (!cases.length) fail("no case selected");
 const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
 
 console.log(`Extension ${ext.ref} @ ${ext.sha.slice(0, 10)} "${ext.subject}"`);
-console.log(`Tier ${tier}${tier === "quick" ? ` (${options.casesPerProfile} per profile and language)` : ""}, split ${splitLabel(options)}: ${cases.length} cases x ${instructions.length} instruction(s) [${instructions.map((i) => i.id).join(",")}] x ${labelVariants.length} label variant(s) [${labelVariants.join(",")}]`);
+console.log(`Extension review design: ${api.kind}`);
+console.log(`${options.set ? `Set ${options.set}, ` : ""}Tier ${tier}${tier === "quick" ? ` (${options.casesPerProfile} per profile and language)` : ""}, split ${splitLabel(options)}: ${cases.length} cases x ${instructions.length} instruction(s) [${instructions.map((i) => i.id).join(",")}] x ${labelVariants.length} label variant(s) [${labelVariants.join(",")}]`);
 let totalEstimate = 0;
 const pendingByModel = new Map<string, Job[]>();
 for (const m of models) {

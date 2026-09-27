@@ -52,13 +52,13 @@ async function main() {
   // extension does when settings change, and review latency excludes it.
   const groups = new Map<string, Job[]>();
   for (const job of spec.jobs) {
-    const instructions = api.composeReviewInstructions(job.systemInstruction, job.rules);
+    const instructions = JSON.stringify(api.preparedInstructions(job.systemInstruction, job.rules));
     groups.set(instructions, [...(groups.get(instructions) ?? []), job]);
   }
   let done = 0;
   for (const [instructions, jobs] of groups) {
     const prepStart = performance.now();
-    await engine.prepare(spec.model, selection, [instructions]);
+    await engine.prepare(spec.model, selection, JSON.parse(instructions) as string[]);
     emit({ type: "prepared", instruction: jobs[0]!.instruction, labelVariant: jobs[0]!.labelVariant, ms: Math.round(performance.now() - prepStart) });
     for (const job of jobs) {
       const chunks: ChunkRecord[] = [];
@@ -89,7 +89,7 @@ async function main() {
         at: new Date().toISOString(),
       };
       try {
-        const result = await api.reviewPrompt(job.text, [], job.systemInstruction, client, undefined, undefined, job.rules, job.model, selection);
+        const result = await api.runReview(job.text, job.systemInstruction, client, job.rules, job.model, selection);
         record.findings = result.findings.map(({ category, start, end, value }) => ({ category, start, end, value }));
       } catch (error) {
         record.error = describe(error);

@@ -140,7 +140,7 @@ export class Dashboard {
         if (!live.ext) throw new Error("extension clone not available");
         const { dataset } = compileDataset({ requireSplit: !o.allowMissingSplit, profiles: o.profiles });
         if (!dataset) throw new Error("dataset invalid for this run's options");
-        live.plan = planJobs(dataset, o, live.ext.ext.sha, live.ext.api.defaultPrompt);
+        live.plan = planJobs(dataset, o, live.ext.ext.sha, live.ext.api.defaultPrompt, live.ext.api.kind === "completion");
       } catch (error) {
         live.error = (error as Error).message;
       }
@@ -190,8 +190,8 @@ export class Dashboard {
     if (!plans) {
       const all = { casesPerProfile: DEFAULT_QUICK_CASES_PER_PROFILE, cachedOnly: false, models: MODELS, instructions: [...INSTRUCTION_VARIANTS], labelVariants: LABEL_VARIANTS.map((v) => v.id), profiles: [], langs: [], maxRssMb: 0, dryRun: false, allowMissingSplit: false };
       plans = {
-        quick: planJobs(this.dataset, { ...all, tier: "quick" }, loaded.ext.sha, loaded.api.defaultPrompt),
-        full: planJobs(this.dataset, { ...all, tier: "full" }, loaded.ext.sha, loaded.api.defaultPrompt),
+        quick: planJobs(this.dataset, { ...all, tier: "quick" }, loaded.ext.sha, loaded.api.defaultPrompt, loaded.api.kind === "completion"),
+        full: planJobs(this.dataset, { ...all, tier: "full" }, loaded.ext.sha, loaded.api.defaultPrompt, loaded.api.kind === "completion"),
       };
       this.plansMemo.set(loaded.ext.sha, plans);
     }

@@ -70,7 +70,7 @@ async function handle(msg: Record<string, unknown>): Promise<unknown> {
     return runExtensionReview(
       api,
       (req: ReviewRequestLike) => engine.review(modelId, selection, req, api.generationBudgetMs),
-      (req) => renderReviewPrompt(adapted, req),
+      (req) => renderReviewPrompt(adapted, req, loaded!.api.kind),
       request,
       modelId,
     );

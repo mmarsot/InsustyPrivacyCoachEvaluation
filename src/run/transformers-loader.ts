@@ -51,6 +51,8 @@ interface GenerateOptions {
   prefixLength: number;
   maxLength: number;
   maxNewTokens?: number;
+  /** Decoding settings the engine pins (completion refs: greedy, no repetition penalty). */
+  settings?: Record<string, unknown>;
   shouldStop(generated: readonly number[]): boolean;
 }
 
@@ -112,6 +114,8 @@ export function adaptModel(model: PreTrainedModel) {
             ? null
             : Math.max(1, Math.min(options.maxNewTokens, options.maxLength - options.ids.length)),
         do_sample: false,
+        // Like model-worker.ts: the engine's pinned settings override the model's generation_config.
+        ...(options.settings ?? {}),
         stopping_criteria: criteria,
       };
       const output = (await model.generate(parameters as unknown as Parameters<PreTrainedModel["generate"]>[0])) as Tensor;

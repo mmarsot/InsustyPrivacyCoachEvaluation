@@ -5,7 +5,8 @@
  */
 import { readFileSync } from "node:fs";
 import type { CompiledCase, CompiledDataset, Split } from "../dataset/schema.ts";
-import { MODELS_FILE } from "../paths.ts";
+import { join } from "node:path";
+import { MODELS_FILE, ROOT } from "../paths.ts";
 import { INSTRUCTION_VARIANTS, isLabelVariant, LABEL_VARIANTS, type InstructionVariant, type LabelVariantId } from "../variants.ts";
 import { cachedTimings, DEFAULT_QUICK_CASES_PER_PROFILE, jobKey, rulesFor, selectCases, TIERS, type Job, type Tier } from "./jobs.ts";
 
@@ -35,6 +36,8 @@ export interface BenchOptions {
   /** Score and report what is already cached; compute nothing. */
   cachedOnly: boolean;
   allowMissingSplit: boolean;
+  /** `--set <name>`: the dev cases of experiments/sets/<name>.json instead of a tier's selection. */
+  set?: string;
 }
 
 /** One label-description variant by default; the others are opt-in (`--label-variants all`). */
@@ -77,6 +80,7 @@ export function parseBenchArgs(argv: readonly string[]): BenchOptions {
     dryRun: flag("dry-run"),
     cachedOnly: flag("cached-only"),
     allowMissingSplit: flag("allow-missing-split"),
+    set: opt("set"),
   };
 }
 
@@ -88,8 +92,15 @@ export interface Plan {
 }
 
 /** Expands options into jobs for one extension commit. */
-export function planJobs(dataset: CompiledDataset, o: Omit<BenchOptions, "models"> & { models: Pick<ModelInfo, "id">[] }, extSha: string, defaultPrompt: string): Plan {
-  let cases = selectCases(dataset, o.tier, o.split, o.casesPerProfile);
+export function planJobs(
+  dataset: CompiledDataset,
+  o: Omit<BenchOptions, "models"> & { models: Pick<ModelInfo, "id">[] },
+  extSha: string,
+  defaultPrompt: string,
+  /** Completion refs take label examples (`examples` field); chat refs never do. */
+  withExamples = false,
+): Plan {
+  let cases = o.set ? casesOfSet(dataset, o.set) : selectCases(dataset, o.tier, o.split, o.casesPerProfile);
   if (o.profiles.length) cases = cases.filter((c) => o.profiles.includes(c.profile));
   if (o.langs.length) cases = cases.filter((c) => o.langs.includes(c.lang));
   const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
@@ -100,7 +111,7 @@ export function planJobs(dataset: CompiledDataset, o: Omit<BenchOptions, "models
       for (const labelVariant of o.labelVariants)
         for (const c of cases) {
           const systemInstruction = variant.text ?? defaultPrompt;
-          const rules = rulesFor(profiles.get(c.profile)!, labelVariant);
+          const rules = rulesFor(profiles.get(c.profile)!, labelVariant, withExamples);
           jobs.push({
             key: jobKey({ extSha, model: model.id, systemInstruction, rules, caseId: c.id, text: c.text }),
             caseId: c.id,
@@ -115,6 +126,16 @@ export function planJobs(dataset: CompiledDataset, o: Omit<BenchOptions, "models
     jobsByModel.set(model.id, jobs);
   }
   return { cases, jobsByModel };
+}
+
+/** Cases of a lab set (experiments/sets/<name>.json); held-out test cases are refused. */
+export function casesOfSet(dataset: CompiledDataset, name: string): CompiledCase[] {
+  const ids = (JSON.parse(readFileSync(join(ROOT, "experiments", "sets", `${name}.json`), "utf8")) as { cases: string[] }).cases;
+  const cases = ids.map((id) => dataset.cases.find((c) => c.id === id) ?? (() => {
+    throw new Error(`set ${name}: unknown case ${id}`);
+  })());
+  if (cases.some((c) => c.split === "test")) throw new Error(`set ${name} contains held-out test cases`);
+  return cases;
 }
 
 /** Mean cached review time on this machine (timeouts included), else the prior from models.json. */

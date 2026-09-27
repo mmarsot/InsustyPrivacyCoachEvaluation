@@ -100,7 +100,7 @@ test("runExtensionReview records every engine request and returns anchored findi
     composeReviewInstructions: (s: string, r: Rule[]) => `${s}|${r.map((x) => x.label).join(",")}`,
     reviewCategories: (r: Rule[]) => r.map((x) => x.label),
     // Two chunks, like a long prompt paginated by the extension.
-    reviewPrompt: async (text: string, _d: unknown[], _s: string, client: { review(req: ReviewRequestLike): Promise<{ output: unknown }> }) => {
+    runReview: async (text: string, _s: string, client: { review(req: ReviewRequestLike): Promise<{ output: unknown }> }) => {
       await client.review({ instructions: "I", input: text.slice(0, 5), responsePrefill: "Findings:\n" });
       await client.review({ instructions: "I", input: text.slice(5), responsePrefill: "Findings:\n" });
       return { findings: [{ category: "CODENAME", start: 6, end: 11, value: "Orion", extra: true }] };
@@ -121,7 +121,7 @@ test("runExtensionReview records every engine request and returns anchored findi
   assert.deepEqual(trace.findings, [{ category: "CODENAME", start: 6, end: 11, value: "Orion" }]);
   assert.equal(trace.skipped, undefined);
 
-  const skipped = await runExtensionReview({ ...api, reviewPrompt: async () => ({ findings: [] }) } as never, async () => ({ output: "" }), () => ({ rendered: "", promptTokens: 0 }), { systemInstruction: "S", rules: [], text: "x" }, "m");
+  const skipped = await runExtensionReview({ ...api, runReview: async () => ({ findings: [] }) } as never, async () => ({ output: "" }), () => ({ rendered: "", promptTokens: 0 }), { systemInstruction: "S", rules: [], text: "x" }, "m");
   assert.match(skipped.skipped ?? "", /does not call the model/);
 
   const failing = await runExtensionReview(api as never, async () => { throw new Error("boom"); }, () => ({ rendered: "", promptTokens: 0 }), { systemInstruction: "S", rules, text: "Hello Orion" }, "m");

@@ -51,8 +51,17 @@ export interface ResultRecord {
   at: string;
 }
 
-export const rulesFor = (profile: Profile, variant: LabelVariantId): Rule[] =>
-  profile.labels.map((spec) => ({ label: spec.label, prompt: composeLabelDescription(spec, variant) }));
+/**
+ * The custom-label settings a user would have. `withExamples` adds the
+ * profile's example passages (the `examples` field of completion refs); chat
+ * refs never receive it, so their job keys are unchanged.
+ */
+export const rulesFor = (profile: Profile, variant: LabelVariantId, withExamples = false): Rule[] =>
+  profile.labels.map((spec) => ({
+    label: spec.label,
+    prompt: composeLabelDescription(spec, variant),
+    ...(withExamples ? { examples: spec.examples.slice(0, 3) } : {}),
+  }));
 
 export function jobKey(parts: {
   extSha: string;

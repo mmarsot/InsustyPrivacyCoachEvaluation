@@ -32,7 +32,7 @@ for (const id of ids) {
       return r;
     },
   };
-  await api.reviewPrompt(c.text, [], api.defaultPrompt, client, undefined, undefined, rules, model!, selection).catch(() => undefined);
+  await api.runReview(c.text, api.defaultPrompt, client, rules, model!, selection).catch(() => undefined);
   const mine = lab.cases.find((x) => x.config === "ref" && x.caseId === id)?.output ?? "<missing>";
   const ok = mine === output.slice(0, 300);
   same += ok ? 1 : 0;

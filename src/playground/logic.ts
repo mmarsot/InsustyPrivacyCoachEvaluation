@@ -81,10 +81,14 @@ const CONTENT_MARKER = "\u0000PLAYGROUND_CONTENT\u0000";
  * framing without a template, then the reply prefill. The engine tokenizes
  * the instruction prefix and the rest separately, so the count does too.
  */
-export function renderReviewPrompt(tokenizer: EncodingTokenizer, request: ReviewRequestLike): { rendered: string; promptTokens: number } {
+export function renderReviewPrompt(tokenizer: EncodingTokenizer, request: ReviewRequestLike, framing: "chat" | "completion" = "chat"): { rendered: string; promptTokens: number } {
   let prefix = `${request.instructions}\n\nInput:\n`;
   let suffix = "\n\n";
-  if (tokenizer.hasChatTemplate) {
+  // Completion refs send the instructions as the whole prefix, no template.
+  if (framing === "completion") {
+    prefix = request.instructions;
+    suffix = "";
+  } else if (tokenizer.hasChatTemplate) {
     const templated = tokenizer.applyChatTemplate([
       { role: "system", content: request.instructions },
       { role: "user", content: CONTENT_MARKER },
@@ -158,7 +162,7 @@ export interface ReviewTrace {
   error?: string;
 }
 
-type ReviewApi = Pick<ExtApi, "composeReviewInstructions" | "reviewCategories" | "reviewPrompt">;
+type ReviewApi = Pick<ExtApi, "composeReviewInstructions" | "reviewCategories" | "runReview">;
 
 /**
  * Runs the extension's own `reviewPrompt` (chunking, framing, prefill,
@@ -193,7 +197,7 @@ export async function runExtensionReview(
     },
   };
   try {
-    const result = await api.reviewPrompt(request.text, [], request.systemInstruction, client, undefined, undefined, request.rules, model, { backend: "wasm", quantization: "auto" });
+    const result = await api.runReview(request.text, request.systemInstruction, client, request.rules, model, { backend: "wasm", quantization: "auto" });
     trace.findings = result.findings.map(({ category, start, end, value }) => ({ category, start, end, value }));
     if (!trace.chunks.length) trace.skipped = "No custom label is configured and deterministic review found nothing, so the extension does not call the model.";
   } catch (error) {
