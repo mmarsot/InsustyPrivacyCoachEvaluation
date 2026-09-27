@@ -147,4 +147,6 @@ for (const p of [1.3, 1.6]) add("raw-pl-lang", `raw-pl-lang-arp${p}`, `raw-pl-la
 
 add("raw-pl-lang", "raw-pl-lang-conf", "raw-pl-lang recording per-token answer probabilities (confidence filters at scoring time)", { recordConfidence: true });
 
+add("raw-pl-lang-conf", "raw-pl-lang-iter3", "raw-pl-lang-conf re-asking each label up to 3 rounds with found passages masked", { iterations: 3 });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));

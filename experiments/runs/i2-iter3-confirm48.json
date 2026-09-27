@@ -1,0 +1,688 @@
+{
+ "name": "i2-iter3-confirm48",
+ "set": "confirm48",
+ "ext": {
+  "ref": "main",
+  "sha": "c853cfc162a975df5f8ff0f76f03448a32cb840c"
+ },
+ "at": "2026-09-27T04:11:53.036Z",
+ "summary": [
+  {
+   "model": "smollm2-360m",
+   "dtype": "q8",
+   "config": "raw-pl-lang-iter3",
+   "note": "raw-pl-lang-conf re-asking each label up to 3 rounds with found passages masked",
+   "overall": {
+    "cases": 48,
+    "f1": 0.331,
+    "precision": 0.323,
+    "recall": 0.339,
+    "exactF1": 0.314,
+    "detection": 0.375,
+    "fpr": 0.5,
+    "compliance": 1,
+    "p50ms": 3384,
+    "p95ms": 10470,
+    "tokens": 19,
+    "failures": {
+     "ok": 32,
+     "hallucinated": 16
+    }
+   },
+   "en": {
+    "cases": 24,
+    "f1": 0.342,
+    "precision": 0.325,
+    "recall": 0.361,
+    "exactF1": 0.342,
+    "detection": 0.438,
+    "fpr": 0.75,
+    "compliance": 1,
+    "p50ms": 3449,
+    "p95ms": 11797,
+    "tokens": 21,
+    "failures": {
+     "ok": 14,
+     "hallucinated": 10
+    }
+   },
+   "fr": {
+    "cases": 24,
+    "f1": 0.311,
+    "precision": 0.318,
+    "recall": 0.304,
+    "exactF1": 0.267,
+    "detection": 0.313,
+    "fpr": 0.25,
+    "compliance": 1,
+    "p50ms": 2945,
+    "p95ms": 8651,
+    "tokens": 17,
+    "failures": {
+     "ok": 18,
+     "hallucinated": 6
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "agency-en-017",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-CAMPAIGN_CODENAME: draft pls, firm but freindly"
+   ],
+   "ms": 2134,
+   "output": "[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  draft pls, firm but freindly\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "agency-en-044",
+   "failure": "ok",
+   "found": 3,
+   "expected": 4,
+   "predicted": [
+    "+CLIENT_NAME: Brightwell Insurance",
+    "+CLIENT_NAME: Halvard Cycles",
+    "-CLIENT_NAME: LANTERN",
+    "-CAMPAIGN_CODENAME: Brightwell Insurance",
+    "+CAMPAIGN_CODENAME: LANTERN",
+    "-CAMPAIGN_CODENAME: OOH 48-sheet"
+   ],
+   "ms": 15424,
+   "output": "[CLIENT_NAME]  Brightwell Insurance\n\n[CLIENT_NAME]  Halvard Cycles\n\n[CLIENT_NAME]  Lantern\n\n[CAMPAIGN_CODENAME]  Brightwell Insurance\n\n[CAMPAIGN_CODENAME]  Lantern\n\n[CAMPAIGN_CODENAME]  OOH 48-sheet\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "agency-en-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CLIENT_NAME: Studio Maréchal",
+    "-CAMPAIGN_CODENAME: Studio Maréchal"
+   ],
+   "ms": 2386,
+   "output": "[CLIENT_NAME]  Studio Maréchal\n\n[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  Studio Maréchal\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "agency-fr-015",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Ciné Lumen",
+    "-CAMPAIGN_CODENAME: Ciné Lumen"
+   ],
+   "ms": 2747,
+   "output": "[CLIENT_NAME]  Ciné Lumen\n\n[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  Ciné Lumen\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "agency-fr-047",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CAMPAIGN_CODENAME: Colibri"
+   ],
+   "ms": 1961,
+   "output": "[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  Colibri\n\n[CAMPAIGN_CODENAME]  Project Juniper Tide\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "agency-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1535,
+   "output": "[CLIENT_NAME]  NONE\n\n[CAMPAIGN_CODENAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "dev-en-010",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_ID: merchant_id=660213"
+   ],
+   "ms": 3392,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE] \nSELECT \n\n[CUSTOMER_ID]  merchant_id=660213\n\n[CUSTOMER_ID]  […]\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "dev-en-045",
+   "failure": "hallucinated",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+CUSTOMER_ID: tenant_id=70031"
+   ],
+   "ms": 11797,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE] \n[2026-09-20 01:00:11] fetch from tenant_id=70031\n\n[CUSTOMER_ID]  tenant_id=70031\n\n[CUSTOMER_ID]  tenant_id=55120\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "dev-en-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2128,
+   "output": "[INTERNAL_HOST]  NONE\n\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "dev-fr-014",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2945,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "dev-fr-045",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_SERVICE: org.opentest4j.AssertionFailedError: expected invoice for org_9b77d013 to contain <ram:BuyerReference>"
+   ],
+   "ms": 10470,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  org.opentest4j.AssertionFailedError: expected invoice for org_9b77d013 to contain <ram:BuyerReference>\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  customer_id=9b77d013\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "dev-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2569,
+   "output": "[INTERNAL_HOST]  NONE\n\n[INTERNAL_SERVICE]  NONE\n\n[CUSTOMER_ID]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "finance-en-015",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-INTERNAL_FORECAST: Q3 revenue landed at £1.356bn, which is a touch below where we wanted to be, mainly because of destocking in Europe"
+   ],
+   "ms": 4773,
+   "output": "[UNPUBLISHED_FIGURE]  Q3 revenue of £1.356bn\n\n[INTERNAL_FORECAST]  Q3 revenue landed at £1.356bn, which is a touch below where we wanted to be, mainly because of destocking in Europe\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "finance-en-028",
+   "failure": "ok",
+   "found": 0,
+   "expected": 5,
+   "predicted": [
+    "-INTERNAL_FORECAST: RF3"
+   ],
+   "ms": 6502,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  RF3\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "finance-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Apple's \"Project Titan\"",
+    "-UNPUBLISHED_FIGURE: MNPI"
+   ],
+   "ms": 2809,
+   "output": "[UNPUBLISHED_FIGURE]  Apple's \"Project Titan\"\n\n[UNPUBLISHED_FIGURE]  MNPI\n\n[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "finance-fr-030",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3960,
+   "output": "[UNPUBLISHED_FIGURE]  4,181,000,000\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "finance-fr-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-INTERNAL_FORECAST: script du webcast : « Le chiffre d'affaires du trimestre s'élève à un virgule trois huit milliard de livres, en croissance organique de deux"
+   ],
+   "ms": 6495,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  script du webcast : « Le chiffre d'affaires du trimestre s'élève à un virgule trois huit milliard de livres, en croissance organique de deux"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "finance-fr-048",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2309,
+   "output": "[UNPUBLISHED_FIGURE]  NONE\n\n[INTERNAL_FORECAST]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "hr-en-017",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CANDIDATE_NAME: Aurelio Bassi",
+    "-SOURCE_COMPANY: Aurelio Bassi",
+    "+SOURCE_COMPANY: Quillon Systems"
+   ],
+   "ms": 3676,
+   "output": "[CANDIDATE_NAME]  Aurelio Bassi\n\n[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  Aurelio Bassi\n\n[SOURCE_COMPANY]  Quillon Systems\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "hr-en-024",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CANDIDATE_NAME: harriet",
+    "-CANDIDATE_NAME: lol",
+    "+SOURCE_COMPANY: tessaro",
+    "-SOURCE_COMPANY: harriet",
+    "-SOURCE_COMPANY: lol"
+   ],
+   "ms": 3364,
+   "output": "[CANDIDATE_NAME]  Harriet\n\n[CANDIDATE_NAME]  Lol\n\n[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  Tessaro\n\n[SOURCE_COMPANY]  Harriet\n\n[SOURCE_COMPANY]  LOL\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "hr-en-051",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3782,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  Kestrin Automation\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "hr-fr-009",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+SOURCE_COMPANY: Halvex Motion",
+    "-SOURCE_COMPANY: Maxence Poulain"
+   ],
+   "ms": 4259,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  Halvex Motion\n\n[SOURCE_COMPANY]  Maxence Poulain\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "hr-fr-023",
+   "failure": "hallucinated",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CANDIDATE_NAME: T. Ferrand",
+    "-SOURCE_COMPANY: T. Ferrand",
+    "-SOURCE_COMPANY: BSPCE",
+    "+COMPENSATION: 72 fixe + BSPCE",
+    "-COMPENSATION: T. Ferrand"
+   ],
+   "ms": 7386,
+   "output": "[CANDIDATE_NAME]  T. Ferrand\n\n[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  T. Ferrand\n\n[SOURCE_COMPANY]  BSPCE\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  72 fixe + BSPCE\n\n[COMPENSATION]  […], on fête ça vendredi avec l'équipe\n\n[COMPENSATION]  T. Ferrand\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "hr-fr-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-SOURCE_COMPANY: Pilat"
+   ],
+   "ms": 3614,
+   "output": "[CANDIDATE_NAME]  NONE\n\n[SOURCE_COMPANY]  Pilat\n\n[SOURCE_COMPANY]  NONE\n\n[COMPENSATION]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "legal-en-006",
+   "failure": "hallucinated",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "-DEAL_CODENAME: Kestrin Automation",
+    "-DEAL_CODENAME: Group Legal",
+    "+DEAL_VALUE: £94.5 million",
+    "+DEAL_VALUE: £12 million",
+    "-DEAL_VALUE: 18 months"
+   ],
+   "ms": 6591,
+   "output": "[DEAL_CODENAME]  Kestrin Automation\n\n[DEAL_CODENAME]  Group Legal\n\n[DEAL_CODENAME]  [… ]\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  £94.5 million\n\n[DEAL_VALUE]  £12 million\n\n[DEAL_VALUE]  18 months\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "legal-en-024",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-DEAL_TARGET: ugh."
+   ],
+   "ms": 3384,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  kestrin auto\n\n[DEAL_TARGET]  ugh.\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "legal-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_VALUE: 10 min"
+   ],
+   "ms": 2627,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  10 min\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "legal-fr-008",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: Liméra",
+    "+DEAL_TARGET: Liméra",
+    "+DEAL_VALUE: 80 M€",
+    "-DEAL_VALUE: point barre"
+   ],
+   "ms": 5812,
+   "output": "[DEAL_CODENAME]  Liméra\n\n[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  Liméra\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  80 M€\n\n[DEAL_VALUE]  point barre\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "legal-fr-025",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 4526,
+   "output": "[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "legal-fr-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: Fellbeck Tooling",
+    "-DEAL_CODENAME: locked box",
+    "-DEAL_TARGET: Fellbeck Tooling",
+    "-DEAL_VALUE: 12 mois de protection"
+   ],
+   "ms": 8651,
+   "output": "[DEAL_CODENAME]  Fellbeck Tooling\n\n[DEAL_CODENAME]  Locked Box\n\n[DEAL_CODENAME]  NONE\n\n[DEAL_TARGET]  Fellbeck Tooling\n\n[DEAL_TARGET]  NONE\n\n[DEAL_VALUE]  12 mois de protection\n\n\n[DEAL_VALUE]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "research-en-014",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PARTNER_LAB: Rnf12"
+   ],
+   "ms": 6008,
+   "output": "[STUDY_NAME]  Rnf12 knockdown reduces cell migration by 35%\n\n[PARTNER_LAB]  Rnf12\n\n[PARTNER_LAB]  The external lab, institute or company we are collaborating with on unpublished work.\n\n[EARLY_RESULT]  pls fix grammer\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "research-en-026",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1879,
+   "output": "[STUDY_NAME]  the HELIOS-2 cohort\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "research-en-028",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: UK Biobank",
+    "-STUDY_NAME: Rotterdam Study",
+    "-EARLY_RESULT: 3 bullets each"
+   ],
+   "ms": 4391,
+   "output": "[STUDY_NAME]  UK Biobank\n\n[STUDY_NAME]  Rotterdam Study\n\n[STUDY_NAME]  the HELIOS-2 cohort\n\n[PARTNER_LAB]  UK Biobank, Rotterdam Study\n\n[EARLY_RESULT]  3 bullets each\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "research-fr-006",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 3355,
+   "output": "[STUDY_NAME]  N-311\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "research-fr-020",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-STUDY_NAME: Léa"
+   ],
+   "ms": 3452,
+   "output": "[STUDY_NAME]  Léa\n\n[STUDY_NAME]  NONE\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "research-fr-042",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 3260,
+   "output": "[STUDY_NAME]  study TR-417\n\n[PARTNER_LAB]  NONE\n\n[EARLY_RESULT]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "sales-en-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1408,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "sales-en-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1239,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "sales-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Acme Corp",
+    "-PROSPECT_NAME: Acme Corp"
+   ],
+   "ms": 4072,
+   "output": "[UNRELEASED_PRODUCT]  Acme Corp\n\n[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  Acme Corp\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "sales-fr-029",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2285,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "sales-fr-014",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1699,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "sales-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1283,
+   "output": "[UNRELEASED_PRODUCT]  NONE\n\n[PROSPECT_NAME]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "support-en-012",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CUSTOMER_NAME: Rolf van der Berg",
+    "+CUSTOMER_NAME: Harriet Mbeki"
+   ],
+   "ms": 4011,
+   "output": "[CUSTOMER_NAME]  Rolf van der Berg\n\n[CUSTOMER_NAME]  Harriet Mbeki\n\n[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "support-en-050",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 6,
+   "predicted": [],
+   "ms": 3449,
+   "output": "[CUSTOMER_NAME]  DP DPD\n\n[ACCOUNT_REF]  RMA #619950\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "support-en-031",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: Parcelio",
+    "-CUSTOMER_NAME: Stefan"
+   ],
+   "ms": 5513,
+   "output": "[CUSTOMER_NAME]  Parcelio\n\n[CUSTOMER_NAME]  Stefan\n\n[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  DPD-1234567890\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "support-fr-016",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1553,
+   "output": "[CUSTOMER_NAME]  NONE\n\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "support-fr-020",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1434,
+   "output": "[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  NONE\n"
+  },
+  {
+   "model": "smollm2-360m",
+   "config": "raw-pl-lang-iter3",
+   "caseId": "support-fr-026",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1865,
+   "output": "[CUSTOMER_NAME]  NONE\n\n[ACCOUNT_REF]  NONE\n"
+  }
+ ]
+}

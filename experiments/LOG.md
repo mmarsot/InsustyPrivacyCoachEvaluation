@@ -667,3 +667,30 @@ cases (`experiments/sets/heldout-test.json`, evaluation only):
 
 The filter generalizes as a precision/false-positive knob: at 0.2 the FP
 rate falls by 11 points for 1 point of F1; at 0.3 by 20 points for 4.
+
+### I1-I2, H3. Iterative follow-up per label (raw-pl-lang-iter3)
+
+20-27% of expected passages share their label with another passage in the
+same prompt, which one answer line per label cannot reach. `iterations: 3`:
+after an anchored answer, the same label is asked again on the text with the
+found passages masked as "[…]", until NONE, nothing new, or 3 rounds (first
+round shared with raw-pl-lang-conf). Extra requests only for labels that
+found something (tune96: +66 then +26 requests over 240).
+
+| set | filters | F1o | P | R | F1x | FPR | p50 |
+|---|---|---|---|---|---|---|---|
+| tune96 | basic, 1 round | 32 | 42 | 26 | 29 | 36 | 2.5 s |
+| tune96 | basic, 3 rounds | 34 | 36 | 33 | 30 | 36 | 3.3 s |
+| tune96 | basic + cmin0.2, 3 rounds | 32 | 44 | 25 | 27 | 26 | 3.3 s |
+| confirm48 | basic, 1 round | 31 | 38 | 25 | 29 | 50 | 2.4 s |
+| confirm48 | basic, 3 rounds | 34 | 33 | 34 | 32 | 50 | 3.4 s |
+| confirm48 | basic + cmin0.2, 3 rounds | 36 | 43 | 31 | 34 | 44 | 3.4 s |
+| held-out test | basic, 1 round | 27 | 32 | 24 | 20 | 45 | 2.4 s |
+| held-out test | basic, 3 rounds | 28 | 27 | 29 | 20 | 46 | 3.5 s |
+| held-out test | basic + cmin0.2, 1 round | 26 | 36 | 20 | 20 | 34 | 2.4 s |
+| held-out test | basic + cmin0.2, 3 rounds | 27 | 32 | 23 | 20 | 37 | 3.5 s |
+
+Recall rises on every set (+5 to +9 points), but later rounds also add
+non-verbatim or wrong passages, so precision falls; F1 gains +2 to +3 on the
+dev sets and only +1 on the held-out split, for about 1 s more per prompt.
+A recall option, not a clear default.

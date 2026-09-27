@@ -89,6 +89,12 @@ export interface LabConfig {
   answerRepetitionPenalty: number;
   /** Record per-token answer probabilities (for `--filter conf<t>` at scoring time). */
   recordConfidence: boolean;
+  /**
+   * Per-label raw configs: ask the same label again, up to this many rounds,
+   * on the text with the passages found so far masked as "[…]"; stop at NONE
+   * or when nothing new anchors.
+   */
+  iterations: number;
   /** Extra variables for the chat template (e.g. enable_thinking: false). */
   templateKwargs: Record<string, unknown>;
 }
@@ -155,6 +161,7 @@ export const REF_CONFIG: LabConfig = {
   minNewTokens: 0,
   answerRepetitionPenalty: 0,
   recordConfidence: false,
+  iterations: 1,
   templateKwargs: {},
 };
 
@@ -318,13 +325,13 @@ export function buildMessages(config: LabConfig, profile: Profile, ref: RefTexts
 }
 
 /** Completion-framed request (config.raw): a reusable prefix and the per-case suffix. */
-export function buildRaw(config: LabConfig, profile: Profile, ref: RefTexts, text = "") {
+export function buildRaw(config: LabConfig, profile: Profile, ref: RefTexts, text = "", langText = text) {
   const instructions = composeInstructions(config, profile, ref);
   const label = profile.labels[0]?.label ?? "";
   const vars = { label, name: label.toLowerCase().replace(/_/g, " ") };
   const user = (text: string) => fill(config.user, { ...vars, text, instructions: "" });
   const prefill = fill(config.prefill, vars);
-  const shots = buildShots(config, profile, detectLang(text))
+  const shots = buildShots(config, profile, detectLang(langText))
     .map((shot) => `${user(shot.text)}${prefill}${prefill.endsWith(":") ? " " : ""}${shot.answer}\n\n`)
     .join("");
   return {
@@ -468,4 +475,14 @@ export function shapeSimilarity(passage: string, examples: readonly string[]): n
   const a = passageShape(passage);
   const score = (b: number[]) => a.reduce((n, v, i) => n + (v === b[i] ? 1 : 0), 0) / a.length;
   return examples.reduce((sum, e) => sum + score(passageShape(e)), 0) / examples.length;
+}
+
+/** Masks every word-bounded, case-insensitive occurrence of the passages in the text as "[…]". */
+export function maskPassages(text: string, passages: readonly string[]): string {
+  let out = text;
+  for (const passage of [...passages].sort((a, b) => b.length - a.length)) {
+    const escaped = passage.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    out = out.replace(new RegExp(`(?<![\\p{L}\\p{N}_])${escaped}(?![\\p{L}\\p{N}_])`, "giu"), "[…]");
+  }
+  return out;
 }

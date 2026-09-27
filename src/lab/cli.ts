@@ -26,7 +26,7 @@ import { CACHE_DIR, MODEL_CACHE_DIR, ROOT } from "../paths.ts";
 import type { ResultRecord } from "../run/jobs.ts";
 import { metrics, type Metrics } from "../score/aggregate.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
-import { buildMessages, buildRaw, configCategories, filterLines, isRequestLike, shapeSimilarity, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
+import { buildMessages, buildRaw, configCategories, filterLines, maskPassages, isRequestLike, shapeSimilarity, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "./runtime.ts";
@@ -102,6 +102,8 @@ interface Planned {
   part?: string;
   /** Profile as seen by this request (one label for a per-label pass). */
   scope: Profile;
+  /** Iteration round of a per-label pass (1 = first ask). */
+  round?: number;
 }
 
 const slug = (s: string) => s.replace(/^.*\//, "").replace(/[^A-Za-z0-9.-]+/g, "_");
@@ -135,7 +137,7 @@ const loadLabCache = (file: string) => {
 };
 
 
-async function plan(model: LabModel): Promise<Planned[]> {
+async function plan(model: LabModel, cache: Map<string, LabRecord> = new Map()): Promise<Planned[]> {
   const tokenizer = await AutoTokenizer.from_pretrained(model.id);
   const dtype = dtypeOverride ?? model.dtype;
   const out: Planned[] = [];
@@ -169,9 +171,33 @@ async function plan(model: LabModel): Promise<Planned[]> {
         }
         const gen = { maxNewTokens: config.maxNewTokens, deadlineMs: config.deadlineMs, repetitionPenalty: config.repetitionPenalty, noRepeatNgram: config.noRepeatNgram, lineStop: config.output === "lines" && !config.stopAtNewline, ...(config.stopAtNewline ? { stopAtNewline: true } : {}), ...(config.noneGate !== null ? { scoreNone: true } : {}), ...(config.minNewTokens ? { minNewTokens: config.minNewTokens } : {}), ...(config.answerRepetitionPenalty ? { answerRepetitionPenalty: config.answerRepetitionPenalty } : {}), ...(config.recordConfidence ? { scoreConfidence: true } : {}) };
         // Keys omit defaults added after the first runs, so cached results stay valid.
-        const { lineStop, ...keyGen } = gen;
-        const key = createHash("sha256").update(JSON.stringify({ model: model.id, dtype, prefix, suffix, gen: lineStop ? keyGen : gen })).digest("hex").slice(0, 32);
-        out.push({ model, dtype, config: cfg, c, profile, prefix, suffix, key, gen, instructions, part, scope });
+        const makeKey = (sfx: string) => {
+          const { lineStop, ...keyGen } = gen;
+          return createHash("sha256").update(JSON.stringify({ model: model.id, dtype, prefix, suffix: sfx, gen: lineStop ? keyGen : gen })).digest("hex").slice(0, 32);
+        };
+        const key = makeKey(suffix);
+        out.push({ model, dtype, config: cfg, c, profile, prefix, suffix, key, gen, instructions, part, scope, round: 1 });
+        // Follow-up rounds: re-ask the label with the passages found so far masked.
+        if (cfg.raw && part && cfg.iterations > 1) {
+          let prevKey = key;
+          let masked = c.text;
+          const found: string[] = [];
+          for (let round = 2; round <= cfg.iterations; round++) {
+            const prev = cache.get(prevKey);
+            if (!prev) break;
+            const passages = filterLines(passagesToLines(prev.output, part))
+              .split("\n")
+              .map((l) => l.replace(/^[^:]*:\s*/u, "").trim())
+              .filter((x) => x && !/^NONE$/iu.test(x) && !found.some((f) => f.toLowerCase() === x.toLowerCase()))
+              .filter((x) => maskPassages(masked, [x]) !== masked);
+            if (!passages.length) break;
+            found.push(...passages);
+            masked = maskPassages(masked, passages);
+            const sfx = buildRaw(cfg, scope, refTexts, masked, c.text).suffix(masked);
+            prevKey = makeKey(sfx);
+            out.push({ model, dtype, config: cfg, c, profile, prefix, suffix: sfx, key: prevKey, gen, instructions, part, scope, round });
+          }
+        }
       }
     }
   }
@@ -309,7 +335,7 @@ function line(m: Metrics) {
 const allRows: Row[] = [];
 const summary: Array<{ model: string; dtype: string; config: string; note?: string; overall: Metrics; en: Metrics; fr: Metrics }> = [];
 const planned: Planned[][] = [];
-for (const model of models) planned.push(await plan(model));
+for (const model of models) planned.push(await plan(model, loadLabCache(cacheFileFor(model, dtypeOverride ?? model.dtype))));
 
 if (opt("export-jobs")) {
   // Requests for the browser bench (src/lab/browser/): same keys as the lab cache.
@@ -324,16 +350,23 @@ if (flag("show-prompt")) {
     console.log(`\n===== ${p.model.short} / ${cfg.id} / ${p.c.id} =====\n${p.prefix}\x1b[33m${p.suffix}\x1b[0m`);
   }
 }
-for (const ps of planned) {
-  const model = ps[0]!.model;
-  const dtype = ps[0]!.dtype;
-  const cache = loadLabCache(cacheFileFor(model, dtype));
-  const pending = ps.filter((p) => !cache.has(p.key));
-  const unique = new Set(pending.map((p) => p.key)).size;
-  console.log(`[${model.short} ${dtype}] ${ps.length} jobs, ${unique} to compute (~${Math.round((unique * model.secondsPerCase) / 60)} min)`);
-  if (flag("dry-run") || !unique) continue;
-  if (!(await waitForMemory(model, minFreeMb))) continue;
-  await runWorker(model, dtype, pending);
+for (let m = 0; m < planned.length; m++) {
+  // Iterative configs add rounds once the previous round is cached: re-plan
+  // after each worker run until nothing is pending (at most maxRounds runs).
+  const maxRounds = Math.max(...configs.map((c) => c.iterations));
+  for (let pass = 0; pass < maxRounds; pass++) {
+    const ps = planned[m]!;
+    const model = ps[0]!.model;
+    const dtype = ps[0]!.dtype;
+    const cache = loadLabCache(cacheFileFor(model, dtype));
+    const pending = ps.filter((p) => !cache.has(p.key));
+    const unique = new Set(pending.map((p) => p.key)).size;
+    console.log(`[${model.short} ${dtype}] ${ps.length} jobs, ${unique} to compute (~${Math.round((unique * model.secondsPerCase) / 60)} min)`);
+    if (flag("dry-run") || !unique) break;
+    if (!(await waitForMemory(model, minFreeMb))) break;
+    await runWorker(model, dtype, pending);
+    planned[m] = await plan(model, loadLabCache(cacheFileFor(model, dtype)));
+  }
 }
 
 for (const ps of planned) {

@@ -44,6 +44,14 @@ answer; `reviewPrompt` drops answers below the threshold. It could be exposed
 as a sensitivity setting (0 = current behaviour, 0.2 recommended default).
 (LOG C2-C3, H2.)
 
+### Also measured: asking each label again (recall option)
+
+Re-asking a label on the text with its found passages masked (up to 3
+rounds) raises recall by 5-9 points on every set, but precision falls; on the
+held-out split F1 moves 27 → 28 (26 → 27 with the confidence filter) for
+about 1 s more per prompt. Useful if recall matters more than noise; not a
+clear default. (LOG I1-I2, H3.)
+
 ## Recommendation (current best): `raw-pl-lang` on SmolLM2-360M
 
 SmolLM2-360M on tune96:
