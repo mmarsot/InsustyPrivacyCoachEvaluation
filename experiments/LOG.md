@@ -463,3 +463,33 @@ Gemma has the highest recall of all models so far but flags every negative:
 its false positives are look-alike entities (public companies and tools such
 as "Fellbeck Tooling", "Apec", "Parcelio", "Temporal"), often under two labels
 at once. Peak RSS 2.48 GB; 3x slower than SmolLM2-360M.
+
+### G2. WebGPU on the GTX 1050 vs WASM, in real Chrome (`src/lab/browser/`)
+
+Browser bench: the lab exports its rendered requests, a local page runs them
+with the Transformers.js 3.8.1 web bundle in a headful Chrome started with
+`--enable-features=Vulkan` (read over the DevTools protocol), and the outputs
+are scored by the lab like any run (`--backend webgpu|browserwasm`). The page
+prefills each request whole (no prefix cache). SmolLM2-360M, raw-pl-lang,
+iter32 (80 requests):
+
+| runtime | weights | F1o | P | R | per-request p50 | per-case p50 |
+|---|---|---|---|---|---|---|
+| Node WASM, prefix cache (lab reference) | q8 | 38 | 43 | 34 | ~1.2 s | 2.9 s |
+| Chrome WASM (4 threads) | q8 | 36 | 38 | 34 | 3.3 s | 8.9 s |
+| Chrome WASM | q4 | 21 | 25 | 18 | 5.1 s | 13.2 s |
+| **Chrome WebGPU (NVIDIA Pascal)** | q4 | 15 | 25 | 11 | **2.0 s** | 5.5 s |
+| Chrome WebGPU | q8 | stopped | | | ~28 s | |
+
+- The GPU is reached (`adapter: nvidia pascal`) and is ~1.6x faster than
+  in-browser WASM per request with q4 weights.
+- **q4 halves the quality** whatever the device: WASM q4 and WebGPU q4 give
+  the same answers in 64 of 80 requests, and both score far below q8. The
+  extension uses q4 whenever it runs on WebGPU, so its WebGPU path would
+  lose most of the gain of the new framing.
+- q8 on WebGPU is unusable (~28 s per request): onnxruntime-web has no WebGPU
+  kernels for the q8 operators, so they fall back to the CPU. The GTX 1050
+  has no `shader-f16`, so fp16/q4f16 are out too.
+- Prefix KV reuse matters more than the GPU here: Node WASM with the cached
+  instruction prefix (2.9 s per case) beats WebGPU without it (5.5 s). The
+  extension's engine does not keep the prefix on WebGPU.

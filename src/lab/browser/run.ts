@@ -25,7 +25,7 @@ const opt = (n: string, d: string) => (own.includes(`--${n}`) ? own[own.indexOf(
 const device = opt("device", "webgpu");
 const dtype = opt("dtype", device === "webgpu" ? "q4" : "q8");
 const timeoutS = Number(opt("timeout-s", "3600"));
-const DTYPE_FILE: Record<string, string> = { q8: "model_quantized.onnx", q4: "model_q4.onnx", q4f16: "model_q4f16.onnx", fp16: "model_fp16.onnx" };
+const DTYPE_FILE: Record<string, string> = { q8: "model_quantized.onnx", q4: "model_q4.onnx", q4f16: "model_q4f16.onnx", fp16: "model_fp16.onnx", fp32: "model.onnx" };
 
 if (readMemAvailableMb() < 2500) {
   console.error(`only ${readMemAvailableMb()} MB available; the browser bench needs about 2.5 GB. Aborting.`);
