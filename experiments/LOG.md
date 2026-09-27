@@ -745,3 +745,22 @@ next to `model_quantized.onnx` (q8, byte-identical to `model_int8.onnx`).
 uint8 answers more often: higher recall, much higher FP rate and lower
 exact-match F1. Once the confidence filter is applied, q8 matches its F1 with
 far fewer false positives. Keep q8.
+
+### E12. Agreement between two demonstration variants (tune96, `e12-alt-tune96`)
+
+`raw-pl-lang-alt` uses other carrier sentences and another clean NONE text
+(a grammar-fix request); `raw-pl-lang-agree` keeps only findings both
+variants make (two requests per label).
+
+| config | filters | F1o | P | R | F1x | FPR |
+|---|---|---|---|---|---|---|
+| raw-pl-lang | basic | 32 | 41 | 26 | 28 | 38 |
+| raw-pl-lang-alt | basic | 27 | 41 | 20 | 23 | 17 |
+| raw-pl-lang-agree | basic | 22 | 52 | 14 | 20 | 10 |
+| raw-pl-lang | basic + cmin0.2 | 30 | 48 | 21 | 26 | 21 |
+| raw-pl-lang-alt | basic + cmin0.2 | 28 | 51 | 19 | 25 | 17 |
+| raw-pl-lang-agree | basic + cmin0.2 | 21 | 57 | 13 | 19 | 10 |
+
+Agreement cuts false positives but halves recall: worse than the confidence
+filter at a similar FP rate, for twice the requests. The alternate prompt on
+its own answers NONE more often (FP 17%); E13 isolates which part does it.

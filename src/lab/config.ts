@@ -83,6 +83,11 @@ export interface LabConfig {
    * Configs with a gate record that probability (same cache for every threshold).
    */
   noneGate: number | null;
+  /**
+   * Scoring-time agreement: keep only findings (label, value) that the named
+   * configuration also found for the same case (it must be run alongside).
+   */
+  agreeWith?: string;
   /** Raw configs: instruction used instead of `instruction` when the scanned text looks French. */
   instructionFr?: string;
   /** Forbid EOS for the first N tokens; 0 = off. */
@@ -133,7 +138,11 @@ export type ShotSource =
   /** Clean NONE shot in the scanned text's language. */
   | "clean-neg-auto"
   /** Three positives (all examples), carrier sentences in the scanned text's language. */
-  | "ex-pos3-auto";
+  | "ex-pos3-auto"
+  /** Like ex-pos-auto with other carrier sentences (for agreement between two variants). */
+  | "ex-pos-auto-alt"
+  /** Like clean-neg-auto with another clean text. */
+  | "clean-neg-auto-alt";
 
 const REF_USER =
   "<text_to_scan>\n{text}\n</text_to_scan>\nTask: scan only the text above. List findings in the required format.\n";
@@ -233,6 +242,20 @@ const CARRIERS: Record<"en" | "fr", string[]> = {
     "Notes de ce matin : {ex} est revenu deux fois, tu peux en faire un résumé propre ?",
   ],
 };
+const CARRIERS_ALT: Record<"en" | "fr", string[]> = {
+  en: [
+    "Can you make this email shorter? We talked about {ex} yesterday and the team liked it.",
+    "Status for Monday: {ex} is on track, just need a cleaner version of these notes.",
+  ],
+  fr: [
+    "Tu peux raccourcir ce mail ? On a parlé de {ex} hier et l'équipe a bien aimé.",
+    "Point du lundi : {ex} avance bien, il me faut juste une version propre de ces notes.",
+  ],
+};
+const CLEAN_ALT: Record<"en" | "fr", string> = {
+  en: "Please fix the grammar in this sentence: the meeting have been moved to next week because of the holidays.",
+  fr: "Corrige l'orthographe stp : la réunion a été décaler a la semaine prochaine a cause des vacances.",
+};
 const CLEAN: Record<"en" | "fr", string> = {
   en: "Can you rewrite this so it sounds friendlier? Thanks for your patience, we will get back to you shortly.",
   fr: "Tu peux corriger les fautes ? Merci pour votre patience, on revient vers vous tres vite avec une reponse.",
@@ -254,6 +277,14 @@ export function detectLang(text: string): "en" | "fr" {
 function buildShots(config: LabConfig, profile: Profile, lang: "en" | "fr" = "en"): Shot[] {
   const shots: Shot[] = [];
   for (const source of config.shots) {
+    if (source === "ex-pos-auto-alt") {
+      profile.labels[0]!.examples.slice(0, 2).forEach((ex, i) => shots.push({ text: fill(CARRIERS_ALT[lang][i]!, { ex }), answer: ex }));
+      continue;
+    }
+    if (source === "clean-neg-auto-alt") {
+      shots.push({ text: CLEAN_ALT[lang], answer: "NONE" });
+      continue;
+    }
     if (source === "ex-pos3-auto") {
       profile.labels[0]!.examples.slice(0, 3).forEach((ex, i) => shots.push({ text: fill(CARRIERS[lang][i]!, { ex }), answer: ex }));
       continue;

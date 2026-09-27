@@ -241,7 +241,7 @@ interface Row extends Scored {
 }
 
 /** Scores one case from its request(s): one, or one per label for per-label configurations. */
-function score(parts: Planned[], cache: Map<string, LabRecord>): Row {
+function score(parts: Planned[], cache: Map<string, LabRecord>, agree?: Set<string>): Row {
   const p = parts[0]!;
   const records = parts.map((part) => cache.get(part.key)!);
   const deadline = records.some((r) => r.finishReason === "deadline");
@@ -273,6 +273,7 @@ function score(parts: Planned[], cache: Map<string, LabRecord>): Row {
     if (!deadline) findings.push(...validateModelOutput(parsed, { text: p.c.text, offset: 0 }, 0, categories));
     chunks.push({ output: parsed, ms: r.ms, runtime: { backend: "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } });
   });
+  if (agree) findings.splice(0, findings.length, ...findings.filter((f) => agree.has(`${f.category}\u0000${(f.value ?? "").toLowerCase()}`)));
   if (postFilters.includes("shape")) {
     // A passage claimed by several labels keeps only the label whose examples
     // it resembles most; a tie drops it.
@@ -374,9 +375,22 @@ for (const ps of planned) {
   const dtype = ps[0]!.dtype;
   const cache = loadLabCache(cacheFileFor(model, dtype));
   for (const cfg of configs) {
-    const byCase = new Map<string, Planned[]>();
-    for (const p of ps) if (p.config.id === cfg.id) byCase.set(p.c.id, [...(byCase.get(p.c.id) ?? []), p]);
-    const rows = [...byCase.values()].filter((parts) => parts.every((p) => cache.has(p.key))).map((parts) => score(parts, cache));
+    const casesOf = (id: string) => {
+      const byCase = new Map<string, Planned[]>();
+      for (const p of ps) if (p.config.id === id) byCase.set(p.c.id, [...(byCase.get(p.c.id) ?? []), p]);
+      return byCase;
+    };
+    const byCase = casesOf(cfg.id);
+    let agreeing: Map<string, Set<string>> | undefined;
+    if (cfg.agreeWith) {
+      // Findings of the partner configuration, per case, as label + value.
+      agreeing = new Map();
+      for (const [caseId, parts] of casesOf(cfg.agreeWith))
+        if (parts.every((p) => cache.has(p.key))) agreeing.set(caseId, new Set(score(parts, cache).predicted.map((x) => `${x.label}\u0000${x.value.toLowerCase()}`)));
+    }
+    const rows = [...byCase.values()]
+      .filter((parts) => parts.every((p) => cache.has(p.key)) && (!agreeing || agreeing.has(parts[0]!.c.id)))
+      .map((parts) => score(parts, cache, agreeing?.get(parts[0]!.c.id)));
     allRows.push(...rows);
     if (!rows.length) continue;
     summary.push({ model: model.short, dtype, config: `${cfg.id}${relaxedAnchor ? "+relax" : ""}${filterSuffix}`, note: cfg.note, overall: metrics(rows), en: metrics(rows.filter((r) => r.lang === "en")), fr: metrics(rows.filter((r) => r.lang === "fr")) });

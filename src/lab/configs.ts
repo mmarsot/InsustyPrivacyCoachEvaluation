@@ -155,4 +155,10 @@ add("raw-pl-lang-conf", "raw-pl-lang-frinstr", "raw-pl-lang-conf with a French i
   instructionFr: "Copie les passages {label} de chaque texte, exactement comme ils sont écrits. {label} : {description} Écris NONE quand le texte n'en contient pas.",
 });
 
+add("raw-pl-lang-conf", "raw-pl-lang-alt", "raw-pl-lang-conf with other carrier sentences and another clean NONE text", { shots: ["ex-pos-auto-alt", "clean-neg-auto-alt"] });
+add("raw-pl-lang-conf", "raw-pl-lang-agree", "raw-pl-lang-conf keeping only findings raw-pl-lang-alt also makes (2 requests per label)", { agreeWith: "raw-pl-lang-alt" });
+
+add("raw-pl-lang-conf", "raw-pl-lang-altneg", "raw-pl-lang-conf with the alternate clean NONE demo only (grammar fix request)", { shots: ["ex-pos-auto", "clean-neg-auto-alt"] });
+add("raw-pl-lang-conf", "raw-pl-lang-altpos", "raw-pl-lang-conf with the alternate carrier sentences only", { shots: ["ex-pos-auto-alt", "clean-neg-auto"] });
+
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(defs.map((d) => [d.id, d]));
