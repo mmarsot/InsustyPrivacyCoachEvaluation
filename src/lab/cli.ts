@@ -314,6 +314,9 @@ for (const ps of planned) {
 }
 
 console.log(`\nset ${setName ?? "custom"} (${cases.length} cases), ref ${ext.ref}@${ext.sha.slice(0, 7)}`);
+for (const row of summary)
+  if (row.overall.cases < cases.length)
+    console.log(`INCOMPLETE: ${row.model}/${row.config} has ${row.overall.cases} of ${cases.length} cases (missing generations; rerun to complete)`);
 console.log(`${"model/config".padEnd(34)}  F1o    P    R  F1x  det  FPR comp  p50s  tok  failures`);
 for (const s of summary) {
   console.log(`${`${s.model}/${s.config}`.padEnd(34)} ${line(s.overall)}`);
@@ -347,6 +350,7 @@ if (!flag("dry-run") && summary.length) {
           dtype: s.dtype,
           config: s.config,
           note: s.note,
+          ...(s.overall.cases < cases.length ? { incomplete: `${s.overall.cases}/${cases.length} cases` } : {}),
           overall: compact(s.overall),
           en: compact(s.en),
           fr: compact(s.fr),
