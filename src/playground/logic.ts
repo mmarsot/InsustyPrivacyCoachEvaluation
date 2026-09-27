@@ -136,7 +136,14 @@ export function normalizeReviewRequest(input: unknown, defaultPrompt: string): R
     if (!prompt || prompt.length > 1000) throw new Error(`${label}: description must be 1 to 1000 characters`);
     if (seen.has(label)) continue;
     seen.add(label);
-    rules.push({ label, prompt });
+    // Completion refs: up to three example passages (one per line in the UI).
+    const rawExamples = (rule as { examples?: unknown }).examples;
+    const examples = (Array.isArray(rawExamples) ? rawExamples : typeof rawExamples === "string" ? rawExamples.split("\n") : [])
+      .map((e) => String(e).trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    if (examples.some((e) => e.length > 200)) throw new Error(`${label}: each example must be at most 200 characters`);
+    rules.push({ label, prompt, ...(examples.length ? { examples } : {}) });
     if (rules.length === 20) break;
   }
   const systemInstruction = typeof r.systemInstruction === "string" && r.systemInstruction.trim() ? r.systemInstruction : defaultPrompt;

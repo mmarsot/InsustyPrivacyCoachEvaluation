@@ -211,7 +211,9 @@ Rough RSS on this laptop: SmolLM2-135M about 1 GB. Qwen2.5-0.5B can peak above
   markers, plus the prefill), prompt and generated token counts, the raw
   completion with special tokens, latency, first-token time and the finish
   reason (`eos`, `max_new_tokens`, `deadline`, `context`).
-- **Extension review preset.** Runs the extension ref's own `reviewPrompt`
+- **Extension review preset.** For completion-design refs (per-label
+  framing), each label also takes up to three examples, one per line, and the
+  panel shows the plain-text request of each label. Runs the extension ref's own `reviewPrompt`
   through its own `SlmEngine`: `composeReviewInstructions`,
   `frameReviewChunk` framing, the `SLM_REPLY_PREFILL` prefill, pagination, the
   stop rule, the generation budget, parsing and anchoring. Custom labels and

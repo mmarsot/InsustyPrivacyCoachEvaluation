@@ -257,6 +257,7 @@ async function playgroundPresets(dash: Dashboard) {
     models: MODELS.map((m) => ({ id: m.id, short: m.short })),
     settings: DEFAULT_SETTINGS,
     defaultPrompt: api?.defaultPrompt ?? null,
+    kind: api?.kind ?? null,
     outputSchema: api?.outputSchema ?? null,
     replyPrefill: api?.replyPrefill ?? null,
     generationBudgetMs: api?.generationBudgetMs ?? null,
@@ -265,7 +266,9 @@ async function playgroundPresets(dash: Dashboard) {
     profiles: dash.dataset.profiles.map((p) => ({
       id: p.id,
       name: p.name,
-      rules: Object.fromEntries(LABEL_VARIANTS.map((v) => [v.id, p.labels.map((l) => ({ label: l.label, prompt: composeLabelDescription(l, v.id) }))])),
+      rules: Object.fromEntries(
+        LABEL_VARIANTS.map((v) => [v.id, p.labels.map((l) => ({ label: l.label, prompt: composeLabelDescription(l, v.id), examples: l.examples.slice(0, 3) }))]),
+      ),
     })),
     // Dev-split cases only: the test split stays held out.
     examples: selectCases(dash.dataset, "quick", "dev", 2).map((c) => ({ id: c.id, profile: c.profile, lang: c.lang, type: c.type, text: c.text, expected: c.expected })),
