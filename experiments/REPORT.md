@@ -25,6 +25,25 @@ The gain holds on unseen data (recall x3.5, detection x3.7, latency /4, no
 timeouts). The open problem is false positives: 45% of negatives get a
 finding, including 41% of clean texts. (LOG H1.)
 
+### Next improvement: a confidence threshold against false positives
+
+Dropping a label's answer when its least likely token has probability below
+a threshold (`cmin`, chosen on the dev sets) trades a little recall for much
+fewer false positives, and holds on the held-out split:
+
+| held-out test, SmolLM2-360M | F1 | precision | recall | FP rate |
+|---|---|---|---|---|
+| completion design as implemented | 27% | 32% | 24% | 45% |
+| + drop answers with min token prob < 0.2 | 26% | 36% | 20% | 34% |
+| + drop answers with min token prob < 0.3 | 23% | 37% | 17% | 25% |
+
+(dev sets: tune96 FP 36 → 21 / 14%, confirm48 50 → 44 / 38%, F1 −3 to +2.)
+To implement it, the engine records the greedy token probabilities while
+generating (a pass-through logits processor) and returns the minimum with the
+answer; `reviewPrompt` drops answers below the threshold. It could be exposed
+as a sensitivity setting (0 = current behaviour, 0.2 recommended default).
+(LOG C2-C3, H2.)
+
 ## Recommendation (current best): `raw-pl-lang` on SmolLM2-360M
 
 SmolLM2-360M on tune96:

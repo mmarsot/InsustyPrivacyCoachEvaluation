@@ -653,3 +653,17 @@ of the answer tracks correctness: `cmin` raises precision and lowers the FP
 rate on both sets, F1 within 3 points or better. It is a natural "sensitivity"
 setting for the extension (the engine would return the lowest token
 probability of the answer; `reviewPrompt` drops answers below the threshold).
+
+### H2. Confidence filter on the held-out test split (one shot, `h2-conf-heldout`)
+
+Thresholds fixed on the dev sets (C2-C3), evaluated once on the 242 test
+cases (`experiments/sets/heldout-test.json`, evaluation only):
+
+| filters | F1o | P | R | F1x | det | FPR | EN F1 / FPR | FR F1 / FPR |
+|---|---|---|---|---|---|---|---|---|
+| basic (= extension d42c466; bench gave 27.4 / 44.6) | 27 | 32 | 24 | 20 | 42 | 45 | 26 / 52 | 29 / 37 |
+| basic + cmin0.2 | 26 | 36 | 20 | 20 | 36 | 34 | 25 / 33 | 27 / 35 |
+| basic + cmin0.3 | 23 | 37 | 17 | 18 | 30 | 25 | 22 / 19 | 24 / 31 |
+
+The filter generalizes as a precision/false-positive knob: at 0.2 the FP
+rate falls by 11 points for 1 point of F1; at 0.3 by 20 points for 4.
