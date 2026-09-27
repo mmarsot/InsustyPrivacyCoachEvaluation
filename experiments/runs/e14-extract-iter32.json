@@ -1,0 +1,475 @@
+{
+ "name": "e14-extract-iter32",
+ "set": "iter32",
+ "ext": {
+  "ref": "main",
+  "sha": "c853cfc162a975df5f8ff0f76f03448a32cb840c"
+ },
+ "at": "2026-09-27T05:43:00.733Z",
+ "summary": [
+  {
+   "model": "lfm2-350m-extract",
+   "dtype": "q8",
+   "config": "json-extract",
+   "note": "LFM2-Extract style: schema in system prompt, JSON object reply, converted to lines",
+   "overall": {
+    "cases": 32,
+    "f1": 0.247,
+    "precision": 0.257,
+    "recall": 0.237,
+    "exactF1": 0.192,
+    "detection": 0.364,
+    "fpr": 0.6,
+    "compliance": 0,
+    "p50ms": 13576,
+    "p95ms": 15377,
+    "tokens": 125,
+    "failures": {
+     "echo": 1,
+     "answered": 31
+    }
+   },
+   "en": {
+    "cases": 16,
+    "f1": 0.25,
+    "precision": 0.263,
+    "recall": 0.238,
+    "exactF1": 0.2,
+    "detection": 0.455,
+    "fpr": 0.6,
+    "compliance": 0,
+    "p50ms": 12731,
+    "p95ms": 15525,
+    "tokens": 122,
+    "failures": {
+     "echo": 1,
+     "answered": 15
+    }
+   },
+   "fr": {
+    "cases": 16,
+    "f1": 0.242,
+    "precision": 0.25,
+    "recall": 0.235,
+    "exactF1": 0.182,
+    "detection": 0.273,
+    "fpr": 0.6,
+    "compliance": 0,
+    "p50ms": 13576,
+    "p95ms": 15356,
+    "tokens": 128,
+    "failures": {
+     "answered": 16
+    }
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "agency-en-001",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 10948,
+   "output": "{\n  \"tagline_1\": \"Halvard Cycles\",\n  \"campaign_code\": \"Halvard Cycles\",\n  \"tagline_2\": \"E-bike for city commuters\",\n  \"tagline_3\": \"Halvard Cycles\",\n  \"tagline_4\": \"Tone should be witty but not smug\",\n  \"e_bike_name\": \"Halvard Cycles\",\n  \"e_bike_launch\": \"Spring\",\n  \"e_bike_tone\": \"Witty but not smu"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "agency-fr-016",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 9830,
+   "output": "{\n  \"client\": \"Point hebdo\",\n  \"campagne_codename\": \"Opération Grand Nord\",\n  \"date_creation\": \"2024-01-26\",\n  \"slogan\": \"Bien à vous, Louis\",\n  \"titre_publicite\": \"Animateur en cours\",\n  \"date_publicite\": \"2024-01-26\",\n  \"temoignage\": \"PAS de point bloquant\",\n  \"temoignage_details\": \"Validation des"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "agency-en-035",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 13687,
+   "output": "{\n  \"plan\": \"4 email black friday sequense\",\n  \"clients\": \"DTC sneaker brand\",\n  \"campaign_identifiers\": \"CLIENT_NAME\",\n  \"campaign_codes\": \"CAMPAIGN_CODENAME\",\n  \"subject_lines\": \"subjet lines\",\n  \"promotion_notes\": \"N/A\",\n  \"email_list\": \"N/A\",\n  \"date\": \"4 email black friday sequense\",\n  \"target_"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "agency-fr-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13576,
+   "output": "{\n  \"client\": \"le nouveau vélo de halvard vous emmène au bureau\",\n  \"campaign_code\": \"le nouveau vélo de halvard vous emmène au bureau\",\n  \"time_slot\": \"« le nouveau vélo de halvard vous emmène au bureau avant que votre café refroidisse »\",\n  \"slogan\": \"« le nouveau vélo de halvard vous emmène au bu"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "dev-en-018",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-INTERNAL_HOST: postgres",
+    "-INTERNAL_SERVICE: allways forget",
+    "-CUSTOMER_ID: postgres"
+   ],
+   "ms": 15377,
+   "output": "{\n  \"internal_host\": \"postgres\",\n  \"internal_service\": \"allways forget\",\n  \"customer_id\": \"postgres\",\n  \"ssh_port_foward\": \"fowarding thru\",\n  \"postgres_database\": \"postgres\",\n  \"postgres_email\": \"allways forget\",\n  \"postgres_website\": \"postgres\",\n  \"postgres_ssh_servers\": \"fowarding thru\",\n  \"postg"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "dev-fr-007",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-INTERNAL_HOST: me",
+    "-INTERNAL_SERVICE: renvoi",
+    "-CUSTOMER_ID: qqun"
+   ],
+   "ms": 13843,
+   "output": "{\n  \"keycloak\": \"QMK\",\n  \"internalhost\": \"me\",\n  \"internalservice\": \"renvoi\",\n  \"customerid\": \"qqun\",\n  \"customser\": \"3\",\n  \"customser\": \"qqun\",\n  \"customser\": \"qqun\",\n  \"customser\": \"qqun\",\n  \"customser\": \"qqun\",\n  \"customser\": \"qqun\",\n  \"customser\": \"qqun\",\n  \"customser\": \"qqun\",\n  \"customser\": \"q"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "dev-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_HOST: Temporal",
+    "-INTERNAL_SERVICE: cron",
+    "-CUSTOMER_ID: Temporal"
+   ],
+   "ms": 14559,
+   "output": "{\n  \"internal_host\": \"Temporal\",\n  \"internal_service\": \"Cron\",\n  \"customer_id\": \"Temporal\",\n  \"coursetime\": \"Chorus\",\n  \"customer_profile\": \"Temporal\",\n  \"customer_id\": \"Temporal\",\n  \"coursetime\": \"Chorus\",\n  \"customer_profile\": \"Temporal\",\n  \"customer_id\": \"Temporal\",\n  \"coursetime\": \"Chorus\",\n  \"c"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "dev-en-047",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 15525,
+   "output": "{\n  \"customer_id\": [\n    {\n      \"customername\": \"cus_mP02zzLc\",\n      \"httponal\": \"500\",\n      \"slack\": \"5\",\n      \"status\": \"5\"\n    },\n    {\n      \"customername\": \"acct-40051-AR\",\n      \"httponal\": \"410\",\n      \"slack\": \"1\",\n      \"status\": \"5\"\n    },\n    {\n      \"customername\": \"org_4f1c9a2e\",\n  "
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "finance-en-005",
+   "failure": "answered",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 14423,
+   "output": "{\n  \"unpublished_figure\": {\n    \"revenue\": \"9%\",\n    \"margin\": \"8.1%\",\n    \"profit\": \"9%\",\n    \"cash\": \"8.1%\",\n    \"segment_numbers\": \"current or last quarter\"\n  },\n  \"internal_forecast\": {\n    \"revenue\": \"9%\",\n    \"margin\": \"8.1%\",\n    \"profit\": \"9%\",\n    \"cash\": \"8.1%\",\n    \"segment_numbers\": \"cur"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "finance-fr-038",
+   "failure": "answered",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 15332,
+   "output": "{\n  \"unpubliclishedfigure\": {\n    \"revenu\": \"11,7\",\n    \"margins\": \"12 %\",\n    \"profit\": \"82%\",\n    \"cash\": \"82%\",\n    \"segmentnumbers\": \"452M\"\n  },\n  \"internalforecast\": {\n    \"revenu\": \"12 %\",\n    \"margins\": \"12 %\",\n    \"profit\": \"12 %\",\n    \"cash\": \"12 %\",\n    \"segmentnumbers\": \"452M\"\n  },\n  \"res"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "finance-en-032",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 14271,
+   "output": "{\n  \"unpublishishedfigurer\": {\n    \"revenue\": \"38.2p\",\n    \"margin\": \"38.2p\",\n    \"profit\": \"38.2p\",\n    \"cash\": \"38.2p\",\n    \"segmentnumber\": \"38.2p\"\n  },\n  \"internalforecast\": {\n    \"revenue\": \"38.2p\",\n    \"margin\": \"38.2p\",\n    \"profit\": \"38.2p\",\n    \"cash\": \"38.2p\",\n    \"segmentnumber\": \"38.2p\"\n"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "finance-fr-040",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 14113,
+   "output": "{\n  \"unpublishishedfigureresultats\": {\n    \"revenue\": \"J+3\",\n    \"margins\": \"J+5\",\n    \"profit\": \"J+7\",\n    \"cash\": \"J+3\",\n    \"segmentsnumbers\": [\n      \"J+3\",\n      \"J+5\",\n      \"J+7\"\n    ]\n  },\n  \"internalforecast\": {\n    \"revenue\": \"J+3\",\n    \"margins\": \"J+5\",\n    \"profit\": \"J+7\",\n    \"cash\": \"J"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "hr-en-012",
+   "failure": "answered",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CANDIDATE_NAME: Kofi",
+    "-SOURCE_COMPANY: Kofi"
+   ],
+   "ms": 5616,
+   "output": "{\n  \"candidate_name\": \"Kofi\",\n  \"source_company\": \"Kofi\",\n  \"compensation\": \"2-hour block\",\n  \"payment_details\": \"Next week\"\n}"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "hr-fr-004",
+   "failure": "answered",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+SOURCE_COMPANY: Norvik Dynamics",
+    "+COMPENSATION: 75K€"
+   ],
+   "ms": 10093,
+   "output": "{\n  \"candidat\": \"Thibault Ferrand\",\n  \"source_company\": \"Norvik Dynamics\",\n  \"compensation\": \"75K€\",\n  \"benefits\": \"Sinon il bouge pas\",\n  \"benefits_details\": \"C++\",\n  \"benefits_history\": \"4ans\",\n  \"benefits_history_notes\": \"3 mois\",\n  \"benefits_history_notes\": \"3 mois\",\n  \"benefits_history_notes\": "
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "hr-fr-035",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-SOURCE_COMPANY: Apec"
+   ],
+   "ms": 7733,
+   "output": "{\n  \"candidat_name\": \"Ingénieur en Robotique\",\n  \"source_company\": \"Apec\",\n  \"compensation\": \"Salaires\",\n  \"salary\": \"pays\",\n  \"bonus\": \"Bonus\",\n  \"bonus_tier\": \"Tier\",\n  \"region\": \"Lyonnaise\"\n}"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "hr-en-025",
+   "failure": "answered",
+   "found": 1,
+   "expected": 4,
+   "predicted": [
+    "+CANDIDATE_NAME: J. Lindqvist",
+    "-SOURCE_COMPANY: IC5",
+    "-COMPENSATION: HM is buying lunch"
+   ],
+   "ms": 5602,
+   "output": "{\n  \"candidate_name\": \"J. Lindqvist\",\n  \"source_company\": \"IC5\",\n  \"compensation\": \"HM is buying lunch\",\n  \"bonus\": \"12%\",\n  \"performance_grade\": \"188 base\"\n}"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "legal-en-003",
+   "failure": "answered",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+DEAL_TARGET: Vessant",
+    "-DEAL_VALUE: EBITDA is ~70m"
+   ],
+   "ms": 4210,
+   "output": "{\n  \"deal_code\": \"1.1bn\",\n  \"deal_target\": \"Vessant\",\n  \"deal_value\": \"EBITDA is ~70m\"\n}"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "legal-fr-005",
+   "failure": "answered",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+DEAL_TARGET: Sorvane Industrie",
+    "-DEAL_VALUE: Droit français"
+   ],
+   "ms": 5977,
+   "output": "{\n  \"deal_code\": \"Harrowgate Industries\",\n  \"deal_target\": \"Sorvane Industrie\",\n  \"deal_value\": \"Droit français\",\n  \"confidentiality_clause\": \"Droit français, ton sobre\"\n}"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "legal-en-033",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_VALUE: £41m"
+   ],
+   "ms": 6400,
+   "output": "{\n  \"deal_code\": \"Fellbeck Tooling\",\n  \"deal_target\": \"Glenclove\",\n  \"deal_value\": \"£41m\",\n  \"deal_period\": \"12 months\",\n  \"precedent_file\": \"our acquisition of Fellbeck Tooling\"\n}"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "legal-fr-045",
+   "failure": "answered",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+DEAL_TARGET: Belvédère;Sorvane Industrie;31,5 M€",
+    "-DEAL_VALUE: Phare;-;-;projet interne SI"
+   ],
+   "ms": 11165,
+   "output": "{\n  \"code_projet\": \"Code_projet;cible;valeur_entreprise;statut\",\n  \"deal_target\": \"Belvédère;Sorvane Industrie;31,5 M€\",\n  \"deal_value\": \"Phare;-;-;projet interne SI\",\n  \"deal_definition\": \"Archive-2023;Fellbeck Tooling;41 M£;finalisé (public)\",\n  \"deal_terms\": \"LoI signée\"\n}"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "research-en-004",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PARTNER_LAB: Hanna",
+    "-EARLY_RESULT: me: send updated SOP to Quillon Biosciences b4 fri"
+   ],
+   "ms": 14193,
+   "output": "{\n  \"study_name\": \"STUDY_NAME: STUDY STUDY 3\",\n  \"partner_lab\": \"Hanna\",\n  \"early_result\": \"me: send updated SOP to Quillon Biosciences b4 fri\",\n  \"partner_work\": \"EARLY_RESULT: Hanna\",\n  \"turn_around\": \"STUDY_name: STUDY 3\",\n  \"partner_work_2\": \"partner_work_2: STUDY 3\",\n  \"turn_around_2\": \"STUDY_n"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "research-fr-004",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 14777,
+   "output": "{\n  \"study_name\": [\n    \"qPCR refaites\",\n    \"Il6 tjs en baisse chez les KO\",\n    \"moi\",\n    \"envoyer le protocole maj\",\n    \"Solenne Biotech\"\n  ],\n  \"partner_lab\": [\n    \"Study 04/02\",\n    \"Partner_LAB\",\n    \"EARLY_RESULT\",\n    \"Moi\",\n    \"Hélène\",\n    \"Partner_LAB\"\n  ],\n  \"e_early_result\": [\n    \""
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "research-fr-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-STUDY_NAME: polarisation des macrophages"
+   ],
+   "ms": 7408,
+   "output": "{\n  \"study_name\": \"Polarisation des macrophages\",\n  \"partner_lab\": \"ExTERNAL\",\n  \"early_result\": \"Unpublished\",\n  \"funding_anr\": \"Mentionne\",\n  \"funding_inserm\": \"Mentionne\",\n  \"page_max\": \"Max\"\n}"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "research-en-034",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-PARTNER_LAB: the Wellcome Trust"
+   ],
+   "ms": 14301,
+   "output": "{\n  \"study_title\": \"Macrophage Polarization in Fibrotic Liver\",\n  \"partner_lab\": \"The Wellcome Trust\",\n  \"eLife_contact\": \"eLife\",\n  \"eLife_email\": \"eLife\",\n  \"eLife_website\": \"eLife\",\n  \"funding_source\": \"Wellcome Trust\",\n  \"grant_amount\": \"€1.2 million\",\n  \"grant_award\": \"€1.5 million\",\n  \"eLife_a"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "sales-en-040",
+   "failure": "answered",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Draxon",
+    "+PROSPECT_NAME: Pembrook Dental Group"
+   ],
+   "ms": 14269,
+   "output": "{\n  \"unreleased_product\": \"Draxon\",\n  \"prospect_name\": \"Pembrook Dental Group\",\n  \"decision_date\": \"Q4\",\n  \"competitor\": \"Draxon\",\n  \"pain\": \"front-desk devices fail during peak hours\",\n  \"next_question_1\": \"What are the pain points of your patients?\",\n  \"next_question_2\": \"How do you measure the su"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "sales-fr-041",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PROSPECT_NAME: j'ai le droit de dire au prospect que le pulse edge gère le mode hors ligne ?"
+   ],
+   "ms": 15356,
+   "output": "{\n  \"unreleaseprodukt\": \"J'ai le droit de dire au prospect que le pulse edge gère le mode hors ligne ? l'équipe produit m'a dit \\\"normalement oui\\\" mdr\",\n  \"prospectname\": \"J'ai le droit de dire au prospect que le pulse edge gère le mode hors ligne ?\",\n  \"opendate\": \"l'équipe produit m'a dit \\\"norma"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "sales-en-039",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: lenovo thinkpad docks",
+    "-PROSPECT_NAME: K7"
+   ],
+   "ms": 10645,
+   "output": "{\n  \"unreleased_product\": \"lenovo thinkpad docks\",\n  \"prospect_name\": \"K7\",\n  \"prospect_name_2\": \"K5\",\n  \"date_published\": \"2024-03-15\",\n  \"date_updated\": \"2024-03-18\",\n  \"price\": \"EOL\",\n  \"price_2\": \"EOL\",\n  \"supported_platform\": \"lenovo\",\n  \"supported_platform_2\": \"K5\"\n}"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "sales-fr-030",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-PROSPECT_NAME: Mme Roussel"
+   ],
+   "ms": 6355,
+   "output": "{\n  \"unreleaseprodukt\": \"Hotels Delacroix\",\n  \"prospectname\": \"Mme Roussel\",\n  \"date\": \"30\",\n  \"sujet\": \"Se joindre à nous\",\n  \"reponse\": \"A bientôt.\"\n}"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "support-en-007",
+   "failure": "answered",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Ms Imogen Castellanos"
+   ],
+   "ms": 9723,
+   "output": "{\n  \"customer_name\": \"Ms Imogen Castellanos\",\n  \"account_number\": \"PCL5519027734\",\n  \"date_of_arrival\": \"Thursday\",\n  \"order_details\": \"Your order has been split into two parcels.\",\n  \"receipt_number\": \"PCL5519027734ES\",\n  \"tracking_number\": \"PCL5519027734ES\",\n  \"price\": \"€0.00\"\n}"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "support-fr-019",
+   "failure": "answered",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 13761,
+   "output": "{\n  \"cout\": \"livré\",\n  \"date\": \"Toulouse\",\n  \"transporteur\": \"Toulouse\",\n  \"commande\": \"colis\",\n  \"commande_part\": \"Nantes\",\n  \"details_colis\": {\n    \"date_emission\": \"Mme Karadeniz\",\n    \"date_retour\": \"Monsieur Karadeniz\",\n    \"heure_embarque\": \"Monsieur Karadeniz\",\n    \"heure_arrivee\": \"Monsieur "
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "support-fr-031",
+   "failure": "answered",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 15223,
+   "output": "{\n  \"cout_total\": \"Bonjour, votre livreur (Kévin d'après l'avis de passage) a noté que personne n'était présent mais notre client affirme qu'il était chez lui toute l'aprem.\",\n  \"informations_client\": \"CUSTOMER_NAME:\",\n  \"accompagnateur_accorde\": \"ACCOUNT_REF:\",\n  \"details_livraison\": \"Pouvez vous n"
+  },
+  {
+   "model": "lfm2-350m-extract",
+   "config": "json-extract",
+   "caseId": "support-en-045",
+   "failure": "echo",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 12731,
+   "output": "{\n  \"order_id\": \"ORD-5906-3321\",\n  \"account_id\": \"PX-742018\",\n  \"customer\": {\n    \"full_name\": \"Seraphina Kowalski\",\n    \"tier\": \"plus\"\n  },\n  \"handled_by\": \"Support Bot v2\",\n  \"shipment\": {\n    \"carrier\": \"DPD\",\n    \"status\": \"IN_TRANSIT\",\n    \"last_event\": \"DLV\",\n    \"http_status\": 200\n  },\n  \"sku"
+  }
+ ]
+}

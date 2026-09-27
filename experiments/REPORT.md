@@ -127,6 +127,8 @@ points or clearly better in French, FP rate no worse.
 | Gemma 3 270M (candidate) | 33 | 37 | 33 / 33 | 76% / 75% | 7-10 s | don't add: FP far worse, the confidence filter doesn't fix it (FP ≥ 50%), needs onnxruntime-web ≥ 1.24 |
 | LFM2.5-350M (candidate) | 13 | 18 | 12 / 21 | 40% / 63% | 18-21 s | not usable (below) |
 | Granite 4.0 H 350M (candidate) | – | – | – | – | – | not runnable on Transformers.js 3.8.1 (Mamba state inputs never initialized) |
+| LFM2-350M-Extract (candidate) | – | – | – | – | 13.6 s | iter32 F1 25% in its native JSON mode vs 38% for SmolLM2-360M; invents keys, fills every key |
+| Qwen3-0.6B (candidate) | – | – | – | – | – | not run: q8 load peak would exceed ~3.5 GB on this machine; most promising untested model |
 
 Also measured: SmolLM2-135M with the new design reaches F1 ~30% on iter32
 and confirm48 (from 3-5%) but flags 80% of negatives.

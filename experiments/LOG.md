@@ -849,3 +849,18 @@ Letting figure tokens of figure-type examples (`41.7%`, `£1.284bn`, `€87k`)
 match on their own: tune96 F1 40 -> 41 (FP 38 -> 38), with cmin0.2 38 -> 40
 (FP 21 -> 26); confirm48 41 -> 42, 43 -> 45 (FP unchanged). Within noise and
 it matches public figures too; not recommended, not run on held-out.
+
+### E14. LFM2-350M-Extract in its native JSON protocol (iter32, `e14-extract-iter32`)
+
+onnxruntime-web 1.24.3, no prefix reuse (LFM2 cache bug), schema in the
+system prompt as its card describes, JSON reply converted to lines.
+
+| model | config | F1o | P | R | F1x | det | FPR | p50 |
+|---|---|---|---|---|---|---|---|---|
+| LFM2-350M-Extract | json-extract | 25 | 26 | 24 | 19 | 36 | 60 | 13.6 s |
+| SmolLM2-360M | raw-pl-lang | 38 | 43 | 34 | 30 | 50 | 60 | 2.9 s |
+
+It invents its own keys ("tagline_1", "client", "campaign_code"), fills every
+key with something (copying whole sentences), and is 4-5x slower. (The
+"answered" failure count and 0% format compliance are the line-protocol
+analysis reading JSON; the F1 uses the converted lines.) Not competitive.
