@@ -764,3 +764,17 @@ variants make (two requests per label).
 Agreement cuts false positives but halves recall: worse than the confidence
 filter at a similar FP rate, for twice the requests. The alternate prompt on
 its own answers NONE more often (FP 17%); E13 isolates which part does it.
+
+### E13. Which part of the alternate prompt lowers the FP rate? (tune96)
+
+| config | filters | F1o | P | R | F1x | FPR |
+|---|---|---|---|---|---|---|
+| raw-pl-lang (original carriers + original NONE text) | basic | 32 | 41 | 26 | 28 | 38 |
+| altneg (original carriers + alternate NONE text) | basic | 26 | 34 | 20 | 19 | 33 |
+| altpos (alternate carriers + original NONE text) | basic | 27 | 39 | 21 | 25 | 33 |
+| alt (both alternates) | basic | 27 | 41 | 20 | 23 | 17 |
+
+Neither part alone explains it; only the combination answers NONE much more
+often. This is prompt-wording sensitivity at the noise level of a 96-case
+set, not a transferable lesson. Demo wording tuning stops here; the original
+prompt (the one the extension implements) stays.
