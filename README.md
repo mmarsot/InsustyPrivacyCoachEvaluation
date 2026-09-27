@@ -251,6 +251,21 @@ candidate models (`models/candidates.json`). Each named configuration in
   `--max-rss-mb` (3500) or when the system drops below 600 MB available.
 - Parses with the ref's own `validateModelOutput` and scores with the bench
   scorer; `--by-lang` and `--cases` print more detail.
+- Scoring-time options, applied to cached generations without recomputing:
+  `--filter basic` (plausibility filter), `request`, `dedup`, `shape`,
+  `cmin0.2` / `conf0.6` (answer-confidence thresholds, for configurations
+  that record token probabilities), `--anchor relaxed`.
+- Configuration features: per-label passes, completion framing (`raw`),
+  language-matched demonstrations, iterative rounds (`iterations`), answer-only
+  repetition penalty, P(NONE) and confidence recording, JSON output mode.
+- Candidate models run on onnxruntime-web 1.24.3 (`ort: "next"` in
+  `models/candidates.json`); `--no-prefix-cache` runs every request whole.
+- `npm run lab:classify` tests the candidate-classification approach, and
+  `npx tsx src/lab/browser/run.ts --device webgpu --dtype q4 -- <lab args>`
+  runs lab requests in a real Chrome (WebGPU or WASM) and stores them for
+  `--backend webgpu|browserwasm` scoring.
+- `experiments/sets/heldout-test.json` lists the test split for one-shot
+  evaluation only (`--allow-test`); never tune on it.
 - Writes `experiments/runs/<name>.json`. The experiment log is
   `experiments/LOG.md`, and the current best configuration with its evidence
   is `experiments/REPORT.md`.

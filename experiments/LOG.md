@@ -795,3 +795,11 @@ prompt (the one the extension implements) stays.
 Gemma's token confidence separates its false positives much less than
 SmolLM2's: even at 0.4 its FP rate stays at 50-63%. Its extra recall does not
 turn into a better operating point; the D4-D5 verdict stands.
+
+### Qwen3-0.6B: not run (memory rule)
+
+`onnx-community/Qwen3-0.6B-ONNX` q8 is a single 618 MB file (vs 512 MB for
+Qwen2.5-0.5B, whose load peak is ~3.1-3.3 GB even with the GC fix). Its load
+peak would exceed the ~3.5 GB limit for this 7 GB machine, so it was not
+loaded. It remains the most promising untested model (IFEval ~64, 119
+languages); worth measuring on a machine with more headroom.
