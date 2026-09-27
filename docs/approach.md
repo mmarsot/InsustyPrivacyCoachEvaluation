@@ -15,6 +15,21 @@ InsustyPromptCoach it runs that ref's own:
 Only two things come from the bench: the Transformers.js loader for Node
 (`src/run/transformers-loader.ts`) and the scoring.
 
+### Two review designs
+
+`loadExtApi` (`src/ext/ref.ts`) recognizes which design a ref ships and
+exposes both through the same `runReview` / `preparedInstructions` calls:
+
+- **chat** (PR #17 line protocol, the list above): one chat request per
+  chunk; the instruction variants (`--instructions`) apply.
+- **completion** (refs exporting `composeLabelPrefix`, the design recommended
+  in `experiments/REPORT.md`): one plain-text request per custom label, built
+  from the label's description and `examples`, answered in one line; the
+  engine pins its decoding settings, which the Node loader forwards like
+  `model-worker.ts`. There is no system instruction, so the instruction axis
+  is moot, and the bench fills each rule's `examples` from the profile
+  (first three). Built-in labels are not sent to the model.
+
 ## Materializing a ref without touching the clone
 
 `src/ext/ref.ts`:

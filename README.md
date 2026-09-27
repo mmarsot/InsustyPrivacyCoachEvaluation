@@ -116,7 +116,10 @@ Useful flags:
 - `--split test`
 - `--profiles dev,hr`
 - `--langs fr`
-- `--ref <git ref>` (default `main`)
+- `--ref <git ref>` (default `main`); refs with the per-label completion
+  design are detected automatically (see `docs/approach.md`)
+- `--set tune96` (the dev cases of a lab set in `experiments/sets/` instead
+  of a tier)
 - `--name my-run`
 - `--max-rss-mb 3800`
 - `--dry-run`
