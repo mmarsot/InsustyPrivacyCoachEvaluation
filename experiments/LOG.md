@@ -530,3 +530,21 @@ sets, worse in French, with a higher FP rate and twice the latency; many of
 its passages fail anchoring because it paraphrases or re-cases them. Its
 English-demo framing (`raw-pl`, best on iter32) is being checked on both sets
 before the verdict.
+
+### D4-D5. Add Gemma 3 270M? (raw-pl-lang, onnxruntime-web 1.24.3)
+
+| set | model | F1o | P | R | F1x | det | FPR | p50s | EN F1 | FR F1 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| tune96 | Gemma 3 270M | 33 | 29 | 38 | 26 | 59 | 83 | 9.5 | 34 | 33 |
+| tune96 | Gemma 3 270M + basic | 33 | 32 | 35 | 28 | 57 | 76 | 9.5 | | |
+| tune96 | Gemma 3 270M + basic + dedup | 27 | 37 | 21 | 22 | 31 | 52 | 9.5 | | |
+| tune96 | SmolLM2-360M + basic | 32 | 42 | 26 | 29 | 41 | 36 | 3.1 | 33 | 31 |
+| confirm48 | Gemma 3 270M | 35 | 34 | 37 | 24 | 56 | 81 | 7.2 | 38 | 33 |
+| confirm48 | Gemma 3 270M + basic | 37 | 36 | 37 | 25 | 56 | 75 | 7.2 | | |
+| confirm48 | Gemma 3 270M + basic + dedup | 26 | 35 | 20 | 13 | 31 | 69 | 7.2 | | |
+| confirm48 | SmolLM2-360M + basic | 31 | 38 | 25 | 29 | 38 | 50 | 3.1 | 27 | 36 |
+
+Gemma matches or beats SmolLM2-360M on F1 (+1 and +6) through higher recall
+(35-37% vs 25-26%), but flags three negatives out of four (FP rate 75-76%
+vs 36-50%), is 2-3x slower, peaks at 2.5 GB RSS and needs the
+onnxruntime-web upgrade. It fails the "FP rate no worse" criterion.
