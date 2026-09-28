@@ -54,6 +54,7 @@ With 96 cases, F1 differences under ~8 points are noise.
 | 10 | Example-derived patterns next to the model | `patterns` | [#32](https://github.com/mmarsot/InsustyPromptCoach/pull/32) | b4f96b1 | 2026-09-27 16:13 |
 | 11 | Answer-confidence filter, minimum token probability 0.2 | `confidence` | [#32](https://github.com/mmarsot/InsustyPromptCoach/pull/32) | b4f96b1 | 2026-09-27 16:13 |
 | 12 | Overfit stop words "simple" and "terms" removed | `stopwords` | [#32](https://github.com/mmarsot/InsustyPromptCoach/pull/32) | b4f96b1 | 2026-09-27 16:13 |
+| – | WebGPU loads full precision instead of q4; WASM q8 is the default backend (no request change) | none | [#38](https://github.com/mmarsot/InsustyPromptCoach/pull/38) | aabbf99 | 2026-09-28 11:31 |
 
 ## Leave-one-out ablation (tune96, SmolLM2-360M)
 
@@ -356,6 +357,55 @@ p95 9.3 s, no timeouts.
   fix, not a quality lever.
 - **Off:** the plausibility filter also drops passages made only of stop
   words plus "simple"/"terms" (`extraStopWords`).
+
+## Extension PR #38: full-precision weights on WebGPU, WASM q8 by default (no request change)
+
+https://github.com/mmarsot/InsustyPromptCoach/pull/38, merge commit
+aabbf99 (2026-09-28 11:31 UTC). It changes which device and weight format
+run the model, not what the model is asked:
+
+- **WebGPU weights:** the "Model precision" `Auto` setting loads fp16 on
+  WebGPU when the adapter reports `shader-f16`, otherwise fp32, instead of
+  q4 (`slmDeviceDtypes` in `src/slm-backends.ts`; the cached WebGPU probe
+  now records `shaderF16`). A forced `q4` still loads q4 on WebGPU. WASM
+  keeps q8 (q4 when forced). SmolLM2-360M downloads 1381 MB in fp32 and
+  691 MB in fp16, against 346 MB in q8.
+- **Default backend:** "Runs on" defaults to `WASM` (q8) and no longer
+  offers `Auto`, so WebGPU runs only when the user chooses it. A stored,
+  imported or synced `auto` loads as the WASM default. Before this PR the
+  default was `auto`, which ran WebGPU with q4 whenever an adapter was
+  usable.
+- **Fallback:** a format that fails to load on WebGPU no longer retries the
+  WebGPU default. A forced q4 that fails there moves on to WASM instead of
+  retrying full precision (`loadFirstAvailable` in `src/slm-engine.ts`).
+
+Evidence, LOG G1-G3 and REPORT "GPU (WebGPU) on this laptop" (GTX 1050,
+headful Chrome with `--enable-features=Vulkan`, `src/lab/browser/`):
+
+- q4 halves the quality whatever the device. SmolLM2-360M, raw-pl-lang,
+  iter32: F1 15 on WebGPU q4 and 21 on Chrome WASM q4, against 36 on Chrome
+  WASM q8 and 38 in the lab (Node WASM q8) (G2).
+- q8 on WebGPU is unusable: about 28 s per request, because its operators
+  fall back to the CPU (G2).
+- fp32 on WebGPU keeps q8 quality. SmolLM2-135M, iter32: F1 21 with both,
+  0.66 s per request without a prefix cache (G3).
+
+Not verified: fp32 quality and speed for SmolLM2-360M (G3 measured the
+135M), fp16 (the GTX 1050 has no `shader-f16`), and the extension's own
+full-precision load. A headed load of SmolLM2-360M fp32 in the extension on
+this laptop was OOM-killed at about 2.5 GB of renderer RAM, which is why
+WASM q8 became the default.
+
+It has no switch. The lab and the bench run Node WASM q8, which is now the
+extension's default path, and the rendered requests are unchanged: between
+the ablation's extension commit (71a29e3) and aabbf99, the request-building
+modules differ only in `slm-generation.ts` accepting the new formats when
+validating runtime reports. Device and format are run parameters of the lab
+(`--dtype`, and `--backend webgpu` for results produced by
+`src/lab/browser/`), not configurations of the `shipped` baseline, so the
+ablation table stands without a rerun. What changes for users is that the
+default no longer drops to WebGPU q4 (G2's F1 15) when an adapter is
+usable, so the default path is the one this ledger measures.
 
 ## Rejected proposals
 
