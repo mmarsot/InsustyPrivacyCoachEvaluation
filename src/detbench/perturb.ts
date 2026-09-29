@@ -294,6 +294,8 @@ const ENV_NAMES: Record<string, string> = {
   masked_secret: "API_KEY_HINT",
   base64: "LOGO_DATA",
   public_key: "JWT_PUBLIC_KEY",
+  placeholder: "EXAMPLE_PASSWORD",
+  term: "KEY_ALGORITHM",
 };
 
 const LEADS = {

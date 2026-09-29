@@ -168,14 +168,15 @@ configuration and with every category and address country on. The ref is
 materialized read-only like the model bench, and the detector's npm packages
 are installed at the versions its package-lock pins.
 
-- **Dataset** (`dataset/detbench/`): 224 fictional EN/FR prompts with 440
+- **Dataset** (`dataset/detbench/`): 240 fictional EN/FR prompts with 471
   labelled items across `SECRET`, `EMAIL`, `PHONE`, `ADDRESS`, `FINANCIAL`,
   `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP` and `COMPANY_ID` (the detector
-  upgrade's names), plus 280 hard negatives (log timestamps, git SHAs and
+  upgrade's names), plus 313 hard negatives (log timestamps, git SHAs and
   hashes, trace IDs, UUIDs, versions such as `1.2.3.4`, loopback addresses,
-  ports, masked keys, public keys, base64 images, checksum-invalid IBAN and
+  ports, masked keys, public keys, `<password>` placeholders, algorithm
+  names and acronyms in prose, base64 images, checksum-invalid IBAN and
   card look-alikes, ordinary dates next to dates of birth, plain prose). Many
-  prompts mix several categories, and 37 are prose around a pasted
+  prompts mix several categories, and 47 are prose around a pasted
   snippet (stack traces, `.env`, docker-compose, SQL output, curl, JSON, git
   output) with values on both sides of the fence. Values are checksum-valid
   where a checksum exists (IBAN, card, NIR, SIREN/SIRET, VAT, NHS, NINO).
@@ -191,46 +192,63 @@ are installed at the versions its package-lock pins.
 [docs/detbench.md](docs/detbench.md) has the dataset format, how to add
 cases, the perturbations and the metric definitions.
 
-Baseline on `main` @ `1c377d7` (after the detector upgrade, PR #42, and its
-gap fixes, PR #43;
-[`runs/detbench/main-1c377d7/report.html`](runs/detbench/main-1c377d7/report.html)),
+Baseline on `main` @ `5ff3a68` (after the detector upgrade, PR #42, and its
+gap fixes, PRs #43 and #45;
+[`runs/detbench/main-5ff3a68/report.html`](runs/detbench/main-5ff3a68/report.html)),
 base cases, `default` config (FR addresses only, `IP` and `COMPANY_ID` off)
 and `all` (every category, FR/US/CA/AU):
 
 | | `default` | `all` |
 | --- | --- | --- |
-| F1 / precision / recall (overlap) | 86% / 99% / 76% | 96% / 97% / 95% |
-| F1, exact span | 85% | 95% |
-| Items redacted, all categories | 76% | 95% |
-| Items redacted in prose (336) / inside code blocks (104) | 76% / 77% | 95% / 97% |
-| Negative prompts with a false positive | 2% (1 / 44) | 11% (5 / 44) |
-| Hard negatives flagged | 3 / 280 | 10 / 280 |
+| F1 / precision / recall (overlap) | 84% / 97% / 75% | 95% / 96% / 93% |
+| F1, exact span | 82% | 92% |
+| Items redacted, all categories | 75% | 94% |
+| Items redacted in prose (353) / inside code blocks (118) | 75% / 75% | 94% / 94% |
+| Negative prompts with a false positive | 2% (1 / 46) | 11% (5 / 46) |
+| Hard negatives flagged | 9 / 313 | 16 / 313 |
 
 - Every category is supported. In `default`, `IP` and `COMPANY_ID` are
-  opt-in, so their 74 items count as misses: most of the recall gap to `all`.
+  opt-in, so their 79 items count as misses: most of the recall gap to `all`.
 - **PR #43 regression cases** (`en-108`–`en-116`, `fr-101`–`fr-108`, see
-  [docs/detbench.md](docs/detbench.md#dataset)): `main` passes all of them
-  except the ezmlm VERP address with no `+`
-  (`announce-return-418-j.okafor=lanternbay.io@lists…`), redacted only after
-  its first `=`, which leaves the list prefix and the subscriber's name
-  visible (2 items, EN and FR; EMAIL exact F1 97%). SRS addresses pass: the
-  `SRS0=` tag may stay visible (it holds no personal data). `+` VERP addresses, `SMTP_USER=`/`user=`/`login=`/`MAIL_FROM=` keys, IBAN
-  lists, wrapped IBANs followed by another IBAN, IBANs under an order
-  reference or a mistyped IBAN, `curl -u`/`--user` and `redis://:pw@`
-  passwords (and their IPs in `all`), version quads, a UUID token next to a
-  UUID and an SSH public key, JSON/YAML/`.env` dates of birth and expiries,
-  and repeated compact SSNs and NIRs are all right, with no look-alike flagged.
+  [docs/detbench.md](docs/detbench.md#dataset)): `main` now passes all of
+  them. PR #45 fixed the ezmlm VERP address with no `+`
+  (`announce-return-418-j.okafor=lanternbay.io@lists…`); on the 224 earlier
+  cases nothing else changed from `1c377d7`.
+- **PR #45 hard cases** (`en-117`–`en-124`, `fr-109`–`fr-116`), what `main`
+  does:
+  - passes: prose parentheticals after secret keywords (`Generate a private
+    key (RSA-2048) first`, `the token (v2) expired`, `secret (2FA)`,
+    `access token (OAuth2)`, `private key (ed25519)`, EN and FR) are not
+    flagged, while `token: (<uuid>)` and `password is (<value>)` are redacted
+    exactly; a bare SRS address as a config value
+    (`LAST_RETURN_PATH=Hn7c=6D=westgrove.org=m.delacroix@relay…`) is redacted
+    whole; the `curl --user deploy:<password>` placeholder is not flagged.
+  - redacted, not exact: hyphenated keys before an email (`mail-from=`,
+    `reply-to=`, `adresse-expediteur=`, `repondre-a=`) stay inside the span
+    (5 items, over-redaction, no leak).
+  - leaks: SRS addresses in `SRS0=(…)` and `SRS0=«…»` lose their hash, read
+    as a `key=` (2 items); angle-bracketed passwords in
+    `curl --user deploy:<Hc7!pR2v>` (EN, FR) and in `redis://:<pw>@` /
+    `postgres://app:<pw>@` URLs (3) are missed; keyword values in doubled
+    quoting (`"token": "`uuid`"`, CSV `""token"": ""uuid""`, EN and FR,
+    4 items) are missed.
+  - false positives: bare OpenSSH public-key blobs without their label
+    (`JWT_PUBLIC_KEY=AAAAC3NzaC1lZDI1NTE5…`, and RSA and ECDSA blobs) are
+    flagged by the entropy heuristic (4 decoys); the docs example
+    `redis://:<password>@localhost:6379/0` is flagged from `>@localhost` on.
 - Still missed in `all`: UK and DE phones (7), US and UK addresses (3),
   passports (4), dates of birth under a table header (2), 2 French
-  passwords, 3 SIRENs (2 caught only as PHONE), a BIC, and part of an IPv6.
+  passwords, 3 SIRENs (2 caught only as PHONE), a BIC, part of an IPv6, and
+  the PR #45 bracketed passwords (5) and doubled-quote tokens (4).
 - Hard negatives flagged in `all`: order numbers, a client number, a
   version and a timestamp as PHONE (6), SSN-shaped part numbers as
-  NATIONAL_ID (2), a Luhn-invalid card look-alike (1) and `net-snmp 5.9.4.2`
-  as IP (1).
+  NATIONAL_ID (2), a Luhn-invalid card look-alike (1), `net-snmp 5.9.4.2`
+  as IP (1), and from the PR #45 cases the 4 bare public-key blobs and the
+  `<password>` placeholder and `localhost` of a docs example URL (2).
 - **Perturbations** (`all`, F1 base→perturbed): a line break inside a value
-  96%→80%, spacing 96%→83% (double-spaced IBANs, in lists too, are missed),
-  typos in context words 96%→88%, punctuation 97%→91%, `.env` rewrite
-  97%→91%; the others move F1 by 3 points or less.
+  96%→80%, spacing 96%→88% (PR #45 closed double-spaced IBANs), typos in
+  context words 95%→86%, punctuation 95%→89%, `.env` rewrite 95%→91%; the
+  others move F1 by 3 points or less.
 
 ## Dashboard
 

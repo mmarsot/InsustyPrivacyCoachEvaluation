@@ -1,10 +1,10 @@
 {
-  "name": "main-1c377d7",
+  "name": "main-5ff3a68",
   "ext": {
     "ref": "main",
-    "sha": "1c377d7739724fcea5c7fdfbd43a6c8fcce94c8f",
-    "subject": "feat(popup): show custom labels in the main Local AI redaction settings (#44)",
-    "committedAt": "2026-09-29T13:26:17+02:00"
+    "sha": "5ff3a68671274867c71a04b1e3983451da18d518",
+    "subject": "fix(detector): close ezmlm, double-spaced IBAN, bracketed token and uppercase gaps (#45)",
+    "committedAt": "2026-09-29T14:11:45+02:00"
   },
   "packages": {
     "addressit": "1.8.2",
@@ -72,7 +72,7 @@
     }
   },
   "allConfigNote": "turns on IP, COMPANY_ID; adds address countries US, CA, AU",
-  "datasetHash": "88bbba6ee3378cbee8bb19f40e4a8693021382c5a1ebe23965c8151c555afcf0",
+  "datasetHash": "e521172ab99aadab3ef3fe576fe93d77270f4b47aa53cc2eaea43cb892589e92",
   "seed": 1,
   "variantsPerType": 2,
   "perturbations": [
@@ -87,17 +87,17 @@
     "accents",
     "typo"
   ],
-  "baseCases": 224,
-  "variants": 2605,
+  "baseCases": 240,
+  "variants": 2765,
   "timing": {
-    "calls": 448,
-    "p50Ms": 0.38199600000007194,
-    "p95Ms": 6.055905999999993,
-    "maxMs": 14.636874000000034,
-    "totalMs": 585.1875989999985
+    "calls": 480,
+    "p50Ms": 0.37225400000033915,
+    "p95Ms": 5.784889000000021,
+    "maxMs": 15.919982000000346,
+    "totalMs": 623.7292480000019
   },
   "node": "24.18.0",
   "machine": "8 vCPU, 7 GB",
-  "startedAt": "2026-09-29T11:38:41.062Z",
-  "finishedAt": "2026-09-29T11:38:44.963Z"
+  "startedAt": "2026-09-29T12:15:52.395Z",
+  "finishedAt": "2026-09-29T12:15:56.383Z"
 }

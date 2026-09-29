@@ -81,6 +81,10 @@ export const DECOY_KINDS = [
   /** High-entropy data that is not a secret: a base64 image, a font. */
   "base64",
   "public_key",
+  /** Placeholder syntax standing for a value, not a value: `<password>`, `<mot_de_passe>`. */
+  "placeholder",
+  /** A technical term or acronym in prose, e.g. in parentheses after a secret keyword: RSA-2048, v2, 2FA, OAuth2. */
+  "term",
 ] as const;
 export type DecoyKind = (typeof DECOY_KINDS)[number];
 
