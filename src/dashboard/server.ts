@@ -9,7 +9,7 @@ import { join } from "node:path";
 import { compileDataset } from "../dataset/load.ts";
 import type { CompiledCase, CompiledDataset } from "../dataset/schema.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo, type ExtApi, type ExtRef } from "../ext/ref.ts";
-import { HOSTED_MODELS } from "../hosted/bedrock.ts";
+import { HOSTED_MODELS } from "../hosted/models.ts";
 import { EXT_CACHE_DIR, MODELS_FILE, ROOT } from "../paths.ts";
 import { DEFAULT_QUICK_CASES_PER_PROFILE, rulesFor, selectCases, type Job, type ResultRecord } from "../run/jobs.ts";
 import { findBenchModel, MODELS, parseBenchArgs, planJobs, secondsPerCase, splitLabel, type Plan } from "../run/plan.ts";
@@ -325,7 +325,7 @@ async function handlePlayground(dash: Dashboard, path: string, req: IncomingMess
 
 // ------------------------------------------------------------ HTTP
 
-/** Bundled models (models/models.json) and hosted ones (src/hosted/bedrock.ts), for language support next to results. */
+/** Bundled models (models/models.json) and hosted ones (src/hosted/models.ts), for language support next to results. */
 const MODEL_META = [
   ...(JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: unknown[] }).models,
   ...HOSTED_MODELS.map((h) => ({ id: h.id, short: h.short, hosted: true, languages: h.languages })),

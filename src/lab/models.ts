@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT } from "../paths.ts";
-import { HOSTED_MODELS, type HostedModel } from "../hosted/bedrock.ts";
+import { HOSTED_MODELS, type HostedModel } from "../hosted/models.ts";
 import { MODELS } from "../run/plan.ts";
 
 export interface LabModel {
@@ -23,7 +23,7 @@ export interface LabModel {
    * prefilled in two parts (garbage output), so every request runs whole.
    */
   prefixCache: boolean;
-  /** Hosted chat model (src/hosted/bedrock.ts): requests go to its API instead of a local worker. */
+  /** Hosted chat model (src/hosted/models.ts): requests go to its API instead of a local worker. */
   hosted?: HostedModel;
 }
 
@@ -56,7 +56,7 @@ export const LAB_MODELS: LabModel[] = [
   })),
   ...candidates.map((c) => ({ id: c.id, short: c.short, dtype: c.dtype, bundled: false, peakRssMb: c.peakRssMb, secondsPerCase: c.secondsPerCase, ort: c.ort ?? "pinned", rawBos: c.rawBos ?? false, prefixCache: c.prefixCache ?? true })),
   // Hosted models: no weights, no worker; `dtype` names the API in cache files.
-  ...HOSTED_MODELS.map((h) => ({ id: h.id, short: h.short, dtype: "api", bundled: false, peakRssMb: 0, secondsPerCase: 1, ort: "pinned" as const, rawBos: false, prefixCache: false, hosted: h })),
+  ...HOSTED_MODELS.map((h) => ({ id: h.id, short: h.short, dtype: "api", bundled: false, peakRssMb: h.localServer?.peakRssMb ?? 0, secondsPerCase: 1, ort: "pinned" as const, rawBos: false, prefixCache: false, hosted: h })),
 ];
 
 export const findLabModel = (name: string) => LAB_MODELS.find((m) => m.short === name || m.id === name);

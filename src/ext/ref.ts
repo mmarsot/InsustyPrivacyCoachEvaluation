@@ -201,6 +201,8 @@ export interface RuntimeReportLike {
   finishReason: string;
   prefixReused?: boolean;
   fallbackReason?: string;
+  /** Answer confidence (lowest answer-token probability); the ref's confidence filter drops a less confident answer. */
+  answerProbability?: number;
 }
 export interface ModelClientLike {
   review(request: ReviewRequestLike, model?: string, selection?: RuntimeSelection): Promise<{ output: unknown; runtime?: RuntimeReportLike }>;

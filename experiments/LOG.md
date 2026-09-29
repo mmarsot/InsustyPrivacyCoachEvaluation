@@ -1443,3 +1443,72 @@ code differs only by the later code-fence skip).
   per-label requests per prompt.
 - **Whole evaluation spend:** 0.092 USD (every hosted request, lab and
   bench, including development calls), against the 5 USD cap.
+
+### B7. Provider-neutral hosted backend: Bedrock and OpenAI-compatible adapters (connector smoke, run `connector-smoke-1c377d7`)
+
+T7 of the "Trusted AI redaction" design, narrowed by the captain to the
+connectors: the quality measurements (the OpenAI-compatible `auto`
+default, all labels in one request, fenced code, JSON output vs the
+tolerant parser, learning from feedback, and any Ollama quality run) are
+parked. What changed (`src/hosted/`, README "Hosted models"):
+
+- One provider-neutral client (`client.ts`: pacing, retries, first-line
+  cut, answer confidence) over a neutral chat-or-completion request
+  (`framing.ts`), with two adapters: Bedrock Converse (`bedrock.ts`, chat
+  framings only) and OpenAI-compatible (`openai.ts`: `/chat/completions`
+  and `/completions`, optional API key from the env variable a model
+  entry names, optional `logprobs`). The model table is `models.ts`.
+- When a reply has token log probabilities, the client computes the
+  extension's answer confidence (lowest answer-token probability, the
+  token that ended the line left out) and passes it as
+  `runtime.answerProbability`, so the ref's own confidence filter (0.2)
+  applies to hosted answers.
+- Every earlier Bedrock model keeps its id and byte-identical request
+  (tests), so the cached B1-B6 results stay valid: a dry run of tune96 has
+  nothing to compute, and the lab rescoring of `nova-micro-prefill` gives
+  B1's numbers.
+- New entries: `nova-micro-prefill-stop` (the design's `\nText:` stop
+  sequence; Converse rejects a bare `\n`), `glm47-flash-oai-native-v2`
+  (GLM-4.7 Flash through Bedrock's OpenAI-compatible endpoint, same API
+  key), and `ollama-smollm{,2}-360m-{completion,native-v2}` (local Ollama).
+- `npm run hosted:check` sends one synthetic request per model, like the
+  extension's "Test connection". Unit tests use a fake OpenAI-compatible
+  server and a mocked Converse `fetch`: bodies, auth header, logprob
+  shapes, confidence, first-line cut, 429/5xx retry, 401 not retried,
+  reasoning output refused.
+
+Findings from the probes (a handful of requests each):
+
+- **Ollama's `/v1/completions` is not a raw completion.** Ollama 0.34.4
+  wraps the prompt in the model's chat template (smollm2: its default
+  system prompt too; "Hello" is 31 prompt tokens, vs 1 with
+  `/api/generate` and `raw: true`). The extension's completion text then
+  arrives as a user message, and both SmolLM models answered like a
+  chatbot ("Here's how you can implement this:"). The design's
+  "`/completions` = exactly the extension's framing" holds for servers that
+  do raw completion (vLLM, llama.cpp), not for Ollama.
+- **Log probabilities:** Ollama returns them on `/v1/chat/completions`
+  only (`/v1/completions` ignores `logprobs`). Bedrock's OpenAI-compatible
+  endpoint (`https://bedrock-runtime.<region>.amazonaws.com/openai/v1`)
+  returns them for GLM-4.7 Flash, so a hosted model can have the
+  confidence filter. That endpoint serves chat only (`/completions`:
+  UnknownOperationException), and does not serve Nova Micro
+  (`model_not_found`). It accepts `stop` and GLM's `thinking` switch.
+- **Connector smoke through the bench** (2 tune96 cases, 5 per-label
+  requests per model, ref 1c377d7; not a quality measurement): GLM-4.7
+  Flash over the OpenAI endpoint found all of hr-fr-004 and the
+  finance-en-005 margins, with answer confidences 0.25-0.99, 0.26-0.55 s per
+  request. `nova-micro-prefill-stop` averaged 15 output tokens (B1-B2
+  prefill without the stop: 26); one answer still ran to 45 tokens, so the
+  stop does not catch every run-on. smollm:360m through Ollama found
+  nothing with either framing: chat-style answers, confidences 0.08-0.24
+  (native) and none (completion). Hosted spend 0.0002 USD (total 0.092).
+
+Remaining T7 work (parked by the captain): the `auto` default per provider
+(raw completion vs native v2, now including Ollama's templated
+`/completions` and GLM through the OpenAI endpoint with the confidence
+filter), all labels in one request, whether a connected model reads fenced
+code, structured JSON output vs the tolerant parser, and learning from
+feedback (learned examples as demonstrations or pattern sources, false
+alarms as NONE demonstrations, quality vs number of corrections, with a
+subset that fits SmolLM2's 2,048-token budget).

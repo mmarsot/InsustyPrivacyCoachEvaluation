@@ -6,7 +6,7 @@
 import { readFileSync } from "node:fs";
 import type { CompiledCase, CompiledDataset, Split } from "../dataset/schema.ts";
 import { join } from "node:path";
-import { HOSTED_MODELS } from "../hosted/bedrock.ts";
+import { HOSTED_MODELS } from "../hosted/models.ts";
 import { MODELS_FILE, ROOT } from "../paths.ts";
 import { INSTRUCTION_VARIANTS, isLabelVariant, LABEL_VARIANTS, type InstructionVariant, type LabelVariantId } from "../variants.ts";
 import { cachedTimings, DEFAULT_QUICK_CASES_PER_PROFILE, jobKey, rulesFor, selectCases, TIERS, type Job, type Tier } from "./jobs.ts";
@@ -16,7 +16,7 @@ export interface ModelInfo {
   short: string;
   priorSecondsPerCase: number;
   priorLoadSeconds: number;
-  /** Hosted chat model (src/hosted/bedrock.ts): its requests go to an API, not a local worker model. */
+  /** Hosted chat model (src/hosted/models.ts): its requests go to an API, not a local worker model. */
   hosted?: boolean;
 }
 export const MODELS: ModelInfo[] = (JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelInfo[] }).models;

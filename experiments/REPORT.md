@@ -65,7 +65,7 @@ tuning, `confirm48` (48 disjoint dev cases) to confirm, `heldout-test` (the
 242 test-split cases) for one-shot evaluation of choices made on dev only.
 With 96 cases, F1 differences under ~8 points are noise.
 
-## Hosted models ("connect a trusted model"; LOG B1-B6)
+## Hosted models ("connect a trusted model"; LOG B1-B7)
 
 The captain is evaluating letting clients connect their own trusted hosted
 model instead of the in-browser one. Two small hosted models on Amazon
@@ -126,6 +126,23 @@ first; run `hosted-test-1c377d7`):
     code from the model (done for latency) is worth revisiting.
   - **Determinism:** temperature 0 is not fully deterministic on Nova (2 of
     96 answers differed between two runs).
+- **Connectors (LOG B7):** the backend is provider-neutral (`src/hosted/`):
+  a Bedrock Converse adapter and an OpenAI-compatible one (chat and
+  completions, optional key, log probabilities), behind one client. With
+  log probabilities, the extension's confidence filter applies to hosted
+  answers. Three findings for the design's connected-model defaults:
+  - Ollama's `/v1/completions` wraps the prompt in the chat template, so it
+    is not the extension's raw completion framing (vLLM and llama.cpp do
+    raw completion). Ollama returns log probabilities on chat only.
+  - Bedrock's OpenAI-compatible endpoint serves GLM-4.7 Flash (chat only,
+    same API key) with log probabilities, so a hosted model can have the
+    confidence filter. Nova Micro is not served there.
+  - A `\nText:` stop sequence shortens Nova's prefill answers (15 vs 26
+    output tokens on a 5-request smoke), but it does not stop every run-on.
+
+  Parked by the captain (remaining T7): the `auto` framing per provider,
+  all labels in one request, fenced code, JSON output vs the tolerant
+  parser, and learning from feedback.
 
 ## Held-out confirmation (242 test cases, never used for tuning)
 

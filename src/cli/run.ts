@@ -15,10 +15,12 @@
  * reports what is cached (a partial run is marked incomplete). Outputs go to
  * runs/<name>/.
  *
- * Hosted models (`--models nova-micro-prefill`, src/hosted/bedrock.ts; never
- * part of `all`) send the ref's requests to an API: the plan prints their cost
- * estimate, and the run refuses to start when the hosted spend so far plus the
- * estimate passes `--budget-usd`.
+ * Hosted models (`--models nova-micro-prefill`, src/hosted/models.ts; never
+ * part of `all`) send the ref's requests to an API (Bedrock or an
+ * OpenAI-compatible server): the plan prints their cost estimate, and the run
+ * refuses to start when the hosted spend so far plus the estimate passes
+ * `--budget-usd`. A model served by a local server (Ollama) waits for its RSS
+ * plus the memory margin and is unloaded after its run.
  */
 import { spawn } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -32,7 +34,8 @@ import type { RunMeta, RunModelMeta } from "../run/meta.ts";
 import { writeRun } from "../run/outputs.ts";
 import { estimateSeconds, formatDuration as fmt, parseBenchArgs, planJobs, secondsPerCase, splitLabel } from "../run/plan.ts";
 import type { WorkerEvent, WorkerSpec } from "../run/worker.ts";
-import { costOf, findHostedModel, hostedSpentUsd } from "../hosted/bedrock.ts";
+import { releaseHostedModel } from "../hosted/client.ts";
+import { costOf, describeTarget, findHostedModel, hostedSpentUsd } from "../hosted/models.ts";
 import { findLabModel } from "../lab/models.ts";
 import { readMemAvailableMb, waitForMemory } from "../lab/runtime.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
@@ -98,7 +101,7 @@ for (const m of models.filter((x) => x.hosted)) {
   const cap = h.maxTokens ?? 48;
   const usd = costOf(h, inputTokens, requests * cap);
   hostedEstimateUsd += usd;
-  console.log(`  ${m.short.padEnd(14)} ~${requests} requests, ~${inputTokens} input + <=${requests * cap} output tokens: <=${usd.toFixed(4)} USD (${h.modelId}, ${h.region})`);
+  console.log(`  ${m.short.padEnd(14)} ~${requests} requests, ~${inputTokens} input + <=${requests * cap} output tokens: <=${usd.toFixed(4)} USD (${describeTarget(h)})`);
 }
 const hostedSpent = models.some((m) => m.hosted) ? hostedSpentUsd() : 0;
 if (models.some((m) => m.hosted)) {
@@ -145,7 +148,8 @@ for (const m of models) {
   if (!pending.length) continue;
   // Same memory rule as the lab: wait (with a heartbeat) until the model's
   // peak plus a 1.5 GB margin is available, else skip it explicitly.
-  const labModel = m.hosted ? undefined : findLabModel(m.id);
+  const hostedModel = m.hosted ? findHostedModel(m.id) : undefined;
+  const labModel = m.hosted && !hostedModel?.localServer ? undefined : findLabModel(m.id);
   if (labModel && !(await waitForMemory(labModel, Number(process.env.BENCH_MIN_FREE_MB ?? 1500)))) continue;
   const spec: WorkerSpec = { bundle: ext.bundle, extSha: ext.sha, model: m.id, resultFile: cacheFile(ext.sha, m.id), jobs: pending, ...(m.hosted ? { budgetUsd: Math.max(0, options.budgetUsd - hostedSpentUsd()) } : {}) };
   const specFile = join(tmpDir, `jobs-${process.pid}-${m.short}.json`);
@@ -211,6 +215,7 @@ for (const m of models) {
       clearInterval(timer);
       meta.peakRssMb = peak || undefined;
       if (code) console.error(`[${m.short}] worker exited with code ${code}`);
+      if (hostedModel) void releaseHostedModel(hostedModel);
       console.log(`[${m.short}] done: ${meta.computed}/${pending.length} computed, peak RSS ${peak} MB, ${fmt((performance.now() - t0) / 1000)}`);
       resolveRun();
     });
@@ -258,7 +263,7 @@ const meta: RunMeta = {
   models: modelMeta,
   ext: { ref: ext.ref, sha: ext.sha, subject: ext.subject, committedAt: ext.committedAt, transformersRange: ext.transformersRange },
   datasetHash: dataset.hash,
-  runtime: `onnxruntime-web WASM (q8) in Node ${process.versions.node} via @huggingface/transformers; deterministic greedy decoding; generation budget ${api.generationBudgetMs / 1000} s per request (from the ref)${models.some((m) => m.hosted) ? `; hosted models: Amazon Bedrock Converse (temperature 0, topK 1, 48-token cap, first line), latency per request network included, throttling retries excluded` : ""}`,
+  runtime: `onnxruntime-web WASM (q8) in Node ${process.versions.node} via @huggingface/transformers; deterministic greedy decoding; generation budget ${api.generationBudgetMs / 1000} s per request (from the ref)${models.some((m) => m.hosted) ? `; hosted models: Amazon Bedrock Converse or an OpenAI-compatible API (temperature 0, topK 1 on Bedrock, 48-token cap or the model's own, first line), latency per request network included, throttling retries excluded` : ""}`,
   machine: `${cpus()[0]?.model ?? "cpu"} x${cpus().length}, ${(totalmem() / 2 ** 30).toFixed(1)} GiB RAM, ${process.platform}`,
   node: process.versions.node,
   startedAt: startedAt.toISOString(),

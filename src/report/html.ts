@@ -3,7 +3,7 @@
  * Tables are the primary view; single-hue meter bars only show magnitude.
  */
 import { readFileSync } from "node:fs";
-import { HOSTED_MODELS } from "../hosted/bedrock.ts";
+import { HOSTED_MODELS } from "../hosted/models.ts";
 import { MODELS_FILE } from "../paths.ts";
 import { DIMENSIONS, summarize, type ConfigSummary, type Metrics } from "../score/aggregate.ts";
 import { FAILURE_MODES, type Scored } from "../score/score.ts";

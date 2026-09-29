@@ -22,7 +22,8 @@
     "lab": "tsx src/lab/cli.ts",
     "lab:classify": "tsx src/lab/classify-cli.ts",
     "ablate": "tsx src/lab/ablate.ts",
-    "detbench": "tsx src/cli/detbench.ts"
+    "detbench": "tsx src/cli/detbench.ts",
+    "hosted:check": "tsx src/hosted/check.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "3.8.1",

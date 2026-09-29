@@ -1,0 +1,4 @@
+{
+ "$comment": "Connector smoke set (not a quality set): two short tune96 dev cases, one English multi-passage positive and one French positive, so a new hosted adapter or endpoint is exercised end to end through the bench with a handful of requests.",
+ "cases": ["finance-en-005", "hr-fr-004"]
+}

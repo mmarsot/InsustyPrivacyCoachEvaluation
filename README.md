@@ -387,11 +387,13 @@ candidate models (`models/candidates.json`). Each named configuration in
   `experiments/LOG.md`, and the current best configuration with its evidence
   is `experiments/REPORT.md`.
 
-### Hosted models (Amazon Bedrock)
+### Hosted models (Amazon Bedrock, OpenAI-compatible servers)
 
 ```bash
+npm run hosted:check -- --models nova-micro-prefill,glm47-flash-oai-native-v2   # one synthetic request each ("Test connection")
 npm run bench -- --set tune96 --models nova-micro-prefill,smollm2-360m --dry-run   # plan + cost estimate
 npm run bench -- --set tune96 --models nova-micro-prefill,nova-micro-system,smollm2-360m --name hosted-tune96
+npm run bench -- --set connector-smoke --models <new model> --name connector-smoke   # 2 cases: a new adapter or endpoint end to end
 npm run lab -- --configs shipped --models nova-micro-prefill --set tune96 --by-lang
 npx tsx src/hosted/parity.ts --set tune96     # lab requests vs the ref's own reviewPrompt requests (no model, no network)
 ```
@@ -399,61 +401,82 @@ npx tsx src/hosted/parity.ts --set tune96     # lab requests vs the ref's own re
 Bench runs with hosted models show in the dashboard like any other run:
 Live while they run, and Results/Compare from `runs/<name>/` once they have
 finished. Lab runs show in the Lab view. Results so far:
-`runs/hosted-{tune96,confirm48,test}-1c377d7/` and
-[`experiments/REPORT.md`](experiments/REPORT.md) "Hosted models" (LOG B1-B6).
+`runs/hosted-{tune96,confirm48,test}-1c377d7/`, `runs/connector-smoke-1c377d7/`
+and [`experiments/REPORT.md`](experiments/REPORT.md) "Hosted models" (LOG B1-B7).
 
 For the "connect a trusted hosted model" question, the bench and the lab can
-send the extension's per-label requests to a chat model on Amazon Bedrock
-instead of a local model (`src/hosted/bedrock.ts`, Converse API over
-`fetch`, no SDK). In the bench, the ref's own `reviewPrompt` drives a hosted
-model client in place of the engine: pagination, the code-fence skip,
-parsing, anchoring and patterns are the extension's. The requests are the
-ones `reviewPrompt` hands its model client (`{instructions, input,
-responsePrefill}`), in one of three chat framings (the model name's suffix):
+send the extension's per-label requests to a hosted or self-hosted model
+instead of a local one. In the bench, the ref's own `reviewPrompt` drives a
+hosted model client in place of the engine: pagination, the code-fence skip,
+parsing, anchoring, patterns and the confidence filter are the extension's.
+The backend is provider-neutral (`src/hosted/`):
 
-- `-prefill`: the completion text as the user turn, and the assistant turn
-  prefilled with the cue `LABEL:`;
-- `-system`: the instruction line as the system prompt, and the
-  demonstrations, text and cue as the user turn;
-- `-native*` (bench only): a chat-native request for the same label: a
-  system prompt describing the task and the answer format (`NATIVE_SYSTEM`
-  v1/v2), then the label's name, description and examples (`-noex`: none)
-  and the whole prompt. There is no chunking (100k-token budget), but the
-  ref still leaves fenced code out.
+- `framing.ts` turns the ref's request (`{instructions, input,
+  responsePrefill}`) into a neutral chat or completion request, in one of
+  four framings (the model name's suffix):
+  - `-prefill`: the completion text as the user turn, and the assistant turn
+    prefilled with the cue `LABEL:`;
+  - `-completion`: the completion text and cue as a raw completion prompt;
+  - `-system`: the instruction line as the system prompt, and the
+    demonstrations, text and cue as the user turn;
+  - `-native*` (bench only): a chat-native request for the same label: a
+    system prompt describing the task and the answer format
+    (`NATIVE_SYSTEM` v1/v2), then the label's name, description and
+    examples (`-noex`: none) and the prompt.
+- Adapters send it and return the answer text, token usage, latency and,
+  when the provider has them, token log probabilities: `bedrock.ts`
+  (Converse, chat framings only) and `openai.ts` (any OpenAI-compatible
+  server: chat to `/chat/completions`, completion to `/completions`).
+- `client.ts` paces, retries (429, 5xx, network), cuts the answer at its
+  first line like the extension's first-line stop, and turns log
+  probabilities into the extension's answer confidence (the lowest
+  answer-token probability), so the ref's confidence filter (0.2) applies.
+- `models.ts` is the model table: provider, endpoint, framing, decoding,
+  prices, pacing. A new framing, prompt wording, endpoint or decoding
+  setting is a new entry and id (results are cached by model id), never an
+  edit. Result cache files are named after the id's last segment, which must
+  stay unique.
 
-Decoding is temperature 0 with topK 1 and a 48-token cap (128 for native).
-The answer is cut at its first line in code, because Converse rejects `\n`
-as a stop sequence.
+Decoding is temperature 0 (topK 1 on Bedrock) and a 48-token cap (128 for
+native). Converse rejects `\n` as a stop sequence, so it gets only non-blank
+ones (`nova-micro-prefill-stop`: `\nText:`); OpenAI-compatible entries send
+`stop: ["\n"]` and ask for `logprobs`.
 
-- **Auth:** a Bedrock API key in `AWS_BEARER_TOKEN_BEDROCK`, sent as a bearer
-  token. It is read from the environment only.
-- **Models and region:** `nova-micro-*`: Amazon Nova Micro through the EU
-  inference profile `eu.amazon.nova-micro-v1:0`. `glm47-flash-*`: Z.ai
-  GLM-4.7 Flash (`zai.glm-4.7-flash`, in-region only), with thinking
-  disabled (`thinking`; a response with reasoning content stops the run).
-  Both are called in `eu-north-1`. Send only the benchmark's fictional
-  dataset.
+- **Models:** `nova-micro-*`: Amazon Nova Micro through the EU inference
+  profile `eu.amazon.nova-micro-v1:0`. `glm47-flash-*`: Z.ai GLM-4.7 Flash
+  (`zai.glm-4.7-flash`, in-region only) with thinking disabled (a reply with
+  reasoning stops the run); `glm47-flash-oai-native-v2` reaches it through
+  Bedrock's OpenAI-compatible endpoint (chat only, no `/completions`; it
+  returns log probabilities; Nova is not served there). All in `eu-north-1`.
+  `ollama-smollm-360m-*` and `ollama-smollm2-360m-*`: a local Ollama
+  (`OLLAMA_BASE_URL`, default `http://127.0.0.1:11434/v1`); the bench waits
+  for their RSS plus the memory margin and unloads each after its run.
+  Ollama's `/v1/completions` wraps the prompt in the model's chat template
+  (not a raw completion) and returns no log probabilities; its chat endpoint
+  returns them. Send only the benchmark's fictional dataset.
+- **Auth:** Bedrock: a Bedrock API key in `AWS_BEARER_TOKEN_BEDROCK`, sent as
+  a bearer token. OpenAI-compatible: the environment variable a model entry
+  names (`apiKeyEnv`), else no key. Keys are read from the environment only
+  and never logged.
 - **Cache and cost:** results are cached like local ones: in the bench's
   result cache per ref commit, and in the lab by model id with framing,
   rendered prompt and generation settings (`cache/lab/<model>-api.jsonl`).
   Each request records its latency (network included, throttling retries
-  excluded), Bedrock's server latency, token usage and cost, and `run.json`
-  and the report give each hosted model's cost. Before sending anything, the
-  bench and the lab print an estimate. They refuse to start when the hosted
-  spend so far (every cached hosted request) plus the estimate would pass
-  `--budget-usd` (default 5), and they stop mid-run at the budget. Per 1M
-  input / output tokens in eu-north-1 (AWS price list): Nova Micro 0.038 /
-  0.152 USD, GLM-4.7 Flash 0.08 / 0.48 USD. A tune96 run (240 requests)
-  costs about 0.003 USD on Micro.
+  excluded), the provider's server latency, token usage, cost and answer
+  confidence, and `run.json` and the report give each hosted model's cost.
+  Before sending anything, the bench and the lab print an estimate. They
+  refuse to start when the hosted spend so far (every cached hosted request)
+  plus the estimate would pass `--budget-usd` (default 5), and they stop
+  mid-run at the budget. Per 1M input / output tokens in eu-north-1 (AWS
+  price list): Nova Micro 0.038 / 0.152 USD, GLM-4.7 Flash 0.08 / 0.48 USD.
+  A tune96 run (240 requests) costs about 0.003 USD on Micro.
 - **Pacing:** requests are sent one at a time, so each measured latency is a
-  single request's, and paced per model (`rpm`; `BEDROCK_RPM` overrides
-  it). Nova Micro runs at 18 per minute and GLM-4.7 Flash at 90, because
-  this test account allows them 20 and 100, so a tune96 pass takes about 13
-  minutes on Micro. Backoff on HTTP 429 is a
+  single request's, and paced per model (`rpm`; `HOSTED_RPM`, or
+  `BEDROCK_RPM` for Bedrock, overrides it). Nova Micro runs at 18 per minute
+  and GLM-4.7 Flash at 90, because this test account allows them 20 and 100,
+  so a tune96 pass takes about 13 minutes on Micro. Backoff on HTTP 429 is a
   safety net. A request that runs out of retries is not cached, and a rerun
   computes it.
-- The answer-confidence filter cannot apply, because Converse returns no
-  token probabilities, so hosted answers are all kept.
 
 ### Shipped baseline and ablations
 

@@ -29,7 +29,8 @@ import { scoreResult, type Scored } from "../score/score.ts";
 import { answerConfidence, buildMessages, buildRaw, configCategories, detectLang, filterLines, plausibleLines, withExtraStopWords, maskPassages, isRequestLike, shapeSimilarity, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
-import { estimateCost, HostedError, hostedSpentUsd, reviewHosted, type HostedModel } from "../hosted/bedrock.ts";
+import { HostedError, reviewHosted } from "../hosted/client.ts";
+import { estimateCost, hostedSpentUsd, type HostedModel } from "../hosted/models.ts";
 import { labelPatterns, patternFindings } from "./patterns.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "./runtime.ts";
 import { checkInput, decide, inputBlock, policyAndDemos, segmentText, YESNO_INSTRUCTION, type Segment } from "./segment.ts";
@@ -316,7 +317,7 @@ async function runWorker(model: LabModel, dtype: string, pending: Planned[]): Pr
 }
 
 // ------------------------------------------------------------------ hosted
-/** Extra fields of a hosted model's cache record (src/hosted/bedrock.ts). */
+/** Extra fields of a hosted model's cache record (src/hosted/client.ts). */
 interface HostedRecord extends LabRecord {
   raw: string;
   stopReason: string;
@@ -377,7 +378,9 @@ async function runHosted(model: LabModel, pending: Planned[]): Promise<void> {
       output: r.output,
       promptTokens: r.inputTokens,
       generatedTokens: r.outputTokens,
-      finishReason: cut ? "line" : r.stopReason === "max_tokens" ? "length" : "eos",
+      finishReason: cut ? "line" : r.stopReason === "length" ? "length" : "eos",
+      // The answer confidence, as a one-token list: the shipped filter's min over it is the confidence.
+      ...(r.answerProbability === undefined ? {} : { tokenProbs: [r.answerProbability] }),
       ms: r.ms,
       at: new Date().toISOString(),
       raw: r.raw,
@@ -513,7 +516,7 @@ function score(allParts: Planned[], cache: Map<string, LabRecord>, agree?: Set<s
       : basic;
     const categories = configCategories(part.config, part.scope, refTexts);
     if (!deadline) findings.push(...validateModelOutput(parsed, { text: p.c.text, offset: 0 }, 0, categories));
-    chunks.push({ output: parsed, ms: r.ms, runtime: { backend: p.model.hosted ? "bedrock" : "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } });
+    chunks.push({ output: parsed, ms: r.ms, runtime: { backend: p.model.hosted?.provider ?? "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } });
   });
   if (agree) findings.splice(0, findings.length, ...findings.filter((f) => agree.has(`${f.category}\u0000${(f.value ?? "").toLowerCase()}`)));
   // Segment configurations (src/lab/segment.ts): decisions of the Yes/No checks.

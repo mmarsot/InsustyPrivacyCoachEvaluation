@@ -5,10 +5,12 @@
  * anchoring) with the ref's own `SlmEngine` (prefix cache, stop rules,
  * generation budget), and only swaps in a Node Transformers.js loader.
  *
- * A hosted model (src/hosted/bedrock.ts) replaces the engine with a client
- * that sends the ref's per-label request to its API: the ref's `reviewPrompt`
- * still does everything else (pagination, code-fence skip, parsing,
- * anchoring, patterns). Its latency excludes throttling retries and backoff.
+ * A hosted model (src/hosted/models.ts: Bedrock or an OpenAI-compatible
+ * server) replaces the engine with a client that sends the ref's per-label
+ * request to its API (src/hosted/client.ts): the ref's `reviewPrompt` still
+ * does everything else (pagination, code-fence skip, parsing, anchoring,
+ * patterns, and the confidence filter when the provider returns token log
+ * probabilities). Its latency excludes throttling retries and backoff.
  *
  * Usage (spawned by src/cli/run.ts): node --import tsx src/run/worker.ts <job-spec.json>
  * Protocol: one `@@{json}` line per event on stdout.
@@ -16,7 +18,8 @@
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { loadExtApi, type ModelClientLike, type ReviewRequestLike, type RuntimeReportLike, type RuntimeSelection } from "../ext/ref.ts";
-import { findHostedModel, HostedError, reviewHosted } from "../hosted/bedrock.ts";
+import { HostedError, reviewHosted } from "../hosted/client.ts";
+import { describeTarget, findHostedModel } from "../hosted/models.ts";
 import { appendResult, type ChunkRecord, type Job, type ResultRecord } from "./jobs.ts";
 
 export interface WorkerSpec {
@@ -73,15 +76,15 @@ async function main() {
         native = { label: { label: rule.label, description: rule.prompt, examples: rule.examples ?? [] }, text: request.input.slice(framePre.length, request.input.length - framePost.length) };
       }
       const r = await reviewHosted(hosted, { instructions: request.instructions, input: request.input, responsePrefill: request.responsePrefill ?? "", ...(native ? { native } : {}) }, { maxTokens, stopAtNewline: true });
-      const finishReason = r.output.length < r.raw.length ? "line" : r.stopReason === "max_tokens" ? "length" : "eos";
+      const finishReason = r.output.length < r.raw.length ? "line" : r.stopReason === "length" ? "length" : "eos";
       return {
         output: r.output,
-        runtime: { backend: "bedrock", quantization: hosted.framing, promptTokens: r.inputTokens, generatedTokens: r.outputTokens, finishReason },
+        runtime: { backend: hosted.provider, quantization: hosted.framing, promptTokens: r.inputTokens, generatedTokens: r.outputTokens, finishReason, ...(r.answerProbability === undefined ? {} : { answerProbability: r.answerProbability }) },
         ms: r.ms,
         usage: { inputTokens: r.inputTokens, outputTokens: r.outputTokens, costUsd: r.costUsd, serverMs: r.serverMs, totalMs: r.totalMs, attempts: r.attempts },
       };
     };
-    emit({ type: "loaded", loadMs: 0, threads: 0, transformers: `bedrock ${hosted.modelId} in ${hosted.region}, ${hosted.framing} framing` });
+    emit({ type: "loaded", loadMs: 0, threads: 0, transformers: `${describeTarget(hosted)}, ${hosted.framing} framing` });
   } else {
     const { nodeWasmLoader, disposeModels, transformersVersion, WASM_THREADS } = await import("./transformers-loader.ts");
     const engine = new api.SlmEngine(nodeWasmLoader);
