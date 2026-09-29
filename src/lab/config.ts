@@ -437,6 +437,8 @@ export function buildRaw(config: LabConfig, profile: Profile, ref: RefTexts, tex
     instructions,
     prefix: `${instructions ? `${instructions}\n\n` : ""}${shots}`,
     suffix: (text: string) => `${user(text)}${prefill}`,
+    /** The answer cue that ends every suffix (the extension's `responsePrefill`). */
+    prefill,
   };
 }
 
@@ -479,9 +481,10 @@ export function passagesToLines(raw: string, label: string): string {
   const lines: string[] = [];
   for (const original of raw.split(/\r?\n| \| /u)) {
     let line = original.trim().replace(/^(?:(?:[-*•]+|\d+[.)])\s*)+/u, "");
-    if (!line || /^NONE\.?$/iu.test(line) || line.startsWith("```")) continue;
+    // A repeated cue is removed before the NONE check, like the ref's `labelAnswerLines` ("LABEL: NONE" is NONE).
     const m = /^(?<l>[^:\n]{1,40}?)\s*:\s*(?<p>.+)$/u.exec(line);
-    if (m?.groups && norm(m.groups.l!) === norm(label)) line = m.groups.p!;
+    if (m?.groups && norm(m.groups.l!) === norm(label)) line = m.groups.p!.trim();
+    if (!line || /^NONE\.?$/iu.test(line) || line.startsWith("```")) continue;
     lines.push(`${label}: ${line}`);
   }
   return lines.length ? lines.join("\n") : "NONE";

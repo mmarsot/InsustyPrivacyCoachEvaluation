@@ -167,6 +167,8 @@ export interface ExtApi {
     rules: Rule[],
     model: string,
     selection: RuntimeSelection,
+    /** Completion refs: the ref's context budget in tokens (chunk size); default the ref's own. */
+    contextBudget?: number,
   ): Promise<{ findings: FindingLike[] }>;
   // SlmEngine constructor from src/slm-engine.ts.
   SlmEngine: new (loader: unknown) => EngineLike;
@@ -245,8 +247,8 @@ export async function loadExtApi(bundle: string): Promise<ExtApi> {
       composeReviewInstructions: (_s, rules) => sets(withExamples(rules)).join("\n\n"),
       preparedInstructions: (_s, rules) => sets(withExamples(rules)),
       reviewCategories: () => [],
-      runReview: (text, _s, client, rules, model, selection) =>
-        reviewPrompt(text, client, withExamples(rules), model, selection) as Promise<{ findings: FindingLike[] }>,
+      runReview: (text, _s, client, rules, model, selection, contextBudget) =>
+        reviewPrompt(text, client, withExamples(rules), model, selection, ...(contextBudget === undefined ? [] : [contextBudget])) as Promise<{ findings: FindingLike[] }>,
     };
   }
   const compose = need(review.composeReviewInstructions, "composeReviewInstructions") as ExtApi["composeReviewInstructions"];

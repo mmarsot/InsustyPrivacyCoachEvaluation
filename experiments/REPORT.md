@@ -1,12 +1,20 @@
 # Local SLM review: best configuration so far
 
-Status: **current** as of 2026-09-27 (updated after every experiment).
+Status: **current** as of 2026-09-29 (updated after every experiment).
 Evidence and run names: [LOG.md](LOG.md); model research: [RESEARCH.md](RESEARCH.md).
 Runtime everywhere unless noted: q8 weights on onnxruntime-web WASM (4
 threads), greedy decoding, the extension's own code for anything the
 extension ships.
 
 ## Summary
+
+- **Hosted models (LOG B1-B6):** with the extension's own review code, a
+  small hosted chat model on Amazon Bedrock finds far more than the shipped
+  in-browser SmolLM2-360M. On the held-out split, recall goes from 27% to
+  65% with GLM-4.7 Flash (native framing) and to 45% with Nova Micro
+  (prefill framing). Both flag fewer negatives (33% and 24% vs 36%) and
+  answer in 0.6-1.0 s instead of 2.6 s, for a few cents per 1,000 prompts
+  (section "Hosted models" below).
 
 - **The per-label completion design on SmolLM2-360M has shipped** (extension
   PR #26, merge 372c8ff; benched as branch commit d42c466;
@@ -56,6 +64,68 @@ Sets: `tune96` (96 dev cases, 54 positive / 42 negative, half EN half FR) for
 tuning, `confirm48` (48 disjoint dev cases) to confirm, `heldout-test` (the
 242 test-split cases) for one-shot evaluation of choices made on dev only.
 With 96 cases, F1 differences under ~8 points are noise.
+
+## Hosted models ("connect a trusted model"; LOG B1-B6)
+
+The captain is evaluating letting clients connect their own trusted hosted
+model instead of the in-browser one. Two small hosted models on Amazon
+Bedrock ran through the bench with the extension's own review code
+(`reviewPrompt`: requests, code-fence skip, parser, anchoring, plausibility
+filter, patterns). The only change is the model client
+(`src/hosted/bedrock.ts`, README "Hosted models").
+
+Held-out test split (242 cases, one shot; framings chosen on dev by recall
+first; run `hosted-test-1c377d7`):
+
+| model / framing | recall | F2 | F1 | precision | FP rate | p50 / p95 per prompt | USD / 1,000 prompts |
+|---|---|---|---|---|---|---|---|
+| SmolLM2-360M, shipped (in the browser) | 27.0% | 29.2% | 33.2% | 43.3% | 35.6% | 2.61 s / 9.25 s | 0 |
+| Amazon Nova Micro, prefill framing | 45.3% | 49.0% | 55.8% | **72.6%** | **23.8%** | 1.00 s / 1.56 s | 0.03 |
+| Z.ai GLM-4.7 Flash, native framing (v2) | **64.7%** | **62.2%** | **58.7%** | 53.7% | 32.7% | **0.61 s / 0.97 s** | 0.08 |
+
+- **A small hosted model is a large improvement.** GLM-4.7 Flash finds 2.4x
+  as many sensitive passages as the shipped model and Nova Micro 1.7x. Both
+  flag fewer negatives, answer 3-4x faster (network included), and are as
+  good in French as in English. The cost is negligible (a few cents per
+  1,000 prompts). The whole evaluation cost 0.09 USD.
+- **Micro vs GLM** is a precision / recall trade. By the captain's
+  recall-first rule, GLM with the native framing is the best measured. About
+  half of each model's false positives on tune96 are harmless (the right
+  passage under a second label) or defensible (the label's kind, with
+  nothing in the text saying otherwise). About a quarter are right-kind items
+  the text says are public (LOG B3-B5).
+- **What the prompt format needs for chat models:**
+  - **Framing depends on the model.** Nova Micro needs the extension's own
+    completion text (demonstrations included) with the answer cue as an
+    assistant prefill. A task-description ("native") prompt costs it a third
+    of its recall. GLM-4.7 Flash does best with the native prompt: a system
+    prompt describing the privacy-scanner task and the one-line answer
+    format, then the label's name, description and examples, then the
+    prompt. Keep the examples: without them GLM keeps its recall but flags
+    48% of negatives. A connected-model feature should offer both framings,
+    or pick one per model.
+  - **Answer format:** chat models write `passage |` and `passage | NONE`,
+    and repeat the cue (`LABEL: passage`). The extension's parser already
+    strips the cue, but a trailing ` |` breaks anchoring. The v2 wording
+    fixes it in the prompt. A tolerant parser (drop empty and NONE parts) or
+    the provider's structured output (Converse `outputConfig`, a JSON list)
+    would be more robust.
+  - **No answer confidence:** Bedrock's Converse returns no token
+    probabilities, so the shipped confidence filter (0.2) cannot apply to a
+    hosted model. The feature needs another precision control, or must
+    accept its absence (Micro's precision is fine without it).
+  - **One request per label** lets the model return the same passage under
+    two labels of the profile (a third to a half of the hosted models' false
+    positives). A capable chat model could get all labels in one request,
+    which also cuts requests per prompt from ~2.5 to 1.
+  - **Stop and length:** Converse rejects `\n` as a stop sequence, so the
+    first-line cut happens in code. Nova Micro's prefill answers run on into
+    a new `Text:` demonstration up to the cap (twice the output tokens); a
+    `\nText:` stop sequence would remove that. Chunking is unnecessary at
+    these context sizes (128K-203K), and with a hosted model, hiding fenced
+    code from the model (done for latency) is worth revisiting.
+  - **Determinism:** temperature 0 is not fully deterministic on Nova (2 of
+    96 answers differed between two runs).
 
 ## Held-out confirmation (242 test cases, never used for tuning)
 
@@ -240,3 +310,11 @@ demonstrations was the first framing all three bundled models could follow.
   about a quarter of the sensitive passages. Larger gains likely need a
   better small model that runs on the extension's runtime, not more prompt
   tuning (demo-wording changes now move results only at the noise level).
+- **Untracked shipped change:** extension PR #42 (fb52dc6, a detector PR)
+  also made `reviewPrompt` hide fenced code blocks from the model
+  (`proseRuns`; the patterns still scan code). The lab's `shipped`
+  configuration still sends the whole text, so it differs from the extension
+  on prompts with fenced code (10 of 240 tune96 requests, 17 of 606
+  held-out; `src/hosted/parity.ts`). It needs a ledger entry and a switch in
+  `docs/shipped-improvements.md` / `src/lab/shipped.ts`, and an ablation
+  rerun.

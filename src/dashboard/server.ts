@@ -9,9 +9,10 @@ import { join } from "node:path";
 import { compileDataset } from "../dataset/load.ts";
 import type { CompiledCase, CompiledDataset } from "../dataset/schema.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo, type ExtApi, type ExtRef } from "../ext/ref.ts";
+import { HOSTED_MODELS } from "../hosted/bedrock.ts";
 import { EXT_CACHE_DIR, MODELS_FILE, ROOT } from "../paths.ts";
 import { DEFAULT_QUICK_CASES_PER_PROFILE, rulesFor, selectCases, type Job, type ResultRecord } from "../run/jobs.ts";
-import { MODELS, parseBenchArgs, planJobs, secondsPerCase, splitLabel, type Plan } from "../run/plan.ts";
+import { findBenchModel, MODELS, parseBenchArgs, planJobs, secondsPerCase, splitLabel, type Plan } from "../run/plan.ts";
 import { compareRows, COMPARE_METRICS } from "../report/compare-data.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
 import { INSTRUCTION_VARIANTS, LABEL_VARIANTS } from "../variants.ts";
@@ -162,7 +163,7 @@ export class Dashboard {
         live.plan.jobsByModel,
         (model) => readModelCache(ext.sha, model),
         (job, record) => this.score(api, job, record).failure,
-        (model) => secondsPerCase(MODELS.find((m) => m.id === model) ?? MODELS[0]!),
+        (model) => secondsPerCase(findBenchModel(model) ?? MODELS[0]!),
       );
       return { ...base, ref: ext.ref, sha: ext.sha, cases: live.plan.cases.length, ...progress };
     });
@@ -188,7 +189,7 @@ export class Dashboard {
   private plansFor(loaded: LoadedExt) {
     let plans = this.plansMemo.get(loaded.ext.sha);
     if (!plans) {
-      const all = { casesPerProfile: DEFAULT_QUICK_CASES_PER_PROFILE, cachedOnly: false, models: MODELS, instructions: [...INSTRUCTION_VARIANTS], labelVariants: LABEL_VARIANTS.map((v) => v.id), profiles: [], langs: [], maxRssMb: 0, dryRun: false, allowMissingSplit: false };
+      const all = { casesPerProfile: DEFAULT_QUICK_CASES_PER_PROFILE, cachedOnly: false, models: MODELS, instructions: [...INSTRUCTION_VARIANTS], labelVariants: LABEL_VARIANTS.map((v) => v.id), profiles: [], langs: [], maxRssMb: 0, dryRun: false, allowMissingSplit: false, budgetUsd: 0 };
       plans = {
         quick: planJobs(this.dataset, { ...all, tier: "quick" }, loaded.ext.sha, loaded.api.defaultPrompt, loaded.api.kind === "completion"),
         full: planJobs(this.dataset, { ...all, tier: "full" }, loaded.ext.sha, loaded.api.defaultPrompt, loaded.api.kind === "completion"),
@@ -324,7 +325,11 @@ async function handlePlayground(dash: Dashboard, path: string, req: IncomingMess
 
 // ------------------------------------------------------------ HTTP
 
-const MODEL_META = (JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: unknown[] }).models;
+/** Bundled models (models/models.json) and hosted ones (src/hosted/bedrock.ts), for language support next to results. */
+const MODEL_META = [
+  ...(JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: unknown[] }).models,
+  ...HOSTED_MODELS.map((h) => ({ id: h.id, short: h.short, hosted: true, languages: h.languages })),
+];
 
 const parseFilters = (params: URLSearchParams): Filters => {
   const filters: Filters = {};

@@ -1,0 +1,2542 @@
+{
+ "name": "b1-nova-tune96",
+ "set": "tune96",
+ "ext": {
+  "ref": "main",
+  "sha": "c1407a4c80884a39984d3f69e5bddab767a12ccf"
+ },
+ "at": "2026-09-29T11:11:27.364Z",
+ "summary": [
+  {
+   "model": "nova-micro-prefill",
+   "dtype": "api",
+   "config": "shipped",
+   "note": "Extension as shipped (PR #26, #32): per-label completion, example demos, NONE last, first line, pinned greedy, plausibility filter, confidence filter 0.2, example patterns",
+   "overall": {
+    "cases": 96,
+    "f1": 0.61,
+    "precision": 0.711,
+    "recall": 0.534,
+    "exactF1": 0.536,
+    "exactPrecision": 0.632,
+    "exactRecall": 0.466,
+    "detection": 0.722,
+    "fpr": 0.143,
+    "compliance": 1,
+    "p50ms": 969,
+    "p95ms": 1627,
+    "tokens": 66,
+    "failures": {
+     "ok": 88,
+     "hallucinated": 8
+    }
+   },
+   "en": {
+    "cases": 48,
+    "f1": 0.634,
+    "precision": 0.651,
+    "recall": 0.617,
+    "exactF1": 0.556,
+    "exactPrecision": 0.581,
+    "exactRecall": 0.532,
+    "detection": 0.741,
+    "fpr": 0.143,
+    "compliance": 1,
+    "p50ms": 969,
+    "p95ms": 1627,
+    "tokens": 80,
+    "failures": {
+     "ok": 43,
+     "hallucinated": 5
+    }
+   },
+   "fr": {
+    "cases": 48,
+    "f1": 0.584,
+    "precision": 0.788,
+    "recall": 0.464,
+    "exactF1": 0.517,
+    "exactPrecision": 0.697,
+    "exactRecall": 0.411,
+    "detection": 0.704,
+    "fpr": 0.143,
+    "compliance": 1,
+    "p50ms": 943,
+    "p95ms": 1569,
+    "tokens": 53,
+    "failures": {
+     "ok": 45,
+     "hallucinated": 3
+    }
+   },
+   "seg": {
+    "segments": 323,
+    "segPrecision": 0.897,
+    "segRecall": 0.684,
+    "overRedaction": 0.178,
+    "redactedChars": 981,
+    "requestsPerPrompt": 2.5,
+    "checks": 0,
+    "unresolvedRate": null,
+    "incompleteCases": 0,
+    "checkAuc": null,
+    "verifyAuc": null,
+    "verifiedFindings": 0,
+    "checkPrecision": null,
+    "checkRecall": null,
+    "yesRate": null,
+    "falseYesRate": null,
+    "meanPYesPos": null,
+    "meanPYesNeg": null,
+    "positiveChecks": 0,
+    "negativeChecks": 0
+   },
+   "hosted": {
+    "requests": 240,
+    "inputTokens": 54969,
+    "outputTokens": 6371,
+    "meanInputTokens": 229,
+    "meanOutputTokens": 26.5,
+    "usd": 0.003057,
+    "usdPer1000Prompts": 0.0318,
+    "requestP50ms": 387,
+    "requestP95ms": 636,
+    "serverP50ms": 295,
+    "retries": 497,
+    "cutAtFirstLine": 131
+   }
+  },
+  {
+   "model": "nova-micro-system",
+   "dtype": "api",
+   "config": "shipped",
+   "note": "Extension as shipped (PR #26, #32): per-label completion, example demos, NONE last, first line, pinned greedy, plausibility filter, confidence filter 0.2, example patterns",
+   "overall": {
+    "cases": 96,
+    "f1": 0.55,
+    "precision": 0.741,
+    "recall": 0.437,
+    "exactF1": 0.46,
+    "exactPrecision": 0.638,
+    "exactRecall": 0.359,
+    "detection": 0.574,
+    "fpr": 0.143,
+    "compliance": 1,
+    "p50ms": 809,
+    "p95ms": 2080,
+    "tokens": 32,
+    "failures": {
+     "ok": 88,
+     "hallucinated": 8
+    }
+   },
+   "en": {
+    "cases": 48,
+    "f1": 0.616,
+    "precision": 0.694,
+    "recall": 0.553,
+    "exactF1": 0.554,
+    "exactPrecision": 0.639,
+    "exactRecall": 0.489,
+    "detection": 0.704,
+    "fpr": 0.19,
+    "compliance": 1,
+    "p50ms": 848,
+    "p95ms": 1760,
+    "tokens": 41,
+    "failures": {
+     "ok": 46,
+     "hallucinated": 2
+    }
+   },
+   "fr": {
+    "cases": 48,
+    "f1": 0.48,
+    "precision": 0.818,
+    "recall": 0.339,
+    "exactF1": 0.359,
+    "exactPrecision": 0.636,
+    "exactRecall": 0.25,
+    "detection": 0.444,
+    "fpr": 0.095,
+    "compliance": 1,
+    "p50ms": 780,
+    "p95ms": 2240,
+    "tokens": 24,
+    "failures": {
+     "ok": 42,
+     "hallucinated": 6
+    }
+   },
+   "seg": {
+    "segments": 323,
+    "segPrecision": 0.88,
+    "segRecall": 0.579,
+    "overRedaction": 0.185,
+    "redactedChars": 816,
+    "requestsPerPrompt": 2.5,
+    "checks": 0,
+    "unresolvedRate": null,
+    "incompleteCases": 0,
+    "checkAuc": null,
+    "verifyAuc": null,
+    "verifiedFindings": 0,
+    "checkPrecision": null,
+    "checkRecall": null,
+    "yesRate": null,
+    "falseYesRate": null,
+    "meanPYesPos": null,
+    "meanPYesNeg": null,
+    "positiveChecks": 0,
+    "negativeChecks": 0
+   },
+   "hosted": {
+    "requests": 240,
+    "inputTokens": 55030,
+    "outputTokens": 3087,
+    "meanInputTokens": 229,
+    "meanOutputTokens": 12.9,
+    "usd": 0.00256,
+    "usdPer1000Prompts": 0.0267,
+    "requestP50ms": 297,
+    "requestP95ms": 658,
+    "serverP50ms": 233,
+    "retries": 555,
+    "cutAtFirstLine": 32
+   }
+  }
+ ],
+ "cases": [
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Halvard Cycles",
+    "-CAMPAIGN_CODENAME: Halvard Cycles"
+   ],
+   "ms": 1283,
+   "output": "[CLIENT_NAME] Halvard Cycles\n[CAMPAIGN_CODENAME] Halvard Cycles"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CAMPAIGN_CODENAME: Opération Grand Nord"
+   ],
+   "ms": 1044,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] Opération Grand Nord"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 964,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1135,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: bastion-eu1.int.quillmark.net",
+    "-INTERNAL_SERVICE: bastion-eu1.int.quillmark.net"
+   ],
+   "ms": 1572,
+   "output": "[INTERNAL_HOST] bastion-eu1.int.quillmark.net\n[INTERNAL_SERVICE] bastion-eu1.int.quillmark.net\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: keycloak.corp.qmk",
+    "-INTERNAL_SERVICE: keycloak.corp.qmk"
+   ],
+   "ms": 1631,
+   "output": "[INTERNAL_HOST] keycloak.corp.qmk\n[INTERNAL_SERVICE] keycloak.corp.qmk\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1681,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-en-047",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "-INTERNAL_HOST: hooks.slack.com",
+    "+CUSTOMER_ID: cus_mP02zzLc",
+    "+CUSTOMER_ID: acct-40051-AR"
+   ],
+   "ms": 1521,
+   "output": "[INTERNAL_HOST] hooks.slack.com\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] cus_mP02zzLc"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-en-005",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Europe margin at 8.1% not 9%"
+   ],
+   "ms": 790,
+   "output": "[UNPUBLISHED_FIGURE] Europe margin at 8.1% not 9%\n[INTERNAL_FORECAST] reforecast to £312m operating profit"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 1057,
+   "output": "[UNPUBLISHED_FIGURE] flash August revenue of £452M, EBIT rate 11.7%, cash conversion 82%\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1087,
+   "output": "[UNPUBLISHED_FIGURE] NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 930,
+   "output": "[UNPUBLISHED_FIGURE] NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CANDIDATE_NAME: Kofi"
+   ],
+   "ms": 1343,
+   "output": "[CANDIDATE_NAME] Kofi\n[SOURCE_COMPANY] NONE\n[COMPENSATION] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: Thibault Ferrand",
+    "+SOURCE_COMPANY: Norvik Dynamics",
+    "+COMPENSATION: 75K€ minimum"
+   ],
+   "ms": 1122,
+   "output": "[CANDIDATE_NAME] Thibault Ferrand\n[SOURCE_COMPANY] Norvik Dynamics\n[COMPENSATION] 75K€ minimum"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1274,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] NONE\n[COMPENSATION] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 3,
+   "expected": 4,
+   "predicted": [
+    "+CANDIDATE_NAME: J. Lindqvist",
+    "+COMPENSATION: 188 base / 12% bonus"
+   ],
+   "ms": 1192,
+   "output": "[CANDIDATE_NAME] J. Lindqvist\n[SOURCE_COMPANY] NONE\n[COMPENSATION] 188 base / 12% bonus"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: Vessant",
+    "+DEAL_TARGET: Vessant",
+    "+DEAL_VALUE: $1.1bn"
+   ],
+   "ms": 1627,
+   "output": "[DEAL_CODENAME] Vessant\n[DEAL_TARGET] Vessant\n[DEAL_VALUE] $1.1bn"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 979,
+   "output": "[DEAL_CODENAME] NONE\n[DEAL_TARGET] NONE\n[DEAL_VALUE] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: Fellbeck Tooling",
+    "-DEAL_TARGET: Fellbeck Tooling",
+    "-DEAL_VALUE: £41m"
+   ],
+   "ms": 1022,
+   "output": "[DEAL_CODENAME] Fellbeck Tooling\n[DEAL_TARGET] Fellbeck Tooling\n[DEAL_VALUE] £41m"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "+DEAL_CODENAME: Belvédère",
+    "+DEAL_TARGET: Sorvane Industrie",
+    "+DEAL_VALUE: 31,5 M€"
+   ],
+   "ms": 1194,
+   "output": "[DEAL_CODENAME] Belvédère\n[DEAL_TARGET] Sorvane Industrie\n[DEAL_VALUE] 31,5 M€"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-en-004",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+PARTNER_LAB: Quillon Biosciences"
+   ],
+   "ms": 1547,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] Quillon Biosciences\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+PARTNER_LAB: Solenne Biotech"
+   ],
+   "ms": 1082,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] Solenne Biotech\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 940,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1147,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Pembrook Dental Group",
+    "+PROSPECT_NAME: Pembrook Dental Group"
+   ],
+   "ms": 1450,
+   "output": "[UNRELEASED_PRODUCT] Pembrook Dental Group\n[PROSPECT_NAME] Pembrook Dental Group"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 943,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 969,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+PROSPECT_NAME: Hotels Delacroix"
+   ],
+   "ms": 698,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] Hotels Delacroix"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Ms Imogen Castellanos",
+    "+ACCOUNT_REF: PCL5519027734ES"
+   ],
+   "ms": 747,
+   "output": "[CUSTOMER_NAME] Ms Imogen Castellanos\n[ACCOUNT_REF] PCL5519027734ES"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_NAME: Mme Karadeniz"
+   ],
+   "ms": 869,
+   "output": "[CUSTOMER_NAME] Mme Karadeniz\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CUSTOMER_NAME: Kévin"
+   ],
+   "ms": 658,
+   "output": "[CUSTOMER_NAME] Kévin\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "+CUSTOMER_NAME: Seraphina Kowalski",
+    "+ACCOUNT_REF: ORD-5906-3321",
+    "+ACCOUNT_REF: PX-742018"
+   ],
+   "ms": 819,
+   "output": "[CUSTOMER_NAME] Seraphina Kowalski\n[ACCOUNT_REF] ORD-5906-3321"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-en-014",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Grenadine & Co",
+    "-CAMPAIGN_CODENAME: Grenadine & Co"
+   ],
+   "ms": 589,
+   "output": "[CLIENT_NAME] Grenadine & Co\n[CAMPAIGN_CODENAME] Grenadine & Co"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-en-025",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 629,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 808,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 664,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-fr-011",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Mutuelle Arvelle",
+    "-CAMPAIGN_CODENAME: Mutuelle Arvelle"
+   ],
+   "ms": 659,
+   "output": "[CLIENT_NAME] Mutuelle Arvelle\n[CAMPAIGN_CODENAME] Mutuelle Arvelle"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-fr-045",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CLIENT_NAME: Banque Castellane",
+    "+CAMPAIGN_CODENAME: Projet Ardoise"
+   ],
+   "ms": 525,
+   "output": "[CLIENT_NAME] Banque Castellane\n[CAMPAIGN_CODENAME] Projet Ardoise"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-fr-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 480,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "agency-fr-026",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 596,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-en-015",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: kafka-b3.int.quillmark.net",
+    "-INTERNAL_SERVICE: kafka-b3.int.quillmark.net"
+   ],
+   "ms": 1428,
+   "output": "[INTERNAL_HOST] kafka-b3.int.quillmark.net\n[INTERNAL_SERVICE] kafka-b3.int.quillmark.net\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-en-046",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+INTERNAL_HOST: pg-primary-02.int.quillmark.net",
+    "-INTERNAL_SERVICE: pg-primary-02.int.quillmark.net"
+   ],
+   "ms": 925,
+   "output": "[INTERNAL_HOST] pg-primary-02.int.quillmark.net\n[INTERNAL_SERVICE] pg-primary-02.int.quillmark.net\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-en-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2368,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-en-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1159,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-fr-011",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_SERVICE: qm-docgen"
+   ],
+   "ms": 1271,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] qm-docgen\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-fr-024",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: harbor.corp",
+    "-INTERNAL_SERVICE: harbor.corp"
+   ],
+   "ms": 1045,
+   "output": "[INTERNAL_HOST] harbor.corp\n[INTERNAL_SERVICE] harbor.corp\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-fr-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1215,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "dev-fr-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1062,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 800,
+   "output": "[UNPUBLISHED_FIGURE] NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-en-031",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 1117,
+   "output": "[UNPUBLISHED_FIGURE] Q3 revenue of £1.284bn\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-en-035",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 735,
+   "output": "[UNPUBLISHED_FIGURE] Q3 revenue of £1.284bn\n[INTERNAL_FORECAST] FY25 annual report (p.12) adjusted operating profit £418m and statutory operating profit £371m"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-en-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_FORECAST: FY26 guidance of 3-4% organic sales growth"
+   ],
+   "ms": 602,
+   "output": "[UNPUBLISHED_FIGURE] NONE\n[INTERNAL_FORECAST] FY26 guidance of 3-4% organic sales growth"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-fr-002",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 617,
+   "output": "[UNPUBLISHED_FIGURE] NONE\n[INTERNAL_FORECAST] reprévoit un ROC annuel à 396 M£ et un CA annuel de 5,49 Md£"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-fr-027",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 805,
+   "output": "[UNPUBLISHED_FIGURE] Q3 revenue of £1.284bn\n[INTERNAL_FORECAST] RF3 FY at 5,51 Md£"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-fr-049",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 520,
+   "output": "[UNPUBLISHED_FIGURE] NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "finance-fr-011",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 556,
+   "output": "[UNPUBLISHED_FIGURE] NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-en-001",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CANDIDATE_NAME: Declan",
+    "+SOURCE_COMPANY: Tessaro Robotics"
+   ],
+   "ms": 1195,
+   "output": "[CANDIDATE_NAME] Declan\n[SOURCE_COMPANY] Tessaro Robotics\n[COMPENSATION] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-en-046",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: Nadia Haddad",
+    "+SOURCE_COMPANY: Arkwell Automation"
+   ],
+   "ms": 893,
+   "output": "[CANDIDATE_NAME] Nadia Haddad\n[SOURCE_COMPANY] Arkwell Automation\n[COMPENSATION] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1152,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] NONE\n[COMPENSATION] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-en-027",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 809,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] NONE\n[COMPENSATION] €87k base"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-fr-010",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: Margaux Delorme",
+    "+COMPENSATION: 78 K€"
+   ],
+   "ms": 1038,
+   "output": "[CANDIDATE_NAME] Margaux Delorme\n[SOURCE_COMPANY] NONE\n[COMPENSATION] 78 K€"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-fr-044",
+   "failure": "ok",
+   "found": 1,
+   "expected": 12,
+   "predicted": [
+    "+COMPENSATION: 70000"
+   ],
+   "ms": 876,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] NONE\n[COMPENSATION] 70000"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1025,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] NONE\n[COMPENSATION] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "hr-fr-042",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1155,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] NONE\n[COMPENSATION] €87k base"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-en-017",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 969,
+   "output": "[DEAL_CODENAME] Project Bramble\n[DEAL_TARGET] NONE\n[DEAL_VALUE] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-en-049",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+DEAL_CODENAME: Project Marram"
+   ],
+   "ms": 1232,
+   "output": "[DEAL_CODENAME] Project Marram\n[DEAL_TARGET] NONE\n[DEAL_VALUE] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1291,
+   "output": "[DEAL_CODENAME] NONE\n[DEAL_TARGET] NONE\n[DEAL_VALUE] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1445,
+   "output": "[DEAL_CODENAME] NONE\n[DEAL_TARGET] NONE\n[DEAL_VALUE] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-fr-016",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+DEAL_VALUE: 22,40 € par action"
+   ],
+   "ms": 1405,
+   "output": "[DEAL_CODENAME] NONE\n[DEAL_TARGET] NONE\n[DEAL_VALUE] 22,40 € par action"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-fr-047",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+DEAL_CODENAME: opération Castine",
+    "-DEAL_TARGET: Castine"
+   ],
+   "ms": 909,
+   "output": "[DEAL_CODENAME] opération Castine\n[DEAL_TARGET] Castine\n[DEAL_VALUE] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_CODENAME: Harrowgate"
+   ],
+   "ms": 802,
+   "output": "[DEAL_CODENAME] Harrowgate\n[DEAL_TARGET] NONE\n[DEAL_VALUE] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "legal-fr-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1036,
+   "output": "[DEAL_CODENAME] NONE\n[DEAL_TARGET] NONE\n[DEAL_VALUE] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-en-013",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+PARTNER_LAB: Institut Beaulac"
+   ],
+   "ms": 1190,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] Institut Beaulac\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-en-025",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1038,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] the Okonkwo lab at Delft\n[EARLY_RESULT] Unpublished quantitative results: effect sizes, p-values, response rates, hit counts."
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-en-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1027,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-en-044",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 875,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-fr-010",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 1414,
+   "output": "[STUDY_NAME] Colibri (ADN circulaire plasmatique)\n[PARTNER_LAB] NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-fr-050",
+   "failure": "ok",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 846,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1569,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "research-fr-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1055,
+   "output": "[STUDY_NAME] NONE\n[PARTNER_LAB] NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-en-033",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+UNRELEASED_PRODUCT: Marlowe",
+    "-PROSPECT_NAME: Marlowe"
+   ],
+   "ms": 682,
+   "output": "[UNRELEASED_PRODUCT] Marlowe\n[PROSPECT_NAME] Marlowe"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-en-029",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 722,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Project Titan"
+   ],
+   "ms": 2396,
+   "output": "[UNRELEASED_PRODUCT] Project Titan\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-en-009",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 700,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-fr-015",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+PROSPECT_NAME: Coopérative Agrivelle"
+   ],
+   "ms": 790,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] Coopérative Agrivelle"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-fr-031",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+PROSPECT_NAME: Menuiseries Rouvray"
+   ],
+   "ms": 617,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] Menuiseries Rouvray"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-fr-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-PROSPECT_NAME: Draxon Systems"
+   ],
+   "ms": 529,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] Draxon Systems"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "sales-fr-048",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 493,
+   "output": "[UNRELEASED_PRODUCT] NONE\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-en-011",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_NAME: Gideon Achterberg"
+   ],
+   "ms": 634,
+   "output": "[CUSTOMER_NAME] Gideon Achterberg\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-en-020",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+ACCOUNT_REF: ord 8841-2290"
+   ],
+   "ms": 910,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] ord 8841-2290"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 682,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-en-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 694,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-fr-017",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Mr Leopold Hartmann",
+    "+ACCOUNT_REF: ORD-2750-6481"
+   ],
+   "ms": 547,
+   "output": "[CUSTOMER_NAME] Mr Leopold Hartmann\n[ACCOUNT_REF] ORD-2750-6481"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-fr-021",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Lefebvre"
+   ],
+   "ms": 1096,
+   "output": "[CUSTOMER_NAME] Lefebvre\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1065,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-prefill",
+   "config": "shipped",
+   "caseId": "support-fr-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 715,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-en-001",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Halvard Cycles"
+   ],
+   "ms": 704,
+   "output": "[CLIENT_NAME] CLIENT_NAME: Halvard Cycles\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-fr-016",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CAMPAIGN_CODENAME: Opération Grand Nord"
+   ],
+   "ms": 1047,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: Opération Grand Nord"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 702,
+   "output": "[CLIENT_NAME] CLIENT_NAME: NONE\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-fr-018",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 553,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-en-018",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: bastion-eu1.int.quillmark.net",
+    "-INTERNAL_SERVICE: bastion-eu1.int.quillmark.net"
+   ],
+   "ms": 1054,
+   "output": "[INTERNAL_HOST] INTERNAL_HOST: bastion-eu1.int.quillmark.net\n[INTERNAL_SERVICE] INTERNAL_SERVICE: bastion-eu1.int.quillmark.net\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-fr-007",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: keycloak.corp.qmk",
+    "-INTERNAL_SERVICE: keycloak.corp.qmk"
+   ],
+   "ms": 1141,
+   "output": "[INTERNAL_HOST] INTERNAL_HOST: keycloak.corp.qmk\n[INTERNAL_SERVICE] INTERNAL_SERVICE: keycloak.corp.qmk\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 890,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-en-047",
+   "failure": "hallucinated",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CUSTOMER_ID: cus_mP02zzLc",
+    "+CUSTOMER_ID: acct-40051-AR"
+   ],
+   "ms": 1021,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] CUSTOMER_ID: cus_mP02zzLc, acct-40051-AR, org_4f1c9a2e"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-en-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [
+    "-UNPUBLISHED_FIGURE: Europe margin at 8.1% not 9%"
+   ],
+   "ms": 620,
+   "output": "[UNPUBLISHED_FIGURE] UNPUBLISHED_FIGURE: Europe margin at 8.1% not 9%\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-fr-038",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 612,
+   "output": "[UNPUBLISHED_FIGURE] UNPUBLISHED_FIGURE: flash August revenue of £452M, EBIT rate of 11.7%, and cash conversion of 82%\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1390,
+   "output": "[UNPUBLISHED_FIGURE] Text: Quick update before the call: Q3 revenue of £1.284bn is still on the list for next week, can you tidy up this paragraph?\n[INTERNAL_FORECAST] INTERNAL_FORECAST: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-fr-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 678,
+   "output": "[UNPUBLISHED_FIGURE] NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-en-012",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CANDIDATE_NAME: Kofi"
+   ],
+   "ms": 937,
+   "output": "[CANDIDATE_NAME] CANDIDATE_NAME: Kofi\n[SOURCE_COMPANY] SOURCE_COMPANY: NONE\n[COMPENSATION] COMPENSATION: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-fr-004",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: Thibault Ferrand",
+    "+SOURCE_COMPANY: Norvik Dynamics",
+    "+COMPENSATION: 75K€ minimum"
+   ],
+   "ms": 2689,
+   "output": "[CANDIDATE_NAME] Thibault Ferrand\n[SOURCE_COMPANY] SOURCE_COMPANY: Norvik Dynamics\n[COMPENSATION] COMPENSATION: 75K€ minimum"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 787,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] SOURCE_COMPANY: NONE\n[COMPENSATION] COMPENSATION: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-en-025",
+   "failure": "ok",
+   "found": 3,
+   "expected": 4,
+   "predicted": [
+    "+CANDIDATE_NAME: J. Lindqvist",
+    "+COMPENSATION: 188 base / 12% bonus"
+   ],
+   "ms": 812,
+   "output": "[CANDIDATE_NAME] CANDIDATE_NAME: J. Lindqvist\n[SOURCE_COMPANY] SOURCE_COMPANY: NONE\n[COMPENSATION] COMPENSATION: 188 base / 12% bonus"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-en-003",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "-DEAL_CODENAME: Vessant",
+    "+DEAL_TARGET: Vessant",
+    "+DEAL_VALUE: $1.1bn"
+   ],
+   "ms": 2080,
+   "output": "[DEAL_CODENAME] DEAL_CODENAME: Vessant\n[DEAL_TARGET] DEAL_TARGET: Vessant\n[DEAL_VALUE] DEAL_VALUE: $1.1bn"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-fr-005",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 942,
+   "output": "[DEAL_CODENAME] DEAL_CODENAME: NONE\n[DEAL_TARGET] DEAL_TARGET: NONE\n[DEAL_VALUE] DEAL_VALUE: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-DEAL_TARGET: Fellbeck Tooling",
+    "-DEAL_VALUE: £41m"
+   ],
+   "ms": 848,
+   "output": "[DEAL_CODENAME] DEAL_CODENAME: NONE\n[DEAL_TARGET] DEAL_TARGET: Fellbeck Tooling\n[DEAL_VALUE] DEAL_VALUE: £41m"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-fr-045",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+DEAL_TARGET: Sorvane Industrie",
+    "+DEAL_VALUE: 31,5 M€"
+   ],
+   "ms": 999,
+   "output": "[DEAL_CODENAME] Text: Petit point avant la réunion : on reparle de Project Larkspur jeudi, tu peux reformuler ce message?\n[DEAL_TARGET] DEAL_TARGET: Sorvane Industrie\n[DEAL_VALUE] DEAL_VALUE: 31,5 M€"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-en-004",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 863,
+   "output": "[STUDY_NAME] STUDY_NAME: NONE\n[PARTNER_LAB] PARTNER_LAB: NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-fr-004",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+PARTNER_LAB: Solenne Biotech"
+   ],
+   "ms": 762,
+   "output": "[STUDY_NAME] STUDY_NAME: NONE\n[PARTNER_LAB] PARTNER_LAB: Solenne Biotech\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-fr-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 875,
+   "output": "[STUDY_NAME] STUDY_NAME: NONE\n[PARTNER_LAB] PARTNER_LAB: NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-en-034",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 893,
+   "output": "[STUDY_NAME] STUDY_NAME: NONE\n[PARTNER_LAB] PARTNER_LAB: NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-en-040",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Pembrook Dental Group",
+    "+PROSPECT_NAME: Pembrook Dental Group"
+   ],
+   "ms": 938,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: Pembrook Dental Group\n[PROSPECT_NAME] PROSPECT_NAME: Pembrook Dental Group"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-fr-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 515,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: NONE\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-en-039",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 529,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: NONE\n[PROSPECT_NAME] PROSPECT_NAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 669,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: NONE\n[PROSPECT_NAME] Text: Petit point avant la réunion : on reparle de Hadley Freight jeudi, tu peux reformuler ce message?"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-en-007",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Ms Imogen Castellanos"
+   ],
+   "ms": 498,
+   "output": "[CUSTOMER_NAME] Ms Imogen Castellanos\n[ACCOUNT_REF] Text: Quick update before the call: ORD-2291-7734 is still on the list for next week, can you tidy up this paragraph?"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-fr-019",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_NAME: Mme Karadeniz"
+   ],
+   "ms": 489,
+   "output": "[CUSTOMER_NAME] CUSTOMER_NAME: Mme Karadeniz\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 489,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-en-045",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "+CUSTOMER_NAME: Seraphina Kowalski",
+    "+ACCOUNT_REF: ORD-5906-3321",
+    "+ACCOUNT_REF: PX-742018"
+   ],
+   "ms": 855,
+   "output": "[CUSTOMER_NAME] Seraphina Kowalski\n[ACCOUNT_REF] ORD-5906-3321"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-en-014",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CLIENT_NAME: Grenadine & Co"
+   ],
+   "ms": 671,
+   "output": "[CLIENT_NAME] CLIENT_NAME: Grenadine & Co\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-en-025",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 756,
+   "output": "[CLIENT_NAME] CLIENT_NAME: NONE\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-en-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 512,
+   "output": "[CLIENT_NAME] CLIENT_NAME: NONE\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 631,
+   "output": "[CLIENT_NAME] CLIENT_NAME: NONE\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-fr-011",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 630,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-fr-045",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CLIENT_NAME: Banque Castellane",
+    "+CAMPAIGN_CODENAME: Projet Ardoise"
+   ],
+   "ms": 808,
+   "output": "[CLIENT_NAME] CLIENT_NAME: Banque Castellane\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: Projet Ardoise"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-fr-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-CAMPAIGN_CODENAME: Project Kuiper"
+   ],
+   "ms": 650,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: Project Kuiper"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "agency-fr-026",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 518,
+   "output": "[CLIENT_NAME] NONE\n[CAMPAIGN_CODENAME] CAMPAIGN_CODENAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-en-015",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: kafka-b3.int.quillmark.net",
+    "-INTERNAL_SERVICE: kafka-b3.int.quillmark.net"
+   ],
+   "ms": 1129,
+   "output": "[INTERNAL_HOST] INTERNAL_HOST: kafka-b3.int.quillmark.net\n[INTERNAL_SERVICE] INTERNAL_SERVICE: kafka-b3.int.quillmark.net\n[CUSTOMER_ID] CUSTOMER_ID: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-en-046",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+INTERNAL_HOST: pg-primary-02.int.quillmark.net",
+    "-INTERNAL_SERVICE: pg-primary-02.int.quillmark.net"
+   ],
+   "ms": 827,
+   "output": "[INTERNAL_HOST] INTERNAL_HOST: pg-primary-02.int.quillmark.net\n[INTERNAL_SERVICE] INTERNAL_SERVICE: pg-primary-02.int.quillmark.net\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-en-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 831,
+   "output": "[INTERNAL_HOST] INTERNAL_HOST: NONE\n[INTERNAL_SERVICE] INTERNAL_SERVICE: NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-en-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 762,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] INTERNAL_SERVICE: NONE\n[CUSTOMER_ID] CUSTOMER_ID: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-fr-011",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_SERVICE: qm-docgen"
+   ],
+   "ms": 791,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] qm-docgen\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-fr-024",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+INTERNAL_HOST: harbor.corp"
+   ],
+   "ms": 1406,
+   "output": "[INTERNAL_HOST] INTERNAL_HOST: harbor.corp\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-fr-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1017,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "dev-fr-032",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1121,
+   "output": "[INTERNAL_HOST] NONE\n[INTERNAL_SERVICE] NONE\n[CUSTOMER_ID] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 485,
+   "output": "[UNPUBLISHED_FIGURE] UNPUBLISHED_FIGURE: NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-en-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 836,
+   "output": "[UNPUBLISHED_FIGURE] UNPUBLISHED_FIGURE: q3 prelim: rev 1.41bn, gm 40.8, ebit mgn 12.2\n[INTERNAL_FORECAST] INTERNAL_FORECAST: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 778,
+   "output": "[UNPUBLISHED_FIGURE] UNPUBLISHED_FIGURE: Financial results that have not been published yet: revenue, margins, profit, cash, segment numbers for the current or last quarter.\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-en-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-INTERNAL_FORECAST: FY26 guidance of 3-4% organic sales growth"
+   ],
+   "ms": 750,
+   "output": "[UNPUBLISHED_FIGURE] UNPUBLISHED_FIGURE: NONE\n[INTERNAL_FORECAST] INTERNAL_FORECAST: FY26 guidance of 3-4% organic sales growth"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-fr-002",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 587,
+   "output": "[UNPUBLISHED_FIGURE] UNPUBLISHED_FIGURE: ROC annual at £396M and annual revenue at £5.49 billion\n[INTERNAL_FORECAST] INTERNAL_FORECAST: un ROC annuel à 396 M£ et un CA annuel de 5,49 Md£"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-fr-027",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 3,
+   "predicted": [],
+   "ms": 649,
+   "output": "[UNPUBLISHED_FIGURE] UNPUBLISHED_FIGURE: T3 revenue of £1,380 million and FY RF3 cash of £5.51 million\n[INTERNAL_FORECAST] INTERNAL_FORECAST: RF3 FY at 5,51 Md£"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-fr-049",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1031,
+   "output": "[UNPUBLISHED_FIGURE] UNPUBLISHED_FIGURE: NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "finance-fr-011",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 565,
+   "output": "[UNPUBLISHED_FIGURE] UNPUBLISHED_FIGURE: NONE\n[INTERNAL_FORECAST] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-en-001",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+CANDIDATE_NAME: Declan"
+   ],
+   "ms": 1000,
+   "output": "[CANDIDATE_NAME] CANDIDATE_NAME: Declan\n[SOURCE_COMPANY] Text: Quick update before the call: Kestrin Automation is still on the list for next week, can you tidy up this paragraph?\n[COMPENSATION] COMPENSATION: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-en-046",
+   "failure": "ok",
+   "found": 2,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: Nadia Haddad",
+    "+SOURCE_COMPANY: Arkwell Automation"
+   ],
+   "ms": 979,
+   "output": "[CANDIDATE_NAME] CANDIDATE_NAME: Nadia Haddad\n[SOURCE_COMPANY] SOURCE_COMPANY: Arkwell Automation\n[COMPENSATION] COMPENSATION: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1117,
+   "output": "[CANDIDATE_NAME] CANDIDATE_NAME: NONE\n[SOURCE_COMPANY] SOURCE_COMPANY: NONE\n[COMPENSATION] COMPENSATION: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-en-027",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-SOURCE_COMPANY: Boston Dynamics"
+   ],
+   "ms": 881,
+   "output": "[CANDIDATE_NAME] Text: Quick update before the call: Maëlle Dufrasne is still on the list for next week, can you tidy up this paragraph?\n[SOURCE_COMPANY] SOURCE_COMPANY: Boston Dynamics\n[COMPENSATION] COMPENSATION: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-fr-010",
+   "failure": "ok",
+   "found": 3,
+   "expected": 3,
+   "predicted": [
+    "+CANDIDATE_NAME: Margaux Delorme",
+    "+COMPENSATION: IC5 avec un fixe de 78 K€"
+   ],
+   "ms": 1600,
+   "output": "[CANDIDATE_NAME] CANDIDATE_NAME: Margaux Delorme\n[SOURCE_COMPANY] SOURCE_COMPANY: NONE\n[COMPENSATION] COMPENSATION: IC5 avec un fixe de 78 K€"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-fr-044",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 12,
+   "predicted": [],
+   "ms": 1432,
+   "output": "[CANDIDATE_NAME] CANDIDATE_NAME: NONE\n[SOURCE_COMPANY] SOURCE_COMPANY: NONE\n[COMPENSATION] COMPENSATION: 61000, 70000, IC4"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 780,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] SOURCE_COMPANY: NONE\n[COMPENSATION] COMPENSATION: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "hr-fr-042",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 807,
+   "output": "[CANDIDATE_NAME] NONE\n[SOURCE_COMPANY] SOURCE_COMPANY: NONE\n[COMPENSATION] COMPENSATION: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-en-017",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 2785,
+   "output": "[DEAL_CODENAME] DEAL_CODENAME: Project Bramble\n[DEAL_TARGET] DEAL_TARGET: NONE\n[DEAL_VALUE] DEAL_VALUE: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-en-049",
+   "failure": "ok",
+   "found": 1,
+   "expected": 3,
+   "predicted": [
+    "+DEAL_CODENAME: Project Marram"
+   ],
+   "ms": 950,
+   "output": "[DEAL_CODENAME] DEAL_CODENAME: Project Marram\n[DEAL_TARGET] DEAL_TARGET: NONE\n[DEAL_VALUE] DEAL_VALUE: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-en-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 941,
+   "output": "[DEAL_CODENAME] DEAL_CODENAME: NONE\n[DEAL_TARGET] DEAL_TARGET: NONE\n[DEAL_VALUE] DEAL_VALUE: 10 million upfront plus up to 5 million more if revenue targets are hit over 2 years"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-en-040",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 1235,
+   "output": "[DEAL_CODENAME] DEAL_CODENAME: NONE\n[DEAL_TARGET] DEAL_TARGET: NONE\n[DEAL_VALUE] DEAL_VALUE: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-fr-016",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 809,
+   "output": "[DEAL_CODENAME] DEAL_CODENAME: NONE\n[DEAL_TARGET] DEAL_TARGET: NONE\n[DEAL_VALUE] DEAL_VALUE: 22.40 € par action"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-fr-047",
+   "failure": "ok",
+   "found": 0,
+   "expected": 1,
+   "predicted": [
+    "-DEAL_TARGET: Castine"
+   ],
+   "ms": 2240,
+   "output": "[DEAL_CODENAME] DEAL_CODENAME: NONE\n[DEAL_TARGET] DEAL_TARGET: Castine\n[DEAL_VALUE] DEAL_VALUE: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-fr-031",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 842,
+   "output": "[DEAL_CODENAME] DEAL_CODENAME: NONE\n[DEAL_TARGET] DEAL_TARGET: NONE\n[DEAL_VALUE] DEAL_VALUE: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "legal-fr-036",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 896,
+   "output": "[DEAL_CODENAME] DEAL_CODENAME: NONE\n[DEAL_TARGET] DEAL_TARGET: NONE\n[DEAL_VALUE] DEAL_VALUE: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-en-013",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+PARTNER_LAB: Institut Beaulac"
+   ],
+   "ms": 1735,
+   "output": "[STUDY_NAME] STUDY_NAME: NONE\n[PARTNER_LAB] PARTNER_LAB: Institut Beaulac\n[EARLY_RESULT] EARLY_RESULT: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-en-025",
+   "failure": "ok",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 1684,
+   "output": "[STUDY_NAME] STUDY_NAME: NONE\n[PARTNER_LAB] PARTNER_LAB: NONE\n[EARLY_RESULT] EARLY_RESULT: 0.67-fold reduction in crypt budding (p = 0.03) in treated organoids across all four donors"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-en-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 880,
+   "output": "[STUDY_NAME] STUDY_NAME: NONE\n[PARTNER_LAB] PARTNER_LAB: NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-en-044",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 866,
+   "output": "[STUDY_NAME] STUDY_NAME: NONE\n[PARTNER_LAB] PARTNER_LAB: NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-fr-010",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 778,
+   "output": "[STUDY_NAME] STUDY_NAME: Colibri (ADN circulaire plasmatique)\n[PARTNER_LAB] PARTNER_LAB: NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-fr-050",
+   "failure": "ok",
+   "found": 0,
+   "expected": 4,
+   "predicted": [],
+   "ms": 842,
+   "output": "[STUDY_NAME] STUDY_NAME: NONE\n[PARTNER_LAB] PARTNER_LAB: NONE\n[EARLY_RESULT] EARLY_RESULT: Unpublished quantitative results: effect sizes, p-values, response rates, hit counts. Write NONE when the text has none."
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-fr-035",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 890,
+   "output": "[STUDY_NAME] STUDY_NAME: NONE\n[PARTNER_LAB] PARTNER_LAB: NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "research-fr-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 729,
+   "output": "[STUDY_NAME] STUDY_NAME: NONE\n[PARTNER_LAB] PARTNER_LAB: NONE\n[EARLY_RESULT] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-en-033",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+UNRELEASED_PRODUCT: Marlowe"
+   ],
+   "ms": 1760,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: Marlowe\n[PROSPECT_NAME] Text: Quick update before the call: Hadley Freight is still on the list for next week, can you tidy up this paragraph?"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-en-029",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+PROSPECT_NAME: Harcastle"
+   ],
+   "ms": 770,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: NONE\n[PROSPECT_NAME] PROSPECT_NAME: Harcastle"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-en-003",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-UNRELEASED_PRODUCT: Project Titan"
+   ],
+   "ms": 947,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: Project Titan\n[PROSPECT_NAME] PROSPECT_NAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-en-009",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 613,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: NONE\n[PROSPECT_NAME] PROSPECT_NAME: NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-fr-015",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 695,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: NONE\n[PROSPECT_NAME] Text: Prochaines étapes Coopérative Agrivelle :"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-fr-031",
+   "failure": "ok",
+   "found": 1,
+   "expected": 2,
+   "predicted": [
+    "+PROSPECT_NAME: Menuiseries Rouvray"
+   ],
+   "ms": 498,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: None\n[PROSPECT_NAME] Menuiseries Rouvray"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-fr-012",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [
+    "-PROSPECT_NAME: Draxon Systems"
+   ],
+   "ms": 574,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: NONE\n[PROSPECT_NAME] PROSPECT_NAME: Draxon Systems"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "sales-fr-048",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 2758,
+   "output": "[UNRELEASED_PRODUCT] UNRELEASED_PRODUCT: NONE\n[PROSPECT_NAME] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-en-011",
+   "failure": "ok",
+   "found": 1,
+   "expected": 1,
+   "predicted": [
+    "+CUSTOMER_NAME: Gideon Achterberg"
+   ],
+   "ms": 547,
+   "output": "[CUSTOMER_NAME] Gideon Achterberg\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-en-020",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 1,
+   "predicted": [],
+   "ms": 517,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] ORD-8841-2290"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-en-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 732,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] Text: Quick update before the call: ORD-2291-7734 is still on the list for next week, can you tidy up this paragraph?"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-en-041",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 583,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-fr-017",
+   "failure": "ok",
+   "found": 2,
+   "expected": 2,
+   "predicted": [
+    "+CUSTOMER_NAME: Mr Leopold Hartmann",
+    "+ACCOUNT_REF: ORD-2750-6481"
+   ],
+   "ms": 501,
+   "output": "[CUSTOMER_NAME] Mr Leopold Hartmann\n[ACCOUNT_REF] ORD-2750-6481"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-fr-021",
+   "failure": "hallucinated",
+   "found": 0,
+   "expected": 2,
+   "predicted": [],
+   "ms": 638,
+   "output": "[CUSTOMER_NAME] Mrs Odile Varennes\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-fr-030",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 503,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] NONE"
+  },
+  {
+   "model": "nova-micro-system",
+   "config": "shipped",
+   "caseId": "support-fr-033",
+   "failure": "ok",
+   "found": 0,
+   "expected": 0,
+   "predicted": [],
+   "ms": 735,
+   "output": "[CUSTOMER_NAME] NONE\n[ACCOUNT_REF] NONE"
+  }
+ ]
+}

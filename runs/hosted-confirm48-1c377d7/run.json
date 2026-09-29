@@ -1,0 +1,102 @@
+{
+  "name": "hosted-confirm48-1c377d7",
+  "tier": "quick",
+  "split": "dev",
+  "cases": 48,
+  "instructions": [
+    "current"
+  ],
+  "labelVariants": [
+    "desc"
+  ],
+  "models": [
+    {
+      "id": "bedrock/eu.amazon.nova-micro-v1:0#prefill",
+      "jobs": 48,
+      "computed": 0,
+      "hosted": {
+        "requests": 120,
+        "inputTokens": 27188,
+        "outputTokens": 2873,
+        "usd": 0.00147,
+        "usdPer1000Prompts": 0.0306
+      }
+    },
+    {
+      "id": "bedrock/eu.amazon.nova-micro-v1:0#system",
+      "jobs": 48,
+      "computed": 0,
+      "hosted": {
+        "requests": 120,
+        "inputTokens": 27217,
+        "outputTokens": 1273,
+        "usd": 0.001228,
+        "usdPer1000Prompts": 0.0256
+      }
+    },
+    {
+      "id": "bedrock/eu.amazon.nova-micro-v1:0#native-v2",
+      "jobs": 48,
+      "computed": 0,
+      "hosted": {
+        "requests": 120,
+        "inputTokens": 40533,
+        "outputTokens": 640,
+        "usd": 0.001638,
+        "usdPer1000Prompts": 0.0341
+      }
+    },
+    {
+      "id": "bedrock/zai.glm-4.7-flash#prefill",
+      "jobs": 48,
+      "computed": 0,
+      "hosted": {
+        "requests": 120,
+        "inputTokens": 26345,
+        "outputTokens": 1294,
+        "usd": 0.002729,
+        "usdPer1000Prompts": 0.0568
+      }
+    },
+    {
+      "id": "bedrock/zai.glm-4.7-flash#system",
+      "jobs": 48,
+      "computed": 0,
+      "hosted": {
+        "requests": 120,
+        "inputTokens": 26225,
+        "outputTokens": 1575,
+        "usd": 0.002854,
+        "usdPer1000Prompts": 0.0595
+      }
+    },
+    {
+      "id": "bedrock/zai.glm-4.7-flash#native-v2",
+      "jobs": 48,
+      "computed": 0,
+      "hosted": {
+        "requests": 120,
+        "inputTokens": 40013,
+        "outputTokens": 622,
+        "usd": 0.0035,
+        "usdPer1000Prompts": 0.0729
+      }
+    }
+  ],
+  "ext": {
+    "ref": "1c377d7",
+    "sha": "1c377d7739724fcea5c7fdfbd43a6c8fcce94c8f",
+    "subject": "feat(popup): show custom labels in the main Local AI redaction settings (#44)",
+    "committedAt": "2026-09-29T13:26:17+02:00",
+    "transformersRange": "^3.8.1"
+  },
+  "datasetHash": "3c9142bb5592c1adb3abb4eee4fca65311c2f09ee2113721ac152d316a8b7d5a",
+  "runtime": "onnxruntime-web WASM (q8) in Node 24.18.0 via @huggingface/transformers; deterministic greedy decoding; generation budget 30 s per request (from the ref); hosted models: Amazon Bedrock Converse (temperature 0, topK 1, 48-token cap, first line), latency per request network included, throttling retries excluded",
+  "machine": "Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz x8, 7.1 GiB RAM, linux",
+  "node": "24.18.0",
+  "startedAt": "2026-09-29T13:17:44.485Z",
+  "finishedAt": "2026-09-29T13:17:44.521Z",
+  "estimateSeconds": 0,
+  "wallSeconds": 0,
+  "incomplete": 0
+}

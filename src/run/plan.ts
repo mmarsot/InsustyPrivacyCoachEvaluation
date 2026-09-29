@@ -6,6 +6,7 @@
 import { readFileSync } from "node:fs";
 import type { CompiledCase, CompiledDataset, Split } from "../dataset/schema.ts";
 import { join } from "node:path";
+import { HOSTED_MODELS } from "../hosted/bedrock.ts";
 import { MODELS_FILE, ROOT } from "../paths.ts";
 import { INSTRUCTION_VARIANTS, isLabelVariant, LABEL_VARIANTS, type InstructionVariant, type LabelVariantId } from "../variants.ts";
 import { cachedTimings, DEFAULT_QUICK_CASES_PER_PROFILE, jobKey, rulesFor, selectCases, TIERS, type Job, type Tier } from "./jobs.ts";
@@ -15,8 +16,17 @@ export interface ModelInfo {
   short: string;
   priorSecondsPerCase: number;
   priorLoadSeconds: number;
+  /** Hosted chat model (src/hosted/bedrock.ts): its requests go to an API, not a local worker model. */
+  hosted?: boolean;
 }
 export const MODELS: ModelInfo[] = (JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelInfo[] }).models;
+/**
+ * Hosted models the bench can run by name (`--models nova-micro-prefill`).
+ * Never part of `--models all`: they send the dataset to an API and cost money.
+ */
+export const HOSTED_BENCH_MODELS: ModelInfo[] = HOSTED_MODELS.map((h) => ({ id: h.id, short: h.short, priorSecondsPerCase: h.priorSecondsPerCase, priorLoadSeconds: 0, hosted: true }));
+/** A bundled or hosted model by id or short name. */
+export const findBenchModel = (name: string) => [...MODELS, ...HOSTED_BENCH_MODELS].find((x) => x.short === name || x.id === name);
 
 export interface BenchOptions {
   tier: Tier;
@@ -38,6 +48,8 @@ export interface BenchOptions {
   allowMissingSplit: boolean;
   /** `--set <name>`: the dev cases of experiments/sets/<name>.json instead of a tier's selection. */
   set?: string;
+  /** Hosted models: USD the whole hosted evaluation may spend (cached lab and bench requests included). */
+  budgetUsd: number;
 }
 
 /** One label-description variant by default; the others are opt-in (`--label-variants all`). */
@@ -66,7 +78,7 @@ export function parseBenchArgs(argv: readonly string[]): BenchOptions {
   return {
     tier,
     casesPerProfile,
-    models: modelArg === "all" ? MODELS : list(modelArg).map((m) => MODELS.find((x) => x.short === m || x.id === m) ?? bad(`unknown model ${m}`)),
+    models: modelArg === "all" ? MODELS : list(modelArg).map((m) => findBenchModel(m) ?? bad(`unknown model ${m}`)),
     instructions:
       instrArg === "all" ? [...INSTRUCTION_VARIANTS] : list(instrArg).map((i) => INSTRUCTION_VARIANTS.find((v) => v.id === i) ?? bad(`unknown instruction variant ${i}`)),
     labelVariants: labelArg === "all" ? LABEL_VARIANTS.map((v) => v.id) : list(labelArg).map((l) => (isLabelVariant(l) ? l : bad(`unknown label variant ${l}`))),
@@ -81,6 +93,7 @@ export function parseBenchArgs(argv: readonly string[]): BenchOptions {
     cachedOnly: flag("cached-only"),
     allowMissingSplit: flag("allow-missing-split"),
     set: opt("set"),
+    budgetUsd: Number(opt("budget-usd", "5")),
   };
 }
 
@@ -138,8 +151,10 @@ export function casesOfSet(dataset: CompiledDataset, name: string): CompiledCase
   return cases;
 }
 
-/** Mean cached review time on this machine (timeouts included), else the prior from models.json. */
+/** Mean cached review time on this machine (timeouts included), else the prior from models.json; hosted models: their pacing-bound prior. */
 export function secondsPerCase(m: ModelInfo, timings: number[] = cachedTimings(m.id)): number {
+  // Hosted runs are paced (requests per minute): cached latencies would underestimate them.
+  if (m.hosted) return m.priorSecondsPerCase;
   return timings.length >= 10 ? timings.reduce((a, b) => a + b, 0) / timings.length / 1000 : m.priorSecondsPerCase;
 }
 export const estimateSeconds = (m: ModelInfo, pending: number, perCase = secondsPerCase(m)) =>

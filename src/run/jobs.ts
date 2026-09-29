@@ -34,6 +34,8 @@ export interface ChunkRecord {
   error?: string;
   /** The assistant prefill of the request (completion refs: the `LABEL:` answer cue). */
   prefill?: string;
+  /** Hosted models: token usage, cost, Bedrock's own latency, and wall time with throttling retries (`ms` is the successful call). */
+  usage?: { inputTokens: number; outputTokens: number; costUsd: number; serverMs: number; totalMs: number; attempts: number };
 }
 
 export interface ResultRecord {

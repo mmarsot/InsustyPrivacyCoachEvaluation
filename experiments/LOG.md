@@ -1198,3 +1198,248 @@ per-label −17 vs −23, completion −11 vs −15). The confidence filter is t
 largest FP lever after NONE-last (−16.7 FP points for −1.3 F1). The
 stop-word fix is ±0: its one tune96 case ("simple terms" in legal-en-040) is
 now dropped by the confidence filter. Ledger: `docs/shipped-improvements.md`.
+
+## 2026-09-29
+
+### B1-B2. Amazon Nova Micro on Bedrock with the shipped request, two chat framings (lab, `b1-nova-tune96`, `b2-nova-confirm48`)
+
+Question (captain): for a future "connect your own trusted hosted model"
+option, how does a small hosted chat model do on the same benchmark and
+prompts as the bundled SmolLM2-360M? Backend: `src/hosted/bedrock.ts`
+(README "Hosted models"), Amazon Nova Micro through the EU inference
+profile `eu.amazon.nova-micro-v1:0` called in eu-north-1, Converse API,
+temperature 0 and topK 1, 48-token cap, answer cut at its first line in
+code (Converse rejects `\n` as a stop sequence). The request is the
+`shipped` configuration's, byte for byte the extension's
+(`src/hosted/parity.ts`: every tune96, confirm48 and held-out per-label
+request equals what the ref's own `reviewPrompt` hands its model client at
+`main` @ c1407a4, except the 10 / 4 / 17 requests of prompts with fenced
+code, which the ref has skipped since PR #42, see below). Two framings:
+
+- `nova-micro-prefill`: the completion text (instruction line,
+  demonstrations, `Text: …`) as the user turn, and the assistant turn
+  prefilled with the cue `LABEL:` (Converse accepts assistant prefill for
+  Nova);
+- `nova-micro-system`: the instruction line as the system prompt, and the
+  demonstrations, text and cue as the user turn, with no prefill.
+
+Parsing, plausibility filter, patterns and scoring are the lab's `shipped`
+ones. **The answer-confidence filter (0.2) cannot apply:** the Converse
+response has no token probabilities (API reference: `output`, `stopReason`,
+`usage`, `metrics`, `trace`), and we found no documented logprobs option for
+Nova. Every hosted answer is kept. A "connect a trusted model" feature has
+to replace that precision lever by something else, or accept that it is
+missing.
+
+Parser fix found on the way: the system framing often answers
+`CLIENT_NAME: NONE`. The lab's `passagesToLines` checked NONE before
+stripping a repeated cue, so it kept "NONE" as a passage. The ref's
+`labelAnswerLines` strips the cue first. The lab now does the same
+(`tests/hosted.test.ts`). SmolLM2 never repeats the cue after the prefill,
+and its `shipped` numbers are unchanged.
+
+SmolLM2-360M baseline: lab `shipped` on tune96 (`b0-smol360-tune96`). On
+confirm48 the cached baseline is `shipped-no-pinned`
+(`b0-smol360-confirm48`). Pinned decoding is a no-op on SmolLM2 (identical
+outputs, A2; `shipped` and `shipped-no-pinned` are equal on tune96), so it
+is the same answers, but it is not a `shipped` run (the captain asked not
+to rerun it). SmolLM2 has the confidence filter; Nova cannot have it.
+
+| set | model / framing | F1o | P | R | F1x | Px | Rx | det | FPR | EN F1 / FPR | FR F1 / FPR | p50 | p95 | USD / 1k prompts |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tune96 | SmolLM2-360M `shipped` (local) | 38.2 | 55.6 | 29.1 | 34.4 | 50.0 | 26.2 | 38.9 | 21.4 | 44.2 / 19.0 | 32.5 / 23.8 | 2.56 s | 6.32 s | 0 |
+| tune96 | Nova Micro, prefill | **61.0** | 71.1 | **53.4** | **53.6** | 63.2 | 46.6 | **72.2** | **14.3** | 63.4 / 14.3 | **58.4** / 14.3 | 0.97 s | 1.63 s | 0.032 |
+| tune96 | Nova Micro, system | 55.0 | **74.1** | 43.7 | 46.0 | 63.8 | 35.9 | 57.4 | **14.3** | 61.6 / 19.0 | 48.0 / 9.5 | 0.81 s | 2.08 s | 0.027 |
+| confirm48 | SmolLM2-360M `shipped-no-pinned` (local) | 43.1 | 54.8 | 35.6 | 35.6 | 42.9 | 30.5 | 43.8 | 50.0 | 44.4 / 75.0 | 41.0 / 25.0 | 2.37 s | 6.50 s | 0 |
+| confirm48 | Nova Micro, prefill | 67.1 | 74.5 | 61.0 | 56.4 | 60.8 | 52.5 | 71.9 | 43.8 | 58.9 / 50.0 | 76.6 / 37.5 | 0.82 s | 1.21 s | 0.031 |
+| confirm48 | Nova Micro, system | **68.3** | **83.7** | 57.6 | 52.9 | 62.8 | 45.8 | 71.9 | **25.0** | 66.9 / 25.0 | 69.8 / 25.0 | 0.83 s | 1.11 s | 0.027 |
+
+(Latency is per prompt: the sum of its 2-3 per-label requests, sent one at
+a time, network included and throttling retries excluded. Per request: p50
+0.3-0.4 s, p95 0.5-0.7 s, of which Bedrock reports ~0.25 s. confirm48 has
+16 negatives, so one false positive is 6 FP points.)
+
+- **Both framings beat SmolLM2 by a wide margin** on both sets: +17 to +25
+  F1, with higher precision and recall, a lower or equal FP rate, 3x lower
+  latency, and French as good as English.
+- **Prefill vs system:** prefill finds more (recall +10 on tune96, +3 on
+  confirm48). The system framing is more precise and flags fewer negatives on
+  confirm48 (25% vs 44%), with F1 tied there. Prefill wins tune96 by 6 F1
+  at the same FP rate.
+- **Errors:** half of prefill's wrong findings on tune96 (11 of 22; system
+  6 of 15) are the right passage under a second label of the same profile
+  (the client name also reported as CAMPAIGN_CODENAME, a host also as
+  INTERNAL_SERVICE). Each per-label request cannot see the other labels.
+  For redaction the passage is still hidden, so the strict label metric
+  understates Nova here. Hallucinated answers (dropped by anchoring) are
+  mostly a label example copied from the demonstrations ("Q3 revenue of
+  £1.284bn", "€87k base").
+- **Prefill run-on:** in 145 of 360 prefill answers Nova keeps writing a new
+  `Text:` demonstration until the 48-token cap. The first-line cut makes
+  this harmless for quality, but it doubles output tokens (26 vs 13 per
+  request) and adds latency. A `\nText:` stop sequence (non-blank, so
+  Converse accepts it) would remove it.
+- **Throttling:** about two in three calls got HTTP 429 (retried with
+  backoff). The cause is this test account's limit of 20 requests per
+  minute for Nova Micro (B3), not the model.
+
+### B3-B5. Hosted models through the bench: Nova Micro and GLM-4.7 Flash, three framings (runs `hosted-tune96-1c377d7`, `hosted-confirm48-1c377d7`)
+
+After B1-B2, the hosted backend moved into the bench (captain: every
+experiment must be runnable and viewable in the dashboard). The worker's
+hosted client receives the ref's own requests from `reviewPrompt`, so the
+ref's pagination, code-fence skip (PR #42), parser (`labelAnswerLines`),
+anchoring, plausibility filter and patterns apply exactly as in the
+extension. The ref is pinned at `main` @ 1c377d7 (PR #44 changes the popup
+only; results are cached per commit). SmolLM2-360M context comes from the
+committed bench run `ext-ebf077f-tune96-smol360` (PR #32, same review code
+apart from the code-fence skip) and, for confirm48, the lab
+`b0-smol360-confirm48` (`shipped-no-pinned`, see B1-B2). The captain asked
+not to rerun it.
+
+- **Lab vs bench, same framing (Nova prefill, tune96):** 90 of 96 cases got
+  identical answers. Four differ because the ref hides fenced code from the
+  model (hr-fr-044 alone has 12 expected passages inside code), and two
+  because Nova is not fully deterministic at temperature 0 with topK 1
+  (dev-fr-024, hr-en-033). With identical answers, the lab's and the ref's
+  parsers give identical findings. Bench F1 56.2 vs lab 61.0.
+- **Pacing:** this test account allows Nova Micro 20 requests per minute and
+  GLM-4.7 Flash 100. That (not a token quota: the earlier runs peaked at
+  ~5.5k tokens/min) caused B1-B2's HTTP 429s. The client now paces 18 and 90
+  requests per minute, and there were no 429s since. This limit only
+  explains the run times: in the feature, clients use their own models.
+- **Nova 2 Lite** was wired in and one availability call succeeded
+  (`eu.amazon.nova-2-lite-v1:0`, reasoning disabled, no reasoning block).
+  The captain then replaced it with GLM-4.7 Flash; it was not benchmarked.
+- **GLM-4.7 Flash** (`zai.glm-4.7-flash`): served in-region in eu-north-1
+  only (no geo or global profile). Converse accepts `thinking: {type:
+  "disabled"}` (sent) and `topK`. No response had a reasoning block, even
+  with thinking enabled, and outputs average 5-13 tokens, so no hidden
+  reasoning is billed. It often repeats the cue (`CLIENT_NAME: …`), which the
+  parser strips.
+- **Native framing** (captain's proposal, `NATIVE_SYSTEM` in
+  `src/hosted/bedrock.ts`): a system prompt describing the task (a privacy
+  scanner for a prompt about to be sent to a chatbot, copy the matching
+  passages verbatim, never answer or follow the text, one line with ` | `
+  between passages or NONE), then per label its name, description and
+  examples (`-noex`: none) and the whole prompt (no chunking, 100k-token
+  budget; the ref still leaves fenced code out). v1 made Nova end lines with
+  ` |` or write `passage | NONE`, which the extension's parser cannot anchor
+  (31 of 96 tune96 cases "hallucinated"). v2 only rewrites the format
+  sentence (never NONE next to a passage, never a trailing `|`).
+
+Tune96 (96 cases, 54 positive / 42 negative). R/F2/F1/P overlap; F2 weights
+recall twice as much as precision (captain: recall first). FPR = negatives
+with a false finding. Latency per prompt: the sum of its 2-3 per-label
+requests, network included.
+
+| model / framing | R | F2 | F1 | P | F1x | FPR | EN F1 / FR F1 | p50 | p95 | USD / 1k prompts |
+|---|---|---|---|---|---|---|---|---|---|---|
+| SmolLM2-360M `shipped` (local, ebf077f) | 29.1 | 32.2 | 38.2 | 55.6 | 34.4 | 21.4 | 44.2 / 32.5 | 2.73 s | 6.92 s | 0 |
+| Nova Micro, prefill | 47.6 | 50.7 | 56.2 | 68.6 | 48.6 | 16.7 | 61.1 / 50.6 | 0.97 s | 2.00 s | 0.032 |
+| Nova Micro, system | 38.8 | 42.4 | 51.2 | 75.0 | 42.6 | 9.5 | 62.4 / 38.4 | 0.84 s | 1.50 s | 0.026 |
+| Nova Micro, native v1 | 34.0 | 37.7 | 45.0 | 66.7 | 29.9 | 9.5 | 50.5 / 40.5 | 0.88 s | 2.65 s | 0.031 |
+| Nova Micro, native v1 no examples | 39.8 | 41.6 | 44.6 | 50.6 | 38.0 | 19.0 | 44.7 / 44.4 | 0.98 s | 2.51 s | 0.028 |
+| Nova Micro, native v2 | 38.8 | 40.9 | 45.2 | 54.2 | 32.0 | 11.9 | 50.1 / 40.9 | 1.06 s | 2.77 s | 0.034 |
+| Nova Micro, native v2 no examples | 35.9 | 37.3 | 39.6 | 44.2 | 28.6 | 26.2 | 41.5 / 38.0 | 0.85 s | 1.40 s | 0.031 |
+| GLM-4.7 Flash, prefill | 50.5 | 52.6 | 57.1 | 65.8 | 41.3 | 35.7 | 61.6 / 53.3 | 0.75 s | 2.22 s | 0.059 |
+| GLM-4.7 Flash, system | 51.5 | 51.8 | 52.8 | 54.3 | 40.6 | 52.4 | 59.0 / 46.5 | 0.67 s | 1.29 s | 0.058 |
+| GLM-4.7 Flash, native v2 | **68.0** | **66.4** | **64.6** | 61.5 | 47.2 | 33.3 | 67.3 / 61.8 | 0.65 s | 1.73 s | 0.072 |
+| GLM-4.7 Flash, native v2 no examples | 68.0 | 58.7 | 51.1 | 41.0 | 35.7 | 47.6 | 52.2 / 50.0 | 0.61 s | 1.81 s | 0.069 |
+
+Confirm48 (48 cases, 16 negatives: one false positive is 6 FP points), the
+best two framings of each model plus native v2:
+
+| model / framing | R | F2 | F1 | P | F1x | FPR | EN F1 / FR F1 | p50 | p95 | USD / 1k prompts |
+|---|---|---|---|---|---|---|---|---|---|---|
+| SmolLM2-360M `shipped-no-pinned` (lab) | 35.6 | 37.0 | 43.1 | 54.8 | 35.6 | 50.0 | 44.4 / 41.0 | 2.37 s | 6.50 s | 0 |
+| Nova Micro, prefill | 57.6 | 60.0 | 64.0 | 72.0 | 53.2 | 50.0 | 53.0 / 76.6 | 0.92 s | 1.39 s | 0.031 |
+| Nova Micro, system | 52.5 | 56.7 | 64.2 | 82.5 | 50.5 | 25.0 | 59.5 / 69.8 | 0.88 s | 1.33 s | 0.026 |
+| Nova Micro, native v2 | 28.8 | 31.8 | 37.7 | 54.5 | 26.1 | 31.2 | 49.5 / 17.6 | 0.88 s | 1.49 s | 0.034 |
+| GLM-4.7 Flash, prefill | **62.7** | **64.1** | **66.2** | 70.2 | 53.4 | 37.5 | 57.4 / 76.2 | 0.69 s | 3.34 s | 0.057 |
+| GLM-4.7 Flash, system | 55.9 | 56.7 | 57.9 | 60.0 | 40.3 | 56.2 | 49.4 / 67.5 | 0.73 s | 1.18 s | 0.060 |
+| GLM-4.7 Flash, native v2 | 57.6 | 57.1 | 56.3 | 55.1 | 45.3 | 56.2 | 58.7 / 53.1 | 0.64 s | 1.22 s | 0.073 |
+
+Pooled dev (tune96 + confirm48, 144 cases):
+
+| model / framing | R | F2 | F1 | P | FPR |
+|---|---|---|---|---|---|
+| GLM-4.7 Flash, native v2 | **64.2** | **63.1** | **61.5** | 59.0 | 39.7 |
+| GLM-4.7 Flash, prefill | 54.9 | 57.1 | 60.6 | 67.7 | 36.2 |
+| GLM-4.7 Flash, system | 53.1 | 53.7 | 54.7 | 56.5 | 53.4 |
+| Nova Micro, prefill | 51.2 | 54.1 | 59.2 | 70.0 | 25.9 |
+| Nova Micro, system | 43.8 | 48.1 | 56.2 | 78.3 | 13.8 |
+| Nova Micro, native v2 | 35.2 | 37.8 | 42.7 | 54.3 | 17.2 |
+
+- **Every hosted framing but Micro-native beats SmolLM2** on recall, F1
+  and latency (0.6-1.1 s vs 2.4-2.7 s per prompt).
+- **Nova Micro:** prefill finds the most (pooled recall 51), system is the
+  most precise and flags the fewest negatives (FPR 14% vs 26%). The native
+  framing does not suit Micro (pooled recall 35; French F1 18 on
+  confirm48): it needs the demonstrations.
+- **GLM-4.7 Flash** is the better hosted model and the one that benefits
+  from the native task description: native v2 has the best recall and F2 of
+  all (pooled 64 / 63), at the cost of more flagged negatives (40%). Its
+  lead comes from tune96: on confirm48 alone its prefill framing found more
+  (63 vs 58). The label examples matter for precision: without them GLM
+  keeps its recall but flags 48% of tune96 negatives.
+- **Choice for the one-shot held-out run** (recall first, F2 and F1
+  alongside, precision and FPR as context): GLM-4.7 Flash native v2, which
+  beats Micro on every recall metric, and Micro's best, prefill.
+- **Tokens and cost:** a per-label request is ~220-340 input tokens. Answers
+  average 5-13 output tokens, except Micro prefill (26: it keeps writing a
+  new `Text:` demonstration until the 48-token cap, which the first-line cut
+  discards). Per 1,000 prompts: Micro 0.026-0.034 USD, GLM 0.058-0.073 USD.
+- **Latency per request** (network included): Micro p50 0.30-0.38 s (Bedrock
+  server time ~0.25 s), GLM p50 0.23-0.26 s (~0.18 s).
+
+**False positives, by kind** (tune96, label-strict findings that overlap no
+expected passage; captain: false alarms are not a veto, some are an
+information gap):
+
+| kind | GLM native v2 | Micro prefill |
+|---|---|---|
+| right passage, extra or wrong label (the text is still hidden) | 13 | 12 |
+| defensible: matches the label's kind and nothing in the text says otherwise (a second deal amount, a competitor where a prospect could be, a product code, a person's name in a ticket) | 6 | 1 |
+| right kind, but the text itself says it is public (announced deal, published annual report, public guidance, market cap) | 8 | 5 |
+| clearly wrong: generic, textbook or placeholder (tenant_id, host.docker.internal, macro statistics, "Jane Smith", "customer", `[NOM DE L'ÉTUDE]`) | 15 | 4 |
+| total | 42 | 22 |
+
+So about half of each model's false positives are harmless or defensible
+(GLM 19 of 42, Micro 13 of 22). The "public" group is the information gap
+the captain describes: the model sees a deal, a figure or a product, and the
+label description asks it to judge whether it is public, which the text
+often states but a small model does not weigh. GLM's clearly wrong group
+(15) is what its extra recall costs.
+
+### B6. Held-out test split, one shot (run `hosted-test-1c377d7`)
+
+The two framings chosen on dev (B3-B5: GLM-4.7 Flash native v2 by recall,
+and Nova Micro's best, prefill), on the 242 test cases, once, through the
+bench at 1c377d7. SmolLM2-360M context: the committed bench run
+`ext-ebf077f-test-smol360` (extension PR #32, the shipped design; its review
+code differs only by the later code-fence skip).
+
+| model / framing | R | F2 | F1 | P | F1x | det | FPR | EN F1 / FPR | FR F1 / FPR | p50 | p95 | USD / 1k prompts |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| SmolLM2-360M `shipped` (local) | 27.0 | 29.2 | 33.2 | 43.3 | 26.6 | 44.0 | 35.6 | 31.8 / 34.6 | 34.5 / 36.7 | 2.61 s | 9.25 s | 0 |
+| Nova Micro, prefill | 45.3 | 49.0 | 55.8 | **72.6** | **41.9** | **72.3** | **23.8** | 57.8 / 26.9 | 53.9 / 20.4 | 1.00 s | 1.56 s | 0.032 |
+| GLM-4.7 Flash, native v2 | **64.7** | **62.2** | **58.7** | 53.7 | 41.4 | 71.6 | 32.7 | 56.0 / 38.5 | **61.1** / 26.5 | **0.61 s** | **0.97 s** | 0.076 |
+
+(101 negatives. Recall regardless of label: SmolLM2 28.7, Micro 47.4, GLM
+66.8. Right passage under another label: 17 of Micro's 49 wrong findings,
+43 of GLM's 157.)
+
+- **The dev ranking holds.** GLM-4.7 Flash native v2 finds 2.4x as many
+  sensitive passages as the shipped SmolLM2 (recall 65 vs 27), and Nova
+  Micro 1.7x (45), with fewer flagged negatives than SmolLM2 (33% and 24%
+  vs 36%). Latency per prompt drops from 2.6 s (p95 9.3 s) to 0.6-1.0 s
+  (p95 1.0-1.6 s), network included.
+- **Micro vs GLM:** a precision / recall trade. Micro is the most precise
+  (73%) and flags the fewest negatives. GLM finds 19 recall points more, at
+  54% precision. By the captain's recall-first rule GLM-4.7 Flash with the
+  native framing is the best hosted option measured.
+- **Cost:** 0.03 USD (Micro) and 0.08 USD (GLM) per 1,000 prompts, at ~2.5
+  per-label requests per prompt.
+- **Whole evaluation spend:** 0.092 USD (every hosted request, lab and
+  bench, including development calls), against the 5 USD cap.

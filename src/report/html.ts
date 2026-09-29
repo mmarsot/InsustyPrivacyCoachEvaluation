@@ -3,6 +3,7 @@
  * Tables are the primary view; single-hue meter bars only show magnitude.
  */
 import { readFileSync } from "node:fs";
+import { HOSTED_MODELS } from "../hosted/bedrock.ts";
 import { MODELS_FILE } from "../paths.ts";
 import { DIMENSIONS, summarize, type ConfigSummary, type Metrics } from "../score/aggregate.ts";
 import { FAILURE_MODES, type Scored } from "../score/score.ts";
@@ -15,7 +16,10 @@ interface ModelMeta {
   weightsBytes: number;
   languages: { advertised: string[]; fr: string; summary: string; source: string };
 }
-export const loadModelsMeta = (): ModelMeta[] => (JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelMeta[] }).models;
+export const loadModelsMeta = (): ModelMeta[] => [
+  ...(JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelMeta[] }).models,
+  ...HOSTED_MODELS.map((h) => ({ id: h.id, short: h.short, extensionLabel: "hosted", weightsBytes: 0, languages: h.languages })),
+];
 
 export const esc = (s: unknown) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -152,7 +156,7 @@ export function renderReport(meta: RunMeta, rows: Scored[]): string {
   const modelRows = meta.models
     .map(
       (m) =>
-        `<tr><td>${esc(m.id.replace(/^.*\//, ""))}</td><td class="num">${m.jobs}</td><td class="num">${m.computed}</td><td class="num">${m.loadMs === undefined ? "cached" : ms(m.loadMs)}</td><td class="num">${m.peakRssMb === undefined ? "–" : `${m.peakRssMb} MB`}</td><td class="num">${m.wallMs === undefined ? "–" : ms(m.wallMs)}</td></tr>`,
+        `<tr><td>${esc(m.id.replace(/^.*\//, ""))}</td><td class="num">${m.jobs}</td><td class="num">${m.computed}</td><td class="num">${m.loadMs === undefined ? "cached" : ms(m.loadMs)}</td><td class="num">${m.peakRssMb === undefined ? "–" : `${m.peakRssMb} MB`}</td><td class="num">${m.wallMs === undefined ? "–" : ms(m.wallMs)}</td><td class="num">${m.hosted ? `${m.hosted.usd.toFixed(4)} USD (${m.hosted.usdPer1000Prompts.toFixed(4)} per 1,000 prompts, ${m.hosted.requests} requests)` : "–"}</td></tr>`,
     )
     .join("");
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Review Bench ${esc(meta.name)}</title><style>${STYLE}</style></head><body><main>
@@ -170,7 +174,7 @@ ${meta.incomplete ? `<div>Status</div><div><span class="tag bad">incomplete: ${m
 <p><b>F1/precision/recall</b> are passage-level: a passage counts as found when an accepted finding with the right label overlaps it (<i>exact</i>: identical text). <b>Case detection</b>: positive cases with at least one expected passage found. <b>FP rate</b>: negative cases with any custom-label finding. <b>Format OK</b>: output is only valid <code>LABEL: passage</code> lines or <code>NONE</code>. Latency is per case on WASM, instruction prefix already prepared.</p>
 <div class="scroll"><table><thead><tr>${configHeader}${headlineHeader}</tr></thead><tbody>${headline}</tbody></table></div>
 <h3>Per model</h3>
-<div class="scroll"><table><thead><tr><th>Model</th><th class="num">Jobs</th><th class="num">Computed this run</th><th class="num">Load</th><th class="num">Peak RSS</th><th class="num">Wall time</th></tr></thead><tbody>${modelRows}</tbody></table></div>
+<div class="scroll"><table><thead><tr><th>Model</th><th class="num">Jobs</th><th class="num">Computed this run</th><th class="num">Load</th><th class="num">Peak RSS</th><th class="num">Wall time</th><th class="num">API cost</th></tr></thead><tbody>${modelRows}</tbody></table></div>
 ${langSection(summaries, models)}
 ${failureSection(summaries)}
 ${labelSection(summaries)}
