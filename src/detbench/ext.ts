@@ -205,6 +205,8 @@ export async function materializeDetector(repo: string, ref: string, log: (line:
  * Ref category names mapped to the dataset's categories. Today's `API_KEY` is
  * the upgrade's `SECRET`; the other aliases cover plausible spellings of the
  * new categories so a ref that picks one of them is scored without edits.
+ * SIREN, SIRET and VAT numbers are `COMPANY_ID`, as in the upgrade: a ref that
+ * files them under `NATIONAL_ID` scores them as wrong category.
  */
 export const CATEGORY_ALIASES: Record<string, DetCategory> = {
   API_KEY: "SECRET",
@@ -224,6 +226,9 @@ export const CATEGORY_ALIASES: Record<string, DetCategory> = {
   IP: "IP",
   IP_ADDRESS: "IP",
   NETWORK: "IP",
+  COMPANY_ID: "COMPANY_ID",
+  COMPANY: "COMPANY_ID",
+  BUSINESS_ID: "COMPANY_ID",
 };
 export const mapCategory = (category: string): DetCategory | null =>
   CATEGORY_ALIASES[category] ?? ((DET_CATEGORIES as readonly string[]).includes(category) ? (category as DetCategory) : null);

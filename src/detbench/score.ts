@@ -18,10 +18,12 @@
  *   - merged:  a detection overlapping it also overlaps another item (one
  *              span swallowed two values).
  * Items of unsupported categories are kept with `supported: false`; category
- * precision/recall only use supported items.
+ * precision/recall only use supported items. Items, decoys and detections
+ * carry their zone (prose or code block; a detection's is where it starts).
  */
+import { codeRanges, zoneAt } from "./dataset.ts";
 import type { RefDetection } from "./ext.ts";
-import type { DetCase, DetCategory } from "./schema.ts";
+import type { DetCase, DetCategory, Zone } from "./schema.ts";
 
 export type Verdict = "tp" | "wrong_category" | "unsupported_item" | "decoy" | "fp";
 
@@ -38,6 +40,7 @@ export interface ScoredItem {
   redacted: boolean;
   leakFree: boolean;
   merged: boolean;
+  zone: Zone;
   /** Ref categories of the detections overlapping it. */
   detectedAs: string[];
 }
@@ -52,6 +55,7 @@ export interface ScoredDetection {
   exact: boolean;
   items: string[];
   decoyKinds: string[];
+  zone: Zone;
 }
 export interface ScoredDecoy {
   key: string;
@@ -59,6 +63,7 @@ export interface ScoredDecoy {
   value: string;
   flagged: boolean;
   flaggedAs: string[];
+  zone: Zone;
 }
 
 export interface DetScored {
@@ -84,6 +89,7 @@ const overlaps = (a: { start: number; end: number }, b: { start: number; end: nu
 export function scoreDetCase(c: DetCase, detections: RefDetection[], supported: readonly DetCategory[], config: string): DetScored {
   const selected = detections.filter((d) => d.selected);
   const supportedSet = new Set(supported);
+  const code = codeRanges(c.text);
   const scoredDetections: ScoredDetection[] = selected.map((d) => {
     const hits = c.gold.filter((g) => overlaps(g, d));
     const decoyKinds = [...new Set(c.decoySpans.filter((s) => overlaps(s, d)).map((s) => s.kind))];
@@ -108,6 +114,7 @@ export function scoreDetCase(c: DetCase, detections: RefDetection[], supported: 
       exact: own.some((g) => g.start === d.start && g.end === d.end),
       items: [...new Set(hits.map((g) => g.key))],
       decoyKinds,
+      zone: zoneAt(code, d.start),
     };
   });
   const items: ScoredItem[] = c.gold.map((g) => {
@@ -129,12 +136,13 @@ export function scoreDetCase(c: DetCase, detections: RefDetection[], supported: 
       redacted: touching.length > 0,
       leakFree,
       merged: touching.some((d) => d.items.some((k) => k !== g.key)),
+      zone: g.zone,
       detectedAs: [...new Set(touching.map((d) => d.category))],
     };
   });
   const decoys: ScoredDecoy[] = c.decoySpans.map((s) => {
     const touching = scoredDetections.filter((d) => overlaps(s, d) && d.verdict === "decoy");
-    return { key: s.key, kind: s.kind, value: s.value, flagged: touching.length > 0, flaggedAs: [...new Set(touching.map((d) => d.category))] };
+    return { key: s.key, kind: s.kind, value: s.value, flagged: touching.length > 0, flaggedAs: [...new Set(touching.map((d) => d.category))], zone: s.zone };
   });
   return {
     config,

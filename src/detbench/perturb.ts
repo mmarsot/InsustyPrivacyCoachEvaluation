@@ -33,7 +33,7 @@ export const PERTURBATION_INFO: Record<Perturbation, string> = {
   case: "The prose and case-insensitive values (email, IBAN, BIC, VAT, address, hex hashes) lower- or upper-cased; secrets keep their case.",
   linebreak: "A line break inside the value (IBAN or card split over two lines, address on two lines).",
   punctuation: "Values wrapped in quotes, brackets, guillemets or backticks, or followed by punctuation.",
-  code_block: "The whole prompt pasted inside a fenced code block.",
+  code_block: "The whole prompt pasted inside a fenced code block (a longer fence when the prompt already holds one).",
   env: "The values rewritten as a .env / YAML / TOML settings snippet (KEY=value).",
   accents: "Accents stripped from the prose and values (French typed without accents).",
   typo: "A typo in the context word before each value (swap, dropped or doubled letter), or in prose words for negatives.",
@@ -75,6 +75,7 @@ const GROUPINGS: Record<string, number[]> = {
   siret: [3, 3, 3, 5],
   ssn: [3, 2, 4],
   nhs: [3, 3, 4],
+  nino: [2, 2, 2, 2, 1],
 };
 const group = (s: string, sizes: number[]): string[] => {
   const out: string[] = [];
@@ -95,6 +96,8 @@ export function valueTokens(item: Pick<DetItem, "kind">, value: string): string[
   const tokens = plain.split(/[\s.\-/]+/u).filter(Boolean);
   if (tokens.length > 1) return tokens;
   const compact = tokens[0] ?? "";
+  // A compact international number (+14155550139) has no national grouping to restore.
+  if (compact.startsWith("+")) return null;
   if (item.kind === "iban") return by4(compact);
   if (item.kind === "card") return compact.length === 15 ? group(compact, [4, 6, 5]) : by4(compact);
   if (item.kind === "tva") return [compact.slice(0, 2), compact.slice(2, 4), ...group(compact.slice(4), [3, 3, 3])];
@@ -102,7 +105,7 @@ export function valueTokens(item: Pick<DetItem, "kind">, value: string): string[
   return sizes ? group(compact, sizes) : null;
 }
 
-const SPACED_KINDS = new Set(["iban", "card", "phone_fr", "phone_us", "phone_uk", "phone_de", "nir", "siren", "siret", "tva", "ssn", "nhs"]);
+const SPACED_KINDS = new Set(["iban", "card", "phone_fr", "phone_us", "phone_uk", "phone_de", "nir", "siren", "siret", "tva", "ssn", "nhs", "nino"]);
 const SEPARATORS: Record<string, string[]> = {
   phone_fr: [".", "-"],
   phone_us: [".", "-"],
@@ -198,7 +201,7 @@ export function valueForms(type: Perturbation, item: DetItem, value: string, lan
 
 // ------------------------------------------------------------ helpers
 
-const CASE_INSENSITIVE_ITEMS = new Set(["email", "iban", "bic", "tva", "address_fr", "address_us", "address_uk", "ipv6", "passport", "dob"]);
+const CASE_INSENSITIVE_ITEMS = new Set(["email", "iban", "bic", "tva", "address_fr", "address_us", "address_uk", "ipv6", "mac", "passport", "nino", "dob"]);
 const CASE_INSENSITIVE_DECOYS = new Set(["git_sha", "hash", "trace_id", "uuid"]);
 
 const stripAccents = (s: string) => s.normalize("NFD").replace(/\p{Mn}/gu, "").normalize("NFC");
@@ -244,17 +247,20 @@ const ENV_NAMES: Record<string, string> = {
   bic: "PAYOUT_BIC",
   card: "TEST_CARD_NUMBER",
   cvv: "TEST_CARD_CVV",
+  card_expiry: "TEST_CARD_EXPIRY",
   nir: "EMPLOYEE_NIR",
   siren: "COMPANY_SIREN",
   siret: "COMPANY_SIRET",
   tva: "VAT_NUMBER",
   ssn: "EMPLOYEE_SSN",
   nhs: "PATIENT_NHS_NUMBER",
+  nino: "EMPLOYEE_NINO",
   passport: "PASSPORT_NUMBER",
   dob: "DATE_OF_BIRTH",
   ipv4: "PUBLIC_IP",
   ipv4_private: "DB_HOST",
   ipv6: "DB_HOST_V6",
+  mac: "DEVICE_MAC",
   openai_key: "OPENAI_API_KEY",
   anthropic_key: "ANTHROPIC_API_KEY",
   google_api_key: "GOOGLE_MAPS_API_KEY",
@@ -282,6 +288,12 @@ const ENV_NAMES: Record<string, string> = {
   number: "MAX_RETRIES",
   identifier: "SERVICE_NAME",
   url: "API_BASE_URL",
+  invalid_checksum: "LEGACY_REF",
+  loopback: "BIND_HOST",
+  port: "PORT",
+  masked_secret: "API_KEY_HINT",
+  base64: "LOGO_DATA",
+  public_key: "JWT_PUBLIC_KEY",
 };
 
 const LEADS = {
@@ -347,8 +359,11 @@ const PERTURBERS: Record<Perturbation, Perturber> = {
   },
 
   code_block: (c, rng) => {
-    const fence = pick(rng, ["```", "```", "```text", "```bash", "~~~"]);
-    const close = fence.startsWith("~") ? "~~~" : "```";
+    let fence = pick(rng, ["```", "```", "```text", "```bash", "~~~"]);
+    // A prompt that already holds a fence gets a longer one around it, so its own fence does not close the new one.
+    const inner = Math.max(0, ...[...c.text.matchAll(/^ {0,3}(`{3,}|~{3,})/gm)].filter((m) => m[1]![0] === fence[0]).map((m) => m[1]!.length));
+    if (inner) fence = fence[0]!.repeat(inner + 1) + fence.replace(/^[`~]+/, "");
+    const close = fence.match(/^[`~]+/)![0];
     const lead = pick(rng, LEADS.code_block[c.lang]);
     return { parts: tidy([{ t: "text", s: `${lead}\n${fence}\n` }, ...c.parts, { t: "text", s: `\n${close}` }]), note: `fence ${fence}` };
   },

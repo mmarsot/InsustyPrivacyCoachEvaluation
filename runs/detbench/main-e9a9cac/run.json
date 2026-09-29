@@ -50,7 +50,7 @@
     }
   },
   "allConfigNote": "adds address countries US, CA, AU",
-  "datasetHash": "3d96498d478f42641f6e84bd77d8dc5779ab8504dc0e9459b87f3223492ce16f",
+  "datasetHash": "eccfb1df45e5622b84dd474ac570e9b9289421459fd2195f875fa2b7cb14b8cd",
   "seed": 1,
   "variantsPerType": 2,
   "perturbations": [
@@ -65,17 +65,17 @@
     "accents",
     "typo"
   ],
-  "baseCases": 130,
-  "variants": 1500,
+  "baseCases": 207,
+  "variants": 2402,
   "timing": {
-    "calls": 260,
-    "p50Ms": 0.31381999999996424,
-    "p95Ms": 2.4531939999999395,
-    "maxMs": 6.186394000000064,
-    "totalMs": 181.36344499999922
+    "calls": 414,
+    "p50Ms": 0.24238100000002305,
+    "p95Ms": 1.6035349999999653,
+    "maxMs": 4.903485000000046,
+    "totalMs": 194.5848200000002
   },
   "node": "24.18.0",
   "machine": "8 vCPU, 7 GB",
-  "startedAt": "2026-09-29T08:48:02.996Z",
-  "finishedAt": "2026-09-29T08:48:04.459Z"
+  "startedAt": "2026-09-29T09:38:10.631Z",
+  "finishedAt": "2026-09-29T09:38:12.890Z"
 }

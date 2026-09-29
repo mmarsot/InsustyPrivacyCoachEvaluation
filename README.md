@@ -168,21 +168,25 @@ configuration and with every category and address country on. The ref is
 materialized read-only like the model bench, and the detector's npm packages
 are installed at the versions its package-lock pins.
 
-- **Dataset** (`dataset/detbench/`): 130 fictional EN/FR prompts with 198
+- **Dataset** (`dataset/detbench/`): 207 fictional EN/FR prompts with 385
   labelled items across `SECRET`, `EMAIL`, `PHONE`, `ADDRESS`, `FINANCIAL`,
-  `NATIONAL_ID`, `DATE_OF_BIRTH` and `IP` (the detector upgrade's names), plus
-  hard negatives (log timestamps, git SHAs and hashes, trace IDs, versions,
-  prices, dates, plain prose). Many prompts mix several categories. Values are
-  checksum-valid where a checksum exists (IBAN, card, NIR, SIREN/SIRET, VAT,
-  NHS).
+  `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP` and `COMPANY_ID` (the detector
+  upgrade's names), plus 249 hard negatives (log timestamps, git SHAs and
+  hashes, trace IDs, UUIDs, versions such as `1.2.3.4`, loopback addresses,
+  ports, masked keys, public keys, base64 images, checksum-invalid IBAN and
+  card look-alikes, ordinary dates next to dates of birth, plain prose). Many
+  prompts mix several categories, and 30 are prose around a pasted
+  snippet (stack traces, `.env`, docker-compose, SQL output, curl, JSON, git
+  output) with values on both sides of the fence. Values are checksum-valid
+  where a checksum exists (IBAN, card, NIR, SIREN/SIRET, VAT, NHS, NINO).
 - **Perturbations**: seeded variants of every case (spacing, separators,
   alternative formats, case, line breaks inside values, punctuation, code
   fences, `.env` snippets, stripped accents, typos in context words), scored
   against the same base cases to show the drop per type.
 - **Metrics**: precision, recall and F1 per category and language, exact and
-  overlapping spans, wrong category, merged spans, leaked characters, and
-  flagged hard negatives. Categories a ref lacks are reported as "not
-  supported by this ref", not as misses.
+  overlapping spans, wrong category, merged spans, leaked characters, flagged
+  hard negatives, and prose vs inside code blocks. Categories a ref lacks are
+  reported as "not supported by this ref", not as misses.
 
 [docs/detbench.md](docs/detbench.md) has the dataset format, how to add
 cases, the perturbations and the metric definitions.
@@ -193,28 +197,35 @@ base cases, `default` config (FR addresses only) and `all` (FR/US/CA/AU):
 
 | | `default` | `all` |
 | --- | --- | --- |
-| F1 / precision / recall (supported categories, overlap) | 77% / 80% / 73% | 78% / 75% / 82% |
-| F1, exact span | 52% | 50% |
-| Items redacted, all categories | 48% | 54% |
-| Negative prompts with a false positive | 36% | 39% |
-| Hard negatives flagged | 17 / 82 | 28 / 82 |
+| F1 / precision / recall (supported categories, overlap) | 60% / 72% / 51% | 63% / 69% / 58% |
+| F1, exact span | 41% | 40% |
+| Items redacted, all categories | 33% | 37% |
+| Items redacted in prose (296) / inside code blocks (89) | 42% / 3% | 47% / 3% |
+| Negative prompts with a false positive | 36% | 41% |
+| Hard negatives flagged | 27 / 249 | 40 / 249 |
 
-- `FINANCIAL`, `NATIONAL_ID`, `DATE_OF_BIRTH` and `IP` are not supported on
-  `main`. No IBAN, BIC, card, CVV, NIR, SIRET, VAT number or date of birth is
-  redacted. 9 of 26 national IDs are caught only as PHONE (SSN, passport,
-  SIREN), and 6 of 20 IPs only by accident (2 as PHONE, 4 inside an EMAIL
-  span).
-- `SECRET` (`API_KEY`): recall 77%, but exact F1 is 32%. The entropy
+- `FINANCIAL`, `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP` and `COMPANY_ID` are not
+  supported on `main`. No IBAN, BIC, card, CVV, NIR, SIRET, VAT number or date
+  of birth is redacted. 13 of 38 national IDs and 4 of 15 company IDs are
+  caught only as PHONE (SSN, passport, SIREN), and 11 of 51 IPs only by
+  accident (5 as PHONE, 6 inside an EMAIL span).
+- **Code blocks**: fenced code is never scanned, so only 3 of the 89 items
+  inside code are redacted, all in indented (unfenced) blocks: a key, email
+  or phone pasted between ``` lines stays visible.
+- `SECRET` (`API_KEY`): recall 59%, but exact F1 is 27%. The entropy
   heuristic takes in the variable name (`FACTURATION_API_KEY=…`), and PEM keys,
   JWTs and Slack webhooks are cut into pieces, with parts left visible. Every
-  full-length git SHA, MD5/SHA-256 hash, UUID and 32-hex trace ID is flagged as
-  `API_KEY` by the bare 32-hex rule. Only 1 of 9 passwords is found; in a
-  connection URL the password and the host are flagged together as one EMAIL.
-- `PHONE`: FR recall is 100%; EN is 25% in `default` (FR-only metadata) and
-  67% in `all`, where the US metadata also turns 10 of 13 log timestamps into
-  phones.
-- **Perturbations**: a code fence drops recall from 73% to 4% (fenced code is
-  never scanned), and a line break inside a value from 70% to 51%. Spacing,
+  full-length git SHA, MD5/SHA-256 hash, UUID and 32-hex trace ID in prose is
+  flagged as `API_KEY` by the bare 32-hex rule, and the entropy heuristic
+  also takes the public key and 2 of 3 base64 blobs. Only 1 of 23 passwords
+  is found; in a connection URL the password and the host are flagged
+  together as one EMAIL.
+- `PHONE`: every FR phone outside fenced code is found; EN recall is 14% in
+  `default` (FR-only metadata) and 52% in `all`, where the US metadata also
+  turns 10 of 29 log timestamps into phones.
+- **Perturbations**: a code fence around the whole prompt drops F1 from 63%
+  to 33% (`all`), and a line break inside a value from 67% to 51%. The `.env`
+  rewrite raises it (69% to 83%), as it moves values out of fences. Spacing,
   separators, alternative phone and date formats, case, accents and typos move
   F1 by 3 points or less.
 

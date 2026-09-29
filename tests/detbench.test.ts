@@ -10,13 +10,14 @@ import {
   isValidFrenchVat,
   isValidIban,
   isValidNhs,
+  isValidNino,
   isValidNir,
   isValidSiren,
   isValidSiret,
   isValidSsn,
   nirKey,
 } from "../src/detbench/checksums.ts";
-import { buildCase, loadDetDataset, parseTemplate, validateSource } from "../src/detbench/dataset.ts";
+import { buildCase, codeRanges, loadDetDataset, parseTemplate, validateSource } from "../src/detbench/dataset.ts";
 import { defangHtml, defangJson, hasRawSecretPrefix } from "../src/detbench/defang.ts";
 import { loadDetector, lockSubset, mapCategory, type RefDetection } from "../src/detbench/ext.ts";
 import { PERTURBATIONS, perturbCases, valueForms } from "../src/detbench/perturb.ts";
@@ -76,6 +77,8 @@ test("checksums accept known-valid identifiers and reject one-digit changes", ()
   assert.ok(!isValidNhs("943 476 5918"));
   assert.ok(isValidSsn("536-22-8714"));
   assert.ok(!isValidSsn("666-22-8714") && !isValidSsn("936-22-8714") && !isValidSsn("536-00-8714"));
+  assert.ok(isValidNino("JT 48 29 61 B") && isValidNino("pe482917a"));
+  assert.ok(!isValidNino("QQ 12 34 56 C") && !isValidNino("GB 12 34 56 A") && !isValidNino("JO 12 34 56 A") && !isValidNino("JT 48 29 61 E"));
 });
 
 // ------------------------------------------------------------ dataset
@@ -107,6 +110,63 @@ test("the validator rejects bad checksums, undefined or unused keys and wrong ki
   assert.match(validateSource(sample, "en").join(), /lang fr in the en file/);
 });
 
+test("an invalid_checksum decoy must name a checksummed kind and fail it", () => {
+  const base: DetCaseSource = { id: "en-902", lang: "en", register: "chat", template: "is {{bad}} a valid IBAN?" };
+  const ok = { ...base, decoys: { bad: { kind: "invalid_checksum" as const, value: "GB82 WEST 1234 5698 7654 33", of: "iban" } } };
+  assert.deepEqual(validateSource(ok, "en"), []);
+  const passes = { ...base, decoys: { bad: { kind: "invalid_checksum" as const, value: "GB82 WEST 1234 5698 7654 32", of: "iban" } } };
+  assert.match(validateSource(passes, "en").join(), /passes the iban checksum/);
+  const noKind = { ...base, decoys: { bad: { kind: "invalid_checksum" as const, value: "GB82 WEST 1234 5698 7654 33" } } };
+  assert.match(validateSource(noKind, "en").join(), /needs "of"/);
+  const stray = { ...base, decoys: { bad: { kind: "number" as const, value: "42", of: "iban" } } };
+  assert.match(validateSource(stray, "en").join(), /only for invalid_checksum/);
+});
+
+test("code ranges follow Markdown fences and indented blocks; spans carry their zone", () => {
+  const text = ["prose `inline` a", "```sh", "code b", "```", "prose c", "", "    indented d", "prose e", "    not code f", "~~~~", "code g", "~~~", "~~~", "open h"].join("\n");
+  const ranges = codeRanges(text);
+  const inCode = (word: string) => ranges.some(([s, e]) => s <= text.indexOf(word) && text.indexOf(word) < e);
+  assert.deepEqual(
+    ["a", "b", "c", "d", "e", "f", "g", "h"].map((w) => inCode(` ${w}`) || inCode(`${w}\n`)),
+    [false, true, false, true, false, false, true, true],
+  );
+  const c = toCase({
+    id: "en-903",
+    lang: "en",
+    register: "code",
+    template: "mail {{email}}:\n\n```\nSMTP_USER={{email}}\nPORT={{port}}\n```",
+    items: { email: { category: "EMAIL", kind: "email", value: "ops@lanternbay.io" } },
+    decoys: { port: { kind: "port", value: "587" } },
+  });
+  assert.deepEqual(
+    c.gold.map((g) => g.zone),
+    ["prose", "code"],
+  );
+  assert.equal(c.decoySpans[0]!.zone, "code");
+  // Only the second occurrence is found: recall 1/2 overall, 0 in prose, 1 in code.
+  const s = scoreDetCase(c, [det(c, "EMAIL", "ops@lanternbay.io", 1), det(c, "PHONE", "587")], ["EMAIL", "PHONE"], "all");
+  assert.equal(detMetrics([s]).overlap.recall, 1 / 2);
+  const prose = detMetrics([s], { zone: "prose" });
+  const code = detMetrics([s], { zone: "code" });
+  assert.equal(prose.overlap.recall, 0);
+  assert.equal(prose.detections, 0);
+  assert.equal(code.overlap.recall, 1);
+  assert.equal(code.overlap.precision, 1 / 2);
+  assert.equal(code.decoysFlagged, 1);
+  assert.equal(prose.decoys, 0);
+  assert.deepEqual(Object.keys(summarizeConfig("all", [s]).byZone), ["prose", "code"]);
+});
+
+test("the code_block perturbation fences around a prompt that already has a fence", () => {
+  const c = toCase({ id: "en-904", lang: "en", register: "code", template: "why?\n```\nKEY={{k}}\n```", items: { k: { category: "SECRET", kind: "generic_token", value: "nG5SwHznJ9JtvEVhx5AT1FRoNMiKsAME" } } });
+  for (const v of perturbCases([c], { seed: 1, variants: 4, types: ["code_block"] })) {
+    const outer = /^[`~]+/m.exec(v.text.split("\n")[1]!)![0];
+    assert.ok(outer[0] === "~" || outer.length > 3, v.text);
+    assert.ok(v.text.endsWith(`\n${outer}`));
+    assert.equal(v.gold[0]!.zone, "code");
+  }
+});
+
 test("the committed dataset is valid, bilingual and defanged", () => {
   const { dataset, issues } = loadDetDataset();
   assert.deepEqual(issues, []);
@@ -114,6 +174,7 @@ test("the committed dataset is valid, bilingual and defanged", () => {
   const langs = new Set(dataset.cases.map((c) => c.lang));
   assert.deepEqual([...langs].sort(), ["en", "fr"]);
   for (const type of ["negative", "single", "multi"]) assert.ok(dataset.cases.some((c) => c.type === type), type);
+  for (const zone of ["prose", "code"]) for (const lang of ["en", "fr"]) assert.ok(dataset.cases.some((c) => c.lang === lang && c.gold.some((g) => g.zone === zone)), `${lang} ${zone}`);
 });
 
 // ------------------------------------------------------------ perturbations
@@ -295,6 +356,7 @@ test("category aliases map today's and the upgrade's names", () => {
   assert.equal(mapCategory("SECRET"), "SECRET");
   assert.equal(mapCategory("IP_ADDRESS"), "IP");
   assert.equal(mapCategory("NATIONAL_ID"), "NATIONAL_ID");
+  assert.equal(mapCategory("COMPANY_ID"), "COMPANY_ID");
   assert.equal(mapCategory("SOMETHING_NEW"), null);
 });
 
@@ -317,7 +379,7 @@ test("lockSubset follows nested and hoisted dependencies", () => {
 
 test("defanging keeps values intact after JSON.parse and hides raw prefixes", () => {
   // Built by concatenation so this file holds no scanner-shaped literal.
-  const value = { t: `key ${"sk_" + "live_abc"} and ${"xoxb" + "-123"} ${"AKIA" + "ABCDEFGHIJKLMNOP"} -----${"BEGIN"} PRIVATE KEY-----`, n: 1 };
+  const value = { t: `key ${"sk_" + "live_abc"} and ${"xoxb" + "-123"} ${"AKIA" + "ABCDEFGHIJKLMNOP"} -----${"BEGIN"} PRIVATE KEY----- ${"mongodb+"}srv://u:p@c0.x.mongodb.net Server=tcp:x.${"database"}.windows.net`, n: 1 };
   const json = defangJson(JSON.stringify(value));
   assert.ok(!hasRawSecretPrefix(json));
   assert.deepEqual(JSON.parse(json), value);

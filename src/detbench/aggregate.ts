@@ -1,5 +1,5 @@
 /** Aggregates scored detbench cases into metrics per configuration and slice. */
-import { DET_CATEGORIES, type DetCategory } from "./schema.ts";
+import { DET_CATEGORIES, type DetCategory, type Zone } from "./schema.ts";
 import { PERTURBATIONS } from "./perturb.ts";
 import { isFalsePositive, type DetScored } from "./score.ts";
 
@@ -42,14 +42,19 @@ const f1 = (p: number | null, r: number | null) => (p === null || r === null ? n
 export interface MetricFilter {
   category?: DetCategory;
   kind?: string;
+  /** Items, decoys and detections (by where they start) in prose or in code blocks. */
+  zone?: Zone;
 }
 
 export function detMetrics(rows: DetScored[], filter: MetricFilter = {}): DetMetrics {
-  const items = rows.flatMap((r) => r.items).filter((i) => (!filter.category || i.category === filter.category) && (!filter.kind || i.kind === filter.kind));
+  const inZone = (x: { zone: Zone }) => !filter.zone || x.zone === filter.zone;
+  const items = rows
+    .flatMap((r) => r.items)
+    .filter((i) => (!filter.category || i.category === filter.category) && (!filter.kind || i.kind === filter.kind) && inZone(i));
   // Precision is per detection category; a kind filter has no detection side.
   const detections = filter.kind
     ? []
-    : rows.flatMap((r) => r.detections).filter((d) => d.verdict !== "unsupported_item" && (!filter.category || d.mapped === filter.category));
+    : rows.flatMap((r) => r.detections).filter((d) => d.verdict !== "unsupported_item" && (!filter.category || d.mapped === filter.category) && inZone(d));
   const supported = items.filter((i) => i.supported);
   const unsupported = items.filter((i) => !i.supported);
   const tp = detections.filter((d) => d.verdict === "tp").length;
@@ -60,9 +65,11 @@ export function detMetrics(rows: DetScored[], filter: MetricFilter = {}): DetMet
   const rOverlap = ratio(found, supported.length);
   const pExact = filter.kind ? null : ratio(exactTp, detections.length);
   const rExact = ratio(foundExact, supported.length);
-  const decoys = filter.category || filter.kind ? [] : rows.flatMap((r) => r.decoys);
+  const decoys = filter.category || filter.kind ? [] : rows.flatMap((r) => r.decoys).filter(inZone);
   const negatives = rows.filter((r) => r.type === "negative");
-  const negativeFpCases = negatives.filter((r) => r.detections.some((d) => isFalsePositive(d) && (!filter.category || d.mapped === filter.category))).length;
+  const negativeFpCases = negatives.filter((r) =>
+    r.detections.some((d) => isFalsePositive(d) && (!filter.category || d.mapped === filter.category) && inZone(d)),
+  ).length;
   return {
     cases: rows.length,
     items: items.length,
@@ -115,6 +122,8 @@ export interface DetSummary {
   byLang: Record<string, DetMetrics>;
   byType: Record<string, DetMetrics>;
   byRegister: Record<string, DetMetrics>;
+  /** Items, decoys and detections in prose vs inside code blocks. */
+  byZone: Record<string, DetMetrics>;
   decoys: Record<string, DecoySummary>;
   /** Gold category -> ref category of overlapping detections ("(missed)" when none). */
   confusion: Record<string, Record<string, number>>;
@@ -183,6 +192,7 @@ export function summarizeConfig(config: string, rows: DetScored[]): DetSummary {
     byLang: mapValues(groupBy(base, (r) => r.lang), (rs) => detMetrics(rs)),
     byType: mapValues(groupBy(base, (r) => r.type), (rs) => detMetrics(rs)),
     byRegister: mapValues(groupBy(base, (r) => r.register), (rs) => detMetrics(rs)),
+    byZone: Object.fromEntries((["prose", "code"] as const).map((z) => [z, detMetrics(base, { zone: z })])),
     decoys,
     confusion,
     perturbations,
@@ -229,6 +239,7 @@ export function detCsv(summaries: DetSummary[]): string {
     for (const [k, m] of Object.entries(s.byLang)) emit(s.config, "lang", k, m);
     for (const [k, m] of Object.entries(s.byType)) emit(s.config, "type", k, m);
     for (const [k, m] of Object.entries(s.byRegister)) emit(s.config, "register", k, m);
+    for (const [k, m] of Object.entries(s.byZone)) emit(s.config, "zone", k, m);
     for (const [k, p] of Object.entries(s.perturbations)) {
       emit(s.config, "perturbation_base", k, p.base);
       emit(s.config, "perturbation", k, p.perturbed);

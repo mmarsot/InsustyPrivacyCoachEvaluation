@@ -11,8 +11,9 @@
 
 /**
  * Ground-truth categories, named as in the detector upgrade (API_KEY is
- * SECRET there). A ref that lacks one reports it as "not supported by this
- * ref" instead of scoring its items as misses.
+ * SECRET there; SIREN, SIRET and VAT numbers are COMPANY_ID, apart from
+ * personal NATIONAL_ID). A ref that lacks one reports it as "not supported by
+ * this ref" instead of scoring its items as misses.
  */
 export const DET_CATEGORIES = [
   "SECRET",
@@ -23,6 +24,7 @@ export const DET_CATEGORIES = [
   "NATIONAL_ID",
   "DATE_OF_BIRTH",
   "IP",
+  "COMPANY_ID",
 ] as const;
 export type DetCategory = (typeof DET_CATEGORIES)[number];
 
@@ -48,10 +50,11 @@ export const ITEM_KINDS: Record<DetCategory, readonly string[]> = {
   EMAIL: ["email"],
   PHONE: ["phone_fr", "phone_us", "phone_uk", "phone_de"],
   ADDRESS: ["address_fr", "address_us", "address_uk"],
-  FINANCIAL: ["iban", "bic", "card", "cvv"],
-  NATIONAL_ID: ["nir", "siren", "siret", "tva", "ssn", "nhs", "passport"],
+  FINANCIAL: ["iban", "bic", "card", "cvv", "card_expiry"],
+  NATIONAL_ID: ["nir", "ssn", "nhs", "nino", "passport"],
   DATE_OF_BIRTH: ["dob"],
-  IP: ["ipv4", "ipv4_private", "ipv6"],
+  IP: ["ipv4", "ipv4_private", "ipv6", "mac"],
+  COMPANY_ID: ["siren", "siret", "tva"],
 };
 
 /** Hard-negative kinds: look like identifiers but are not sensitive. */
@@ -68,6 +71,16 @@ export const DECOY_KINDS = [
   "number",
   "identifier",
   "url",
+  /** Fails the checksum of the item kind named in `of` (an IBAN or card look-alike). */
+  "invalid_checksum",
+  /** 127.0.0.1, localhost, ::1, 0.0.0.0. */
+  "loopback",
+  "port",
+  /** A key shown masked or truncated (sk-...a1B2), no longer usable. */
+  "masked_secret",
+  /** High-entropy data that is not a secret: a base64 image, a font. */
+  "base64",
+  "public_key",
 ] as const;
 export type DecoyKind = (typeof DECOY_KINDS)[number];
 
@@ -81,6 +94,8 @@ export interface DetItem {
 export interface DetDecoy {
   kind: DecoyKind;
   value: string;
+  /** invalid_checksum only: the item kind it imitates (iban, card, nir...); the value must fail that kind's checksum. */
+  of?: string;
 }
 
 export const REGISTERS = ["email", "chat", "notes", "doc", "form", "ticket", "code", "log", "config"] as const;
@@ -100,6 +115,12 @@ export interface DetCaseSource {
 /** Case type, derived: no item, one category, or several categories. */
 export type DetCaseType = "negative" | "single" | "multi";
 
+/**
+ * Where a value sits in the prompt: inside a fenced (``` or ~~~) or indented
+ * code block, or in the surrounding prose. Derived from the rendered text.
+ */
+export type Zone = "prose" | "code";
+
 /** A piece of a case: literal text, or one placeholder occurrence. */
 export type Part = { t: "text"; s: string } | { t: "item"; key: string; s: string } | { t: "decoy"; key: string; s: string };
 
@@ -110,6 +131,7 @@ export interface GoldSpan {
   start: number;
   end: number;
   value: string;
+  zone: Zone;
 }
 export interface DecoySpan {
   key: string;
@@ -117,6 +139,7 @@ export interface DecoySpan {
   start: number;
   end: number;
   value: string;
+  zone: Zone;
 }
 
 /** A rendered case (a base case or one of its perturbed variants). */

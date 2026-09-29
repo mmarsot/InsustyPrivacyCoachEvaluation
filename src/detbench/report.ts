@@ -109,9 +109,19 @@ function sliceSection(summaries: DetSummary[]): string {
       .join("");
     return `<h3>${title}</h3><div class="scroll"><table><thead><tr><th>Config</th><th>${title}</th><th class="num">Cases</th><th class="num">F1 overlap</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1 exact</th><th class="num">Redacted</th><th class="num">Leak-free</th><th class="num">FP rate (negatives)</th><th class="num">Wrong category</th><th class="num">Merged items</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   };
-  return `<h2 id="slices">Language, case type and register</h2>
+  const zoneRows = summaries
+    .flatMap((s) =>
+      Object.entries(s.byZone).map(
+        ([zone, m]) =>
+          `<tr><td>${esc(s.config)}</td><td>${esc(zone)}</td><td class="num">${m.supportedItems}</td><td class="num">${m.unsupportedItems}</td>${meter(m.overlap.f1)}${meter(m.overlap.precision)}${meter(m.overlap.recall)}${meter(m.exact.f1)}${meter(m.redactedRecall)}${meter(m.leakFreeRate)}<td class="num">${m.decoysFlagged}/${m.decoys}</td><td class="num">${m.wrongCategory}</td><td class="num">${m.mergedItems}</td></tr>`,
+      ),
+    )
+    .join("");
+  return `<h2 id="slices">Language, case type, register, prose vs code</h2>
 <p><b>multi</b> cases hold several categories in one prompt (an email, a phone, an IBAN and a key together): check <i>wrong category</i> and <i>merged items</i> (one span swallowing two values). <b>negative</b> cases hold only hard negatives and ordinary prose.</p>
-${table("Language", (s) => s.byLang)}${table("Case type", (s) => s.byType)}${table("Register", (s) => s.byRegister)}`;
+${table("Language", (s) => s.byLang)}${table("Case type", (s) => s.byType)}${table("Register", (s) => s.byRegister)}
+<h3>Prose vs code block</h3><p>Items, hard negatives and detections by where they sit: inside a fenced (<code>\`\`\`</code>, <code>~~~</code>) or indented code block, or in the prose around it. A detection counts where it starts.</p>
+<div class="scroll"><table><thead><tr><th>Config</th><th>Zone</th><th class="num">Items (supported)</th><th class="num">Items not supported</th><th class="num">F1 overlap</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1 exact</th><th class="num">Redacted</th><th class="num">Leak-free</th><th class="num">Decoys flagged</th><th class="num">Wrong category</th><th class="num">Merged items</th></tr></thead><tbody>${zoneRows}</tbody></table></div>`;
 }
 
 function robustnessSection(summaries: DetSummary[]): string {
@@ -151,7 +161,7 @@ function negativesSection(summaries: DetSummary[]): string {
     )
     .join("");
   return `<h2 id="negatives">Hard negatives</h2>
-<p>Values that look like identifiers but are not sensitive (base cases): log timestamps, git SHAs and hashes, trace IDs and UUIDs, version numbers, prices, dates, order and tracking numbers. Any detection on them is a false positive.</p>
+<p>Values that look like identifiers but are not sensitive (base cases): log timestamps, git SHAs and hashes, trace IDs and UUIDs, version numbers (<code>1.2.3.4</code>), loopback addresses and ports, prices, dates, order and tracking numbers, masked keys, public keys, base64 data, and IBAN, card, NIR or NHS look-alikes that fail their checksum. Any detection on them is a false positive.</p>
 <div class="scroll"><table><thead><tr><th>Config</th><th>Decoy kind</th><th class="num">Occurrences</th><th class="num">Flagged</th><th class="num">Share</th><th>Flagged as</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
@@ -272,6 +282,10 @@ export function textSummary(meta: DetRunMeta, summaries: DetSummary[]): string {
           : `  ${c.padEnd(14)} n=${String(cm.items).padStart(3)}  not supported by this ref; redacted under another category ${cm.unsupportedRedacted}/${cm.items}`,
       );
     }
+    const zones = Object.entries(s.byZone ?? {})
+      .map(([z, zm]) => `${z}: F1 ${pct(zm.overlap.f1)}, redacted ${pct(zm.redactedRecall)} of ${zm.items} items, decoys flagged ${zm.decoysFlagged}/${zm.decoys}`)
+      .join(" · ");
+    if (zones) lines.push(`  ${zones}`);
     const drops = Object.entries(s.perturbations)
       .filter(([t]) => t !== "all")
       .map(([t, p]) => `${t} ${pct(p.base.overlap.f1)}→${pct(p.perturbed.overlap.f1)}`)
@@ -289,6 +303,14 @@ export function renderDetCompare(a: { meta: DetRunMeta; summaries: DetSummary[] 
       const sb = b.summaries.find((s) => s.config === sa.config);
       if (!sb) return "";
       const overall = `<tr><td><b>overall</b></td><td></td><td></td>${arrowCell(sa.overall.overlap.f1, sb.overall.overlap.f1)}${arrowCell(sa.overall.overlap.precision, sb.overall.overlap.precision)}${arrowCell(sa.overall.overlap.recall, sb.overall.overlap.recall)}${arrowCell(sa.overall.exact.f1, sb.overall.exact.f1)}${arrowCell(sa.overall.redactedRecall, sb.overall.redactedRecall)}${arrowCell(sa.overall.leakFreeRate, sb.overall.leakFreeRate)}${arrowCell(sa.overall.negativeFpRate, sb.overall.negativeFpRate)}</tr>`;
+      const zones = (["prose", "code"] as const)
+        .filter((z) => sa.byZone?.[z] && sb.byZone?.[z])
+        .map((z) => {
+          const za = sa.byZone[z]!;
+          const zb = sb.byZone[z]!;
+          return `<tr><td><i>in ${z}</i></td><td></td><td></td>${arrowCell(za.overlap.f1, zb.overlap.f1)}${arrowCell(za.overlap.precision, zb.overlap.precision)}${arrowCell(za.overlap.recall, zb.overlap.recall)}${arrowCell(za.exact.f1, zb.exact.f1)}${arrowCell(za.redactedRecall, zb.redactedRecall)}${arrowCell(za.leakFreeRate, zb.leakFreeRate)}<td></td></tr>`;
+        })
+        .join("");
       const cats = DET_CATEGORIES.filter((c) => sa.byCategory[c] || sb.byCategory[c])
         .map((c) => {
           const ma = sa.byCategory[c];
@@ -311,7 +333,7 @@ export function renderDetCompare(a: { meta: DetRunMeta; summaries: DetSummary[] 
         .map((k) => `<tr><td><code>${esc(k)}</code></td><td class="num">${sa.decoys[k]?.flagged ?? "–"}/${sa.decoys[k]?.total ?? "–"} → ${sb.decoys[k]?.flagged ?? "–"}/${sb.decoys[k]?.total ?? "–"}</td></tr>`)
         .join("");
       return `<h2>${esc(sa.config)}</h2>
-<div class="scroll"><table><thead><tr><th>Category</th><th>A supports</th><th>B supports</th><th class="num">F1 overlap</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1 exact</th><th class="num">Redacted (any category)</th><th class="num">Leak-free</th><th class="num">FP rate (negatives)</th></tr></thead><tbody>${overall}${cats}</tbody></table></div>
+<div class="scroll"><table><thead><tr><th>Category</th><th>A supports</th><th>B supports</th><th class="num">F1 overlap</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1 exact</th><th class="num">Redacted (any category)</th><th class="num">Leak-free</th><th class="num">FP rate (negatives)</th></tr></thead><tbody>${overall}${zones}${cats}</tbody></table></div>
 <h3>Perturbed variants</h3><div class="scroll"><table><thead><tr><th>Perturbation</th><th class="num">F1 overlap</th><th class="num">Recall</th><th class="num">Redacted</th><th class="num">F1 change vs base</th></tr></thead><tbody>${perts}</tbody></table></div>
 <h3>Hard negatives flagged</h3><div class="scroll"><table><thead><tr><th>Decoy kind</th><th class="num">A → B</th></tr></thead><tbody>${decoys}</tbody></table></div>`;
     })

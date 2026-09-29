@@ -3,8 +3,8 @@
 `npm run detbench` measures the extension's **rule-based** detector
 (`detectSensitiveData` in `src/detector.ts`): the part that finds secrets,
 emails, phones, addresses and, after the detector upgrade, financial data,
-national IDs, dates of birth and IP addresses. It loads no model: a run over
-130 base cases and ~1,500 perturbed variants takes a few seconds.
+national IDs, dates of birth, IP addresses and company IDs. It loads no model:
+a run over 207 base cases and ~2,400 perturbed variants takes a few seconds.
 
 Code: `src/detbench/` (dataset, perturbations, ref loading, scoring, report)
 and `src/cli/detbench.ts`. Tests: `tests/detbench.test.ts`.
@@ -36,7 +36,11 @@ ticking anything. A category switched off leaves its detections unselected.
 ## Categories and ref support
 
 Ground truth uses the upgraded names: `SECRET`, `EMAIL`, `PHONE`, `ADDRESS`,
-`FINANCIAL`, `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP` (`src/detbench/schema.ts`).
+`FINANCIAL`, `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP`, `COMPANY_ID`
+(`src/detbench/schema.ts`). As in the upgrade, SIREN, SIRET and French VAT
+numbers are `COMPANY_ID`, not `NATIONAL_ID`, and a MAC address is `IP`; `IP`
+and `COMPANY_ID` are off in the upgrade's `default` configuration, so their
+items count as misses there and are scored in `all`.
 A ref's category names are mapped with `CATEGORY_ALIASES`
 (`src/detbench/ext.ts`): today's `API_KEY` is `SECRET`, and plausible
 spellings such as `IP_ADDRESS` or `IBAN` map too. A dataset category with no
@@ -69,21 +73,41 @@ know, its detections count as false positives until you add an alias.
 - `register`: `email`, `chat`, `notes`, `doc`, `form`, `ticket`, `code`,
   `log`, `config`.
 - Dates of birth also carry `iso` (`YYYY-MM-DD`), for the format perturbations.
+- A decoy of kind `invalid_checksum` (an IBAN, card, NIR or NHS look-alike
+  with a wrong check digit) names the kind it imitates in `of`; the validator
+  checks that it fails that checksum.
+- Each item and decoy gets a **zone**, derived from the rendered text:
+  `code` inside a ``` or ~~~ fenced block or a Markdown indented block (four
+  spaces or a tab after a blank line), `prose` elsewhere (inline `` `code` ``
+  and unfenced pastes such as a CSV stay prose). Many cases are prose around
+  a pasted snippet (stack traces, `.env`, docker-compose, SQL output, curl,
+  JSON, git output, access logs), with sensitive values on both sides and
+  hard negatives inside the code.
 
 Ground-truth rules:
 
 - The item is the value only: the key without `OPENAI_API_KEY=`, the password
   without `user:`, the whole PEM block, the whole address.
 - Every value is fictional and, where a checksum exists, valid: IBAN mod 97
-  (French ones also with a valid RIB key), card Luhn, NIR key, SIREN/SIRET
-  Luhn, French VAT key, NHS mod 11, SSN structure (`src/detbench/checksums.ts`;
-  the loader rejects failures). Use documentation IP ranges (`192.0.2.0/24`,
+  (French and Monaco ones also with a valid RIB key; Belgian, Spanish,
+  Italian, Dutch and Portuguese ones with their national check), card Luhn,
+  NIR key (Corsica `2A`/`2B` too), SIREN/SIRET Luhn, French VAT key, NHS
+  mod 11, NINO prefix and suffix rules, SSN structure
+  (`src/detbench/checksums.ts`; the loader rejects failures). A value may hold
+  a line break (an IBAN wrapped by a mail client). Use documentation IP ranges (`192.0.2.0/24`,
   `198.51.100.0/24`, `203.0.113.0/24`, `2001:db8::/32`) or private ones
   (kind `ipv4_private`).
 - No unlabelled sensitive value: if a prompt needs an address or a card
   expiry for realism, label it or leave it out, or a correct detection would
   count as a false positive. Names are out of scope (the product does not
   detect them).
+- Not sensitive, so decoys: public keys, masked or truncated keys
+  (`sk-...Qx7T`), base64 images and fonts, hashes, loopback addresses
+  (`127.0.0.1`, `localhost`, `::1`, `0.0.0.0`), ports, netmasks and OIDs,
+  IP-shaped versions (`1.2.3.4`, `4.2.1.8`), ordinary dates next to a date of
+  birth, SSN-shaped part numbers, 9- and 14-digit client or file numbers.
+  A card expiry (`card_expiry`) or CVV is an item only next to its card
+  context.
 
 **Adding cases**: append lines with the next free id, then run
 `npm run detbench -- --validate`. Secret-looking values must not appear raw in
@@ -106,7 +130,7 @@ variant number), so a variant never changes when other cases are added.
 | `case` | prose and case-insensitive values (email, IBAN, BIC, VAT, address, hex hashes) lower- or upper-cased; secrets keep their case |
 | `linebreak` | a line break inside an IBAN, card, NIR, SIRET or address |
 | `punctuation` | values in quotes, brackets, guillemets or backticks, or followed by punctuation |
-| `code_block` | the whole prompt inside a ``` or ~~~ fence |
+| `code_block` | the whole prompt inside a ``` or ~~~ fence (a longer one if the prompt already holds a fence) |
 | `env` | the values rewritten as `.env`, `export`, YAML or TOML settings |
 | `accents` | accents stripped everywhere |
 | `typo` | a typo in the word before each value (the context keyword), or in prose for negatives |
@@ -130,6 +154,8 @@ language, value kind, language, case type and register:
 - **Hard negatives**: decoys flagged, per decoy kind, and negative cases with
   any false positive.
 - **Confusion**: what each item category is detected as.
+- **Prose vs code**: the same metrics for items, decoys and detections in
+  prose and inside code blocks (a detection counts where it starts).
 - Latency per prompt (p50/p95/max) in `run.json`.
 
 ## Outputs and commands

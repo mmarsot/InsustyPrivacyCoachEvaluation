@@ -5,10 +5,11 @@
  *
  * In JSON, one character of each provider prefix is written as a `\uXXXX`
  * escape: `JSON.parse` restores the exact value, but the raw file no longer
- * contains `sk_live_`, `xoxb-`, `AKIA`... In HTML the same character becomes
- * a numeric entity, which the browser displays unchanged.
+ * contains `sk_live_`, `xoxb-`, `AKIA`, a MongoDB Atlas or Azure SQL
+ * connection string... In HTML the same character becomes a numeric entity,
+ * which the browser displays unchanged.
  */
-const PREFIXES = /(?:sk|rk|pk)_(?:live|test)_|xox[baprs]-|gh[pousr]_|github_pat_|glpat-|AKIA|ASIA|AIza|sk-ant-|sk-proj-|hooks\.slack\.com\/services|\bhf_|-----BEGIN|eyJhbGci|[Aa][Ww][Ss]_[Ss][Ee][Cc][Rr][Ee][Tt]/g;
+const PREFIXES = /(?:sk|rk|pk)_(?:live|test)_|xox[baprs]-|gh[pousr]_|github_pat_|glpat-|AKIA|ASIA|AIza|sk-ant-|sk-proj-|hooks\.slack\.com\/services|\bhf_|-----BEGIN|eyJhbGci|[Aa][Ww][Ss]_[Ss][Ee][Cc][Rr][Ee][Tt]|mongodb\+srv:\/\/|database\.windows\.net/g;
 
 const escapeSecond = (match: string, encode: (c: string) => string) => match[0] + encode(match[1]!) + match.slice(2);
 

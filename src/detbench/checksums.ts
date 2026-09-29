@@ -123,6 +123,17 @@ export function isValidSsn(value: string): boolean {
   return m[1] !== "000" && m[1] !== "666" && !m[1]!.startsWith("9") && m[2] !== "00" && m[3] !== "0000";
 }
 
+/**
+ * UK National Insurance number: two prefix letters (not D, F, I, Q, U, V; the
+ * second not O; not BG, GB, KN, NK, NT, TN, ZZ), six digits, suffix A-D.
+ */
+export function isValidNino(value: string): boolean {
+  const m = /^([A-Z]{2})\d{6}[A-D]$/.exec(compact(value).toUpperCase());
+  if (!m) return false;
+  const [a, b] = m[1]!;
+  return !/[DFIQUV]/.test(a!) && !/[DFIOQUV]/.test(b!) && !["BG", "GB", "KN", "NK", "NT", "TN", "ZZ"].includes(m[1]!);
+}
+
 /** SWIFT/BIC shape: bank (4 letters), country (2 letters), location (2), optional branch (3). */
 export const isValidBic = (value: string): boolean => /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}(?:[A-Z0-9]{3})?$/.test(value.toUpperCase());
 
@@ -135,6 +146,7 @@ export const KIND_VALIDATORS: Record<string, (value: string) => boolean> = {
   tva: isValidFrenchVat,
   nir: isValidNir,
   nhs: isValidNhs,
+  nino: isValidNino,
   ssn: isValidSsn,
   bic: isValidBic,
 };

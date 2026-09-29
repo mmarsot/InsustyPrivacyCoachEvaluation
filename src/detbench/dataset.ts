@@ -15,6 +15,7 @@ import {
   type DetCaseType,
   type GoldSpan,
   type Part,
+  type Zone,
 } from "./schema.ts";
 
 export const DETBENCH_DIR = join(DATASET_DIR, "detbench");
@@ -41,6 +42,45 @@ export function parseTemplate(source: Pick<DetCaseSource, "template" | "items" |
   return parts;
 }
 
+/**
+ * The [start, end) ranges of a text that are code, as Markdown reads them: a
+ * block fenced by ``` or ~~~ (fence lines included; an unclosed fence runs to
+ * the end), or lines indented by four spaces or a tab after a blank line or
+ * another indented line. Inline `code` stays prose.
+ */
+export function codeRanges(text: string): Array<[number, number]> {
+  const ranges: Array<[number, number]> = [];
+  let offset = 0;
+  let fence: { char: string; length: number; start: number } | null = null;
+  let previous: "blank" | "indented" | "text" = "blank";
+  for (const line of text.split("\n")) {
+    const end = offset + line.length;
+    const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line);
+    if (fence) {
+      if (marker && marker[1]![0] === fence.char && marker[1]!.length >= fence.length && !line.slice(marker[0].length).trim()) {
+        ranges.push([fence.start, end]);
+        fence = null;
+      }
+    } else if (marker) {
+      fence = { char: marker[1]![0]!, length: marker[1]!.length, start: offset };
+    } else if (!line.trim()) {
+      previous = previous === "indented" ? "indented" : "blank";
+    } else if (/^(?: {4}|\t)/.test(line) && previous !== "text") {
+      ranges.push([offset, end]);
+      previous = "indented";
+    } else {
+      previous = "text";
+    }
+    if (marker || fence) previous = "text";
+    offset = end + 1;
+  }
+  if (fence) ranges.push([fence.start, text.length]);
+  return ranges;
+}
+
+/** The zone of a text position, given the text's `codeRanges`. */
+export const zoneAt = (ranges: Array<[number, number]>, at: number): Zone => (ranges.some(([s, e]) => s <= at && at < e) ? "code" : "prose");
+
 /** Concatenates parts into the prompt text and the exact item and decoy spans. */
 export function renderParts(
   parts: Part[],
@@ -55,11 +95,13 @@ export function renderParts(
     text += part.s;
     if (part.t === "item") {
       const item = items[part.key]!;
-      gold.push({ key: part.key, category: item.category, kind: item.kind, start, end: text.length, value: part.s });
+      gold.push({ key: part.key, category: item.category, kind: item.kind, start, end: text.length, value: part.s, zone: "prose" });
     } else if (part.t === "decoy") {
-      decoySpans.push({ key: part.key, kind: decoys[part.key]!.kind, start, end: text.length, value: part.s });
+      decoySpans.push({ key: part.key, kind: decoys[part.key]!.kind, start, end: text.length, value: part.s, zone: "prose" });
     }
   }
+  const code = codeRanges(text);
+  for (const span of [...gold, ...decoySpans]) span.zone = zoneAt(code, span.start);
   return { text, gold, decoySpans };
 }
 
@@ -109,6 +151,11 @@ export function validateSource(source: DetCaseSource, lang: string): string[] {
   for (const [key, decoy] of Object.entries(source.decoys ?? {})) {
     if (!(DECOY_KINDS as readonly string[]).includes(decoy.kind)) issues.push(`${where}: decoy ${key} has unknown kind ${decoy.kind}`);
     if (!decoy.value) issues.push(`${where}: decoy ${key} is empty`);
+    if (decoy.kind === "invalid_checksum") {
+      const validate = KIND_VALIDATORS[decoy.of ?? ""];
+      if (!validate) issues.push(`${where}: decoy ${key} needs "of", one of ${Object.keys(KIND_VALIDATORS).join(", ")}`);
+      else if (validate(decoy.value)) issues.push(`${where}: decoy ${key} "${decoy.value}" passes the ${decoy.of} checksum`);
+    } else if (decoy.of !== undefined) issues.push(`${where}: decoy ${key}: "of" is only for invalid_checksum`);
   }
   return issues;
 }
