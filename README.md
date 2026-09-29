@@ -168,14 +168,14 @@ configuration and with every category and address country on. The ref is
 materialized read-only like the model bench, and the detector's npm packages
 are installed at the versions its package-lock pins.
 
-- **Dataset** (`dataset/detbench/`): 207 fictional EN/FR prompts with 385
+- **Dataset** (`dataset/detbench/`): 224 fictional EN/FR prompts with 440
   labelled items across `SECRET`, `EMAIL`, `PHONE`, `ADDRESS`, `FINANCIAL`,
   `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP` and `COMPANY_ID` (the detector
-  upgrade's names), plus 249 hard negatives (log timestamps, git SHAs and
+  upgrade's names), plus 280 hard negatives (log timestamps, git SHAs and
   hashes, trace IDs, UUIDs, versions such as `1.2.3.4`, loopback addresses,
   ports, masked keys, public keys, base64 images, checksum-invalid IBAN and
   card look-alikes, ordinary dates next to dates of birth, plain prose). Many
-  prompts mix several categories, and 30 are prose around a pasted
+  prompts mix several categories, and 37 are prose around a pasted
   snippet (stack traces, `.env`, docker-compose, SQL output, curl, JSON, git
   output) with values on both sides of the fence. Values are checksum-valid
   where a checksum exists (IBAN, card, NIR, SIREN/SIRET, VAT, NHS, NINO).
@@ -191,43 +191,46 @@ are installed at the versions its package-lock pins.
 [docs/detbench.md](docs/detbench.md) has the dataset format, how to add
 cases, the perturbations and the metric definitions.
 
-Baseline on `main` @ `e9a9cac`
-([`runs/detbench/main-e9a9cac/report.html`](runs/detbench/main-e9a9cac/report.html)),
-base cases, `default` config (FR addresses only) and `all` (FR/US/CA/AU):
+Baseline on `main` @ `1c377d7` (after the detector upgrade, PR #42, and its
+gap fixes, PR #43;
+[`runs/detbench/main-1c377d7/report.html`](runs/detbench/main-1c377d7/report.html)),
+base cases, `default` config (FR addresses only, `IP` and `COMPANY_ID` off)
+and `all` (every category, FR/US/CA/AU):
 
 | | `default` | `all` |
 | --- | --- | --- |
-| F1 / precision / recall (supported categories, overlap) | 60% / 72% / 51% | 63% / 69% / 58% |
-| F1, exact span | 41% | 40% |
-| Items redacted, all categories | 33% | 37% |
-| Items redacted in prose (296) / inside code blocks (89) | 42% / 3% | 47% / 3% |
-| Negative prompts with a false positive | 36% | 41% |
-| Hard negatives flagged | 27 / 249 | 40 / 249 |
+| F1 / precision / recall (overlap) | 86% / 99% / 76% | 96% / 97% / 95% |
+| F1, exact span | 85% | 95% |
+| Items redacted, all categories | 76% | 95% |
+| Items redacted in prose (336) / inside code blocks (104) | 76% / 77% | 95% / 97% |
+| Negative prompts with a false positive | 2% (1 / 44) | 11% (5 / 44) |
+| Hard negatives flagged | 3 / 280 | 10 / 280 |
 
-- `FINANCIAL`, `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP` and `COMPANY_ID` are not
-  supported on `main`. No IBAN, BIC, card, CVV, NIR, SIRET, VAT number or date
-  of birth is redacted. 13 of 38 national IDs and 4 of 15 company IDs are
-  caught only as PHONE (SSN, passport, SIREN), and 11 of 51 IPs only by
-  accident (5 as PHONE, 6 inside an EMAIL span).
-- **Code blocks**: fenced code is never scanned, so only 3 of the 89 items
-  inside code are redacted, all in indented (unfenced) blocks: a key, email
-  or phone pasted between ``` lines stays visible.
-- `SECRET` (`API_KEY`): recall 59%, but exact F1 is 27%. The entropy
-  heuristic takes in the variable name (`FACTURATION_API_KEY=…`), and PEM keys,
-  JWTs and Slack webhooks are cut into pieces, with parts left visible. Every
-  full-length git SHA, MD5/SHA-256 hash, UUID and 32-hex trace ID in prose is
-  flagged as `API_KEY` by the bare 32-hex rule, and the entropy heuristic
-  also takes the public key and 2 of 3 base64 blobs. Only 1 of 23 passwords
-  is found; in a connection URL the password and the host are flagged
-  together as one EMAIL.
-- `PHONE`: every FR phone outside fenced code is found; EN recall is 14% in
-  `default` (FR-only metadata) and 52% in `all`, where the US metadata also
-  turns 10 of 29 log timestamps into phones.
-- **Perturbations**: a code fence around the whole prompt drops F1 from 63%
-  to 33% (`all`), and a line break inside a value from 67% to 51%. The `.env`
-  rewrite raises it (69% to 83%), as it moves values out of fences. Spacing,
-  separators, alternative phone and date formats, case, accents and typos move
-  F1 by 3 points or less.
+- Every category is supported. In `default`, `IP` and `COMPANY_ID` are
+  opt-in, so their 74 items count as misses: most of the recall gap to `all`.
+- **PR #43 regression cases** (`en-108`–`en-116`, `fr-101`–`fr-108`, see
+  [docs/detbench.md](docs/detbench.md#dataset)): `main` passes all of them
+  except the ezmlm VERP address with no `+`
+  (`announce-return-418-j.okafor=lanternbay.io@lists…`), redacted only after
+  its first `=`, which leaves the list prefix and the subscriber's name
+  visible (2 items, EN and FR; EMAIL exact F1 97%). SRS addresses pass: the
+  `SRS0=` tag may stay visible (it holds no personal data). `+` VERP addresses, `SMTP_USER=`/`user=`/`login=`/`MAIL_FROM=` keys, IBAN
+  lists, wrapped IBANs followed by another IBAN, IBANs under an order
+  reference or a mistyped IBAN, `curl -u`/`--user` and `redis://:pw@`
+  passwords (and their IPs in `all`), version quads, a UUID token next to a
+  UUID and an SSH public key, JSON/YAML/`.env` dates of birth and expiries,
+  and repeated compact SSNs and NIRs are all right, with no look-alike flagged.
+- Still missed in `all`: UK and DE phones (7), US and UK addresses (3),
+  passports (4), dates of birth under a table header (2), 2 French
+  passwords, 3 SIRENs (2 caught only as PHONE), a BIC, and part of an IPv6.
+- Hard negatives flagged in `all`: order numbers, a client number, a
+  version and a timestamp as PHONE (6), SSN-shaped part numbers as
+  NATIONAL_ID (2), a Luhn-invalid card look-alike (1) and `net-snmp 5.9.4.2`
+  as IP (1).
+- **Perturbations** (`all`, F1 base→perturbed): a line break inside a value
+  96%→80%, spacing 96%→83% (double-spaced IBANs, in lists too, are missed),
+  typos in context words 96%→88%, punctuation 97%→91%, `.env` rewrite
+  97%→91%; the others move F1 by 3 points or less.
 
 ## Dashboard
 

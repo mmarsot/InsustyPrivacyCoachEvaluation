@@ -4,7 +4,7 @@
 (`detectSensitiveData` in `src/detector.ts`): the part that finds secrets,
 emails, phones, addresses and, after the detector upgrade, financial data,
 national IDs, dates of birth, IP addresses and company IDs. It loads no model:
-a run over 207 base cases and ~2,400 perturbed variants takes a few seconds.
+a run over 224 base cases and ~2,600 perturbed variants takes a few seconds.
 
 Code: `src/detbench/` (dataset, perturbations, ref loading, scoring, report)
 and `src/cli/detbench.ts`. Tests: `tests/detbench.test.ts`.
@@ -87,7 +87,15 @@ know, its detections count as false positives until you add an alias.
 Ground-truth rules:
 
 - The item is the value only: the key without `OPENAI_API_KEY=`, the password
-  without `user:`, the whole PEM block, the whole address.
+  without `user:` (in `curl -u user:pw` and `redis://:pw@host` too), the
+  whole PEM block, the whole address. An email keeps every `=` of its local
+  part (VERP `list-bounces+jo=example.org@lists.example.net`, ezmlm
+  `list-return-42-jo=example.org@…`) but not a leading key (`SMTP_USER=`,
+  `user=`, `login=`). An SRS forwarding address
+  (`SRS0=HHH=TT=example.org=jo@fwd…`) is the exception: its `SRS0=` tag
+  holds no personal data and may stay visible, so the item starts after it
+  (the tag is template text) and the hash, timestamp, original domain and
+  user must be redacted.
 - Every value is fictional and, where a checksum exists, valid: IBAN mod 97
   (French and Monaco ones also with a valid RIB key; Belgian, Spanish,
   Italian, Dutch and Portuguese ones with their national check), card Luhn,
@@ -105,9 +113,21 @@ Ground-truth rules:
   (`sk-...Qx7T`), base64 images and fonts, hashes, loopback addresses
   (`127.0.0.1`, `localhost`, `::1`, `0.0.0.0`), ports, netmasks and OIDs,
   IP-shaped versions (`1.2.3.4`, `4.2.1.8`), ordinary dates next to a date of
-  birth, SSN-shaped part numbers, 9- and 14-digit client or file numbers.
+  birth, SSN-shaped part numbers, 9- and 14-digit client or file numbers,
+  a `docker run -u 1000:1000` user id, an IBAN-shaped line that fails mod 97
+  (an order reference, a typo) above a real IBAN. A UUID is a decoy, except
+  as a secret's value (`token: <uuid>` is a `generic_token`); a dotted quad
+  after `v`, `==` or a version word is a version, while an address after
+  `The conversion server is` or `Version 2 ships today, server` is an IP.
   A card expiry (`card_expiry`) or CVV is an item only next to its card
   context.
+
+Regression cases pin hard cases found in extension reviews: `en-108`–`en-116`
+and `fr-101`–`fr-108` come from InsustyPromptCoach PR #43 (`=` in email local
+parts and `KEY=` before an email, IBAN lists and wrapped IBANs, IBANs under a
+mod-97-failing line, `curl -u` and `redis://:pw@` passwords with their
+look-alikes, version quads, UUID tokens, JSON/YAML/`.env` dates of birth and
+expiries, a repeated compact SSN or NIR).
 
 **Adding cases**: append lines with the next free id, then run
 `npm run detbench -- --validate`. Secret-looking values must not appear raw in

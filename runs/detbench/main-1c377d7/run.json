@@ -1,0 +1,103 @@
+{
+  "name": "main-1c377d7",
+  "ext": {
+    "ref": "main",
+    "sha": "1c377d7739724fcea5c7fdfbd43a6c8fcce94c8f",
+    "subject": "feat(popup): show custom labels in the main Local AI redaction settings (#44)",
+    "committedAt": "2026-09-29T13:26:17+02:00"
+  },
+  "packages": {
+    "addressit": "1.8.2",
+    "ibantools": "4.5.4",
+    "libphonenumber-js": "1.13.9",
+    "stdnum": "1.12.6"
+  },
+  "refCategories": [
+    "SECRET",
+    "FINANCIAL",
+    "NATIONAL_ID",
+    "DATE_OF_BIRTH",
+    "PHONE",
+    "EMAIL",
+    "ADDRESS",
+    "IP",
+    "COMPANY_ID"
+  ],
+  "supported": [
+    "SECRET",
+    "FINANCIAL",
+    "NATIONAL_ID",
+    "DATE_OF_BIRTH",
+    "PHONE",
+    "EMAIL",
+    "ADDRESS",
+    "IP",
+    "COMPANY_ID"
+  ],
+  "configs": {
+    "default": {
+      "categories": {
+        "SECRET": true,
+        "FINANCIAL": true,
+        "NATIONAL_ID": true,
+        "DATE_OF_BIRTH": true,
+        "PHONE": true,
+        "EMAIL": true,
+        "ADDRESS": true,
+        "IP": false,
+        "COMPANY_ID": false
+      },
+      "addressCountries": [
+        "FR"
+      ]
+    },
+    "all": {
+      "categories": {
+        "SECRET": true,
+        "FINANCIAL": true,
+        "NATIONAL_ID": true,
+        "DATE_OF_BIRTH": true,
+        "PHONE": true,
+        "EMAIL": true,
+        "ADDRESS": true,
+        "IP": true,
+        "COMPANY_ID": true
+      },
+      "addressCountries": [
+        "FR",
+        "US",
+        "CA",
+        "AU"
+      ]
+    }
+  },
+  "allConfigNote": "turns on IP, COMPANY_ID; adds address countries US, CA, AU",
+  "datasetHash": "88bbba6ee3378cbee8bb19f40e4a8693021382c5a1ebe23965c8151c555afcf0",
+  "seed": 1,
+  "variantsPerType": 2,
+  "perturbations": [
+    "spacing",
+    "separators",
+    "alt_format",
+    "case",
+    "linebreak",
+    "punctuation",
+    "code_block",
+    "env",
+    "accents",
+    "typo"
+  ],
+  "baseCases": 224,
+  "variants": 2605,
+  "timing": {
+    "calls": 448,
+    "p50Ms": 0.38199600000007194,
+    "p95Ms": 6.055905999999993,
+    "maxMs": 14.636874000000034,
+    "totalMs": 585.1875989999985
+  },
+  "node": "24.18.0",
+  "machine": "8 vCPU, 7 GB",
+  "startedAt": "2026-09-29T11:38:41.062Z",
+  "finishedAt": "2026-09-29T11:38:44.963Z"
+}
