@@ -7,14 +7,16 @@
  * extension's answer confidence.
  */
 import { bedrockProvider } from "./bedrock.ts";
-import { answerConfidence, firstLine, frameRequest, type NeutralRequest, type ReviewRequest } from "./framing.ts";
+import { answerConfidence, firstLine, frameRequest, tolerantAnswer, type NeutralRequest, type ReviewRequest } from "./framing.ts";
 import { costOf, type HostedModel } from "./models.ts";
 import { openAiProvider } from "./openai.ts";
 import { HostedError, type ProviderAnswer } from "./provider.ts";
 
 export interface HostedResult {
-  /** First answer line (what the parser sees), or the whole text without `stopAtNewline`. */
+  /** What the ref's parser sees: the first answer line (the whole text without `stopAtNewline`), read by the tolerant parser when the model has one. */
   output: string;
+  /** The first-line cut shortened the text (the answer ended at a line break). */
+  cut: boolean;
   /** Full text returned by the model (before the first-line cut). */
   raw: string;
   /** Normalized stop reason (`stop`, `length`, or the provider's own). */
@@ -84,10 +86,12 @@ export async function reviewHosted(model: HostedModel, request: ReviewRequest, o
       await new Promise((resolve) => setTimeout(resolve, wait));
     }
   }
-  const output = options.stopAtNewline ? firstLine(r.text) : r.text;
-  const confidence = answerConfidence(r.tokens, output.length, r.stopReason === "length" && output.length === r.text.length);
+  const line = options.stopAtNewline ? firstLine(r.text) : r.text;
+  const confidence = answerConfidence(r.tokens, line.length, r.stopReason === "length" && line.length === r.text.length);
+  const label = request.native?.label.label ?? request.responsePrefill.replace(/:$/u, "");
   return {
-    output,
+    output: model.answerParser === "tolerant" ? tolerantAnswer(line, label) : line,
+    cut: line.length < r.text.length,
     raw: r.text,
     stopReason: r.stopReason,
     inputTokens: r.inputTokens,

@@ -447,7 +447,13 @@ This is a connected-model feature, not a change to the in-browser model: the
 `shipped` lab baseline, its switches and the ablation above are unchanged,
 and it has no switch. Hosted framings are measured as hosted model ids
 (`src/hosted/models.ts`, e.g. `glm47-flash-native-v2`), where a new framing
-is a new id.
+is a new id. The bench's `-trusted` hosted models (README "Hosted models")
+send the extension's PR #48 requests (its stop sequences and tolerant answer
+parser); LOG B3-B6 predate them (first-line stop only, no tolerant parser),
+and have not been rerun. Known extension behaviours the bench does not
+model: one retry with a minimal OpenAI body after an HTTP 400, topK and
+GLM's thinking switch sent only to Nova and GLM (the bench always sends
+topK 1 on Converse), and confidence capped at 1.
 
 ## Rejected proposals
 

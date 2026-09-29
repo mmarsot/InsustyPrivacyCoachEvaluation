@@ -9,7 +9,7 @@ import { join } from "node:path";
 import { CACHE_DIR, RESULT_CACHE_DIR } from "../paths.ts";
 import { modelSlug } from "../run/jobs.ts";
 import type { BedrockTarget } from "./bedrock.ts";
-import { NATIVE_SYSTEM, type Framing } from "./framing.ts";
+import { HOSTED_RUN_ON_STOP, NATIVE_SYSTEM, type Framing } from "./framing.ts";
 import type { OpenAiTarget } from "./openai.ts";
 
 interface HostedModelCommon {
@@ -29,6 +29,8 @@ interface HostedModelCommon {
   maxTokens?: number;
   /** Stop sequences sent to the provider (the first-line cut happens in code either way). */
   stop?: string[];
+  /** `tolerant`: the extension's connected-model answer parser (PR #48) runs on the first line before the ref's parser. */
+  answerParser?: "tolerant";
   /** Ask for token log probabilities; when the reply has them, the answer confidence feeds the ref's confidence filter. */
   logprobs?: boolean;
   /** Bench: the ref's context budget in tokens (chunk size); default the ref's own. */
@@ -98,16 +100,17 @@ const GLM_47_FLASH = {
  */
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://127.0.0.1:11434/v1";
 const ollama = (model: string, family: string, peakRssMb: number) =>
-  (["completion", "native-v2"] as const).map((framing): OpenAiModel => ({
+  (["completion", "native-v2", "completion-trusted", "native-v2-trusted"] as const).map((framing): OpenAiModel => ({
     provider: "openai",
     id: `ollama/${model}#${framing}`,
     short: `ollama-${model.replace(/[:.]/g, "-")}-${framing}`,
     baseUrl: OLLAMA_BASE_URL,
     model,
-    framing: framing === "completion" ? "completion" : "native",
-    ...(framing === "native-v2" ? { nativeSystem: NATIVE_SYSTEM.v2, nativeExamples: true, maxTokens: 128 } : {}),
-    // The design's OpenAI-compatible request: first-line stop on the server, token log probabilities.
-    stop: ["\n"],
+    framing: framing.startsWith("completion") ? "completion" : "native",
+    ...(framing.startsWith("native") ? { nativeSystem: NATIVE_SYSTEM.v2, nativeExamples: true, maxTokens: 128 } : {}),
+    // The bench's first design: first-line stop on the server. `-trusted`: the extension's connected-model request (PR #48):
+    // a "\nText:" stop for completions, none for native chat, and its tolerant answer parser.
+    ...(framing.endsWith("-trusted") ? { answerParser: "tolerant" as const, ...(framing === "completion-trusted" ? { stop: [HOSTED_RUN_ON_STOP] } : {}) } : { stop: ["\n"] }),
     logprobs: true,
     usdPerMInput: 0,
     usdPerMOutput: 0,
@@ -158,6 +161,27 @@ export const HOSTED_MODELS: HostedModel[] = [
     contextBudget: 100_000,
     stop: ["\n"],
     logprobs: true,
+  },
+  // The extension's Trusted AI redaction requests (PR #48, `src/hosted-framing.ts` @ 71e0c25): Nova on Bedrock with the answer cue
+  // as prefill and a "\nText:" stop; GLM (Converse or OpenAI-compatible chat) with native v2 and no stop; the tolerant answer parser.
+  { id: "bedrock/eu.amazon.nova-micro-v1:0#trusted", short: "nova-micro-trusted", framing: "prefill", stop: [HOSTED_RUN_ON_STOP], answerParser: "tolerant", ...NOVA_MICRO },
+  { id: "bedrock/zai.glm-4.7-flash#trusted", short: "glm47-flash-trusted", framing: "native", nativeSystem: NATIVE_SYSTEM.v2, nativeExamples: true, maxTokens: 128, contextBudget: 100_000, answerParser: "tolerant", ...GLM_47_FLASH },
+  {
+    ...GLM_47_FLASH,
+    provider: "openai",
+    id: "bedrock/zai.glm-4.7-flash#oai-trusted",
+    short: "glm47-flash-oai-trusted",
+    baseUrl: `https://bedrock-runtime.${GLM_47_FLASH.region}.amazonaws.com/openai/v1`,
+    model: GLM_47_FLASH.modelId,
+    apiKeyEnv: "AWS_BEARER_TOKEN_BEDROCK",
+    extraBody: GLM_47_FLASH.additionalFields,
+    framing: "native",
+    nativeSystem: NATIVE_SYSTEM.v2,
+    nativeExamples: true,
+    maxTokens: 128,
+    contextBudget: 100_000,
+    logprobs: true,
+    answerParser: "tolerant",
   },
   ...ollama("smollm:360m", "SmolLM 360M Instruct (v1)", 700),
   ...ollama("smollm2:360m", "SmolLM2 360M Instruct", 1300),

@@ -76,7 +76,7 @@ async function main() {
         native = { label: { label: rule.label, description: rule.prompt, examples: rule.examples ?? [] }, text: request.input.slice(framePre.length, request.input.length - framePost.length) };
       }
       const r = await reviewHosted(hosted, { instructions: request.instructions, input: request.input, responsePrefill: request.responsePrefill ?? "", ...(native ? { native } : {}) }, { maxTokens, stopAtNewline: true });
-      const finishReason = r.output.length < r.raw.length ? "line" : r.stopReason === "length" ? "length" : "eos";
+      const finishReason = r.cut ? "line" : r.stopReason === "length" ? "length" : "eos";
       return {
         output: r.output,
         runtime: { backend: hosted.provider, quantization: hosted.framing, promptTokens: r.inputTokens, generatedTokens: r.outputTokens, finishReason, ...(r.answerProbability === undefined ? {} : { answerProbability: r.answerProbability }) },

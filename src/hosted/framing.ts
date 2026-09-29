@@ -20,6 +20,9 @@
  *     `nativeExamples` is false), then the prompt.
  */
 
+/** The extension's stop sequence for completion framings (`HOSTED_RUN_ON_STOP`, PR #48): a run-on answer ends at the next demonstration. */
+export const HOSTED_RUN_ON_STOP = "\nText:";
+
 export type Framing = "prefill" | "completion" | "system" | "native";
 
 export interface NativeLabel {
@@ -117,6 +120,28 @@ export function frameRequest(request: ReviewRequest, model: FramingOptions, maxT
 export function firstLine(text: string): string {
   const m = /^\s*\S[^\n]*/u.exec(text);
   return m ? m[0] : text;
+}
+
+const cueKey = (label: string): string => label.toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+
+/**
+ * The extension's tolerant reading of a connected model's answer for one
+ * label (`hostedAnswerLines` + `hostedOutput` in its src/hosted-framing.ts,
+ * PR #48): the first line, without a repeated `LABEL:` cue, split on `|`,
+ * each part trimmed, empty and `NONE` parts dropped, joined by " | ", or NONE.
+ */
+export function tolerantAnswer(output: string, label: string): string {
+  let line = (/^\s*\S[^\n]*/u.exec(output)?.[0] ?? "").trim();
+  for (;;) {
+    const cue = /^(?<cue>[^:|]{1,40}?)\s*:\s*(?<rest>.*)$/u.exec(line)?.groups;
+    if (!cue || cueKey(cue.cue ?? "") !== cueKey(label)) break;
+    line = (cue.rest ?? "").trim();
+  }
+  const passages = line
+    .split("|")
+    .map((part) => part.trim())
+    .filter((part) => part && !/^NONE\.?$/iu.test(part));
+  return passages.length ? passages.join(" | ") : "NONE";
 }
 
 /**

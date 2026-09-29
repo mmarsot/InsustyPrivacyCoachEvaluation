@@ -369,7 +369,7 @@ async function runHosted(model: LabModel, pending: Planned[]): Promise<void> {
       console.error(`[${model.short}] ${p.c.id}: gave up after retries (${error.message}); rerun to complete`);
       continue;
     }
-    const cut = r.output.length < r.raw.length;
+    const cut = r.cut;
     const record: HostedRecord = {
       key: p.key,
       model: model.id,

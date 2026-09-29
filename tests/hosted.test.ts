@@ -116,10 +116,12 @@ test("Bedrock models keep their ids (result cache keys), provider and settings",
       "bedrock/zai.glm-4.7-flash#system",
       "bedrock/zai.glm-4.7-flash#native-v2",
       "bedrock/zai.glm-4.7-flash#native-v2-noex",
+      "bedrock/eu.amazon.nova-micro-v1:0#trusted",
+      "bedrock/zai.glm-4.7-flash#trusted",
     ],
   );
   // Before the provider-neutral interface: no stop sequence and no logprobs, so their requests are byte for byte those of the cached results.
-  assert.ok(bedrock.every((m) => m.id.endsWith("#prefill-stop") || (m.stop === undefined && m.logprobs === undefined)));
+  assert.ok(bedrock.every((m) => m.id.endsWith("#prefill-stop") || m.id.endsWith("#trusted") || (m.stop === undefined && m.logprobs === undefined)));
   assert.deepEqual(findHostedModel("nova-micro-prefill-stop")!.stop, ["\nText:"]);
   assert.equal(new Set(HOSTED_MODELS.map((m) => m.id)).size, HOSTED_MODELS.length);
   // Result cache files are named by slug (the id after its last "/"): one file per model.
@@ -293,4 +295,33 @@ test("GLM-4.7 Flash over Bedrock's OpenAI-compatible endpoint: same key, chat, l
   assert.equal(body.model, "zai.glm-4.7-flash");
   assert.deepEqual((body as unknown as Record<string, unknown>).thinking, { type: "disabled" });
   assert.equal(body.logprobs, true);
+});
+
+test("tolerant parser: the extension's connected-model reading (PR #48)", async () => {
+  const { tolerantAnswer } = await import("../src/hosted/framing.ts");
+  assert.equal(tolerantAnswer("Acme Corp |", "CLIENT"), "Acme Corp");
+  assert.equal(tolerantAnswer("Acme Corp | NONE\nmore", "CLIENT"), "Acme Corp");
+  assert.equal(tolerantAnswer("client: Acme Corp|Norvik", "CLIENT"), "Acme Corp | Norvik");
+  assert.equal(tolerantAnswer("  NONE.", "CLIENT"), "NONE");
+  assert.equal(tolerantAnswer("", "CLIENT"), "NONE");
+  // Another label's cue is kept: only a repeated cue of this label is stripped.
+  assert.equal(tolerantAnswer("Note: Acme Corp", "CLIENT"), "Note: Acme Corp");
+});
+
+test("trusted models mirror the extension's connected-model requests", () => {
+  const nova = findHostedModel("nova-micro-trusted")!;
+  assert.deepEqual([nova.framing, nova.stop, nova.answerParser], ["prefill", ["\nText:"], "tolerant"]);
+  assert.deepEqual(bedrockBody(request, nova, 48).inferenceConfig, { maxTokens: 48, temperature: 0, stopSequences: ["\nText:"] });
+  const glm = findHostedModel("glm47-flash-trusted")!;
+  assert.deepEqual(bedrockBody({ ...request, native }, glm, 128).inferenceConfig, { maxTokens: 128, temperature: 0 });
+  const oai = findHostedModel("glm47-flash-oai-trusted") as OpenAiModel;
+  const chat = openAiRequest(frameRequest({ ...request, native }, oai, 128), oai);
+  assert.equal(chat.body.stop, undefined);
+  assert.equal(chat.body.logprobs, true);
+  const comp = findHostedModel("ollama-smollm2-360m-completion-trusted") as OpenAiModel;
+  assert.deepEqual(openAiRequest(frameRequest(request, comp, 48), comp).body.stop, ["\nText:"]);
+  assert.equal((findHostedModel("ollama-smollm2-360m-native-v2-trusted") as OpenAiModel).stop, undefined);
+  // Cached ids keep their meaning.
+  assert.equal(findHostedModel("nova-micro-prefill")!.answerParser, undefined);
+  assert.deepEqual(findHostedModel("glm47-flash-oai-native-v2")!.stop, ["\n"]);
 });

@@ -442,6 +442,18 @@ native). Converse rejects `\n` as a stop sequence, so it gets only non-blank
 ones (`nova-micro-prefill-stop`: `\nText:`); OpenAI-compatible entries send
 `stop: ["\n"]` and ask for `logprobs`.
 
+The `-trusted` entries (`nova-micro-trusted`, `glm47-flash-trusted`,
+`glm47-flash-oai-trusted`, `ollama-*-completion-trusted`,
+`ollama-*-native-v2-trusted`) send what the extension's Trusted AI redaction
+sends since PR #48 (`src/hosted-framing.ts` @ 71e0c25): a `\nText:` stop for
+answer-cue requests (prefill or completion), no stop for native chat, and
+the extension's tolerant answer parser (`tolerantAnswer` in `framing.ts`:
+repeated `LABEL:` cue stripped, split on `|`, empty and `NONE` parts
+dropped) before the ref's parser. Known extension behaviours the bench does
+not model: one retry with a minimal OpenAI body after an HTTP 400, topK and
+GLM's thinking switch sent only to Nova and GLM (the bench always sends topK
+1 on Converse), and confidence capped at 1.
+
 - **Models:** `nova-micro-*`: Amazon Nova Micro through the EU inference
   profile `eu.amazon.nova-micro-v1:0`. `glm47-flash-*`: Z.ai GLM-4.7 Flash
   (`zai.glm-4.7-flash`, in-region only) with thinking disabled (a reply with
