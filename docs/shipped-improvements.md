@@ -55,6 +55,7 @@ With 96 cases, F1 differences under ~8 points are noise.
 | 11 | Answer-confidence filter, minimum token probability 0.2 | `confidence` | [#32](https://github.com/mmarsot/InsustyPromptCoach/pull/32) | b4f96b1 | 2026-09-27 16:13 |
 | 12 | Overfit stop words "simple" and "terms" removed | `stopwords` | [#32](https://github.com/mmarsot/InsustyPromptCoach/pull/32) | b4f96b1 | 2026-09-27 16:13 |
 | – | WebGPU loads full precision instead of q4; WASM q8 is the default backend (no request change) | none | [#38](https://github.com/mmarsot/InsustyPromptCoach/pull/38) | aabbf99 | 2026-09-28 11:31 |
+| – | Trusted AI redaction on a connected model: bench framings, tolerant parser, confidence filter (connected-model feature, not the in-browser baseline) | none | [#48](https://github.com/mmarsot/InsustyPromptCoach/pull/48) | 71e0c25 | 2026-09-29 21:25 |
 
 ## Leave-one-out ablation (tune96, SmolLM2-360M)
 
@@ -406,6 +407,47 @@ validating runtime reports. Device and format are run parameters of the lab
 ablation table stands without a rerun. What changes for users is that the
 default no longer drops to WebGPU q4 (G2's F1 15) when an adapter is
 usable, so the default path is the one this ledger measures.
+
+## Extension PR #48: Trusted AI redaction on a connected model (not the in-browser baseline)
+
+https://github.com/mmarsot/InsustyPromptCoach/pull/48, merge commit
+71e0c25 (2026-09-29 21:25 UTC). Trusted AI redaction can now run on a
+connected model (Amazon Bedrock Converse, or an OpenAI-compatible server)
+from the service worker, mirroring the bench's hosted backend
+(`src/hosted/`, LOG B1-B7):
+
+- **Task prompt:** the native-v2 system prompt and user message are
+  byte-identical to the bench's `NATIVE_SYSTEM.v2` and `nativeUserMessage`
+  (label examples always sent) in `src/hosted/framing.ts`
+  (extension `src/hosted-framing.ts`).
+- **Per-model framing** (`resolveRequestFormat`): Nova on Bedrock gets the
+  on-device completion text with the answer cue as an assistant prefill
+  (bench `prefill`; on OpenAI-compatible servers, a raw `/completions` call,
+  bench `completion`); GLM and any other chat model get the native task
+  prompt (bench `native`). Greedy decoding, topK 1 on Converse, GLM thinking
+  disabled.
+- **Tolerant answer parser** (`hostedAnswerLines`): first line, a repeated
+  `LABEL:` cue stripped, split on `|`, empty and `NONE` parts dropped, then
+  handed to the on-device `reviewPrompt` parser.
+- **Confidence filter:** the same minimum-token-probability 0.2 rule as item
+  11, from the provider's log-probabilities where it returns them
+  (OpenAI-compatible servers that do; Converse returns none, so Bedrock
+  answers are unfiltered).
+- **Fallback:** when the connected model fails (unreachable, auth, rate
+  limit, timeout, unreadable answer), the review falls back to rule-based
+  redaction.
+
+Evidence, held-out test split, one shot (LOG B6, run `hosted-test-1c377d7`;
+framings chosen on dev in B3-B5): GLM-4.7 Flash native v2 recall **64.7%**
+(F1 58.7, precision 53.7, FP rate 32.7%, p50 0.61 s) against **27.0%** for
+the bundled SmolLM2-360M `shipped` design (F1 33.2, FP rate 35.6%, p50
+2.61 s); Nova Micro prefill 45.3% recall at 72.6% precision.
+
+This is a connected-model feature, not a change to the in-browser model: the
+`shipped` lab baseline, its switches and the ablation above are unchanged,
+and it has no switch. Hosted framings are measured as hosted model ids
+(`src/hosted/models.ts`, e.g. `glm47-flash-native-v2`), where a new framing
+is a new id.
 
 ## Rejected proposals
 
