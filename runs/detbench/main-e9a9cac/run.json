@@ -1,0 +1,81 @@
+{
+  "name": "main-e9a9cac",
+  "ext": {
+    "ref": "main",
+    "sha": "e9a9cac7cee4b682914109471faeeba6d959618c",
+    "subject": "feat(content): show a Local AI check overlay with Skip AI check on ChatGPT (#41)",
+    "committedAt": "2026-09-28T15:55:19+02:00"
+  },
+  "packages": {
+    "addressit": "1.8.2",
+    "libphonenumber-js": "1.13.9"
+  },
+  "refCategories": [
+    "API_KEY",
+    "PHONE",
+    "EMAIL",
+    "ADDRESS"
+  ],
+  "supported": [
+    "SECRET",
+    "PHONE",
+    "EMAIL",
+    "ADDRESS"
+  ],
+  "configs": {
+    "default": {
+      "categories": {
+        "API_KEY": true,
+        "PHONE": true,
+        "EMAIL": true,
+        "ADDRESS": true
+      },
+      "addressCountries": [
+        "FR"
+      ]
+    },
+    "all": {
+      "categories": {
+        "API_KEY": true,
+        "PHONE": true,
+        "EMAIL": true,
+        "ADDRESS": true
+      },
+      "addressCountries": [
+        "FR",
+        "US",
+        "CA",
+        "AU"
+      ]
+    }
+  },
+  "allConfigNote": "adds address countries US, CA, AU",
+  "datasetHash": "3d96498d478f42641f6e84bd77d8dc5779ab8504dc0e9459b87f3223492ce16f",
+  "seed": 1,
+  "variantsPerType": 2,
+  "perturbations": [
+    "spacing",
+    "separators",
+    "alt_format",
+    "case",
+    "linebreak",
+    "punctuation",
+    "code_block",
+    "env",
+    "accents",
+    "typo"
+  ],
+  "baseCases": 130,
+  "variants": 1500,
+  "timing": {
+    "calls": 260,
+    "p50Ms": 0.31381999999996424,
+    "p95Ms": 2.4531939999999395,
+    "maxMs": 6.186394000000064,
+    "totalMs": 181.36344499999922
+  },
+  "node": "24.18.0",
+  "machine": "8 vCPU, 7 GB",
+  "startedAt": "2026-09-29T08:48:02.996Z",
+  "finishedAt": "2026-09-29T08:48:04.459Z"
+}

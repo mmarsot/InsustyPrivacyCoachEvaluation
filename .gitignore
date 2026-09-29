@@ -4,3 +4,5 @@ cache/
 # Machine-local settings (for example the path to the extension clone).
 bench.local.json
 *.tmp.*
+# Detbench perturbed-variant rows: regenerated identically from the dataset and seed in seconds.
+runs/detbench/*/variants.jsonl

@@ -77,7 +77,9 @@ answer. The validator rejects such leaks.
 - If the same secret appears in two spellings (`Ostrava` and `ostrava`, `K9`
   and `the K9`), list each spelling that should be caught.
 - Only the profile's custom labels are ground truth. Avoid emails, phone
-  numbers, postal addresses and API keys: deterministic rules handle those.
+  numbers, postal addresses and API keys: deterministic rules handle those. The
+  rule-based detector has its own dataset and bench (`dataset/detbench/`,
+  [detbench.md](detbench.md)).
 - Negatives (`lookalike_negative`, `clean_negative`) have `expected: []`.
   `hard` cases may be positive or negative.
 

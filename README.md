@@ -17,6 +17,10 @@ parts:
 - **Report**: produces a static HTML report and CSV/JSONL results, and can
   compare two runs.
 
+Next to it, a **deterministic redaction bench** (`npm run detbench`) measures
+the extension's rule-based detector with no model: see
+[below](#deterministic-redaction-bench).
+
 ## Quick start
 
 ```bash
@@ -149,6 +153,70 @@ What it shows for SmolLM2-135M, the extension's default model:
 
 `main` has since added a stop on repeated lines, so the next run on `main`
 should show far fewer timeouts. The other two models still need a run.
+
+## Deterministic redaction bench
+
+```bash
+npm run detbench -- --ref main                       # a few seconds, no model
+npm run detbench -- --ref main --compare <branch>    # two refs + a comparison page
+npm run detbench -- --validate                       # check dataset/detbench/
+```
+
+`npm run detbench` scores the extension's rule-based detector
+(`detectSensitiveData`, `src/detector.ts`) from any ref, with the ref's default
+configuration and with every category and address country on. The ref is
+materialized read-only like the model bench, and the detector's npm packages
+are installed at the versions its package-lock pins.
+
+- **Dataset** (`dataset/detbench/`): 130 fictional EN/FR prompts with 198
+  labelled items across `SECRET`, `EMAIL`, `PHONE`, `ADDRESS`, `FINANCIAL`,
+  `NATIONAL_ID`, `DATE_OF_BIRTH` and `IP` (the detector upgrade's names), plus
+  hard negatives (log timestamps, git SHAs and hashes, trace IDs, versions,
+  prices, dates, plain prose). Many prompts mix several categories. Values are
+  checksum-valid where a checksum exists (IBAN, card, NIR, SIREN/SIRET, VAT,
+  NHS).
+- **Perturbations**: seeded variants of every case (spacing, separators,
+  alternative formats, case, line breaks inside values, punctuation, code
+  fences, `.env` snippets, stripped accents, typos in context words), scored
+  against the same base cases to show the drop per type.
+- **Metrics**: precision, recall and F1 per category and language, exact and
+  overlapping spans, wrong category, merged spans, leaked characters, and
+  flagged hard negatives. Categories a ref lacks are reported as "not
+  supported by this ref", not as misses.
+
+[docs/detbench.md](docs/detbench.md) has the dataset format, how to add
+cases, the perturbations and the metric definitions.
+
+Baseline on `main` @ `e9a9cac`
+([`runs/detbench/main-e9a9cac/report.html`](runs/detbench/main-e9a9cac/report.html)),
+base cases, `default` config (FR addresses only) and `all` (FR/US/CA/AU):
+
+| | `default` | `all` |
+| --- | --- | --- |
+| F1 / precision / recall (supported categories, overlap) | 77% / 80% / 73% | 78% / 75% / 82% |
+| F1, exact span | 52% | 50% |
+| Items redacted, all categories | 48% | 54% |
+| Negative prompts with a false positive | 36% | 39% |
+| Hard negatives flagged | 17 / 82 | 28 / 82 |
+
+- `FINANCIAL`, `NATIONAL_ID`, `DATE_OF_BIRTH` and `IP` are not supported on
+  `main`. No IBAN, BIC, card, CVV, NIR, SIRET, VAT number or date of birth is
+  redacted. 9 of 26 national IDs are caught only as PHONE (SSN, passport,
+  SIREN), and 6 of 20 IPs only by accident (2 as PHONE, 4 inside an EMAIL
+  span).
+- `SECRET` (`API_KEY`): recall 77%, but exact F1 is 32%. The entropy
+  heuristic takes in the variable name (`FACTURATION_API_KEY=…`), and PEM keys,
+  JWTs and Slack webhooks are cut into pieces, with parts left visible. Every
+  full-length git SHA, MD5/SHA-256 hash, UUID and 32-hex trace ID is flagged as
+  `API_KEY` by the bare 32-hex rule. Only 1 of 9 passwords is found; in a
+  connection URL the password and the host are flagged together as one EMAIL.
+- `PHONE`: FR recall is 100%; EN is 25% in `default` (FR-only metadata) and
+  67% in `all`, where the US metadata also turns 10 of 13 log timestamps into
+  phones.
+- **Perturbations**: a code fence drops recall from 73% to 4% (fenced code is
+  never scanned), and a line break inside a value from 70% to 51%. Spacing,
+  separators, alternative phone and date formats, case, accents and typos move
+  F1 by 3 points or less.
 
 ## Dashboard
 
@@ -385,14 +453,14 @@ Other commands:
 - `npm run components -- <bench arguments>` scores a completed run of a ref
   with the answer-confidence filter and example patterns (PR #32 and later)
   with each part switched off, by replaying its cached answers (no model).
-- `npm test` runs the scorer, dashboard data and playground unit tests (the
-  playground ones use a fake model process, no weights).
+- `npm test` runs the scorer, dashboard data, playground and detbench unit
+  tests (the playground ones use a fake model process, no weights).
 - `npm run typecheck` runs the type checker.
 
 ## Repository layout
 
 ```
-dataset/        profiles, cases, style guides
+dataset/        profiles, cases, style guides; detbench/ for the rule-based detector
 models/         bundled and candidate model metadata (sizes, dtypes, advertised languages + sources)
 src/dataset/    schema, loader/validator
 src/ext/        extension ref materialization and API surface
@@ -402,8 +470,9 @@ src/report/     HTML report, run comparison
 src/dashboard/  local dashboard (read-only server + static page)
 src/playground/ chat playground: request logic, model host process, its manager
 src/lab/        prompt-engineering lab: configurations, shipped baseline + switches, ablation, renderer, worker, parity check
+src/detbench/   deterministic redaction bench: dataset, perturbations, detector loading, scoring, report
 experiments/    lab iteration sets, run summaries, ablation tables, LOG.md, REPORT.md, RESEARCH.md
-src/cli/        validate, split, bench, report, compare
-runs/           committed run outputs
+src/cli/        validate, split, bench, report, compare, detbench
+runs/           committed run outputs (runs/detbench/ for the rule-based detector)
 cache/          (untracked) model weights, extracted refs, result cache
 ```

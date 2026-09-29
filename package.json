@@ -21,7 +21,8 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "lab": "tsx src/lab/cli.ts",
     "lab:classify": "tsx src/lab/classify-cli.ts",
-    "ablate": "tsx src/lab/ablate.ts"
+    "ablate": "tsx src/lab/ablate.ts",
+    "detbench": "tsx src/cli/detbench.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "3.8.1",

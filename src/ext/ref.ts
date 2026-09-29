@@ -63,6 +63,26 @@ export function resolveExtRefName(cli?: string): string {
 const git = (repo: string, args: string[]): string =>
   execFileSync("git", ["-C", repo, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
 
+/** Resolves a ref to its commit, read-only. */
+export function resolveCommit(repo: string, ref: string): { sha: string; subject: string; committedAt: string } {
+  const sha = git(repo, ["rev-parse", "--verify", `${ref}^{commit}`]);
+  return { sha, subject: git(repo, ["log", "-1", "--format=%s", sha]), committedAt: git(repo, ["log", "-1", "--format=%cI", sha]) };
+}
+
+/** Extracts `paths` of a commit into `dir` with `git archive` (the clone is never touched). Missing paths are skipped. */
+export function archiveCommit(repo: string, sha: string, paths: string[], dir: string): void {
+  const present = paths.filter((p) => {
+    try {
+      git(repo, ["cat-file", "-e", `${sha}:${p}`]);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+  const tar = execFileSync("git", ["-C", repo, "archive", "--format=tar", sha, ...present], { maxBuffer: 256 * 1024 * 1024 });
+  execFileSync("tar", ["-x", "-C", dir], { input: tar });
+}
+
 export interface ExtRef {
   ref: string;
   sha: string;
@@ -76,19 +96,14 @@ export interface ExtRef {
 
 /** Resolves and materializes a ref; cached per commit sha. */
 export async function materializeExtRef(repo: string, ref: string): Promise<ExtRef> {
-  const sha = git(repo, ["rev-parse", "--verify", `${ref}^{commit}`]);
-  const subject = git(repo, ["log", "-1", "--format=%s", sha]);
-  const committedAt = git(repo, ["log", "-1", "--format=%cI", sha]);
+  const { sha, subject, committedAt } = resolveCommit(repo, ref);
   const dir = join(EXT_CACHE_DIR, sha);
   const bundle = join(dir, "bench-ext.mjs");
   if (!existsSync(bundle)) {
     const staging = `${dir}.staging-${process.pid}`;
     rmSync(staging, { recursive: true, force: true });
     mkdirSync(staging, { recursive: true });
-    const tar = execFileSync("git", ["-C", repo, "archive", "--format=tar", sha, "src", "package.json"], {
-      maxBuffer: 256 * 1024 * 1024,
-    });
-    execFileSync("tar", ["-x", "-C", staging], { input: tar });
+    archiveCommit(repo, sha, ["src", "package.json"], staging);
     const present = MODULES.filter((m) => existsSync(join(staging, m.file)));
     const missing = MODULES.filter((m) => m.required && !present.includes(m));
     if (missing.length)
