@@ -56,6 +56,7 @@ With 96 cases, F1 differences under ~8 points are noise.
 | 12 | Overfit stop words "simple" and "terms" removed | `stopwords` | [#32](https://github.com/mmarsot/InsustyPromptCoach/pull/32) | b4f96b1 | 2026-09-27 16:13 |
 | – | WebGPU loads full precision instead of q4; WASM q8 is the default backend (no request change) | none | [#38](https://github.com/mmarsot/InsustyPromptCoach/pull/38) | aabbf99 | 2026-09-28 11:31 |
 | – | Trusted AI redaction on a connected model: bench framings, tolerant parser, confidence filter (connected-model feature, not the in-browser baseline) | none | [#48](https://github.com/mmarsot/InsustyPromptCoach/pull/48) | 71e0c25 | 2026-09-29 21:25 |
+| – | Review-dialog learning: learned examples and false alarms as extra demonstrations (per-user state; a fresh install has none, so not in the baseline) | none | [#52](https://github.com/mmarsot/InsustyPromptCoach/pull/52) | b40b5a2 | 2026-09-30 09:55 |
 
 ## Leave-one-out ablation (tune96, SmolLM2-360M)
 
@@ -454,6 +455,47 @@ and have not been rerun. Known extension behaviours the bench does not
 model: one retry with a minimal OpenAI body after an HTTP 400, topK and
 GLM's thinking switch sent only to Nova and GLM (the bench always sends
 topK 1 on Converse), and confidence capped at 1.
+
+## Extension PR #52: learning custom labels from the review dialog (not in the baseline)
+
+https://github.com/mmarsot/InsustyPromptCoach/pull/52, merge commit
+b40b5a2 (2026-09-30 09:55 UTC). While "Learn from my reviews" is on (the
+default), the review dialog records, per custom label, the passages the user
+confirmed (learned examples) and the findings the user rejected (learned
+false alarms), at most 10 of each (`LEARNED_MAX_PER_LIST`), newest kept.
+The Local AI review then uses them:
+
+- **Extra demonstrations** (`learnedDemonstrations`, `composeLabelPrefix`
+  in extension `src/slm-review.ts`): after the label's own two examples,
+  the newest learned examples as further positive demonstrations, then the
+  newest learned false alarms in the same carrier sentences answered
+  `NONE`. The on-device model gets 2 + 2 (`ON_DEVICE_LEARNED_LIMITS`),
+  within half its context budget; past it the oldest learned items are
+  dropped. Connected models get all 10 + 10 (`HOSTED_LEARNED_LIMITS`, half
+  the hosted budget): the completion/prefill framings use the same prefix,
+  and the native user message appends learned examples to the label's
+  examples and adds a "Passages the user marked as not LABEL (never copy
+  them)" line.
+- **Exact matches and suppression:** a learned example found verbatim in a
+  prompt is a finding (`learnedExampleMatches`), and any finding whose text
+  equals a learned false alarm of its label is dropped
+  (`withoutLearnedFalseAlarms`).
+
+A label that learned nothing renders exactly as before, so the `shipped`
+baseline, which models a fresh install with no learned lists, is unchanged,
+and there is no switch: turning learning off on the baseline would change
+nothing. **Evidence: none measured yet.** The benchmark has no learned
+lists; the review-learning simulation that would measure this is parked in
+the `bench-t7-measurements` lane. A future measurement is a new lab
+configuration (learned lists built from dev cases only), not a change to
+`shipped`.
+
+Hosted connectors at b40b5a2: for labels without learned lists the
+extension's connected-model requests are byte-identical to PR #48's, so the
+bench's `-trusted` hosted models still mirror the extension for every case
+the dataset can express. The bench does not model learned lists (no
+learned demonstrations, native false-alarm line, exact matches or
+suppression) on either the in-browser or the hosted path.
 
 ## Rejected proposals
 
