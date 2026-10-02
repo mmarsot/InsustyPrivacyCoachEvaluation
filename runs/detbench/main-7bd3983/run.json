@@ -69,7 +69,7 @@
     }
   },
   "allConfigNote": "turns on IP, COMPANY_ID",
-  "datasetHash": "5b1a118bf830e33f3f7340d80e5f2967848f9d51ba943db80a7a3640f5781179",
+  "datasetHash": "4a5c02077c33976f0bc3032ff07025ae88788a7183aca4250a10461317adba54",
   "seed": 1,
   "variantsPerType": 2,
   "perturbations": [
@@ -84,17 +84,17 @@
     "accents",
     "typo"
   ],
-  "baseCases": 252,
-  "variants": 2858,
+  "baseCases": 253,
+  "variants": 2864,
   "timing": {
-    "calls": 504,
-    "p50Ms": 0.31404300000008334,
-    "p95Ms": 4.986188000000027,
-    "maxMs": 14.942414999999983,
-    "totalMs": 521.4946800000031
+    "calls": 506,
+    "p50Ms": 0.34631400000000667,
+    "p95Ms": 5.356828000000007,
+    "maxMs": 17.65301199999999,
+    "totalMs": 592.355924
   },
   "node": "24.18.0",
   "machine": "8 vCPU, 7 GB",
-  "startedAt": "2026-10-02T09:46:20.456Z",
-  "finishedAt": "2026-10-02T09:46:23.431Z"
+  "startedAt": "2026-10-02T09:49:07.916Z",
+  "finishedAt": "2026-10-02T09:49:11.009Z"
 }

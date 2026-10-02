@@ -2,72 +2,72 @@
  {
   "config": "default",
   "overall": {
-   "cases": 252,
+   "cases": 253,
    "items": 475,
    "supportedItems": 475,
    "unsupportedItems": 0,
-   "detections": 372,
+   "detections": 373,
    "tp": 364,
    "exactTp": 361,
    "found": 364,
    "foundExact": 361,
    "overlap": {
-    "precision": 0.978494623655914,
+    "precision": 0.9758713136729222,
     "recall": 0.7663157894736842,
-    "f1": 0.8595041322314049
+    "f1": 0.8584905660377359
    },
    "exact": {
-    "precision": 0.9704301075268817,
+    "precision": 0.967828418230563,
     "recall": 0.76,
-    "f1": 0.8524203069657615
+    "f1": 0.8514150943396227
    },
    "redactedRecall": 0.7663157894736842,
    "leakFreeRate": 0.7663157894736842,
    "unsupportedRedacted": 0,
    "wrongCategory": 0,
    "mergedItems": 0,
-   "falsePositives": 8,
-   "decoys": 359,
-   "decoysFlagged": 8,
-   "negatives": 54,
-   "negativeFpCases": 4,
-   "negativeFpRate": 0.07407407407407407
+   "falsePositives": 9,
+   "decoys": 361,
+   "decoysFlagged": 9,
+   "negatives": 55,
+   "negativeFpCases": 5,
+   "negativeFpRate": 0.09090909090909091
   },
   "byCategory": {
    "SECRET": {
-    "cases": 252,
+    "cases": 253,
     "items": 95,
     "supportedItems": 95,
     "unsupportedItems": 0,
-    "detections": 96,
+    "detections": 97,
     "tp": 93,
     "exactTp": 91,
     "found": 93,
     "foundExact": 91,
     "overlap": {
-     "precision": 0.96875,
+     "precision": 0.9587628865979382,
      "recall": 0.9789473684210527,
-     "f1": 0.9738219895287958
+     "f1": 0.96875
     },
     "exact": {
-     "precision": 0.9479166666666666,
+     "precision": 0.9381443298969072,
      "recall": 0.9578947368421052,
-     "f1": 0.9528795811518324
+     "f1": 0.9479166666666666
     },
     "redactedRecall": 0.9789473684210527,
     "leakFreeRate": 0.9789473684210527,
     "unsupportedRedacted": 0,
     "wrongCategory": 0,
     "mergedItems": 0,
-    "falsePositives": 3,
+    "falsePositives": 4,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 2,
-    "negativeFpRate": 0.037037037037037035
+    "negatives": 55,
+    "negativeFpCases": 3,
+    "negativeFpRate": 0.05454545454545454
    },
    "EMAIL": {
-    "cases": 252,
+    "cases": 253,
     "items": 79,
     "supportedItems": 79,
     "unsupportedItems": 0,
@@ -94,12 +94,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    },
    "PHONE": {
-    "cases": 252,
+    "cases": 253,
     "items": 41,
     "supportedItems": 41,
     "unsupportedItems": 0,
@@ -126,12 +126,12 @@
     "falsePositives": 2,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 1,
-    "negativeFpRate": 0.018518518518518517
+    "negativeFpRate": 0.01818181818181818
    },
    "ADDRESS": {
-    "cases": 252,
+    "cases": 253,
     "items": 18,
     "supportedItems": 18,
     "unsupportedItems": 0,
@@ -158,12 +158,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    },
    "FINANCIAL": {
-    "cases": 252,
+    "cases": 253,
     "items": 94,
     "supportedItems": 94,
     "unsupportedItems": 0,
@@ -190,12 +190,12 @@
     "falsePositives": 1,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    },
    "NATIONAL_ID": {
-    "cases": 252,
+    "cases": 253,
     "items": 43,
     "supportedItems": 43,
     "unsupportedItems": 0,
@@ -222,12 +222,12 @@
     "falsePositives": 2,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 1,
-    "negativeFpRate": 0.018518518518518517
+    "negativeFpRate": 0.01818181818181818
    },
    "DATE_OF_BIRTH": {
-    "cases": 252,
+    "cases": 253,
     "items": 26,
     "supportedItems": 26,
     "unsupportedItems": 0,
@@ -254,12 +254,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    },
    "IP": {
-    "cases": 252,
+    "cases": 253,
     "items": 64,
     "supportedItems": 64,
     "unsupportedItems": 0,
@@ -286,12 +286,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    },
    "COMPANY_ID": {
-    "cases": 252,
+    "cases": 253,
     "items": 15,
     "supportedItems": 15,
     "unsupportedItems": 0,
@@ -318,7 +318,7 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    }
@@ -326,36 +326,36 @@
   "byCategoryLang": {
    "SECRET": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 55,
      "supportedItems": 55,
      "unsupportedItems": 0,
-     "detections": 56,
+     "detections": 57,
      "tp": 55,
      "exactTp": 53,
      "found": 55,
      "foundExact": 53,
      "overlap": {
-      "precision": 0.9821428571428571,
+      "precision": 0.9649122807017544,
       "recall": 1,
-      "f1": 0.9909909909909909
+      "f1": 0.9821428571428572
      },
      "exact": {
-      "precision": 0.9464285714285714,
+      "precision": 0.9298245614035088,
       "recall": 0.9636363636363636,
-      "f1": 0.9549549549549549
+      "f1": 0.9464285714285715
      },
      "redactedRecall": 1,
      "leakFreeRate": 1,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 1,
+     "falsePositives": 2,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
-     "negativeFpCases": 1,
-     "negativeFpRate": 0.034482758620689655
+     "negatives": 30,
+     "negativeFpCases": 2,
+     "negativeFpRate": 0.06666666666666667
     },
     "fr": {
      "cases": 121,
@@ -392,7 +392,7 @@
    },
    "EMAIL": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 43,
      "supportedItems": 43,
      "unsupportedItems": 0,
@@ -419,7 +419,7 @@
      "falsePositives": 0,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 0,
      "negativeFpRate": 0
     },
@@ -458,7 +458,7 @@
    },
    "PHONE": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 21,
      "supportedItems": 21,
      "unsupportedItems": 0,
@@ -485,9 +485,9 @@
      "falsePositives": 2,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 1,
-     "negativeFpRate": 0.034482758620689655
+     "negativeFpRate": 0.03333333333333333
     },
     "fr": {
      "cases": 121,
@@ -524,7 +524,7 @@
    },
    "ADDRESS": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 8,
      "supportedItems": 8,
      "unsupportedItems": 0,
@@ -551,7 +551,7 @@
      "falsePositives": 0,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 0,
      "negativeFpRate": 0
     },
@@ -590,7 +590,7 @@
    },
    "FINANCIAL": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 45,
      "supportedItems": 45,
      "unsupportedItems": 0,
@@ -617,7 +617,7 @@
      "falsePositives": 1,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 0,
      "negativeFpRate": 0
     },
@@ -656,7 +656,7 @@
    },
    "NATIONAL_ID": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 23,
      "supportedItems": 23,
      "unsupportedItems": 0,
@@ -683,9 +683,9 @@
      "falsePositives": 2,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 1,
-     "negativeFpRate": 0.034482758620689655
+     "negativeFpRate": 0.03333333333333333
     },
     "fr": {
      "cases": 121,
@@ -722,7 +722,7 @@
    },
    "DATE_OF_BIRTH": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 14,
      "supportedItems": 14,
      "unsupportedItems": 0,
@@ -749,7 +749,7 @@
      "falsePositives": 0,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 0,
      "negativeFpRate": 0
     },
@@ -788,7 +788,7 @@
    },
    "IP": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 35,
      "supportedItems": 35,
      "unsupportedItems": 0,
@@ -815,7 +815,7 @@
      "falsePositives": 0,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 0,
      "negativeFpRate": 0
     },
@@ -854,7 +854,7 @@
    },
    "COMPANY_ID": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 0,
      "supportedItems": 0,
      "unsupportedItems": 0,
@@ -881,7 +881,7 @@
      "falsePositives": 0,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 0,
      "negativeFpRate": 0
     },
@@ -921,7 +921,7 @@
   },
   "byKind": {
    "address_fr": {
-    "cases": 252,
+    "cases": 253,
     "items": 10,
     "supportedItems": 10,
     "unsupportedItems": 0,
@@ -948,12 +948,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "address_uk": {
-    "cases": 252,
+    "cases": 253,
     "items": 2,
     "supportedItems": 2,
     "unsupportedItems": 0,
@@ -980,12 +980,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "address_us": {
-    "cases": 252,
+    "cases": 253,
     "items": 6,
     "supportedItems": 6,
     "unsupportedItems": 0,
@@ -1012,12 +1012,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "anthropic_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 3,
     "supportedItems": 3,
     "unsupportedItems": 0,
@@ -1044,12 +1044,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "aws_access_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 3,
     "supportedItems": 3,
     "unsupportedItems": 0,
@@ -1076,12 +1076,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "aws_secret_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 3,
     "supportedItems": 3,
     "unsupportedItems": 0,
@@ -1108,12 +1108,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "bic": {
-    "cases": 252,
+    "cases": 253,
     "items": 5,
     "supportedItems": 5,
     "unsupportedItems": 0,
@@ -1140,12 +1140,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "card": {
-    "cases": 252,
+    "cases": 253,
     "items": 21,
     "supportedItems": 21,
     "unsupportedItems": 0,
@@ -1172,12 +1172,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "card_expiry": {
-    "cases": 252,
+    "cases": 253,
     "items": 6,
     "supportedItems": 6,
     "unsupportedItems": 0,
@@ -1204,12 +1204,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "cvv": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -1236,12 +1236,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "dob": {
-    "cases": 252,
+    "cases": 253,
     "items": 26,
     "supportedItems": 26,
     "unsupportedItems": 0,
@@ -1268,12 +1268,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "email": {
-    "cases": 252,
+    "cases": 253,
     "items": 79,
     "supportedItems": 79,
     "unsupportedItems": 0,
@@ -1300,12 +1300,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "generic_token": {
-    "cases": 252,
+    "cases": 253,
     "items": 17,
     "supportedItems": 17,
     "unsupportedItems": 0,
@@ -1332,12 +1332,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "github_token": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -1364,12 +1364,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "gitlab_token": {
-    "cases": 252,
+    "cases": 253,
     "items": 3,
     "supportedItems": 3,
     "unsupportedItems": 0,
@@ -1396,12 +1396,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "google_api_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 1,
     "supportedItems": 1,
     "unsupportedItems": 0,
@@ -1428,12 +1428,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "hf_token": {
-    "cases": 252,
+    "cases": 253,
     "items": 3,
     "supportedItems": 3,
     "unsupportedItems": 0,
@@ -1460,12 +1460,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "iban": {
-    "cases": 252,
+    "cases": 253,
     "items": 58,
     "supportedItems": 58,
     "unsupportedItems": 0,
@@ -1492,12 +1492,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "ipv4": {
-    "cases": 252,
+    "cases": 253,
     "items": 28,
     "supportedItems": 28,
     "unsupportedItems": 0,
@@ -1524,12 +1524,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "ipv4_private": {
-    "cases": 252,
+    "cases": 253,
     "items": 24,
     "supportedItems": 24,
     "unsupportedItems": 0,
@@ -1556,12 +1556,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "ipv6": {
-    "cases": 252,
+    "cases": 253,
     "items": 10,
     "supportedItems": 10,
     "unsupportedItems": 0,
@@ -1588,12 +1588,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "jwt": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -1620,12 +1620,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "mac": {
-    "cases": 252,
+    "cases": 253,
     "items": 2,
     "supportedItems": 2,
     "unsupportedItems": 0,
@@ -1652,12 +1652,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "nhs": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -1684,12 +1684,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "nino": {
-    "cases": 252,
+    "cases": 253,
     "items": 2,
     "supportedItems": 2,
     "unsupportedItems": 0,
@@ -1716,12 +1716,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "nir": {
-    "cases": 252,
+    "cases": 253,
     "items": 15,
     "supportedItems": 15,
     "unsupportedItems": 0,
@@ -1748,12 +1748,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "openai_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 7,
     "supportedItems": 7,
     "unsupportedItems": 0,
@@ -1780,12 +1780,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "passport": {
-    "cases": 252,
+    "cases": 253,
     "items": 13,
     "supportedItems": 13,
     "unsupportedItems": 0,
@@ -1812,12 +1812,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "password": {
-    "cases": 252,
+    "cases": 253,
     "items": 35,
     "supportedItems": 35,
     "unsupportedItems": 0,
@@ -1844,12 +1844,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "phone_de": {
-    "cases": 252,
+    "cases": 253,
     "items": 2,
     "supportedItems": 2,
     "unsupportedItems": 0,
@@ -1876,12 +1876,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "phone_fr": {
-    "cases": 252,
+    "cases": 253,
     "items": 20,
     "supportedItems": 20,
     "unsupportedItems": 0,
@@ -1908,12 +1908,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "phone_uk": {
-    "cases": 252,
+    "cases": 253,
     "items": 7,
     "supportedItems": 7,
     "unsupportedItems": 0,
@@ -1940,12 +1940,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "phone_us": {
-    "cases": 252,
+    "cases": 253,
     "items": 12,
     "supportedItems": 12,
     "unsupportedItems": 0,
@@ -1972,12 +1972,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "private_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -2004,12 +2004,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "siren": {
-    "cases": 252,
+    "cases": 253,
     "items": 6,
     "supportedItems": 6,
     "unsupportedItems": 0,
@@ -2036,12 +2036,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "siret": {
-    "cases": 252,
+    "cases": 253,
     "items": 5,
     "supportedItems": 5,
     "unsupportedItems": 0,
@@ -2068,12 +2068,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "slack_token": {
-    "cases": 252,
+    "cases": 253,
     "items": 1,
     "supportedItems": 1,
     "unsupportedItems": 0,
@@ -2100,12 +2100,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "slack_webhook": {
-    "cases": 252,
+    "cases": 253,
     "items": 2,
     "supportedItems": 2,
     "unsupportedItems": 0,
@@ -2132,12 +2132,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "ssn": {
-    "cases": 252,
+    "cases": 253,
     "items": 9,
     "supportedItems": 9,
     "unsupportedItems": 0,
@@ -2164,12 +2164,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "stripe_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 5,
     "supportedItems": 5,
     "unsupportedItems": 0,
@@ -2196,12 +2196,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "tva": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -2228,43 +2228,43 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    }
   },
   "byLang": {
    "en": {
-    "cases": 131,
+    "cases": 132,
     "items": 244,
     "supportedItems": 244,
     "unsupportedItems": 0,
-    "detections": 188,
+    "detections": 189,
     "tp": 182,
     "exactTp": 180,
     "found": 182,
     "foundExact": 180,
     "overlap": {
-     "precision": 0.9680851063829787,
+     "precision": 0.9629629629629629,
      "recall": 0.7459016393442623,
-     "f1": 0.8425925925925927
+     "f1": 0.8406466512702079
     },
     "exact": {
-     "precision": 0.9574468085106383,
+     "precision": 0.9523809523809523,
      "recall": 0.7377049180327869,
-     "f1": 0.8333333333333334
+     "f1": 0.8314087759815243
     },
     "redactedRecall": 0.7459016393442623,
     "leakFreeRate": 0.7459016393442623,
     "unsupportedRedacted": 0,
     "wrongCategory": 0,
     "mergedItems": 0,
-    "falsePositives": 6,
-    "decoys": 198,
-    "decoysFlagged": 6,
-    "negatives": 29,
-    "negativeFpCases": 3,
-    "negativeFpRate": 0.10344827586206896
+    "falsePositives": 7,
+    "decoys": 200,
+    "decoysFlagged": 7,
+    "negatives": 30,
+    "negativeFpCases": 4,
+    "negativeFpRate": 0.13333333333333333
    },
    "fr": {
     "cases": 121,
@@ -2333,11 +2333,11 @@
     "negativeFpRate": null
    },
    "negative": {
-    "cases": 54,
+    "cases": 55,
     "items": 0,
     "supportedItems": 0,
     "unsupportedItems": 0,
-    "detections": 7,
+    "detections": 8,
     "tp": 0,
     "exactTp": 0,
     "found": 0,
@@ -2357,12 +2357,12 @@
     "unsupportedRedacted": 0,
     "wrongCategory": 0,
     "mergedItems": 0,
-    "falsePositives": 7,
-    "decoys": 175,
-    "decoysFlagged": 7,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "falsePositives": 8,
+    "decoys": 177,
+    "decoysFlagged": 8,
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "single": {
     "cases": 129,
@@ -2495,36 +2495,36 @@
     "negativeFpRate": null
    },
    "doc": {
-    "cases": 23,
+    "cases": 24,
     "items": 35,
     "supportedItems": 35,
     "unsupportedItems": 0,
-    "detections": 24,
+    "detections": 25,
     "tp": 21,
     "exactTp": 21,
     "found": 21,
     "foundExact": 21,
     "overlap": {
-     "precision": 0.875,
+     "precision": 0.84,
      "recall": 0.6,
-     "f1": 0.711864406779661
+     "f1": 0.7000000000000001
     },
     "exact": {
-     "precision": 0.875,
+     "precision": 0.84,
      "recall": 0.6,
-     "f1": 0.711864406779661
+     "f1": 0.7000000000000001
     },
     "redactedRecall": 0.6,
     "leakFreeRate": 0.6,
     "unsupportedRedacted": 0,
     "wrongCategory": 0,
     "mergedItems": 0,
-    "falsePositives": 3,
-    "decoys": 40,
-    "decoysFlagged": 3,
-    "negatives": 12,
-    "negativeFpCases": 2,
-    "negativeFpRate": 0.16666666666666666
+    "falsePositives": 4,
+    "decoys": 42,
+    "decoysFlagged": 4,
+    "negatives": 13,
+    "negativeFpCases": 3,
+    "negativeFpRate": 0.23076923076923078
    },
    "email": {
     "cases": 42,
@@ -2689,39 +2689,39 @@
   },
   "byZone": {
    "prose": {
-    "cases": 252,
+    "cases": 253,
     "items": 355,
     "supportedItems": 355,
     "unsupportedItems": 0,
-    "detections": 278,
+    "detections": 279,
     "tp": 270,
     "exactTp": 268,
     "found": 270,
     "foundExact": 268,
     "overlap": {
-     "precision": 0.9712230215827338,
+     "precision": 0.967741935483871,
      "recall": 0.7605633802816901,
-     "f1": 0.8530805687203791
+     "f1": 0.8517350157728708
     },
     "exact": {
-     "precision": 0.9640287769784173,
+     "precision": 0.9605734767025089,
      "recall": 0.7549295774647887,
-     "f1": 0.8467614533965244
+     "f1": 0.8454258675078864
     },
     "redactedRecall": 0.7605633802816901,
     "leakFreeRate": 0.7605633802816901,
     "unsupportedRedacted": 0,
     "wrongCategory": 0,
     "mergedItems": 0,
-    "falsePositives": 8,
-    "decoys": 248,
-    "decoysFlagged": 8,
-    "negatives": 54,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.07407407407407407
+    "falsePositives": 9,
+    "decoys": 250,
+    "decoysFlagged": 9,
+    "negatives": 55,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.09090909090909091
    },
    "code": {
-    "cases": 252,
+    "cases": 253,
     "items": 120,
     "supportedItems": 120,
     "unsupportedItems": 0,
@@ -2748,7 +2748,7 @@
     "falsePositives": 0,
     "decoys": 111,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    }
@@ -2800,11 +2800,11 @@
     "flaggedAs": {}
    },
    "identifier": {
-    "total": 55,
-    "flagged": 6,
+    "total": 57,
+    "flagged": 7,
     "flaggedAs": {
      "NATIONAL_ID": 2,
-     "SECRET": 2,
+     "SECRET": 3,
      "PHONE": 2
     }
    },
@@ -2900,142 +2900,142 @@
   },
   "perturbations": {
    "all": {
-    "baseCases": 252,
-    "variants": 2858,
+    "baseCases": 253,
+    "variants": 2864,
     "base": {
-     "cases": 252,
+     "cases": 253,
      "items": 475,
      "supportedItems": 475,
      "unsupportedItems": 0,
-     "detections": 372,
+     "detections": 373,
      "tp": 364,
      "exactTp": 361,
      "found": 364,
      "foundExact": 361,
      "overlap": {
-      "precision": 0.978494623655914,
+      "precision": 0.9758713136729222,
       "recall": 0.7663157894736842,
-      "f1": 0.8595041322314049
+      "f1": 0.8584905660377359
      },
      "exact": {
-      "precision": 0.9704301075268817,
+      "precision": 0.967828418230563,
       "recall": 0.76,
-      "f1": 0.8524203069657615
+      "f1": 0.8514150943396227
      },
      "redactedRecall": 0.7663157894736842,
      "leakFreeRate": 0.7663157894736842,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 8,
-     "decoys": 359,
-     "decoysFlagged": 8,
-     "negatives": 54,
-     "negativeFpCases": 4,
-     "negativeFpRate": 0.07407407407407407
+     "falsePositives": 9,
+     "decoys": 361,
+     "decoysFlagged": 9,
+     "negatives": 55,
+     "negativeFpCases": 5,
+     "negativeFpRate": 0.09090909090909091
     },
     "perturbed": {
-     "cases": 2858,
+     "cases": 2864,
      "items": 6343,
      "supportedItems": 6343,
      "unsupportedItems": 0,
-     "detections": 4615,
+     "detections": 4621,
      "tp": 4550,
      "exactTp": 4437,
      "found": 4544,
      "foundExact": 4437,
      "overlap": {
-      "precision": 0.9859154929577465,
+      "precision": 0.9846353603116209,
       "recall": 0.7163802617058175,
-      "f1": 0.8298092701341189
+      "f1": 0.8293555073506662
      },
      "exact": {
-      "precision": 0.961430119176598,
+      "precision": 0.9601817788357498,
       "recall": 0.6995112722686426,
-      "f1": 0.8098193100930827
+      "f1": 0.8093761400948559
      },
      "redactedRecall": 0.7173261863471544,
      "leakFreeRate": 0.7165379158127069,
      "unsupportedRedacted": 0,
      "wrongCategory": 6,
      "mergedItems": 0,
-     "falsePositives": 65,
-     "decoys": 3320,
-     "decoysFlagged": 59,
-     "negatives": 336,
-     "negativeFpCases": 27,
-     "negativeFpRate": 0.08035714285714286
+     "falsePositives": 71,
+     "decoys": 3332,
+     "decoysFlagged": 65,
+     "negatives": 342,
+     "negativeFpCases": 33,
+     "negativeFpRate": 0.09649122807017543
     },
     "byCategory": {
      "SECRET": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 95,
        "supportedItems": 95,
        "unsupportedItems": 0,
-       "detections": 96,
+       "detections": 97,
        "tp": 93,
        "exactTp": 91,
        "found": 93,
        "foundExact": 91,
        "overlap": {
-        "precision": 0.96875,
+        "precision": 0.9587628865979382,
         "recall": 0.9789473684210527,
-        "f1": 0.9738219895287958
+        "f1": 0.96875
        },
        "exact": {
-        "precision": 0.9479166666666666,
+        "precision": 0.9381443298969072,
         "recall": 0.9578947368421052,
-        "f1": 0.9528795811518324
+        "f1": 0.9479166666666666
        },
        "redactedRecall": 0.9789473684210527,
        "leakFreeRate": 0.9789473684210527,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 3,
+       "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
-       "negativeFpCases": 2,
-       "negativeFpRate": 0.037037037037037035
+       "negatives": 55,
+       "negativeFpCases": 3,
+       "negativeFpRate": 0.05454545454545454
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 993,
        "supportedItems": 993,
        "unsupportedItems": 0,
-       "detections": 933,
+       "detections": 939,
        "tp": 910,
        "exactTp": 842,
        "found": 904,
        "foundExact": 842,
        "overlap": {
-        "precision": 0.9753483386923901,
+        "precision": 0.9691160809371672,
         "recall": 0.9103726082578046,
-        "f1": 0.9417410486863087
+        "f1": 0.938826330139014
        },
        "exact": {
-        "precision": 0.902465166130761,
+        "precision": 0.8966986155484558,
         "recall": 0.8479355488418933,
-        "f1": 0.8743509865005191
+        "f1": 0.8716356107660456
        },
        "redactedRecall": 0.9103726082578046,
        "leakFreeRate": 0.905337361530715,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 23,
+       "falsePositives": 29,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
-       "negativeFpCases": 16,
-       "negativeFpRate": 0.047619047619047616
+       "negatives": 342,
+       "negativeFpCases": 22,
+       "negativeFpRate": 0.06432748538011696
       }
      },
      "EMAIL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 79,
        "supportedItems": 79,
        "unsupportedItems": 0,
@@ -3062,12 +3062,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 1031,
        "supportedItems": 1031,
        "unsupportedItems": 0,
@@ -3094,14 +3094,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "PHONE": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 41,
        "supportedItems": 41,
        "unsupportedItems": 0,
@@ -3128,12 +3128,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 688,
        "supportedItems": 688,
        "unsupportedItems": 0,
@@ -3160,14 +3160,14 @@
        "falsePositives": 12,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 6,
-       "negativeFpRate": 0.017857142857142856
+       "negativeFpRate": 0.017543859649122806
       }
      },
      "ADDRESS": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 18,
        "supportedItems": 18,
        "unsupportedItems": 0,
@@ -3194,12 +3194,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 288,
        "supportedItems": 288,
        "unsupportedItems": 0,
@@ -3226,14 +3226,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "FINANCIAL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 94,
        "supportedItems": 94,
        "unsupportedItems": 0,
@@ -3260,12 +3260,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 1446,
        "supportedItems": 1446,
        "unsupportedItems": 0,
@@ -3292,14 +3292,14 @@
        "falsePositives": 20,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "NATIONAL_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 43,
        "supportedItems": 43,
        "unsupportedItems": 0,
@@ -3326,12 +3326,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 602,
        "supportedItems": 602,
        "unsupportedItems": 0,
@@ -3358,14 +3358,14 @@
        "falsePositives": 10,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 5,
-       "negativeFpRate": 0.01488095238095238
+       "negativeFpRate": 0.014619883040935672
       }
      },
      "DATE_OF_BIRTH": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 26,
        "supportedItems": 26,
        "unsupportedItems": 0,
@@ -3392,12 +3392,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 395,
        "supportedItems": 395,
        "unsupportedItems": 0,
@@ -3424,14 +3424,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "IP": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 64,
        "supportedItems": 64,
        "unsupportedItems": 0,
@@ -3458,12 +3458,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 654,
        "supportedItems": 654,
        "unsupportedItems": 0,
@@ -3490,14 +3490,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "COMPANY_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 15,
        "supportedItems": 15,
        "unsupportedItems": 0,
@@ -3524,12 +3524,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 246,
        "supportedItems": 246,
        "unsupportedItems": 0,
@@ -3556,7 +3556,7 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
@@ -5556,142 +5556,142 @@
     }
    },
    "case": {
-    "baseCases": 252,
-    "variants": 467,
+    "baseCases": 253,
+    "variants": 469,
     "base": {
-     "cases": 252,
+     "cases": 253,
      "items": 475,
      "supportedItems": 475,
      "unsupportedItems": 0,
-     "detections": 372,
+     "detections": 373,
      "tp": 364,
      "exactTp": 361,
      "found": 364,
      "foundExact": 361,
      "overlap": {
-      "precision": 0.978494623655914,
+      "precision": 0.9758713136729222,
       "recall": 0.7663157894736842,
-      "f1": 0.8595041322314049
+      "f1": 0.8584905660377359
      },
      "exact": {
-      "precision": 0.9704301075268817,
+      "precision": 0.967828418230563,
       "recall": 0.76,
-      "f1": 0.8524203069657615
+      "f1": 0.8514150943396227
      },
      "redactedRecall": 0.7663157894736842,
      "leakFreeRate": 0.7663157894736842,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 8,
-     "decoys": 359,
-     "decoysFlagged": 8,
-     "negatives": 54,
-     "negativeFpCases": 4,
-     "negativeFpRate": 0.07407407407407407
+     "falsePositives": 9,
+     "decoys": 361,
+     "decoysFlagged": 9,
+     "negatives": 55,
+     "negativeFpCases": 5,
+     "negativeFpRate": 0.09090909090909091
     },
     "perturbed": {
-     "cases": 467,
+     "cases": 469,
      "items": 903,
      "supportedItems": 903,
      "unsupportedItems": 0,
-     "detections": 694,
+     "detections": 696,
      "tp": 680,
      "exactTp": 675,
      "found": 680,
      "foundExact": 675,
      "overlap": {
-      "precision": 0.9798270893371758,
+      "precision": 0.9770114942528736,
       "recall": 0.7530454042081949,
-      "f1": 0.8515967438948027
+      "f1": 0.8505315822388992
      },
      "exact": {
-      "precision": 0.9726224783861671,
+      "precision": 0.9698275862068966,
       "recall": 0.7475083056478405,
-      "f1": 0.8453350031308704
+      "f1": 0.8442776735459663
      },
      "redactedRecall": 0.7530454042081949,
      "leakFreeRate": 0.7530454042081949,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 14,
-     "decoys": 687,
-     "decoysFlagged": 14,
-     "negatives": 97,
-     "negativeFpCases": 7,
-     "negativeFpRate": 0.07216494845360824
+     "falsePositives": 16,
+     "decoys": 691,
+     "decoysFlagged": 16,
+     "negatives": 99,
+     "negativeFpCases": 9,
+     "negativeFpRate": 0.09090909090909091
     },
     "byCategory": {
      "SECRET": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 95,
        "supportedItems": 95,
        "unsupportedItems": 0,
-       "detections": 96,
+       "detections": 97,
        "tp": 93,
        "exactTp": 91,
        "found": 93,
        "foundExact": 91,
        "overlap": {
-        "precision": 0.96875,
+        "precision": 0.9587628865979382,
         "recall": 0.9789473684210527,
-        "f1": 0.9738219895287958
+        "f1": 0.96875
        },
        "exact": {
-        "precision": 0.9479166666666666,
+        "precision": 0.9381443298969072,
         "recall": 0.9578947368421052,
-        "f1": 0.9528795811518324
+        "f1": 0.9479166666666666
        },
        "redactedRecall": 0.9789473684210527,
        "leakFreeRate": 0.9789473684210527,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 3,
+       "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
-       "negativeFpCases": 2,
-       "negativeFpRate": 0.037037037037037035
+       "negatives": 55,
+       "negativeFpCases": 3,
+       "negativeFpRate": 0.05454545454545454
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 178,
        "supportedItems": 178,
        "unsupportedItems": 0,
-       "detections": 181,
+       "detections": 183,
        "tp": 175,
        "exactTp": 172,
        "found": 175,
        "foundExact": 172,
        "overlap": {
-        "precision": 0.9668508287292817,
+        "precision": 0.9562841530054644,
         "recall": 0.9831460674157303,
-        "f1": 0.9749303621169917
+        "f1": 0.9695290858725761
        },
        "exact": {
-        "precision": 0.9502762430939227,
+        "precision": 0.9398907103825137,
         "recall": 0.9662921348314607,
-        "f1": 0.9582172701949861
+        "f1": 0.9529085872576177
        },
        "redactedRecall": 0.9831460674157303,
        "leakFreeRate": 0.9831460674157303,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 6,
+       "falsePositives": 8,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
-       "negativeFpCases": 4,
-       "negativeFpRate": 0.041237113402061855
+       "negatives": 99,
+       "negativeFpCases": 6,
+       "negativeFpRate": 0.06060606060606061
       }
      },
      "EMAIL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 79,
        "supportedItems": 79,
        "unsupportedItems": 0,
@@ -5718,12 +5718,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 152,
        "supportedItems": 152,
        "unsupportedItems": 0,
@@ -5750,14 +5750,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "PHONE": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 41,
        "supportedItems": 41,
        "unsupportedItems": 0,
@@ -5784,12 +5784,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 76,
        "supportedItems": 76,
        "unsupportedItems": 0,
@@ -5816,14 +5816,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.020618556701030927
+       "negativeFpRate": 0.020202020202020204
       }
      },
      "ADDRESS": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 18,
        "supportedItems": 18,
        "unsupportedItems": 0,
@@ -5850,12 +5850,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 36,
        "supportedItems": 36,
        "unsupportedItems": 0,
@@ -5882,14 +5882,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "FINANCIAL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 94,
        "supportedItems": 94,
        "unsupportedItems": 0,
@@ -5916,12 +5916,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 177,
        "supportedItems": 177,
        "unsupportedItems": 0,
@@ -5948,14 +5948,14 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "NATIONAL_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 43,
        "supportedItems": 43,
        "unsupportedItems": 0,
@@ -5982,12 +5982,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 84,
        "supportedItems": 84,
        "unsupportedItems": 0,
@@ -6014,14 +6014,14 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.010309278350515464
+       "negativeFpRate": 0.010101010101010102
       }
      },
      "DATE_OF_BIRTH": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 26,
        "supportedItems": 26,
        "unsupportedItems": 0,
@@ -6048,12 +6048,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 48,
        "supportedItems": 48,
        "unsupportedItems": 0,
@@ -6080,14 +6080,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "IP": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 64,
        "supportedItems": 64,
        "unsupportedItems": 0,
@@ -6114,12 +6114,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 124,
        "supportedItems": 124,
        "unsupportedItems": 0,
@@ -6146,14 +6146,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "COMPANY_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 15,
        "supportedItems": 15,
        "unsupportedItems": 0,
@@ -6180,12 +6180,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 28,
        "supportedItems": 28,
        "unsupportedItems": 0,
@@ -6212,7 +6212,7 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
@@ -7548,142 +7548,142 @@
     }
    },
    "code_block": {
-    "baseCases": 252,
-    "variants": 504,
+    "baseCases": 253,
+    "variants": 506,
     "base": {
-     "cases": 252,
+     "cases": 253,
      "items": 475,
      "supportedItems": 475,
      "unsupportedItems": 0,
-     "detections": 372,
+     "detections": 373,
      "tp": 364,
      "exactTp": 361,
      "found": 364,
      "foundExact": 361,
      "overlap": {
-      "precision": 0.978494623655914,
+      "precision": 0.9758713136729222,
       "recall": 0.7663157894736842,
-      "f1": 0.8595041322314049
+      "f1": 0.8584905660377359
      },
      "exact": {
-      "precision": 0.9704301075268817,
+      "precision": 0.967828418230563,
       "recall": 0.76,
-      "f1": 0.8524203069657615
+      "f1": 0.8514150943396227
      },
      "redactedRecall": 0.7663157894736842,
      "leakFreeRate": 0.7663157894736842,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 8,
-     "decoys": 359,
-     "decoysFlagged": 8,
-     "negatives": 54,
-     "negativeFpCases": 4,
-     "negativeFpRate": 0.07407407407407407
+     "falsePositives": 9,
+     "decoys": 361,
+     "decoysFlagged": 9,
+     "negatives": 55,
+     "negativeFpCases": 5,
+     "negativeFpRate": 0.09090909090909091
     },
     "perturbed": {
-     "cases": 504,
+     "cases": 506,
      "items": 950,
      "supportedItems": 950,
      "unsupportedItems": 0,
-     "detections": 744,
+     "detections": 746,
      "tp": 728,
      "exactTp": 722,
      "found": 728,
      "foundExact": 722,
      "overlap": {
-      "precision": 0.978494623655914,
+      "precision": 0.9758713136729222,
       "recall": 0.7663157894736842,
-      "f1": 0.8595041322314049
+      "f1": 0.8584905660377359
      },
      "exact": {
-      "precision": 0.9704301075268817,
+      "precision": 0.967828418230563,
       "recall": 0.76,
-      "f1": 0.8524203069657615
+      "f1": 0.8514150943396227
      },
      "redactedRecall": 0.7663157894736842,
      "leakFreeRate": 0.7663157894736842,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 16,
-     "decoys": 718,
-     "decoysFlagged": 16,
-     "negatives": 108,
-     "negativeFpCases": 8,
-     "negativeFpRate": 0.07407407407407407
+     "falsePositives": 18,
+     "decoys": 722,
+     "decoysFlagged": 18,
+     "negatives": 110,
+     "negativeFpCases": 10,
+     "negativeFpRate": 0.09090909090909091
     },
     "byCategory": {
      "SECRET": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 95,
        "supportedItems": 95,
        "unsupportedItems": 0,
-       "detections": 96,
+       "detections": 97,
        "tp": 93,
        "exactTp": 91,
        "found": 93,
        "foundExact": 91,
        "overlap": {
-        "precision": 0.96875,
+        "precision": 0.9587628865979382,
         "recall": 0.9789473684210527,
-        "f1": 0.9738219895287958
+        "f1": 0.96875
        },
        "exact": {
-        "precision": 0.9479166666666666,
+        "precision": 0.9381443298969072,
         "recall": 0.9578947368421052,
-        "f1": 0.9528795811518324
+        "f1": 0.9479166666666666
        },
        "redactedRecall": 0.9789473684210527,
        "leakFreeRate": 0.9789473684210527,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 3,
+       "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
-       "negativeFpCases": 2,
-       "negativeFpRate": 0.037037037037037035
+       "negatives": 55,
+       "negativeFpCases": 3,
+       "negativeFpRate": 0.05454545454545454
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 190,
        "supportedItems": 190,
        "unsupportedItems": 0,
-       "detections": 192,
+       "detections": 194,
        "tp": 186,
        "exactTp": 182,
        "found": 186,
        "foundExact": 182,
        "overlap": {
-        "precision": 0.96875,
+        "precision": 0.9587628865979382,
         "recall": 0.9789473684210527,
-        "f1": 0.9738219895287958
+        "f1": 0.96875
        },
        "exact": {
-        "precision": 0.9479166666666666,
+        "precision": 0.9381443298969072,
         "recall": 0.9578947368421052,
-        "f1": 0.9528795811518324
+        "f1": 0.9479166666666666
        },
        "redactedRecall": 0.9789473684210527,
        "leakFreeRate": 0.9789473684210527,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 6,
+       "falsePositives": 8,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
-       "negativeFpCases": 4,
-       "negativeFpRate": 0.037037037037037035
+       "negatives": 110,
+       "negativeFpCases": 6,
+       "negativeFpRate": 0.05454545454545454
       }
      },
      "EMAIL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 79,
        "supportedItems": 79,
        "unsupportedItems": 0,
@@ -7710,12 +7710,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 158,
        "supportedItems": 158,
        "unsupportedItems": 0,
@@ -7742,14 +7742,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "PHONE": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 41,
        "supportedItems": 41,
        "unsupportedItems": 0,
@@ -7776,12 +7776,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 82,
        "supportedItems": 82,
        "unsupportedItems": 0,
@@ -7808,14 +7808,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       }
      },
      "ADDRESS": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 18,
        "supportedItems": 18,
        "unsupportedItems": 0,
@@ -7842,12 +7842,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 36,
        "supportedItems": 36,
        "unsupportedItems": 0,
@@ -7874,14 +7874,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "FINANCIAL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 94,
        "supportedItems": 94,
        "unsupportedItems": 0,
@@ -7908,12 +7908,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 188,
        "supportedItems": 188,
        "unsupportedItems": 0,
@@ -7940,14 +7940,14 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "NATIONAL_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 43,
        "supportedItems": 43,
        "unsupportedItems": 0,
@@ -7974,12 +7974,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 86,
        "supportedItems": 86,
        "unsupportedItems": 0,
@@ -8006,14 +8006,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       }
      },
      "DATE_OF_BIRTH": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 26,
        "supportedItems": 26,
        "unsupportedItems": 0,
@@ -8040,12 +8040,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 52,
        "supportedItems": 52,
        "unsupportedItems": 0,
@@ -8072,14 +8072,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "IP": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 64,
        "supportedItems": 64,
        "unsupportedItems": 0,
@@ -8106,12 +8106,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 128,
        "supportedItems": 128,
        "unsupportedItems": 0,
@@ -8138,14 +8138,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "COMPANY_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 15,
        "supportedItems": 15,
        "unsupportedItems": 0,
@@ -8172,12 +8172,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 30,
        "supportedItems": 30,
        "unsupportedItems": 0,
@@ -8204,7 +8204,7 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
@@ -9540,142 +9540,142 @@
     }
    },
    "typo": {
-    "baseCases": 248,
-    "variants": 493,
+    "baseCases": 249,
+    "variants": 495,
     "base": {
-     "cases": 248,
+     "cases": 249,
      "items": 461,
      "supportedItems": 461,
      "unsupportedItems": 0,
-     "detections": 360,
+     "detections": 361,
      "tp": 352,
      "exactTp": 349,
      "found": 352,
      "foundExact": 349,
      "overlap": {
-      "precision": 0.9777777777777777,
+      "precision": 0.9750692520775623,
       "recall": 0.7635574837310195,
-      "f1": 0.8574908647990256
+      "f1": 0.8564476885644768
      },
      "exact": {
-      "precision": 0.9694444444444444,
+      "precision": 0.9667590027700831,
       "recall": 0.7570498915401301,
-      "f1": 0.8501827040194884
+      "f1": 0.8491484184914843
      },
      "redactedRecall": 0.7635574837310195,
      "leakFreeRate": 0.7635574837310195,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 8,
-     "decoys": 351,
-     "decoysFlagged": 8,
-     "negatives": 54,
-     "negativeFpCases": 4,
-     "negativeFpRate": 0.07407407407407407
+     "falsePositives": 9,
+     "decoys": 353,
+     "decoysFlagged": 9,
+     "negatives": 55,
+     "negativeFpCases": 5,
+     "negativeFpRate": 0.09090909090909091
     },
     "perturbed": {
-     "cases": 493,
+     "cases": 495,
      "items": 921,
      "supportedItems": 921,
      "unsupportedItems": 0,
-     "detections": 594,
+     "detections": 596,
      "tp": 573,
      "exactTp": 569,
      "found": 573,
      "foundExact": 569,
      "overlap": {
-      "precision": 0.9646464646464646,
+      "precision": 0.9614093959731543,
       "recall": 0.6221498371335505,
-      "f1": 0.7564356435643563
+      "f1": 0.7554383651944628
      },
      "exact": {
-      "precision": 0.9579124579124579,
+      "precision": 0.9546979865771812,
       "recall": 0.6178067318132465,
-      "f1": 0.7511551155115512
+      "f1": 0.7501647989452868
      },
      "redactedRecall": 0.6243213897937026,
      "leakFreeRate": 0.6243213897937026,
      "unsupportedRedacted": 0,
      "wrongCategory": 2,
      "mergedItems": 0,
-     "falsePositives": 21,
-     "decoys": 695,
-     "decoysFlagged": 19,
-     "negatives": 106,
-     "negativeFpCases": 11,
-     "negativeFpRate": 0.10377358490566038
+     "falsePositives": 23,
+     "decoys": 699,
+     "decoysFlagged": 21,
+     "negatives": 108,
+     "negativeFpCases": 13,
+     "negativeFpRate": 0.12037037037037036
     },
     "byCategory": {
      "SECRET": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 94,
        "supportedItems": 94,
        "unsupportedItems": 0,
-       "detections": 95,
+       "detections": 96,
        "tp": 92,
        "exactTp": 90,
        "found": 92,
        "foundExact": 90,
        "overlap": {
-        "precision": 0.968421052631579,
+        "precision": 0.9583333333333334,
         "recall": 0.9787234042553191,
-        "f1": 0.9735449735449735
+        "f1": 0.968421052631579
        },
        "exact": {
-        "precision": 0.9473684210526315,
+        "precision": 0.9375,
         "recall": 0.9574468085106383,
-        "f1": 0.9523809523809523
+        "f1": 0.9473684210526315
        },
        "redactedRecall": 0.9787234042553191,
        "leakFreeRate": 0.9787234042553191,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 3,
+       "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
-       "negativeFpCases": 2,
-       "negativeFpRate": 0.037037037037037035
+       "negatives": 55,
+       "negativeFpCases": 3,
+       "negativeFpRate": 0.05454545454545454
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 188,
        "supportedItems": 188,
        "unsupportedItems": 0,
-       "detections": 152,
+       "detections": 154,
        "tp": 143,
        "exactTp": 141,
        "found": 143,
        "foundExact": 141,
        "overlap": {
-        "precision": 0.9407894736842105,
+        "precision": 0.9285714285714286,
         "recall": 0.7606382978723404,
-        "f1": 0.8411764705882352
+        "f1": 0.8362573099415205
        },
        "exact": {
-        "precision": 0.9276315789473685,
+        "precision": 0.9155844155844156,
         "recall": 0.75,
-        "f1": 0.8294117647058823
+        "f1": 0.8245614035087718
        },
        "redactedRecall": 0.7606382978723404,
        "leakFreeRate": 0.7606382978723404,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 9,
+       "falsePositives": 11,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
-       "negativeFpCases": 7,
-       "negativeFpRate": 0.0660377358490566
+       "negatives": 108,
+       "negativeFpCases": 9,
+       "negativeFpRate": 0.08333333333333333
       }
      },
      "EMAIL": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 76,
        "supportedItems": 76,
        "unsupportedItems": 0,
@@ -9702,12 +9702,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 152,
        "supportedItems": 152,
        "unsupportedItems": 0,
@@ -9734,14 +9734,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "PHONE": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 38,
        "supportedItems": 38,
        "unsupportedItems": 0,
@@ -9768,12 +9768,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 76,
        "supportedItems": 76,
        "unsupportedItems": 0,
@@ -9800,14 +9800,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.018867924528301886
+       "negativeFpRate": 0.018518518518518517
       }
      },
      "ADDRESS": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 18,
        "supportedItems": 18,
        "unsupportedItems": 0,
@@ -9834,12 +9834,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 36,
        "supportedItems": 36,
        "unsupportedItems": 0,
@@ -9866,14 +9866,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "FINANCIAL": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 87,
        "supportedItems": 87,
        "unsupportedItems": 0,
@@ -9900,12 +9900,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 174,
        "supportedItems": 174,
        "unsupportedItems": 0,
@@ -9932,14 +9932,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "NATIONAL_ID": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 43,
        "supportedItems": 43,
        "unsupportedItems": 0,
@@ -9966,12 +9966,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 86,
        "supportedItems": 86,
        "unsupportedItems": 0,
@@ -9998,14 +9998,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.018867924528301886
+       "negativeFpRate": 0.018518518518518517
       }
      },
      "DATE_OF_BIRTH": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 26,
        "supportedItems": 26,
        "unsupportedItems": 0,
@@ -10032,12 +10032,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 52,
        "supportedItems": 52,
        "unsupportedItems": 0,
@@ -10064,14 +10064,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "IP": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 64,
        "supportedItems": 64,
        "unsupportedItems": 0,
@@ -10098,12 +10098,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 127,
        "supportedItems": 127,
        "unsupportedItems": 0,
@@ -10130,14 +10130,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "COMPANY_ID": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 15,
        "supportedItems": 15,
        "unsupportedItems": 0,
@@ -10164,12 +10164,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 30,
        "supportedItems": 30,
        "unsupportedItems": 0,
@@ -10196,7 +10196,7 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
@@ -10208,72 +10208,72 @@
  {
   "config": "all",
   "overall": {
-   "cases": 252,
+   "cases": 253,
    "items": 475,
    "supportedItems": 475,
    "unsupportedItems": 0,
-   "detections": 449,
+   "detections": 450,
    "tp": 440,
    "exactTp": 436,
    "found": 440,
    "foundExact": 436,
    "overlap": {
-    "precision": 0.9799554565701559,
+    "precision": 0.9777777777777777,
     "recall": 0.9263157894736842,
-    "f1": 0.9523809523809523
+    "f1": 0.9513513513513514
    },
    "exact": {
-    "precision": 0.9710467706013363,
+    "precision": 0.9688888888888889,
     "recall": 0.9178947368421052,
-    "f1": 0.9437229437229437
+    "f1": 0.9427027027027027
    },
    "redactedRecall": 0.9263157894736842,
    "leakFreeRate": 0.9242105263157895,
    "unsupportedRedacted": 0,
    "wrongCategory": 0,
    "mergedItems": 0,
-   "falsePositives": 9,
-   "decoys": 359,
-   "decoysFlagged": 9,
-   "negatives": 54,
-   "negativeFpCases": 5,
-   "negativeFpRate": 0.09259259259259259
+   "falsePositives": 10,
+   "decoys": 361,
+   "decoysFlagged": 10,
+   "negatives": 55,
+   "negativeFpCases": 6,
+   "negativeFpRate": 0.10909090909090909
   },
   "byCategory": {
    "SECRET": {
-    "cases": 252,
+    "cases": 253,
     "items": 95,
     "supportedItems": 95,
     "unsupportedItems": 0,
-    "detections": 96,
+    "detections": 97,
     "tp": 93,
     "exactTp": 91,
     "found": 93,
     "foundExact": 91,
     "overlap": {
-     "precision": 0.96875,
+     "precision": 0.9587628865979382,
      "recall": 0.9789473684210527,
-     "f1": 0.9738219895287958
+     "f1": 0.96875
     },
     "exact": {
-     "precision": 0.9479166666666666,
+     "precision": 0.9381443298969072,
      "recall": 0.9578947368421052,
-     "f1": 0.9528795811518324
+     "f1": 0.9479166666666666
     },
     "redactedRecall": 0.9789473684210527,
     "leakFreeRate": 0.9789473684210527,
     "unsupportedRedacted": 0,
     "wrongCategory": 0,
     "mergedItems": 0,
-    "falsePositives": 3,
+    "falsePositives": 4,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 2,
-    "negativeFpRate": 0.037037037037037035
+    "negatives": 55,
+    "negativeFpCases": 3,
+    "negativeFpRate": 0.05454545454545454
    },
    "EMAIL": {
-    "cases": 252,
+    "cases": 253,
     "items": 79,
     "supportedItems": 79,
     "unsupportedItems": 0,
@@ -10300,12 +10300,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    },
    "PHONE": {
-    "cases": 252,
+    "cases": 253,
     "items": 41,
     "supportedItems": 41,
     "unsupportedItems": 0,
@@ -10332,12 +10332,12 @@
     "falsePositives": 2,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 1,
-    "negativeFpRate": 0.018518518518518517
+    "negativeFpRate": 0.01818181818181818
    },
    "ADDRESS": {
-    "cases": 252,
+    "cases": 253,
     "items": 18,
     "supportedItems": 18,
     "unsupportedItems": 0,
@@ -10364,12 +10364,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    },
    "FINANCIAL": {
-    "cases": 252,
+    "cases": 253,
     "items": 94,
     "supportedItems": 94,
     "unsupportedItems": 0,
@@ -10396,12 +10396,12 @@
     "falsePositives": 1,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    },
    "NATIONAL_ID": {
-    "cases": 252,
+    "cases": 253,
     "items": 43,
     "supportedItems": 43,
     "unsupportedItems": 0,
@@ -10428,12 +10428,12 @@
     "falsePositives": 2,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 1,
-    "negativeFpRate": 0.018518518518518517
+    "negativeFpRate": 0.01818181818181818
    },
    "DATE_OF_BIRTH": {
-    "cases": 252,
+    "cases": 253,
     "items": 26,
     "supportedItems": 26,
     "unsupportedItems": 0,
@@ -10460,12 +10460,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    },
    "IP": {
-    "cases": 252,
+    "cases": 253,
     "items": 64,
     "supportedItems": 64,
     "unsupportedItems": 0,
@@ -10492,12 +10492,12 @@
     "falsePositives": 1,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 1,
-    "negativeFpRate": 0.018518518518518517
+    "negativeFpRate": 0.01818181818181818
    },
    "COMPANY_ID": {
-    "cases": 252,
+    "cases": 253,
     "items": 15,
     "supportedItems": 15,
     "unsupportedItems": 0,
@@ -10524,7 +10524,7 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    }
@@ -10532,36 +10532,36 @@
   "byCategoryLang": {
    "SECRET": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 55,
      "supportedItems": 55,
      "unsupportedItems": 0,
-     "detections": 56,
+     "detections": 57,
      "tp": 55,
      "exactTp": 53,
      "found": 55,
      "foundExact": 53,
      "overlap": {
-      "precision": 0.9821428571428571,
+      "precision": 0.9649122807017544,
       "recall": 1,
-      "f1": 0.9909909909909909
+      "f1": 0.9821428571428572
      },
      "exact": {
-      "precision": 0.9464285714285714,
+      "precision": 0.9298245614035088,
       "recall": 0.9636363636363636,
-      "f1": 0.9549549549549549
+      "f1": 0.9464285714285715
      },
      "redactedRecall": 1,
      "leakFreeRate": 1,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 1,
+     "falsePositives": 2,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
-     "negativeFpCases": 1,
-     "negativeFpRate": 0.034482758620689655
+     "negatives": 30,
+     "negativeFpCases": 2,
+     "negativeFpRate": 0.06666666666666667
     },
     "fr": {
      "cases": 121,
@@ -10598,7 +10598,7 @@
    },
    "EMAIL": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 43,
      "supportedItems": 43,
      "unsupportedItems": 0,
@@ -10625,7 +10625,7 @@
      "falsePositives": 0,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 0,
      "negativeFpRate": 0
     },
@@ -10664,7 +10664,7 @@
    },
    "PHONE": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 21,
      "supportedItems": 21,
      "unsupportedItems": 0,
@@ -10691,9 +10691,9 @@
      "falsePositives": 2,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 1,
-     "negativeFpRate": 0.034482758620689655
+     "negativeFpRate": 0.03333333333333333
     },
     "fr": {
      "cases": 121,
@@ -10730,7 +10730,7 @@
    },
    "ADDRESS": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 8,
      "supportedItems": 8,
      "unsupportedItems": 0,
@@ -10757,7 +10757,7 @@
      "falsePositives": 0,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 0,
      "negativeFpRate": 0
     },
@@ -10796,7 +10796,7 @@
    },
    "FINANCIAL": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 45,
      "supportedItems": 45,
      "unsupportedItems": 0,
@@ -10823,7 +10823,7 @@
      "falsePositives": 1,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 0,
      "negativeFpRate": 0
     },
@@ -10862,7 +10862,7 @@
    },
    "NATIONAL_ID": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 23,
      "supportedItems": 23,
      "unsupportedItems": 0,
@@ -10889,9 +10889,9 @@
      "falsePositives": 2,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 1,
-     "negativeFpRate": 0.034482758620689655
+     "negativeFpRate": 0.03333333333333333
     },
     "fr": {
      "cases": 121,
@@ -10928,7 +10928,7 @@
    },
    "DATE_OF_BIRTH": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 14,
      "supportedItems": 14,
      "unsupportedItems": 0,
@@ -10955,7 +10955,7 @@
      "falsePositives": 0,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 0,
      "negativeFpRate": 0
     },
@@ -10994,7 +10994,7 @@
    },
    "IP": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 35,
      "supportedItems": 35,
      "unsupportedItems": 0,
@@ -11021,9 +11021,9 @@
      "falsePositives": 1,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 1,
-     "negativeFpRate": 0.034482758620689655
+     "negativeFpRate": 0.03333333333333333
     },
     "fr": {
      "cases": 121,
@@ -11060,7 +11060,7 @@
    },
    "COMPANY_ID": {
     "en": {
-     "cases": 131,
+     "cases": 132,
      "items": 0,
      "supportedItems": 0,
      "unsupportedItems": 0,
@@ -11087,7 +11087,7 @@
      "falsePositives": 0,
      "decoys": 0,
      "decoysFlagged": 0,
-     "negatives": 29,
+     "negatives": 30,
      "negativeFpCases": 0,
      "negativeFpRate": 0
     },
@@ -11127,7 +11127,7 @@
   },
   "byKind": {
    "address_fr": {
-    "cases": 252,
+    "cases": 253,
     "items": 10,
     "supportedItems": 10,
     "unsupportedItems": 0,
@@ -11154,12 +11154,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "address_uk": {
-    "cases": 252,
+    "cases": 253,
     "items": 2,
     "supportedItems": 2,
     "unsupportedItems": 0,
@@ -11186,12 +11186,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "address_us": {
-    "cases": 252,
+    "cases": 253,
     "items": 6,
     "supportedItems": 6,
     "unsupportedItems": 0,
@@ -11218,12 +11218,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "anthropic_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 3,
     "supportedItems": 3,
     "unsupportedItems": 0,
@@ -11250,12 +11250,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "aws_access_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 3,
     "supportedItems": 3,
     "unsupportedItems": 0,
@@ -11282,12 +11282,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "aws_secret_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 3,
     "supportedItems": 3,
     "unsupportedItems": 0,
@@ -11314,12 +11314,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "bic": {
-    "cases": 252,
+    "cases": 253,
     "items": 5,
     "supportedItems": 5,
     "unsupportedItems": 0,
@@ -11346,12 +11346,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "card": {
-    "cases": 252,
+    "cases": 253,
     "items": 21,
     "supportedItems": 21,
     "unsupportedItems": 0,
@@ -11378,12 +11378,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "card_expiry": {
-    "cases": 252,
+    "cases": 253,
     "items": 6,
     "supportedItems": 6,
     "unsupportedItems": 0,
@@ -11410,12 +11410,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "cvv": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -11442,12 +11442,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "dob": {
-    "cases": 252,
+    "cases": 253,
     "items": 26,
     "supportedItems": 26,
     "unsupportedItems": 0,
@@ -11474,12 +11474,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "email": {
-    "cases": 252,
+    "cases": 253,
     "items": 79,
     "supportedItems": 79,
     "unsupportedItems": 0,
@@ -11506,12 +11506,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "generic_token": {
-    "cases": 252,
+    "cases": 253,
     "items": 17,
     "supportedItems": 17,
     "unsupportedItems": 0,
@@ -11538,12 +11538,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "github_token": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -11570,12 +11570,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "gitlab_token": {
-    "cases": 252,
+    "cases": 253,
     "items": 3,
     "supportedItems": 3,
     "unsupportedItems": 0,
@@ -11602,12 +11602,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "google_api_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 1,
     "supportedItems": 1,
     "unsupportedItems": 0,
@@ -11634,12 +11634,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "hf_token": {
-    "cases": 252,
+    "cases": 253,
     "items": 3,
     "supportedItems": 3,
     "unsupportedItems": 0,
@@ -11666,12 +11666,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "iban": {
-    "cases": 252,
+    "cases": 253,
     "items": 58,
     "supportedItems": 58,
     "unsupportedItems": 0,
@@ -11698,12 +11698,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "ipv4": {
-    "cases": 252,
+    "cases": 253,
     "items": 28,
     "supportedItems": 28,
     "unsupportedItems": 0,
@@ -11730,12 +11730,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "ipv4_private": {
-    "cases": 252,
+    "cases": 253,
     "items": 24,
     "supportedItems": 24,
     "unsupportedItems": 0,
@@ -11762,12 +11762,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "ipv6": {
-    "cases": 252,
+    "cases": 253,
     "items": 10,
     "supportedItems": 10,
     "unsupportedItems": 0,
@@ -11794,12 +11794,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "jwt": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -11826,12 +11826,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "mac": {
-    "cases": 252,
+    "cases": 253,
     "items": 2,
     "supportedItems": 2,
     "unsupportedItems": 0,
@@ -11858,12 +11858,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "nhs": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -11890,12 +11890,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "nino": {
-    "cases": 252,
+    "cases": 253,
     "items": 2,
     "supportedItems": 2,
     "unsupportedItems": 0,
@@ -11922,12 +11922,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "nir": {
-    "cases": 252,
+    "cases": 253,
     "items": 15,
     "supportedItems": 15,
     "unsupportedItems": 0,
@@ -11954,12 +11954,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "openai_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 7,
     "supportedItems": 7,
     "unsupportedItems": 0,
@@ -11986,12 +11986,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "passport": {
-    "cases": 252,
+    "cases": 253,
     "items": 13,
     "supportedItems": 13,
     "unsupportedItems": 0,
@@ -12018,12 +12018,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "password": {
-    "cases": 252,
+    "cases": 253,
     "items": 35,
     "supportedItems": 35,
     "unsupportedItems": 0,
@@ -12050,12 +12050,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "phone_de": {
-    "cases": 252,
+    "cases": 253,
     "items": 2,
     "supportedItems": 2,
     "unsupportedItems": 0,
@@ -12082,12 +12082,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "phone_fr": {
-    "cases": 252,
+    "cases": 253,
     "items": 20,
     "supportedItems": 20,
     "unsupportedItems": 0,
@@ -12114,12 +12114,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "phone_uk": {
-    "cases": 252,
+    "cases": 253,
     "items": 7,
     "supportedItems": 7,
     "unsupportedItems": 0,
@@ -12146,12 +12146,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "phone_us": {
-    "cases": 252,
+    "cases": 253,
     "items": 12,
     "supportedItems": 12,
     "unsupportedItems": 0,
@@ -12178,12 +12178,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "private_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -12210,12 +12210,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "siren": {
-    "cases": 252,
+    "cases": 253,
     "items": 6,
     "supportedItems": 6,
     "unsupportedItems": 0,
@@ -12242,12 +12242,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "siret": {
-    "cases": 252,
+    "cases": 253,
     "items": 5,
     "supportedItems": 5,
     "unsupportedItems": 0,
@@ -12274,12 +12274,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "slack_token": {
-    "cases": 252,
+    "cases": 253,
     "items": 1,
     "supportedItems": 1,
     "unsupportedItems": 0,
@@ -12306,12 +12306,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "slack_webhook": {
-    "cases": 252,
+    "cases": 253,
     "items": 2,
     "supportedItems": 2,
     "unsupportedItems": 0,
@@ -12338,12 +12338,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "ssn": {
-    "cases": 252,
+    "cases": 253,
     "items": 9,
     "supportedItems": 9,
     "unsupportedItems": 0,
@@ -12370,12 +12370,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "stripe_key": {
-    "cases": 252,
+    "cases": 253,
     "items": 5,
     "supportedItems": 5,
     "unsupportedItems": 0,
@@ -12402,12 +12402,12 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "tva": {
-    "cases": 252,
+    "cases": 253,
     "items": 4,
     "supportedItems": 4,
     "unsupportedItems": 0,
@@ -12434,43 +12434,43 @@
     "falsePositives": 0,
     "decoys": 0,
     "decoysFlagged": 0,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    }
   },
   "byLang": {
    "en": {
-    "cases": 131,
+    "cases": 132,
     "items": 244,
     "supportedItems": 244,
     "unsupportedItems": 0,
-    "detections": 224,
+    "detections": 225,
     "tp": 217,
     "exactTp": 214,
     "found": 217,
     "foundExact": 214,
     "overlap": {
-     "precision": 0.96875,
+     "precision": 0.9644444444444444,
      "recall": 0.889344262295082,
-     "f1": 0.9273504273504274
+     "f1": 0.9253731343283583
     },
     "exact": {
-     "precision": 0.9553571428571429,
+     "precision": 0.9511111111111111,
      "recall": 0.8770491803278688,
-     "f1": 0.9145299145299145
+     "f1": 0.9125799573560767
     },
     "redactedRecall": 0.889344262295082,
     "leakFreeRate": 0.8852459016393442,
     "unsupportedRedacted": 0,
     "wrongCategory": 0,
     "mergedItems": 0,
-    "falsePositives": 7,
-    "decoys": 198,
-    "decoysFlagged": 7,
-    "negatives": 29,
-    "negativeFpCases": 4,
-    "negativeFpRate": 0.13793103448275862
+    "falsePositives": 8,
+    "decoys": 200,
+    "decoysFlagged": 8,
+    "negatives": 30,
+    "negativeFpCases": 5,
+    "negativeFpRate": 0.16666666666666666
    },
    "fr": {
     "cases": 121,
@@ -12539,11 +12539,11 @@
     "negativeFpRate": null
    },
    "negative": {
-    "cases": 54,
+    "cases": 55,
     "items": 0,
     "supportedItems": 0,
     "unsupportedItems": 0,
-    "detections": 8,
+    "detections": 9,
     "tp": 0,
     "exactTp": 0,
     "found": 0,
@@ -12563,12 +12563,12 @@
     "unsupportedRedacted": 0,
     "wrongCategory": 0,
     "mergedItems": 0,
-    "falsePositives": 8,
-    "decoys": 175,
-    "decoysFlagged": 8,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "falsePositives": 9,
+    "decoys": 177,
+    "decoysFlagged": 9,
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "single": {
     "cases": 129,
@@ -12701,36 +12701,36 @@
     "negativeFpRate": null
    },
    "doc": {
-    "cases": 23,
+    "cases": 24,
     "items": 35,
     "supportedItems": 35,
     "unsupportedItems": 0,
-    "detections": 35,
+    "detections": 36,
     "tp": 32,
     "exactTp": 31,
     "found": 32,
     "foundExact": 31,
     "overlap": {
-     "precision": 0.9142857142857143,
+     "precision": 0.8888888888888888,
      "recall": 0.9142857142857143,
-     "f1": 0.9142857142857143
+     "f1": 0.9014084507042254
     },
     "exact": {
-     "precision": 0.8857142857142857,
+     "precision": 0.8611111111111112,
      "recall": 0.8857142857142857,
-     "f1": 0.8857142857142857
+     "f1": 0.8732394366197184
     },
     "redactedRecall": 0.9142857142857143,
     "leakFreeRate": 0.8857142857142857,
     "unsupportedRedacted": 0,
     "wrongCategory": 0,
     "mergedItems": 0,
-    "falsePositives": 3,
-    "decoys": 40,
-    "decoysFlagged": 3,
-    "negatives": 12,
-    "negativeFpCases": 2,
-    "negativeFpRate": 0.16666666666666666
+    "falsePositives": 4,
+    "decoys": 42,
+    "decoysFlagged": 4,
+    "negatives": 13,
+    "negativeFpCases": 3,
+    "negativeFpRate": 0.23076923076923078
    },
    "email": {
     "cases": 42,
@@ -12895,39 +12895,39 @@
   },
   "byZone": {
    "prose": {
-    "cases": 252,
+    "cases": 253,
     "items": 355,
     "supportedItems": 355,
     "unsupportedItems": 0,
-    "detections": 333,
+    "detections": 334,
     "tp": 324,
     "exactTp": 321,
     "found": 324,
     "foundExact": 321,
     "overlap": {
-     "precision": 0.972972972972973,
+     "precision": 0.9700598802395209,
      "recall": 0.9126760563380282,
-     "f1": 0.9418604651162792
+     "f1": 0.9404934687953556
     },
     "exact": {
-     "precision": 0.963963963963964,
+     "precision": 0.9610778443113772,
      "recall": 0.9042253521126761,
-     "f1": 0.9331395348837209
+     "f1": 0.9317851959361392
     },
     "redactedRecall": 0.9126760563380282,
     "leakFreeRate": 0.9098591549295775,
     "unsupportedRedacted": 0,
     "wrongCategory": 0,
     "mergedItems": 0,
-    "falsePositives": 9,
-    "decoys": 248,
-    "decoysFlagged": 9,
-    "negatives": 54,
-    "negativeFpCases": 5,
-    "negativeFpRate": 0.09259259259259259
+    "falsePositives": 10,
+    "decoys": 250,
+    "decoysFlagged": 10,
+    "negatives": 55,
+    "negativeFpCases": 6,
+    "negativeFpRate": 0.10909090909090909
    },
    "code": {
-    "cases": 252,
+    "cases": 253,
     "items": 120,
     "supportedItems": 120,
     "unsupportedItems": 0,
@@ -12954,7 +12954,7 @@
     "falsePositives": 0,
     "decoys": 111,
     "decoysFlagged": 0,
-    "negatives": 54,
+    "negatives": 55,
     "negativeFpCases": 0,
     "negativeFpRate": 0
    }
@@ -13008,11 +13008,11 @@
     "flaggedAs": {}
    },
    "identifier": {
-    "total": 55,
-    "flagged": 6,
+    "total": 57,
+    "flagged": 7,
     "flaggedAs": {
      "NATIONAL_ID": 2,
-     "SECRET": 2,
+     "SECRET": 3,
      "PHONE": 2
     }
    },
@@ -13109,142 +13109,142 @@
   },
   "perturbations": {
    "all": {
-    "baseCases": 252,
-    "variants": 2858,
+    "baseCases": 253,
+    "variants": 2864,
     "base": {
-     "cases": 252,
+     "cases": 253,
      "items": 475,
      "supportedItems": 475,
      "unsupportedItems": 0,
-     "detections": 449,
+     "detections": 450,
      "tp": 440,
      "exactTp": 436,
      "found": 440,
      "foundExact": 436,
      "overlap": {
-      "precision": 0.9799554565701559,
+      "precision": 0.9777777777777777,
       "recall": 0.9263157894736842,
-      "f1": 0.9523809523809523
+      "f1": 0.9513513513513514
      },
      "exact": {
-      "precision": 0.9710467706013363,
+      "precision": 0.9688888888888889,
       "recall": 0.9178947368421052,
-      "f1": 0.9437229437229437
+      "f1": 0.9427027027027027
      },
      "redactedRecall": 0.9263157894736842,
      "leakFreeRate": 0.9242105263157895,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 9,
-     "decoys": 359,
-     "decoysFlagged": 9,
-     "negatives": 54,
-     "negativeFpCases": 5,
-     "negativeFpRate": 0.09259259259259259
+     "falsePositives": 10,
+     "decoys": 361,
+     "decoysFlagged": 10,
+     "negatives": 55,
+     "negativeFpCases": 6,
+     "negativeFpRate": 0.10909090909090909
     },
     "perturbed": {
-     "cases": 2858,
+     "cases": 2864,
      "items": 6343,
      "supportedItems": 6343,
      "unsupportedItems": 0,
-     "detections": 5428,
+     "detections": 5434,
      "tp": 5345,
      "exactTp": 5220,
      "found": 5339,
      "foundExact": 5220,
      "overlap": {
-      "precision": 0.9847089167280766,
+      "precision": 0.9836216415163783,
       "recall": 0.8417152766829575,
-      "f1": 0.907614497536847
+      "f1": 0.9071523770603858
      },
      "exact": {
-      "precision": 0.9616801768607222,
+      "precision": 0.9606183290393817,
       "recall": 0.822954437963109,
-      "f1": 0.8869254948602499
+      "f1": 0.8864736350513713
      },
      "redactedRecall": 0.8426612013242945,
      "leakFreeRate": 0.8399810815071732,
      "unsupportedRedacted": 0,
      "wrongCategory": 6,
      "mergedItems": 0,
-     "falsePositives": 83,
-     "decoys": 3320,
-     "decoysFlagged": 77,
-     "negatives": 336,
-     "negativeFpCases": 35,
-     "negativeFpRate": 0.10416666666666667
+     "falsePositives": 89,
+     "decoys": 3332,
+     "decoysFlagged": 83,
+     "negatives": 342,
+     "negativeFpCases": 41,
+     "negativeFpRate": 0.11988304093567251
     },
     "byCategory": {
      "SECRET": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 95,
        "supportedItems": 95,
        "unsupportedItems": 0,
-       "detections": 96,
+       "detections": 97,
        "tp": 93,
        "exactTp": 91,
        "found": 93,
        "foundExact": 91,
        "overlap": {
-        "precision": 0.96875,
+        "precision": 0.9587628865979382,
         "recall": 0.9789473684210527,
-        "f1": 0.9738219895287958
+        "f1": 0.96875
        },
        "exact": {
-        "precision": 0.9479166666666666,
+        "precision": 0.9381443298969072,
         "recall": 0.9578947368421052,
-        "f1": 0.9528795811518324
+        "f1": 0.9479166666666666
        },
        "redactedRecall": 0.9789473684210527,
        "leakFreeRate": 0.9789473684210527,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 3,
+       "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
-       "negativeFpCases": 2,
-       "negativeFpRate": 0.037037037037037035
+       "negatives": 55,
+       "negativeFpCases": 3,
+       "negativeFpRate": 0.05454545454545454
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 993,
        "supportedItems": 993,
        "unsupportedItems": 0,
-       "detections": 933,
+       "detections": 939,
        "tp": 910,
        "exactTp": 842,
        "found": 904,
        "foundExact": 842,
        "overlap": {
-        "precision": 0.9753483386923901,
+        "precision": 0.9691160809371672,
         "recall": 0.9103726082578046,
-        "f1": 0.9417410486863087
+        "f1": 0.938826330139014
        },
        "exact": {
-        "precision": 0.902465166130761,
+        "precision": 0.8966986155484558,
         "recall": 0.8479355488418933,
-        "f1": 0.8743509865005191
+        "f1": 0.8716356107660456
        },
        "redactedRecall": 0.9103726082578046,
        "leakFreeRate": 0.905337361530715,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 23,
+       "falsePositives": 29,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
-       "negativeFpCases": 16,
-       "negativeFpRate": 0.047619047619047616
+       "negatives": 342,
+       "negativeFpCases": 22,
+       "negativeFpRate": 0.06432748538011696
       }
      },
      "EMAIL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 79,
        "supportedItems": 79,
        "unsupportedItems": 0,
@@ -13271,12 +13271,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 1031,
        "supportedItems": 1031,
        "unsupportedItems": 0,
@@ -13303,14 +13303,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "PHONE": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 41,
        "supportedItems": 41,
        "unsupportedItems": 0,
@@ -13337,12 +13337,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 688,
        "supportedItems": 688,
        "unsupportedItems": 0,
@@ -13369,14 +13369,14 @@
        "falsePositives": 12,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 6,
-       "negativeFpRate": 0.017857142857142856
+       "negativeFpRate": 0.017543859649122806
       }
      },
      "ADDRESS": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 18,
        "supportedItems": 18,
        "unsupportedItems": 0,
@@ -13403,12 +13403,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 288,
        "supportedItems": 288,
        "unsupportedItems": 0,
@@ -13435,14 +13435,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "FINANCIAL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 94,
        "supportedItems": 94,
        "unsupportedItems": 0,
@@ -13469,12 +13469,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 1446,
        "supportedItems": 1446,
        "unsupportedItems": 0,
@@ -13501,14 +13501,14 @@
        "falsePositives": 20,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "NATIONAL_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 43,
        "supportedItems": 43,
        "unsupportedItems": 0,
@@ -13535,12 +13535,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 602,
        "supportedItems": 602,
        "unsupportedItems": 0,
@@ -13567,14 +13567,14 @@
        "falsePositives": 10,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 5,
-       "negativeFpRate": 0.01488095238095238
+       "negativeFpRate": 0.014619883040935672
       }
      },
      "DATE_OF_BIRTH": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 26,
        "supportedItems": 26,
        "unsupportedItems": 0,
@@ -13601,12 +13601,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 395,
        "supportedItems": 395,
        "unsupportedItems": 0,
@@ -13633,14 +13633,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "IP": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 64,
        "supportedItems": 64,
        "unsupportedItems": 0,
@@ -13667,12 +13667,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 654,
        "supportedItems": 654,
        "unsupportedItems": 0,
@@ -13699,14 +13699,14 @@
        "falsePositives": 18,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 8,
-       "negativeFpRate": 0.023809523809523808
+       "negativeFpRate": 0.023391812865497075
       }
      },
      "COMPANY_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 15,
        "supportedItems": 15,
        "unsupportedItems": 0,
@@ -13733,12 +13733,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 2858,
+       "cases": 2864,
        "items": 246,
        "supportedItems": 246,
        "unsupportedItems": 0,
@@ -13765,7 +13765,7 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 336,
+       "negatives": 342,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
@@ -15765,142 +15765,142 @@
     }
    },
    "case": {
-    "baseCases": 252,
-    "variants": 467,
+    "baseCases": 253,
+    "variants": 469,
     "base": {
-     "cases": 252,
+     "cases": 253,
      "items": 475,
      "supportedItems": 475,
      "unsupportedItems": 0,
-     "detections": 449,
+     "detections": 450,
      "tp": 440,
      "exactTp": 436,
      "found": 440,
      "foundExact": 436,
      "overlap": {
-      "precision": 0.9799554565701559,
+      "precision": 0.9777777777777777,
       "recall": 0.9263157894736842,
-      "f1": 0.9523809523809523
+      "f1": 0.9513513513513514
      },
      "exact": {
-      "precision": 0.9710467706013363,
+      "precision": 0.9688888888888889,
       "recall": 0.9178947368421052,
-      "f1": 0.9437229437229437
+      "f1": 0.9427027027027027
      },
      "redactedRecall": 0.9263157894736842,
      "leakFreeRate": 0.9242105263157895,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 9,
-     "decoys": 359,
-     "decoysFlagged": 9,
-     "negatives": 54,
-     "negativeFpCases": 5,
-     "negativeFpRate": 0.09259259259259259
+     "falsePositives": 10,
+     "decoys": 361,
+     "decoysFlagged": 10,
+     "negatives": 55,
+     "negativeFpCases": 6,
+     "negativeFpRate": 0.10909090909090909
     },
     "perturbed": {
-     "cases": 467,
+     "cases": 469,
      "items": 903,
      "supportedItems": 903,
      "unsupportedItems": 0,
-     "detections": 844,
+     "detections": 846,
      "tp": 824,
      "exactTp": 816,
      "found": 824,
      "foundExact": 816,
      "overlap": {
-      "precision": 0.976303317535545,
+      "precision": 0.9739952718676123,
       "recall": 0.9125138427464009,
-      "f1": 0.9433314253005152
+      "f1": 0.9422527158376215
      },
      "exact": {
-      "precision": 0.966824644549763,
+      "precision": 0.9645390070921985,
       "recall": 0.9036544850498339,
-      "f1": 0.9341728677733258
+      "f1": 0.9331046312178388
      },
      "redactedRecall": 0.9125138427464009,
      "leakFreeRate": 0.9091915836101883,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 20,
-     "decoys": 687,
-     "decoysFlagged": 20,
-     "negatives": 97,
-     "negativeFpCases": 11,
-     "negativeFpRate": 0.1134020618556701
+     "falsePositives": 22,
+     "decoys": 691,
+     "decoysFlagged": 22,
+     "negatives": 99,
+     "negativeFpCases": 13,
+     "negativeFpRate": 0.13131313131313133
     },
     "byCategory": {
      "SECRET": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 95,
        "supportedItems": 95,
        "unsupportedItems": 0,
-       "detections": 96,
+       "detections": 97,
        "tp": 93,
        "exactTp": 91,
        "found": 93,
        "foundExact": 91,
        "overlap": {
-        "precision": 0.96875,
+        "precision": 0.9587628865979382,
         "recall": 0.9789473684210527,
-        "f1": 0.9738219895287958
+        "f1": 0.96875
        },
        "exact": {
-        "precision": 0.9479166666666666,
+        "precision": 0.9381443298969072,
         "recall": 0.9578947368421052,
-        "f1": 0.9528795811518324
+        "f1": 0.9479166666666666
        },
        "redactedRecall": 0.9789473684210527,
        "leakFreeRate": 0.9789473684210527,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 3,
+       "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
-       "negativeFpCases": 2,
-       "negativeFpRate": 0.037037037037037035
+       "negatives": 55,
+       "negativeFpCases": 3,
+       "negativeFpRate": 0.05454545454545454
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 178,
        "supportedItems": 178,
        "unsupportedItems": 0,
-       "detections": 181,
+       "detections": 183,
        "tp": 175,
        "exactTp": 172,
        "found": 175,
        "foundExact": 172,
        "overlap": {
-        "precision": 0.9668508287292817,
+        "precision": 0.9562841530054644,
         "recall": 0.9831460674157303,
-        "f1": 0.9749303621169917
+        "f1": 0.9695290858725761
        },
        "exact": {
-        "precision": 0.9502762430939227,
+        "precision": 0.9398907103825137,
         "recall": 0.9662921348314607,
-        "f1": 0.9582172701949861
+        "f1": 0.9529085872576177
        },
        "redactedRecall": 0.9831460674157303,
        "leakFreeRate": 0.9831460674157303,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 6,
+       "falsePositives": 8,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
-       "negativeFpCases": 4,
-       "negativeFpRate": 0.041237113402061855
+       "negatives": 99,
+       "negativeFpCases": 6,
+       "negativeFpRate": 0.06060606060606061
       }
      },
      "EMAIL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 79,
        "supportedItems": 79,
        "unsupportedItems": 0,
@@ -15927,12 +15927,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 152,
        "supportedItems": 152,
        "unsupportedItems": 0,
@@ -15959,14 +15959,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "PHONE": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 41,
        "supportedItems": 41,
        "unsupportedItems": 0,
@@ -15993,12 +15993,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 76,
        "supportedItems": 76,
        "unsupportedItems": 0,
@@ -16025,14 +16025,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.020618556701030927
+       "negativeFpRate": 0.020202020202020204
       }
      },
      "ADDRESS": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 18,
        "supportedItems": 18,
        "unsupportedItems": 0,
@@ -16059,12 +16059,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 36,
        "supportedItems": 36,
        "unsupportedItems": 0,
@@ -16091,14 +16091,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "FINANCIAL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 94,
        "supportedItems": 94,
        "unsupportedItems": 0,
@@ -16125,12 +16125,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 177,
        "supportedItems": 177,
        "unsupportedItems": 0,
@@ -16157,14 +16157,14 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "NATIONAL_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 43,
        "supportedItems": 43,
        "unsupportedItems": 0,
@@ -16191,12 +16191,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 84,
        "supportedItems": 84,
        "unsupportedItems": 0,
@@ -16223,14 +16223,14 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.010309278350515464
+       "negativeFpRate": 0.010101010101010102
       }
      },
      "DATE_OF_BIRTH": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 26,
        "supportedItems": 26,
        "unsupportedItems": 0,
@@ -16257,12 +16257,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 48,
        "supportedItems": 48,
        "unsupportedItems": 0,
@@ -16289,14 +16289,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "IP": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 64,
        "supportedItems": 64,
        "unsupportedItems": 0,
@@ -16323,12 +16323,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 124,
        "supportedItems": 124,
        "unsupportedItems": 0,
@@ -16355,14 +16355,14 @@
        "falsePositives": 6,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 4,
-       "negativeFpRate": 0.041237113402061855
+       "negativeFpRate": 0.04040404040404041
       }
      },
      "COMPANY_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 15,
        "supportedItems": 15,
        "unsupportedItems": 0,
@@ -16389,12 +16389,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 467,
+       "cases": 469,
        "items": 28,
        "supportedItems": 28,
        "unsupportedItems": 0,
@@ -16421,7 +16421,7 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 97,
+       "negatives": 99,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
@@ -17757,142 +17757,142 @@
     }
    },
    "code_block": {
-    "baseCases": 252,
-    "variants": 504,
+    "baseCases": 253,
+    "variants": 506,
     "base": {
-     "cases": 252,
+     "cases": 253,
      "items": 475,
      "supportedItems": 475,
      "unsupportedItems": 0,
-     "detections": 449,
+     "detections": 450,
      "tp": 440,
      "exactTp": 436,
      "found": 440,
      "foundExact": 436,
      "overlap": {
-      "precision": 0.9799554565701559,
+      "precision": 0.9777777777777777,
       "recall": 0.9263157894736842,
-      "f1": 0.9523809523809523
+      "f1": 0.9513513513513514
      },
      "exact": {
-      "precision": 0.9710467706013363,
+      "precision": 0.9688888888888889,
       "recall": 0.9178947368421052,
-      "f1": 0.9437229437229437
+      "f1": 0.9427027027027027
      },
      "redactedRecall": 0.9263157894736842,
      "leakFreeRate": 0.9242105263157895,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 9,
-     "decoys": 359,
-     "decoysFlagged": 9,
-     "negatives": 54,
-     "negativeFpCases": 5,
-     "negativeFpRate": 0.09259259259259259
+     "falsePositives": 10,
+     "decoys": 361,
+     "decoysFlagged": 10,
+     "negatives": 55,
+     "negativeFpCases": 6,
+     "negativeFpRate": 0.10909090909090909
     },
     "perturbed": {
-     "cases": 504,
+     "cases": 506,
      "items": 950,
      "supportedItems": 950,
      "unsupportedItems": 0,
-     "detections": 898,
+     "detections": 900,
      "tp": 880,
      "exactTp": 872,
      "found": 880,
      "foundExact": 872,
      "overlap": {
-      "precision": 0.9799554565701559,
+      "precision": 0.9777777777777777,
       "recall": 0.9263157894736842,
-      "f1": 0.9523809523809523
+      "f1": 0.9513513513513514
      },
      "exact": {
-      "precision": 0.9710467706013363,
+      "precision": 0.9688888888888889,
       "recall": 0.9178947368421052,
-      "f1": 0.9437229437229437
+      "f1": 0.9427027027027027
      },
      "redactedRecall": 0.9263157894736842,
      "leakFreeRate": 0.9242105263157895,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 18,
-     "decoys": 718,
-     "decoysFlagged": 18,
-     "negatives": 108,
-     "negativeFpCases": 10,
-     "negativeFpRate": 0.09259259259259259
+     "falsePositives": 20,
+     "decoys": 722,
+     "decoysFlagged": 20,
+     "negatives": 110,
+     "negativeFpCases": 12,
+     "negativeFpRate": 0.10909090909090909
     },
     "byCategory": {
      "SECRET": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 95,
        "supportedItems": 95,
        "unsupportedItems": 0,
-       "detections": 96,
+       "detections": 97,
        "tp": 93,
        "exactTp": 91,
        "found": 93,
        "foundExact": 91,
        "overlap": {
-        "precision": 0.96875,
+        "precision": 0.9587628865979382,
         "recall": 0.9789473684210527,
-        "f1": 0.9738219895287958
+        "f1": 0.96875
        },
        "exact": {
-        "precision": 0.9479166666666666,
+        "precision": 0.9381443298969072,
         "recall": 0.9578947368421052,
-        "f1": 0.9528795811518324
+        "f1": 0.9479166666666666
        },
        "redactedRecall": 0.9789473684210527,
        "leakFreeRate": 0.9789473684210527,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 3,
+       "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
-       "negativeFpCases": 2,
-       "negativeFpRate": 0.037037037037037035
+       "negatives": 55,
+       "negativeFpCases": 3,
+       "negativeFpRate": 0.05454545454545454
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 190,
        "supportedItems": 190,
        "unsupportedItems": 0,
-       "detections": 192,
+       "detections": 194,
        "tp": 186,
        "exactTp": 182,
        "found": 186,
        "foundExact": 182,
        "overlap": {
-        "precision": 0.96875,
+        "precision": 0.9587628865979382,
         "recall": 0.9789473684210527,
-        "f1": 0.9738219895287958
+        "f1": 0.96875
        },
        "exact": {
-        "precision": 0.9479166666666666,
+        "precision": 0.9381443298969072,
         "recall": 0.9578947368421052,
-        "f1": 0.9528795811518324
+        "f1": 0.9479166666666666
        },
        "redactedRecall": 0.9789473684210527,
        "leakFreeRate": 0.9789473684210527,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 6,
+       "falsePositives": 8,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
-       "negativeFpCases": 4,
-       "negativeFpRate": 0.037037037037037035
+       "negatives": 110,
+       "negativeFpCases": 6,
+       "negativeFpRate": 0.05454545454545454
       }
      },
      "EMAIL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 79,
        "supportedItems": 79,
        "unsupportedItems": 0,
@@ -17919,12 +17919,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 158,
        "supportedItems": 158,
        "unsupportedItems": 0,
@@ -17951,14 +17951,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "PHONE": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 41,
        "supportedItems": 41,
        "unsupportedItems": 0,
@@ -17985,12 +17985,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 82,
        "supportedItems": 82,
        "unsupportedItems": 0,
@@ -18017,14 +18017,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       }
      },
      "ADDRESS": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 18,
        "supportedItems": 18,
        "unsupportedItems": 0,
@@ -18051,12 +18051,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 36,
        "supportedItems": 36,
        "unsupportedItems": 0,
@@ -18083,14 +18083,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "FINANCIAL": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 94,
        "supportedItems": 94,
        "unsupportedItems": 0,
@@ -18117,12 +18117,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 188,
        "supportedItems": 188,
        "unsupportedItems": 0,
@@ -18149,14 +18149,14 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "NATIONAL_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 43,
        "supportedItems": 43,
        "unsupportedItems": 0,
@@ -18183,12 +18183,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 86,
        "supportedItems": 86,
        "unsupportedItems": 0,
@@ -18215,14 +18215,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       }
      },
      "DATE_OF_BIRTH": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 26,
        "supportedItems": 26,
        "unsupportedItems": 0,
@@ -18249,12 +18249,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 52,
        "supportedItems": 52,
        "unsupportedItems": 0,
@@ -18281,14 +18281,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "IP": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 64,
        "supportedItems": 64,
        "unsupportedItems": 0,
@@ -18315,12 +18315,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 128,
        "supportedItems": 128,
        "unsupportedItems": 0,
@@ -18347,14 +18347,14 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       }
      },
      "COMPANY_ID": {
       "base": {
-       "cases": 252,
+       "cases": 253,
        "items": 15,
        "supportedItems": 15,
        "unsupportedItems": 0,
@@ -18381,12 +18381,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 504,
+       "cases": 506,
        "items": 30,
        "supportedItems": 30,
        "unsupportedItems": 0,
@@ -18413,7 +18413,7 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 108,
+       "negatives": 110,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
@@ -19749,142 +19749,142 @@
     }
    },
    "typo": {
-    "baseCases": 248,
-    "variants": 493,
+    "baseCases": 249,
+    "variants": 495,
     "base": {
-     "cases": 248,
+     "cases": 249,
      "items": 461,
      "supportedItems": 461,
      "unsupportedItems": 0,
-     "detections": 437,
+     "detections": 438,
      "tp": 428,
      "exactTp": 424,
      "found": 428,
      "foundExact": 424,
      "overlap": {
-      "precision": 0.9794050343249427,
+      "precision": 0.9771689497716894,
       "recall": 0.928416485900217,
-      "f1": 0.9532293986636972
+      "f1": 0.9521690767519466
      },
      "exact": {
-      "precision": 0.9702517162471396,
+      "precision": 0.9680365296803652,
       "recall": 0.9197396963123644,
-      "f1": 0.9443207126948775
+      "f1": 0.9432703003337042
      },
      "redactedRecall": 0.928416485900217,
      "leakFreeRate": 0.9262472885032538,
      "unsupportedRedacted": 0,
      "wrongCategory": 0,
      "mergedItems": 0,
-     "falsePositives": 9,
-     "decoys": 351,
-     "decoysFlagged": 9,
-     "negatives": 54,
-     "negativeFpCases": 5,
-     "negativeFpRate": 0.09259259259259259
+     "falsePositives": 10,
+     "decoys": 353,
+     "decoysFlagged": 10,
+     "negatives": 55,
+     "negativeFpCases": 6,
+     "negativeFpRate": 0.10909090909090909
     },
     "perturbed": {
-     "cases": 493,
+     "cases": 495,
      "items": 921,
      "supportedItems": 921,
      "unsupportedItems": 0,
-     "detections": 739,
+     "detections": 741,
      "tp": 716,
      "exactTp": 710,
      "found": 716,
      "foundExact": 710,
      "overlap": {
-      "precision": 0.9688768606224628,
+      "precision": 0.9662618083670715,
       "recall": 0.7774158523344191,
-      "f1": 0.8626506024096385
+      "f1": 0.8616125150421179
      },
      "exact": {
-      "precision": 0.9607577807848444,
+      "precision": 0.9581646423751687,
       "recall": 0.7709011943539631,
-      "f1": 0.855421686746988
+      "f1": 0.8543922984356197
      },
      "redactedRecall": 0.7795874049945711,
      "leakFreeRate": 0.7774158523344191,
      "unsupportedRedacted": 0,
      "wrongCategory": 2,
      "mergedItems": 0,
-     "falsePositives": 23,
-     "decoys": 695,
-     "decoysFlagged": 21,
-     "negatives": 106,
-     "negativeFpCases": 13,
-     "negativeFpRate": 0.12264150943396226
+     "falsePositives": 25,
+     "decoys": 699,
+     "decoysFlagged": 23,
+     "negatives": 108,
+     "negativeFpCases": 15,
+     "negativeFpRate": 0.1388888888888889
     },
     "byCategory": {
      "SECRET": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 94,
        "supportedItems": 94,
        "unsupportedItems": 0,
-       "detections": 95,
+       "detections": 96,
        "tp": 92,
        "exactTp": 90,
        "found": 92,
        "foundExact": 90,
        "overlap": {
-        "precision": 0.968421052631579,
+        "precision": 0.9583333333333334,
         "recall": 0.9787234042553191,
-        "f1": 0.9735449735449735
+        "f1": 0.968421052631579
        },
        "exact": {
-        "precision": 0.9473684210526315,
+        "precision": 0.9375,
         "recall": 0.9574468085106383,
-        "f1": 0.9523809523809523
+        "f1": 0.9473684210526315
        },
        "redactedRecall": 0.9787234042553191,
        "leakFreeRate": 0.9787234042553191,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 3,
+       "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
-       "negativeFpCases": 2,
-       "negativeFpRate": 0.037037037037037035
+       "negatives": 55,
+       "negativeFpCases": 3,
+       "negativeFpRate": 0.05454545454545454
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 188,
        "supportedItems": 188,
        "unsupportedItems": 0,
-       "detections": 152,
+       "detections": 154,
        "tp": 143,
        "exactTp": 141,
        "found": 143,
        "foundExact": 141,
        "overlap": {
-        "precision": 0.9407894736842105,
+        "precision": 0.9285714285714286,
         "recall": 0.7606382978723404,
-        "f1": 0.8411764705882352
+        "f1": 0.8362573099415205
        },
        "exact": {
-        "precision": 0.9276315789473685,
+        "precision": 0.9155844155844156,
         "recall": 0.75,
-        "f1": 0.8294117647058823
+        "f1": 0.8245614035087718
        },
        "redactedRecall": 0.7606382978723404,
        "leakFreeRate": 0.7606382978723404,
        "unsupportedRedacted": 0,
        "wrongCategory": 0,
        "mergedItems": 0,
-       "falsePositives": 9,
+       "falsePositives": 11,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
-       "negativeFpCases": 7,
-       "negativeFpRate": 0.0660377358490566
+       "negatives": 108,
+       "negativeFpCases": 9,
+       "negativeFpRate": 0.08333333333333333
       }
      },
      "EMAIL": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 76,
        "supportedItems": 76,
        "unsupportedItems": 0,
@@ -19911,12 +19911,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 152,
        "supportedItems": 152,
        "unsupportedItems": 0,
@@ -19943,14 +19943,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "PHONE": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 38,
        "supportedItems": 38,
        "unsupportedItems": 0,
@@ -19977,12 +19977,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 76,
        "supportedItems": 76,
        "unsupportedItems": 0,
@@ -20009,14 +20009,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.018867924528301886
+       "negativeFpRate": 0.018518518518518517
       }
      },
      "ADDRESS": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 18,
        "supportedItems": 18,
        "unsupportedItems": 0,
@@ -20043,12 +20043,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 36,
        "supportedItems": 36,
        "unsupportedItems": 0,
@@ -20075,14 +20075,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "FINANCIAL": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 87,
        "supportedItems": 87,
        "unsupportedItems": 0,
@@ -20109,12 +20109,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 174,
        "supportedItems": 174,
        "unsupportedItems": 0,
@@ -20141,14 +20141,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "NATIONAL_ID": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 43,
        "supportedItems": 43,
        "unsupportedItems": 0,
@@ -20175,12 +20175,12 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 86,
        "supportedItems": 86,
        "unsupportedItems": 0,
@@ -20207,14 +20207,14 @@
        "falsePositives": 4,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.018867924528301886
+       "negativeFpRate": 0.018518518518518517
       }
      },
      "DATE_OF_BIRTH": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 26,
        "supportedItems": 26,
        "unsupportedItems": 0,
@@ -20241,12 +20241,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 52,
        "supportedItems": 52,
        "unsupportedItems": 0,
@@ -20273,14 +20273,14 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }
      },
      "IP": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 64,
        "supportedItems": 64,
        "unsupportedItems": 0,
@@ -20307,12 +20307,12 @@
        "falsePositives": 1,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 1,
-       "negativeFpRate": 0.018518518518518517
+       "negativeFpRate": 0.01818181818181818
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 127,
        "supportedItems": 127,
        "unsupportedItems": 0,
@@ -20339,14 +20339,14 @@
        "falsePositives": 2,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 2,
-       "negativeFpRate": 0.018867924528301886
+       "negativeFpRate": 0.018518518518518517
       }
      },
      "COMPANY_ID": {
       "base": {
-       "cases": 248,
+       "cases": 249,
        "items": 15,
        "supportedItems": 15,
        "unsupportedItems": 0,
@@ -20373,12 +20373,12 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 54,
+       "negatives": 55,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       },
       "perturbed": {
-       "cases": 493,
+       "cases": 495,
        "items": 30,
        "supportedItems": 30,
        "unsupportedItems": 0,
@@ -20405,7 +20405,7 @@
        "falsePositives": 0,
        "decoys": 0,
        "decoysFlagged": 0,
-       "negatives": 106,
+       "negatives": 108,
        "negativeFpCases": 0,
        "negativeFpRate": 0
       }

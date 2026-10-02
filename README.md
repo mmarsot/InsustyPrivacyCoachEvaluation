@@ -170,10 +170,10 @@ configuration and with every category and address country on. The ref is
 materialized read-only like the model bench, and the detector's npm packages
 are installed at the versions its package-lock pins.
 
-- **Dataset** (`dataset/detbench/`): 252 fictional EN/FR prompts with 475
+- **Dataset** (`dataset/detbench/`): 253 fictional EN/FR prompts with 475
   labelled items across `SECRET`, `EMAIL`, `PHONE`, `ADDRESS`, `FINANCIAL`,
   `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP` and `COMPANY_ID` (the detector
-  upgrade's names), plus 359 hard negatives (log timestamps, git SHAs and
+  upgrade's names), plus 361 hard negatives (log timestamps, git SHAs and
   hashes, trace IDs, UUIDs, versions such as `1.2.3.4`, loopback addresses,
   ports, masked keys, public keys, `<password>` placeholders, algorithm
   names and acronyms in prose, base64 images, checksum-invalid IBAN and
@@ -208,8 +208,8 @@ and `all` (every category, FR/US/CA/AU):
 | F1, exact span | 85% | 94% |
 | Items redacted, all categories | 77% | 93% |
 | Items redacted in prose (355) / inside code blocks (120) | 76% / 78% | 91% / 97% |
-| Negative prompts with a false positive | 7% (4 / 54) | 9% (5 / 54) |
-| Hard negatives flagged | 8 / 359 | 9 / 359 |
+| Negative prompts with a false positive | 9% (5 / 55) | 11% (6 / 55) |
+| Hard negatives flagged | 9 / 361 | 10 / 361 |
 
 - Every category is supported. In `default`, `IP` and `COMPANY_ID` are
   opt-in, so their 79 items count as misses: most of the recall gap to `all`.
@@ -218,13 +218,14 @@ and `all` (every category, FR/US/CA/AU):
   them. PR #45 fixed the ezmlm VERP address with no `+`
   (`announce-return-418-j.okafor=lanternbay.io@lists…`); on the 224 earlier
   cases nothing else changed from `1c377d7`.
-- **Bibliography references** (`en-125`–`en-131`, `fr-117`–`fr-121`, tag
+- **Bibliography references** (`en-125`–`en-132`, `fr-117`–`fr-121`, tag
   `reference_links`; the captain's report of a DOI hidden as `[SECRET]`):
-  `main` flags 3 of the 7 negative reference prompts (`en-125`, `en-127`,
-  `fr-119`). The SECRET rule "bounded high-entropy heuristic" redacts
-  `1093/acref/9780191727603` inside the Oxford Reference DOI
-  `10.1093/acref/9780191727603.001.0001` (giving `doi:10.[SECRET].001.0001`,
-  EN and FR) and `fr/doc/geo_0003-4010_1998_num_107_601_20871` inside a Persée
+  `main` flags 4 of the 8 negative reference prompts (`en-125`, `en-127`,
+  `en-132`, `fr-119`). The SECRET rule "bounded high-entropy heuristic" redacts
+  `1093/acref/9780198604464` inside the captain's exact DOI
+  `doi:10.1093/acref/9780198604464.001.0001` (giving
+  `doi:10.[SECRET].001.0001`, EN and FR), and the same span in the online
+  edition's `10.1093/acref/9780191727603.001.0001` and `fr/doc/geo_0003-4010_1998_num_107_601_20871` inside a Persée
   URL; libphonenumber flags the hyphenated ISBN-10 `0-3064-6615-5` as a
   PHONE. Other DOIs, ISBN-13s, ISSNs, PMIDs/PMCs, arXiv ids and JSTOR,
   Handle, HAL and `dx.doi.org` links pass, and the email and keys next to

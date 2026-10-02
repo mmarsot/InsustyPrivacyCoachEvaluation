@@ -4,7 +4,7 @@
 (`detectSensitiveData` in `src/detector.ts`): the part that finds secrets,
 emails, phones, addresses and, after the detector upgrade, financial data,
 national IDs, dates of birth, IP addresses and company IDs. It loads no model:
-a run over 252 base cases and ~2,900 perturbed variants takes a few seconds.
+a run over 253 base cases and ~2,900 perturbed variants takes a few seconds.
 
 Code: `src/detbench/` (dataset, perturbations, ref loading, scoring, report)
 and `src/cli/detbench.ts`. Tests: `tests/detbench.test.ts`.
@@ -157,9 +157,9 @@ OpenSSH public-key blobs, hyphenated keys before an email, and prose
 parentheticals after secret keywords next to real `token: (…)` and
 `password is (…)` values.
 
-`en-125`–`en-131` and `fr-117`–`fr-121` (tag `reference_links`) are
-bibliography references: the captain's Oxford Companion citation whose DOI
-`main` redacted as `doi:10.[SECRET].001.0001`, APA, Chicago, Vancouver,
+`en-125`–`en-132` and `fr-117`–`fr-121` (tag `reference_links`) are
+bibliography references: the captain's Oxford Companion citation (`doi:10.1093/acref/9780198604464.001.0001`, ISBN
+978-0-19-172760-3) whose DOI `main` redacted as `doi:10.[SECRET].001.0001`, APA, Chicago, Vancouver,
 Wikipedia-rendered and French (ISO 690) styles, `doi:`, `https://doi.org/` and
 `dx.doi.org` forms, ISBN-10/13 with and without hyphens, ISSN, PMID/PMC,
 arXiv, JSTOR, Handle, HAL, Persée and Cairn links (decoy kinds `identifier`
