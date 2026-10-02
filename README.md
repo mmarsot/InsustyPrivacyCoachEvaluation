@@ -170,14 +170,16 @@ configuration and with every category and address country on. The ref is
 materialized read-only like the model bench, and the detector's npm packages
 are installed at the versions its package-lock pins.
 
-- **Dataset** (`dataset/detbench/`): 240 fictional EN/FR prompts with 471
+- **Dataset** (`dataset/detbench/`): 252 fictional EN/FR prompts with 475
   labelled items across `SECRET`, `EMAIL`, `PHONE`, `ADDRESS`, `FINANCIAL`,
   `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP` and `COMPANY_ID` (the detector
-  upgrade's names), plus 313 hard negatives (log timestamps, git SHAs and
+  upgrade's names), plus 359 hard negatives (log timestamps, git SHAs and
   hashes, trace IDs, UUIDs, versions such as `1.2.3.4`, loopback addresses,
   ports, masked keys, public keys, `<password>` placeholders, algorithm
   names and acronyms in prose, base64 images, checksum-invalid IBAN and
-  card look-alikes, ordinary dates next to dates of birth, plain prose). Many
+  card look-alikes, ordinary dates next to dates of birth, bibliography references with
+  DOIs, ISBNs, ISSNs, PMIDs, arXiv ids and DOI/JSTOR/Handle/HAL links, plain
+  prose). Many
   prompts mix several categories, and 47 are prose around a pasted
   snippet (stack traces, `.env`, docker-compose, SQL output, curl, JSON, git
   output) with values on both sides of the fence. Values are checksum-valid
@@ -194,20 +196,20 @@ are installed at the versions its package-lock pins.
 [docs/detbench.md](docs/detbench.md) has the dataset format, how to add
 cases, the perturbations and the metric definitions.
 
-Baseline on `main` @ `5ff3a68` (after the detector upgrade, PR #42, and its
+Baseline on `main` @ `7bd3983` (after the detector upgrade, PR #42, and its
 gap fixes, PRs #43 and #45;
-[`runs/detbench/main-5ff3a68/report.html`](runs/detbench/main-5ff3a68/report.html)),
+[`runs/detbench/main-7bd3983/report.html`](runs/detbench/main-7bd3983/report.html)),
 base cases, `default` config (FR addresses only, `IP` and `COMPANY_ID` off)
 and `all` (every category, FR/US/CA/AU):
 
 | | `default` | `all` |
 | --- | --- | --- |
-| F1 / precision / recall (overlap) | 84% / 97% / 75% | 95% / 96% / 93% |
-| F1, exact span | 82% | 92% |
-| Items redacted, all categories | 75% | 94% |
-| Items redacted in prose (353) / inside code blocks (118) | 75% / 75% | 94% / 94% |
-| Negative prompts with a false positive | 2% (1 / 46) | 11% (5 / 46) |
-| Hard negatives flagged | 9 / 313 | 16 / 313 |
+| F1 / precision / recall (overlap) | 86% / 98% / 77% | 95% / 98% / 93% |
+| F1, exact span | 85% | 94% |
+| Items redacted, all categories | 77% | 93% |
+| Items redacted in prose (355) / inside code blocks (120) | 76% / 78% | 91% / 97% |
+| Negative prompts with a false positive | 7% (4 / 54) | 9% (5 / 54) |
+| Hard negatives flagged | 8 / 359 | 9 / 359 |
 
 - Every category is supported. In `default`, `IP` and `COMPANY_ID` are
   opt-in, so their 79 items count as misses: most of the recall gap to `all`.
@@ -216,6 +218,17 @@ and `all` (every category, FR/US/CA/AU):
   them. PR #45 fixed the ezmlm VERP address with no `+`
   (`announce-return-418-j.okafor=lanternbay.io@lists…`); on the 224 earlier
   cases nothing else changed from `1c377d7`.
+- **Bibliography references** (`en-125`–`en-131`, `fr-117`–`fr-121`, tag
+  `reference_links`; the captain's report of a DOI hidden as `[SECRET]`):
+  `main` flags 3 of the 7 negative reference prompts (`en-125`, `en-127`,
+  `fr-119`). The SECRET rule "bounded high-entropy heuristic" redacts
+  `1093/acref/9780191727603` inside the Oxford Reference DOI
+  `10.1093/acref/9780191727603.001.0001` (giving `doi:10.[SECRET].001.0001`,
+  EN and FR) and `fr/doc/geo_0003-4010_1998_num_107_601_20871` inside a Persée
+  URL; libphonenumber flags the hyphenated ISBN-10 `0-3064-6615-5` as a
+  PHONE. Other DOIs, ISBN-13s, ISSNs, PMIDs/PMCs, arXiv ids and JSTOR,
+  Handle, HAL and `dx.doi.org` links pass, and the email and keys next to
+  references in the mixed cases are redacted.
 - **PR #45 hard cases** (`en-117`–`en-124`, `fr-109`–`fr-116`), what `main`
   does:
   - passes: prose parentheticals after secret keywords (`Generate a private

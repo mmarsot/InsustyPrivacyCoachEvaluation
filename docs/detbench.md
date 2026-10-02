@@ -4,7 +4,7 @@
 (`detectSensitiveData` in `src/detector.ts`): the part that finds secrets,
 emails, phones, addresses and, after the detector upgrade, financial data,
 national IDs, dates of birth, IP addresses and company IDs. It loads no model:
-a run over 240 base cases and ~2,800 perturbed variants takes a few seconds.
+a run over 252 base cases and ~2,900 perturbed variants takes a few seconds.
 
 Code: `src/detbench/` (dataset, perturbations, ref loading, scoring, report)
 and `src/cli/detbench.ts`. Tests: `tests/detbench.test.ts`.
@@ -156,6 +156,15 @@ angle-bracketed passwords in `curl --user` and URL credentials next to
 OpenSSH public-key blobs, hyphenated keys before an email, and prose
 parentheticals after secret keywords next to real `token: (…)` and
 `password is (…)` values.
+
+`en-125`–`en-131` and `fr-117`–`fr-121` (tag `reference_links`) are
+bibliography references: the captain's Oxford Companion citation whose DOI
+`main` redacted as `doi:10.[SECRET].001.0001`, APA, Chicago, Vancouver,
+Wikipedia-rendered and French (ISO 690) styles, `doi:`, `https://doi.org/` and
+`dx.doi.org` forms, ISBN-10/13 with and without hyphens, ISSN, PMID/PMC,
+arXiv, JSTOR, Handle, HAL, Persée and Cairn links (decoy kinds `identifier`
+and `url`). Four of them mix in a real email or key, so recall is still
+measured next to references.
 
 **Adding cases**: append lines with the next free id, then run
 `npm run detbench -- --validate`. Secret-looking values must not appear raw in
