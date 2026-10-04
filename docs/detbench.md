@@ -4,7 +4,7 @@
 (`detectSensitiveData` in `src/detector.ts`): the part that finds secrets,
 emails, phones, addresses and, after the detector upgrade, financial data,
 national IDs, dates of birth, IP addresses and company IDs. It loads no model:
-a run over 253 base cases and ~2,900 perturbed variants takes a few seconds.
+a run over 266 base cases and ~3,000 perturbed variants takes a few seconds.
 
 Code: `src/detbench/` (dataset, perturbations, ref loading, scoring, report)
 and `src/cli/detbench.ts`. Tests: `tests/detbench.test.ts`.
@@ -165,6 +165,20 @@ Wikipedia-rendered and French (ISO 690) styles, `doi:`, `https://doi.org/` and
 arXiv, JSTOR, Handle, HAL, Persée and Cairn links (decoy kinds `identifier`
 and `url`). Four of them mix in a real email or key, so recall is still
 measured next to references.
+
+`en-133`–`en-140` and `fr-122`–`fr-126` (tags `reference_links` and
+`ark_link`, `hex_id_link`, `isbn_typo`, `url_secret_control`) come from the
+review of InsustyPromptCoach PR #72, which fixed the first round: Gallica ARK
+links (`https://gallica.bnf.fr/ark:/12148/bpt6k5619759j/f12.item`, the
+reported link, and fictional variants, in a link and bare), Semantic Scholar
+paper links and GitHub/GitLab commit, tree, blob and pull-commit links with a
+hex id in the path, in citations and bare, EN and FR. Five controls put a real
+secret in or next to such a link (an `api_key=` or 40-hex `access_token=`
+query, a Google API key in a Maps query, a `ghp_` token as URL credentials, a
+random token in a webhook path), so a fix cannot ignore every URL. A
+misspelled `ISNB` label is not a book number to the detector: the ISBN-10
+behind it reads as a French landline, so it is ground truth `PHONE` by design
+(`en-140`, `fr-125`), next to the same number correctly labelled as a decoy.
 
 **Adding cases**: append lines with the next free id, then run
 `npm run detbench -- --validate`. Secret-looking values must not appear raw in

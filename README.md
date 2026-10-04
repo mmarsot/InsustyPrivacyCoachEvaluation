@@ -170,17 +170,17 @@ configuration and with every category and address country on. The ref is
 materialized read-only like the model bench, and the detector's npm packages
 are installed at the versions its package-lock pins.
 
-- **Dataset** (`dataset/detbench/`): 253 fictional EN/FR prompts with 475
+- **Dataset** (`dataset/detbench/`): 266 fictional EN/FR prompts with 482
   labelled items across `SECRET`, `EMAIL`, `PHONE`, `ADDRESS`, `FINANCIAL`,
   `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP` and `COMPANY_ID` (the detector
-  upgrade's names), plus 361 hard negatives (log timestamps, git SHAs and
+  upgrade's names), plus 386 hard negatives (log timestamps, git SHAs and
   hashes, trace IDs, UUIDs, versions such as `1.2.3.4`, loopback addresses,
   ports, masked keys, public keys, `<password>` placeholders, algorithm
   names and acronyms in prose, base64 images, checksum-invalid IBAN and
   card look-alikes, ordinary dates next to dates of birth, bibliography references with
-  DOIs, ISBNs, ISSNs, PMIDs, arXiv ids and DOI/JSTOR/Handle/HAL links, plain
-  prose). Many
-  prompts mix several categories, and 47 are prose around a pasted
+  DOIs, ISBNs, ISSNs, PMIDs, arXiv ids and DOI/JSTOR/Handle/HAL/Gallica ARK,
+  Semantic Scholar and GitHub/GitLab commit links, plain prose). Many
+  prompts mix several categories, and 49 are prose around a pasted
   snippet (stack traces, `.env`, docker-compose, SQL output, curl, JSON, git
   output) with values on both sides of the fence. Values are checksum-valid
   where a checksum exists (IBAN, card, NIR, SIREN/SIRET, VAT, NHS, NINO).
@@ -196,75 +196,70 @@ are installed at the versions its package-lock pins.
 [docs/detbench.md](docs/detbench.md) has the dataset format, how to add
 cases, the perturbations and the metric definitions.
 
-Baseline on `main` @ `7bd3983` (after the detector upgrade, PR #42, and its
-gap fixes, PRs #43 and #45;
-[`runs/detbench/main-7bd3983/report.html`](runs/detbench/main-7bd3983/report.html)),
+Baseline on `main` @ `cf717aa` (after the detector upgrade, PR #42, its gap
+fixes, PRs #43 and #45, and the reference-link fix, PR #72;
+[`runs/detbench/main-cf717aa/report.html`](runs/detbench/main-cf717aa/report.html)),
 base cases, `default` config (FR addresses only, `IP` and `COMPANY_ID` off)
 and `all` (every category, FR/US/CA/AU):
 
 | | `default` | `all` |
 | --- | --- | --- |
-| F1 / precision / recall (overlap) | 86% / 98% / 77% | 95% / 98% / 93% |
-| F1, exact span | 85% | 94% |
+| F1 / precision / recall (overlap) | 85% / 94% / 77% | 94% / 95% / 93% |
+| F1, exact span | 84% | 93% |
 | Items redacted, all categories | 77% | 93% |
-| Items redacted in prose (355) / inside code blocks (120) | 76% / 78% | 91% / 97% |
-| Negative prompts with a false positive | 9% (5 / 55) | 11% (6 / 55) |
-| Hard negatives flagged | 9 / 361 | 10 / 361 |
+| Items redacted in prose (360) / inside code blocks (122) | 76% / 79% | 91% / 97% |
+| Negative prompts with a false positive | 11% (7 / 61) | 13% (8 / 61) |
+| Hard negatives flagged | 23 / 386 | 24 / 386 |
 
 - Every category is supported. In `default`, `IP` and `COMPANY_ID` are
   opt-in, so their 79 items count as misses: most of the recall gap to `all`.
-- **PR #43 regression cases** (`en-108`–`en-116`, `fr-101`–`fr-108`, see
-  [docs/detbench.md](docs/detbench.md#dataset)): `main` now passes all of
-  them. PR #45 fixed the ezmlm VERP address with no `+`
-  (`announce-return-418-j.okafor=lanternbay.io@lists…`); on the 224 earlier
-  cases nothing else changed from `1c377d7`.
-- **Bibliography references** (`en-125`–`en-132`, `fr-117`–`fr-121`, tag
-  `reference_links`; the captain's report of a DOI hidden as `[SECRET]`):
-  `main` flags 4 of the 8 negative reference prompts (`en-125`, `en-127`,
-  `en-132`, `fr-119`). The SECRET rule "bounded high-entropy heuristic" redacts
-  `1093/acref/9780198604464` inside the captain's exact DOI
-  `doi:10.1093/acref/9780198604464.001.0001` (giving
-  `doi:10.[SECRET].001.0001`, EN and FR), and the same span in the online
-  edition's `10.1093/acref/9780191727603.001.0001` and `fr/doc/geo_0003-4010_1998_num_107_601_20871` inside a Persée
-  URL; libphonenumber flags the hyphenated ISBN-10 `0-3064-6615-5` as a
-  PHONE. Other DOIs, ISBN-13s, ISSNs, PMIDs/PMCs, arXiv ids and JSTOR,
-  Handle, HAL and `dx.doi.org` links pass, and the email and keys next to
-  references in the mixed cases are redacted.
-- **PR #45 hard cases** (`en-117`–`en-124`, `fr-109`–`fr-116`), what `main`
-  does:
-  - passes: prose parentheticals after secret keywords (`Generate a private
-    key (RSA-2048) first`, `the token (v2) expired`, `secret (2FA)`,
-    `access token (OAuth2)`, `private key (ed25519)`, EN and FR) are not
-    flagged, while `token: (<uuid>)` and `password is (<value>)` are redacted
-    exactly; a bare SRS address as a config value
-    (`LAST_RETURN_PATH=Hn7c=6D=westgrove.org=m.delacroix@relay…`) is redacted
-    whole; the `curl --user deploy:<password>` placeholder is not flagged.
-  - redacted, not exact: hyphenated keys before an email (`mail-from=`,
-    `reply-to=`, `adresse-expediteur=`, `repondre-a=`) stay inside the span
-    (5 items, over-redaction, no leak).
-  - leaks: SRS addresses in `SRS0=(…)` and `SRS0=«…»` lose their hash, read
-    as a `key=` (2 items); angle-bracketed passwords in
-    `curl --user deploy:<Hc7!pR2v>` (EN, FR) and in `redis://:<pw>@` /
-    `postgres://app:<pw>@` URLs (3) are missed; keyword values in doubled
-    quoting (`"token": "`uuid`"`, CSV `""token"": ""uuid""`, EN and FR,
-    4 items) are missed.
-  - false positives: bare OpenSSH public-key blobs without their label
-    (`JWT_PUBLIC_KEY=AAAAC3NzaC1lZDI1NTE5…`, and RSA and ECDSA blobs) are
-    flagged by the entropy heuristic (4 decoys); the docs example
-    `redis://:<password>@localhost:6379/0` is flagged from `>@localhost` on.
-- Still missed in `all`: UK and DE phones (7), US and UK addresses (3),
+- **Regression cases** from PRs #43 and #45 (`en-108`–`en-124`,
+  `fr-101`–`fr-116`, see [docs/detbench.md](docs/detbench.md#dataset)):
+  in `all`, `main` passes all of them, every item exact (in `default`, only
+  their opt-in `IP` items are missed).
+- **Bibliography references, first round** (`en-125`–`en-132`,
+  `fr-117`–`fr-121`, tag `reference_links`; the captain's report of a DOI
+  hidden as `doi:10.[SECRET].001.0001`): PR #72 fixed all four prompts
+  `7bd3983` flagged (the Oxford Reference DOIs, a Persée URL path, the
+  labelled ISBN-10 `0-3064-6615-5` as PHONE); all 13 now pass, and the email
+  and keys next to references are still redacted.
+- **Reference links, second round** (`en-133`–`en-140`, `fr-122`–`fr-126`,
+  from the review of
+  [InsustyPromptCoach PR #72](https://github.com/mmarsot/InsustyPromptCoach/pull/72)):
+  the target for the extension follow-up. Same result in both configs:
+  - fail, Gallica ARK links (`en-133`, `en-134`, `fr-122`, `fr-124`,
+    `fr-126`): the SECRET rule "bounded high-entropy heuristic" flags
+    `/12148/bpt6k5619759j/f12` in
+    `https://gallica.bnf.fr/ark:/12148/bpt6k5619759j/f12.item`, in a link or
+    bare (`ark:/12148/…`), EN and FR; the shorter catalogue link
+    `…/ark:/12148/cb45678912k` passes (under the heuristic's 24-character
+    minimum).
+  - fail, links with a hex id in the path (`en-135`–`en-139`, `fr-123`,
+    `fr-126`): the same rule flags the path (from the TLD on) of Semantic Scholar
+    paper links (`semanticscholar.org/paper/<slug>/<40 hex>`, bare
+    `/paper/<40 hex>`, the API's `/graph/v1/paper/<40 hex>`) and of GitHub and
+    GitLab `commit/`, `tree/`, `blob/` and `pull/…/commits/` links, a 7-hex
+    short commit link included.
+  - pass, controls that a fix must keep: the `api_key=` in a Semantic Scholar
+    API query (`en-137`), a `ghp_` token as a GitHub URL's credentials
+    (`en-138`), a random token in a webhook path (`en-139`), a 40-hex
+    `access_token=` in a query (`fr-124`) and a Google API key in a Maps
+    query (`fr-126`) are all redacted (the `en-138` and `en-139` spans run
+    past the token into the link, no leak).
+  - pass, by design: behind the misspelled label `ISNB` the ISBN-10
+    `0-3064-6615-5` (and `0-2718-4093-5`, FR) reads as a French landline, so
+    it is ground truth PHONE and redacted (`en-140`, `fr-125`); the same
+    number after `ISBN` is not flagged.
+- Still missed in `all`: US, UK and DE phones (15), US and UK addresses (8),
   passports (4), dates of birth under a table header (2), 2 French
-  passwords, 3 SIRENs (2 caught only as PHONE), a BIC, part of an IPv6, and
-  the PR #45 bracketed passwords (5) and doubled-quote tokens (4).
-- Hard negatives flagged in `all`: order numbers, a client number, a
-  version and a timestamp as PHONE (6), SSN-shaped part numbers as
-  NATIONAL_ID (2), a Luhn-invalid card look-alike (1), `net-snmp 5.9.4.2`
-  as IP (1), and from the PR #45 cases the 4 bare public-key blobs and the
-  `<password>` placeholder and `localhost` of a docs example URL (2).
+  passwords, 3 SIRENs, a BIC, and part of an IPv4-mapped IPv6 (redacted,
+  not leak-free).
+- Hard negatives flagged in `all`: the 20 reference-link decoys above, two
+  SSN-shaped part numbers as NATIONAL_ID, a Luhn-invalid card look-alike
+  and `net-snmp 5.9.4.2` as IP.
 - **Perturbations** (`all`, F1 base→perturbed): a line break inside a value
-  96%→80%, spacing 96%→88% (PR #45 closed double-spaced IBANs), typos in
-  context words 95%→86%, punctuation 95%→89%, `.env` rewrite 95%→91%; the
-  others move F1 by 3 points or less.
+  95%→80%, typos in context words 94%→85%, spacing 95%→87%, punctuation
+  96%→90%, `.env` rewrite 96%→90%; the others move F1 by 4 points or less.
 
 ## Dashboard
 
