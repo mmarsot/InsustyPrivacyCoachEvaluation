@@ -3,7 +3,7 @@ import { esc, meter, pct, STYLE } from "../report/html.ts";
 import { DET_CATEGORIES } from "./schema.ts";
 import { PERTURBATION_INFO, type Perturbation } from "./perturb.ts";
 import { defangHtml } from "./defang.ts";
-import type { DetMetrics, DetSummary } from "./aggregate.ts";
+import type { DetMetrics, DetSummary, LargeCaseSummary } from "./aggregate.ts";
 import type { DetScored } from "./score.ts";
 
 export interface DetRunMeta {
@@ -21,7 +21,17 @@ export interface DetRunMeta {
   perturbations: string[];
   baseCases: number;
   variants: number;
-  timing: { calls: number; p50Ms: number | null; p95Ms: number | null; maxMs: number | null; totalMs: number };
+  timing: {
+    calls: number;
+    p50Ms: number | null;
+    p95Ms: number | null;
+    maxMs: number | null;
+    totalMs: number;
+    /** The ten slowest base-case calls. */
+    slowest?: Array<{ config: string; caseId: string; chars: number; ms: number }>;
+    /** Every call on a large generated case. */
+    large?: Array<{ config: string; caseId: string; chars: number; ms: number }>;
+  };
   node: string;
   machine: string;
   startedAt: string;
@@ -176,18 +186,32 @@ function confusionSection(summaries: DetSummary[]): string {
   return `<h2 id="confusion">What each category is detected as</h2><p>Base cases; an item overlapped by detections of two categories counts in both columns.</p>${parts.join("")}`;
 }
 
-/** The case text with items highlighted (found / missed). */
+/** Texts longer than this (generated tables) show only their start, end and the context of each item. */
+const LONG_TEXT = 6000;
+/** Detections listed per case; the rest are counted by category. */
+const MAX_LISTED_DETECTIONS = 60;
+
+/** Escaped plain text, with the middle of long stretches replaced by a count of omitted characters. */
+function clipped(text: string, from: number, to: number, long: boolean): string {
+  const keepStart = from === 0 ? 1500 : 200;
+  const keepEnd = to === text.length ? 500 : 200;
+  if (!long || to - from <= keepStart + keepEnd + 200) return esc(text.slice(from, to));
+  return `${esc(text.slice(from, from + keepStart))}<span class="muted">\n… ${(to - from - keepStart - keepEnd).toLocaleString("en")} characters omitted …\n</span>${esc(text.slice(to - keepEnd, to))}`;
+}
+
+/** The case text with items highlighted (found / missed); long texts keep each item's context. */
 function highlighted(r: DetScored): string {
+  const long = r.text.length > LONG_TEXT;
   const marks = [...r.items].sort((a, b) => a.start - b.start);
   let out = "";
   let at = 0;
   for (const i of marks) {
     if (i.start < at) continue;
-    out += esc(r.text.slice(at, i.start));
+    out += clipped(r.text, at, i.start, long);
     out += `<mark class="${i.redacted ? "" : "miss"}" title="${esc(i.category)} / ${esc(i.kind)}">${esc(r.text.slice(i.start, i.end))}</mark>`;
     at = i.end;
   }
-  return out + esc(r.text.slice(at));
+  return out + clipped(r.text, at, r.text.length, long);
 }
 
 export function caseDetails(r: DetScored): string {
@@ -197,9 +221,16 @@ export function caseDetails(r: DetScored): string {
         `${i.overlap ? (i.exact ? "✓ exact" : "✓ overlap") : i.redacted ? "~ redacted as " + i.detectedAs.join("/") : i.supported ? "✗ missed" : "· not supported"}  ${i.category}/${i.kind}: ${JSON.stringify(i.value)}${i.merged ? "  [merged with another item]" : ""}${!i.leakFree && i.redacted ? "  [partly visible]" : ""}`,
     )
     .join("\n");
-  const dets = r.detections
-    .map((d) => `${d.verdict.padEnd(16)} ${d.category}: ${JSON.stringify(d.value)} (${d.source})${d.decoyKinds.length ? ` on ${d.decoyKinds.join(", ")}` : ""}`)
-    .join("\n");
+  // A long list shows the detections on items first, then the first false positives.
+  const onItems = (d: DetScored["detections"][number]) => d.verdict === "tp" || d.verdict === "unsupported_item";
+  const ordered = r.detections.length > MAX_LISTED_DETECTIONS ? [...r.detections.filter(onItems), ...r.detections.filter((d) => !onItems(d))] : r.detections;
+  const listed = ordered.slice(0, MAX_LISTED_DETECTIONS);
+  const rest = new Map<string, number>();
+  for (const d of ordered.slice(listed.length)) rest.set(`${d.verdict} ${d.category}`, (rest.get(`${d.verdict} ${d.category}`) ?? 0) + 1);
+  const dets = [
+    ...listed.map((d) => `${d.verdict.padEnd(16)} ${d.category}: ${JSON.stringify(d.value)} (${d.source})${d.decoyKinds.length ? ` on ${d.decoyKinds.join(", ")}` : ""}`),
+    ...(rest.size ? [`… and ${r.detections.length - listed.length} more: ${[...rest].map(([k, n]) => `${n} ${k}`).join(", ")}`] : []),
+  ].join("\n");
   const flags = [
     r.items.some((i) => i.supported && !i.overlap) ? "miss" : "",
     r.items.some((i) => i.supported && i.overlap && !i.exact) ? "partial span" : "",
@@ -207,6 +238,26 @@ export function caseDetails(r: DetScored): string {
     r.items.some((i) => i.merged) ? "merged" : "",
   ].filter(Boolean);
   return `<details><summary><code>${esc(r.caseId)}</code> <span class="tag">${esc(r.type)}</span><span class="tag">${esc(r.register)}</span>${flags.map((f) => `<span class="tag bad">${f}</span>`).join("")}${r.perturbationNote ? ` <span class="muted">${esc(r.perturbationNote)}</span>` : ""}</summary><pre>${highlighted(r)}</pre><h3>Items</h3><pre>${esc(items || "(none)")}</pre><h3>Selected detections</h3><pre>${esc(dets || "(none)")}</pre></details>`;
+}
+
+const fpCategories = (l: LargeCaseSummary) =>
+  Object.entries(l.fpByCategory)
+    .sort(([, a], [, b]) => b - a)
+    .map(([c, n]) => `${c} ${n.toLocaleString("en")}`)
+    .join(", ") || "none";
+const largeMs = (meta: DetRunMeta, config: string, caseId: string) => meta.timing.large?.find((t) => t.config === config && t.caseId === caseId)?.ms;
+
+/** Large generated cases: false-positive floods and runtime, apart from the other metrics. */
+function largeSection(meta: DetRunMeta, summaries: DetSummary[]): string {
+  const rows = summaries.flatMap((s) =>
+    (s.large ?? []).map(
+      (l) =>
+        `<tr><td>${esc(s.config)}</td><td><code>${esc(l.caseId)}</code></td><td class="num">${l.lines.toLocaleString("en")}</td><td class="num">${l.chars.toLocaleString("en")}</td><td class="num">${l.found}/${l.items}</td><td class="num">${l.redacted}/${l.items}</td><td class="num">${l.falsePositives.toLocaleString("en")}</td><td>${esc(fpCategories(l))}</td><td class="num">${num(largeMs(meta, s.config, l.caseId), 0)}</td></tr>`,
+    ),
+  );
+  if (!rows.length) return "";
+  return `<h2 id="large">Large generated cases</h2><p>Cases built from thousands of generated rows (<code>generated</code> in the dataset). They are left out of every metric above, so one flood does not swamp them, and are not perturbed. Found: items overlapped by their own category; false positives: every detection on no item.</p>
+<div class="scroll"><table><thead><tr><th>Config</th><th>Case</th><th class="num">Lines</th><th class="num">Chars</th><th class="num">Found</th><th class="num">Redacted</th><th class="num">False positives</th><th>By category</th><th class="num">ms</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
 }
 
 const hasProblem = (r: DetScored) =>
@@ -247,7 +298,7 @@ export function renderDetReport(meta: DetRunMeta, rows: DetScored[], summaries: 
 <div>Config <b>all</b></div><div>every category on and every address country: ${esc(meta.allConfigNote)}</div>
 <div>Packages</div><div>${Object.entries(meta.packages).map(([n, v]) => `<code>${esc(n)}@${esc(v)}</code>`).join(" ")} (the ref's package-lock)</div>
 <div>Dataset</div><div><code>${esc(meta.datasetHash.slice(0, 12))}</code> (<code>dataset/detbench/</code>)</div>
-<div>Speed</div><div>${meta.timing.calls} calls, p50 ${num(meta.timing.p50Ms, 2)} ms, p95 ${num(meta.timing.p95Ms, 2)} ms, max ${num(meta.timing.maxMs, 1)} ms per prompt (${esc(meta.machine)}, Node ${esc(meta.node)})</div>
+<div>Speed</div><div>${meta.timing.calls} calls, p50 ${num(meta.timing.p50Ms, 2)} ms, p95 ${num(meta.timing.p95Ms, 2)} ms, max ${num(meta.timing.maxMs, 1)} ms per prompt (${esc(meta.machine)}, Node ${esc(meta.node)})${meta.timing.slowest?.length ? `<br>Slowest: ${meta.timing.slowest.map((t) => `<code>${esc(t.caseId)}</code> [${esc(t.config)}] ${num(t.ms, 0)} ms for ${t.chars.toLocaleString("en")} chars`).join(", ")}` : ""}</div>
 </div>
 <h2 id="summary">Summary (base cases)</h2>
 <p>P/R/F1 use only items of categories the ref supports; items of other categories are reported as <i>not supported by this ref</i>, not as misses. <b>Redacted</b> and <b>leak-free</b> use every item, whatever its category, so they compare refs end to end. Only selected detections count (what gets redacted without the user ticking anything).</p>
@@ -257,6 +308,7 @@ ${sliceSection(summaries)}
 ${robustnessSection(summaries)}
 ${negativesSection(summaries)}
 ${confusionSection(summaries)}
+${largeSection(meta, summaries)}
 ${casesSection(rows, summaries)}
 <h2>Method</h2><p>See the README section “Deterministic redaction bench” and <code>src/detbench/</code>. Ground truth: <code>dataset/detbench/*.jsonl</code> (templates with <code>{{key}}</code> placeholders; checksum-valid, fictional values).</p>
 </main></body></html>`);
@@ -291,6 +343,12 @@ export function textSummary(meta: DetRunMeta, summaries: DetSummary[]): string {
       .map(([t, p]) => `${t} ${pct(p.base.overlap.f1)}→${pct(p.perturbed.overlap.f1)}`)
       .join(", ");
     if (drops) lines.push(`  perturbations (F1 base→perturbed): ${drops}`);
+    for (const l of s.large ?? []) {
+      const ms = largeMs(meta, s.config, l.caseId);
+      lines.push(
+        `  large ${l.caseId} (${l.lines.toLocaleString("en")} lines, ${l.chars.toLocaleString("en")} chars): found ${l.found}/${l.items}, false positives ${l.falsePositives.toLocaleString("en")} (${fpCategories(l)})${ms === undefined ? "" : `, ${num(ms, 0)} ms`}`,
+      );
+    }
   }
   return lines.join("\n");
 }
@@ -332,10 +390,22 @@ export function renderDetCompare(a: { meta: DetRunMeta; summaries: DetSummary[] 
       const decoys = Object.keys({ ...sa.decoys, ...sb.decoys })
         .map((k) => `<tr><td><code>${esc(k)}</code></td><td class="num">${sa.decoys[k]?.flagged ?? "–"}/${sa.decoys[k]?.total ?? "–"} → ${sb.decoys[k]?.flagged ?? "–"}/${sb.decoys[k]?.total ?? "–"}</td></tr>`)
         .join("");
+      const large = [...new Set([...(sa.large ?? []), ...(sb.large ?? [])].map((l) => l.caseId))]
+        .map((id) => {
+          const la = sa.large?.find((l) => l.caseId === id);
+          const lb = sb.large?.find((l) => l.caseId === id);
+          const msA = largeMs(a.meta, sa.config, id);
+          const msB = largeMs(b.meta, sb.config, id);
+          return `<tr><td><code>${esc(id)}</code></td><td class="num">${la ? `${la.found}/${la.items}` : "–"} → ${lb ? `${lb.found}/${lb.items}` : "–"}</td><td class="num">${la?.falsePositives.toLocaleString("en") ?? "–"} → ${lb?.falsePositives.toLocaleString("en") ?? "–"}</td><td class="num">${num(msA, 0)} → ${num(msB, 0)}</td></tr>`;
+        })
+        .join("");
+      const largeHtml = large
+        ? `<h3>Large generated cases</h3><div class="scroll"><table><thead><tr><th>Case</th><th class="num">Found</th><th class="num">False positives</th><th class="num">ms</th></tr></thead><tbody>${large}</tbody></table></div>`
+        : "";
       return `<h2>${esc(sa.config)}</h2>
 <div class="scroll"><table><thead><tr><th>Category</th><th>A supports</th><th>B supports</th><th class="num">F1 overlap</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1 exact</th><th class="num">Redacted (any category)</th><th class="num">Leak-free</th><th class="num">FP rate (negatives)</th></tr></thead><tbody>${overall}${zones}${cats}</tbody></table></div>
 <h3>Perturbed variants</h3><div class="scroll"><table><thead><tr><th>Perturbation</th><th class="num">F1 overlap</th><th class="num">Recall</th><th class="num">Redacted</th><th class="num">F1 change vs base</th></tr></thead><tbody>${perts}</tbody></table></div>
-<h3>Hard negatives flagged</h3><div class="scroll"><table><thead><tr><th>Decoy kind</th><th class="num">A → B</th></tr></thead><tbody>${decoys}</tbody></table></div>`;
+<h3>Hard negatives flagged</h3><div class="scroll"><table><thead><tr><th>Decoy kind</th><th class="num">A → B</th></tr></thead><tbody>${decoys}</tbody></table></div>${largeHtml}`;
     })
     .join("");
   const same = a.meta.datasetHash === b.meta.datasetHash;

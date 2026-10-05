@@ -4,7 +4,7 @@
 (`detectSensitiveData` in `src/detector.ts`): the part that finds secrets,
 emails, phones, addresses and, after the detector upgrade, financial data,
 national IDs, dates of birth, IP addresses and company IDs. It loads no model:
-a run over 266 base cases and ~3,000 perturbed variants takes a few seconds.
+a run over 283 base cases and ~3,100 perturbed variants takes a few seconds.
 
 Code: `src/detbench/` (dataset, perturbations, ref loading, scoring, report)
 and `src/cli/detbench.ts`. Tests: `tests/detbench.test.ts`.
@@ -28,7 +28,7 @@ Each ref runs with two configurations:
 | Config | What it is |
 | --- | --- |
 | `default` | the ref's `DEFAULT_CONFIG`, as a new user gets it |
-| `all` | every category in the ref's `CATEGORIES` on, and every `SUPPORTED_ADDRESS_COUNTRIES` |
+| `all` | every category in the ref's `CATEGORIES` on, and every `SUPPORTED_ADDRESS_COUNTRIES` when the ref exports that list (`main` does not, so `all` keeps its `FR`) |
 
 Only **selected** detections count: what gets redacted without the user
 ticking anything. A category switched off leaves its detections unselected.
@@ -71,7 +71,17 @@ know, its detections count as false positives until you add an alias.
   separately, so spans stay exact. The case type is derived: `negative` (no
   item), `single` (one category) or `multi` (several).
 - `register`: `email`, `chat`, `notes`, `doc`, `form`, `ticket`, `code`,
-  `log`, `config`.
+  `log`, `config`, `table` (rows pasted from a spreadsheet or a CSV/TSV
+  export).
+- `generated` (large cases): placeholders rendered as plain text by a named
+  generator in `src/detbench/generate.ts`, e.g.
+  `"generated":{"rows_a":{"generator":"orders_tsv","from":10000,"count":1000}}`
+  for 1,000 spreadsheet rows, so a case of thousands of rows stays one short
+  line. Generated text is neither item nor decoy: every detection in it is a
+  false positive. A case with `generated` is **large**: it is not perturbed
+  and is scored apart (see Metrics). Generators are pure functions of the row
+  number and their output is part of the dataset hash; add a new generator
+  rather than changing one a case uses.
 - Dates of birth also carry `iso` (`YYYY-MM-DD`), for the format perturbations.
 - A decoy of kind `invalid_checksum` (an IBAN, card, NIR or NHS look-alike
   with a wrong check digit) names the kind it imitates in `of`; the validator
@@ -180,6 +190,21 @@ misspelled `ISNB` label is not a book number to the detector: the ISBN-10
 behind it reads as a French landline, so it is ground truth `PHONE` by design
 (`en-140`, `fr-125`), next to the same number correctly labelled as a decoy.
 
+`en-141`–`en-149` and `fr-127`–`fr-134` (tag `table_paste`, plus `tsv`,
+`csv`, `space_joined`, `numeric_cells`, `state_code_cell`,
+`address_in_cell`, `address_split_cells`, `table_flood`) are spreadsheet and
+CSV pastes, from the document-upload research (a 60,000-row sheet extracted
+as TSV gave 29,999 false ADDRESS hits, e.g. `35000⇥note 10000⇥ok`): order,
+invoice and dashboard tables where five-digit amounts sit next to short cells
+(`ok`, `in`, `me`, `or`, `de`, `la`, `EUR`), the same rows as comma or
+semicolon CSV and joined with spaces, numeric cells that concatenate into a
+NIR, a card or a phone, and positive controls with an email, an IBAN or an
+address in a cell. A French address split over Street, Postcode and City
+columns is one item spanning the three cells and their tabs. `en-149`
+(2,003 lines, generator `orders_tsv`) and `fr-132` (1,003 lines,
+`commandes_tsv`) are the large cases, with an email, an IBAN and an address
+in cells in the middle.
+
 **Adding cases**: append lines with the next free id, then run
 `npm run detbench -- --validate`. Secret-looking values must not appear raw in
 the files, so secret scanners (GitHub push protection) do not block the repo:
@@ -227,7 +252,11 @@ language, value kind, language, case type and register:
 - **Confusion**: what each item category is detected as.
 - **Prose vs code**: the same metrics for items, decoys and detections in
   prose and inside code blocks (a detection counts where it starts).
-- Latency per prompt (p50/p95/max) in `run.json`.
+- **Large generated cases**, apart from every metric above so one flood does
+  not swamp them: per case, items found and redacted, false positives in all
+  and per ref category, and the call time.
+- Latency per prompt (p50/p95/max) and the ten slowest base-case calls in
+  `run.json`.
 
 ## Outputs and commands
 
@@ -239,7 +268,8 @@ npm run detbench -- --perturbations case,linebreak --variants 5 --seed 3
 ```
 
 `runs/detbench/<name>/`: `report.html`, `results.jsonl` (base cases, one row
-per configuration and case), `variants.jsonl` (perturbed rows; not committed,
-regenerated identically), `metrics.json`, `metrics.csv` (long format:
+per configuration and case; a large case keeps its detections on items and
+its first 50 false positives, without its text), `variants.jsonl` (perturbed
+rows; not committed, regenerated identically), `metrics.json`, `metrics.csv` (long format:
 config, slice, value, metric, number) and `run.json` (ref, sha, packages,
 configurations, seed, timing).

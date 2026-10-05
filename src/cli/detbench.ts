@@ -28,7 +28,7 @@ import { defangJson, hasRawSecretPrefix } from "../detbench/defang.ts";
 import { loadDetector, materializeDetector, type DetConfigName } from "../detbench/ext.ts";
 import { PERTURBATIONS, perturbCases, type Perturbation } from "../detbench/perturb.ts";
 import { renderDetCompare, renderDetReport, textSummary, type DetRunMeta } from "../detbench/report.ts";
-import { scoreDetCase, type DetScored } from "../detbench/score.ts";
+import { isFalsePositive, scoreDetCase, type DetScored } from "../detbench/score.ts";
 
 export const DETBENCH_RUNS_DIR = join(RUNS_DIR, "detbench");
 
@@ -95,6 +95,10 @@ function writeCompare(a: RunOutput, b: RunOutput, out?: string): void {
     console.log(
       `[${sa.config}] F1 ${fmt(sa.overall.overlap.f1)} → ${fmt(sb.overall.overlap.f1)} · redacted ${fmt(sa.overall.redactedRecall)} → ${fmt(sb.overall.redactedRecall)} · negatives with FP ${fmt(sa.overall.negativeFpRate)} → ${fmt(sb.overall.negativeFpRate)}`,
     );
+    for (const la of sa.large ?? []) {
+      const lb = sb.large?.find((l) => l.caseId === la.caseId);
+      if (lb) console.log(`  large ${la.caseId}: found ${la.found}/${la.items} → ${lb.found}/${lb.items} · false positives ${la.falsePositives} → ${lb.falsePositives}`);
+    }
   }
   console.log(`wrote ${file}`);
 }
@@ -129,12 +133,17 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
   const startedAt = new Date().toISOString();
   const rows: DetScored[] = [];
   const timings: number[] = [];
+  const perCase: Array<{ config: string; caseId: string; chars: number; ms: number; large: boolean }> = [];
   for (const config of configs) {
     api.detect("warm up 06 12 34 56 78", config);
     for (const c of cases) {
       const t0 = performance.now();
       const detections = api.detect(c.text, config);
-      if (c.perturbation === "none") timings.push(performance.now() - t0);
+      if (c.perturbation === "none") {
+        const ms = performance.now() - t0;
+        timings.push(ms);
+        perCase.push({ config, caseId: c.id, chars: c.text.length, ms: Math.round(ms * 10) / 10, large: !!c.large });
+      }
       rows.push(scoreDetCase(c, detections, api.supported, config));
     }
   }
@@ -162,6 +171,8 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
       p95Ms: percentile(timings, 95),
       maxMs: timings.length ? Math.max(...timings) : null,
       totalMs: timings.reduce((a, b) => a + b, 0),
+      slowest: [...perCase].sort((x, y) => y.ms - x.ms).slice(0, 10).map(({ large: _, ...t }) => t),
+      large: perCase.filter((t) => t.large).map(({ large: _, ...t }) => t),
     },
     node: process.versions.node,
     machine: `${cpus().length} vCPU, ${Math.round(totalmem() / 2 ** 30)} GB`,
@@ -171,7 +182,14 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
   const dir = join(DETBENCH_RUNS_DIR, runName);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "run.json"), JSON.stringify(meta, null, 2) + "\n");
-  const jsonl = (list: DetScored[]) => list.map((r) => defangJson(JSON.stringify(r))).join("\n") + "\n";
+  // Large generated cases keep their detections on items and the first 50 others (counts are in metrics.json), and no text
+  // (regenerated from the dataset).
+  const compact = (r: DetScored) => {
+    if (!r.large) return r;
+    const kept = [...r.detections.filter((d) => !isFalsePositive(d)), ...r.detections.filter(isFalsePositive).slice(0, 50)];
+    return { ...r, text: undefined, textOmitted: true, detections: kept, detectionsOmitted: r.detections.length - kept.length };
+  };
+  const jsonl = (list: DetScored[]) => list.map((r) => defangJson(JSON.stringify(compact(r)))).join("\n") + "\n";
   writeFileSync(join(dir, "results.jsonl"), jsonl(rows.filter((r) => r.perturbation === "none")));
   // Perturbed variants are regenerated identically from the dataset and seed, so they are not committed (.gitignore).
   writeFileSync(join(dir, "variants.jsonl"), jsonl(rows.filter((r) => r.perturbation !== "none")));

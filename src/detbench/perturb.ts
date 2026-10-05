@@ -428,7 +428,8 @@ const PERTURBERS: Record<Perturbation, Perturber> = {
 
 /**
  * Generates up to `variants` distinct variants per (base case, perturbation).
- * Ids are `<base id>~<perturbation>~<n>`.
+ * Ids are `<base id>~<perturbation>~<n>`. Large generated cases are not
+ * perturbed: they measure false-positive floods and runtime, not formats.
  */
 export function perturbCases(
   bases: DetCase[],
@@ -436,6 +437,7 @@ export function perturbCases(
 ): DetCase[] {
   const out: DetCase[] = [];
   for (const base of bases) {
+    if (base.large) continue;
     for (const type of options.types ?? PERTURBATIONS) {
       const texts = new Set([base.text]);
       for (let n = 0; n < options.variants; n++) {

@@ -17,27 +17,15 @@ import {
   isValidSsn,
   nirKey,
 } from "../src/detbench/checksums.ts";
-import { buildCase, codeRanges, loadDetDataset, parseTemplate, validateSource } from "../src/detbench/dataset.ts";
+import { buildCase, caseFromSource, codeRanges, loadDetDataset, parseTemplate, validateSource } from "../src/detbench/dataset.ts";
+import { generateText } from "../src/detbench/generate.ts";
 import { defangHtml, defangJson, hasRawSecretPrefix } from "../src/detbench/defang.ts";
 import { loadDetector, lockSubset, mapCategory, type RefDetection } from "../src/detbench/ext.ts";
 import { PERTURBATIONS, perturbCases, valueForms } from "../src/detbench/perturb.ts";
 import type { DetCase, DetCaseSource } from "../src/detbench/schema.ts";
 import { scoreDetCase } from "../src/detbench/score.ts";
 
-const toCase = (source: DetCaseSource): DetCase =>
-  buildCase(
-    {
-      id: source.id,
-      baseId: source.id,
-      lang: source.lang,
-      register: source.register,
-      tags: source.tags ?? [],
-      perturbation: "none",
-      items: source.items ?? {},
-      decoys: source.decoys ?? {},
-    },
-    parseTemplate(source),
-  );
+const toCase = (source: DetCaseSource): DetCase => caseFromSource(source);
 
 const sample: DetCaseSource = {
   id: "fr-900",
@@ -347,6 +335,42 @@ test("negatives count cases with a false positive; perturbations compare to the 
   assert.equal(spacing.baseCases, 1);
   assert.equal(spacing.base.overlap.recall, 1 / 2);
   assert.equal(spacing.perturbed.overlap.recall, 0);
+});
+
+test("generated placeholders render large deterministic tables, scored apart and never perturbed", () => {
+  const source: DetCaseSource = {
+    id: "en-903",
+    lang: "en",
+    register: "table",
+    template: "Order\tStatus\n{{rows_a}}\nORD-9\t{{email}}\n{{rows_b}}",
+    items: { email: { category: "EMAIL", kind: "email", value: "jo@example.com" } },
+    generated: { rows_a: { generator: "orders_tsv", from: 10000, count: 3 }, rows_b: { generator: "orders_tsv", from: 10003, count: 2 } },
+  };
+  assert.deepEqual(validateSource(source, "en"), []);
+  assert.equal(generateText({ generator: "orders_tsv", from: 10000, count: 1 }), "ORD-0-10000\tCustomer 230\t35000\tnote 10000\tok");
+  const c = toCase(source);
+  assert.ok(c.large);
+  assert.equal(c.text.split("\n").length, 7);
+  assert.equal(c.text.slice(c.gold[0]!.start, c.gold[0]!.end), "jo@example.com");
+  assert.deepEqual(perturbCases([c], { seed: 1, variants: 2 }), [], "large cases are not perturbed");
+
+  const bad = (generated: DetCaseSource["generated"], template = source.template) => validateSource({ ...source, template, generated }, "en").join("\n");
+  assert.match(bad({ ...source.generated, rows_a: { generator: "nope", from: 0, count: 1 } }), /unknown generator nope/);
+  assert.match(bad({ ...source.generated, rows_a: { generator: "orders_tsv", from: 0, count: 0 } }), /count from 1/);
+  assert.match(bad({ ...source.generated, extra: { generator: "orders_tsv", from: 0, count: 1 } }), /extra is defined but unused/);
+  assert.match(bad({ ...source.generated, email: { generator: "orders_tsv", from: 0, count: 1 } }, source.template), /defined twice/);
+
+  const small = toCase(sample);
+  const rows = [
+    scoreDetCase(small, [det(small, "PHONE", "06 12 48 77 30")], ["PHONE", "ADDRESS"], "default"),
+    scoreDetCase(c, [det(c, "EMAIL", "jo@example.com"), det(c, "ADDRESS", "35000\tnote 10000\tok"), det(c, "ADDRESS", "35003.5\tnote 10001")], ["EMAIL", "ADDRESS"], "default"),
+  ];
+  const summary = summarizeConfig("default", rows);
+  assert.equal(summary.overall.cases, 1, "the large case stays out of the headline metrics");
+  assert.equal(summary.overall.falsePositives, 0);
+  assert.deepEqual(summary.large, [
+    { caseId: "en-903", lang: "en", chars: c.text.length, lines: 7, items: 1, found: 1, redacted: 1, falsePositives: 2, fpByCategory: { ADDRESS: 2 } },
+  ]);
 });
 
 // ------------------------------------------------------------ helpers

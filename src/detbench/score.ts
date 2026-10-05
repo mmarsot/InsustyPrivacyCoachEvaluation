@@ -76,6 +76,8 @@ export interface DetScored {
   tags: string[];
   perturbation: string;
   perturbationNote?: string;
+  /** A large generated case, scored apart (`DetSummary.large`). */
+  large?: boolean;
   text: string;
   items: ScoredItem[];
   detections: ScoredDetection[];
@@ -154,6 +156,7 @@ export function scoreDetCase(c: DetCase, detections: RefDetection[], supported: 
     tags: c.tags,
     perturbation: c.perturbation,
     perturbationNote: c.perturbationNote,
+    ...(c.large ? { large: true } : {}),
     text: c.text,
     items,
     detections: scoredDetections,

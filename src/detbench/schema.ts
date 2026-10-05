@@ -102,7 +102,18 @@ export interface DetDecoy {
   of?: string;
 }
 
-export const REGISTERS = ["email", "chat", "notes", "doc", "form", "ticket", "code", "log", "config"] as const;
+/** `table`: rows pasted from a spreadsheet or a CSV/TSV export. */
+export const REGISTERS = ["email", "chat", "notes", "doc", "form", "ticket", "code", "log", "config", "table"] as const;
+
+/** A placeholder rendered as generated plain text (`generate.ts`), for cases too large to store. */
+export interface DetGenerated {
+  /** Generator name in `GENERATORS`. */
+  generator: string;
+  /** First row number. */
+  from: number;
+  /** Number of rows. */
+  count: number;
+}
 
 /** One line of `dataset/detbench/<lang>.jsonl`. */
 export interface DetCaseSource {
@@ -112,6 +123,8 @@ export interface DetCaseSource {
   template: string;
   items?: Record<string, DetItem>;
   decoys?: Record<string, DetDecoy>;
+  /** Placeholders rendered as generated text: neither items nor decoys, so any detection in them is a false positive. */
+  generated?: Record<string, DetGenerated>;
   tags?: string[];
   note?: string;
 }
@@ -156,6 +169,8 @@ export interface DetCase {
   tags: string[];
   /** `none` for base cases, else the perturbation type. */
   perturbation: string;
+  /** Built from generated text (`generated`): scored apart from the other cases and not perturbed. */
+  large?: boolean;
   /** What the perturbation changed, for the report. */
   perturbationNote?: string;
   items: Record<string, DetItem>;

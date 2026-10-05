@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { DATASET_DIR } from "../paths.ts";
 import { KIND_VALIDATORS } from "./checksums.ts";
+import { GENERATORS, generateText, MAX_GENERATED_ROWS } from "./generate.ts";
 import {
   DECOY_KINDS,
   DET_CATEGORIES,
@@ -23,8 +24,8 @@ export const DETBENCH_LANGS = ["en", "fr"] as const;
 
 const PLACEHOLDER = /\{\{([a-z0-9_]+)\}\}/g;
 
-/** Splits a template into literal text and placeholder parts. */
-export function parseTemplate(source: Pick<DetCaseSource, "template" | "items" | "decoys">): Part[] {
+/** Splits a template into literal text and placeholder parts; a generated placeholder becomes literal text. */
+export function parseTemplate(source: Pick<DetCaseSource, "template" | "items" | "decoys" | "generated">): Part[] {
   const parts: Part[] = [];
   let last = 0;
   for (const m of source.template.matchAll(PLACEHOLDER)) {
@@ -33,8 +34,10 @@ export function parseTemplate(source: Pick<DetCaseSource, "template" | "items" |
     const key = m[1]!;
     const item = source.items?.[key];
     const decoy = source.decoys?.[key];
+    const generated = source.generated?.[key];
     if (item) parts.push({ t: "item", key, s: item.value });
     else if (decoy) parts.push({ t: "decoy", key, s: decoy.value });
+    else if (generated) parts.push({ t: "text", s: generateText(generated) });
     else throw new Error(`unknown placeholder {{${key}}}`);
     last = index + m[0].length;
   }
@@ -129,9 +132,17 @@ export function validateSource(source: DetCaseSource, lang: string): string[] {
   const used = new Set([...String(source.template).matchAll(PLACEHOLDER)].map((m) => m[1]!));
   const itemKeys = Object.keys(source.items ?? {});
   const decoyKeys = Object.keys(source.decoys ?? {});
-  for (const key of used) if (!itemKeys.includes(key) && !decoyKeys.includes(key)) issues.push(`${where}: {{${key}}} is not defined`);
-  for (const key of [...itemKeys, ...decoyKeys]) if (!used.has(key)) issues.push(`${where}: ${key} is defined but unused`);
-  for (const key of itemKeys) if (decoyKeys.includes(key)) issues.push(`${where}: ${key} is both an item and a decoy`);
+  const generatedKeys = Object.keys(source.generated ?? {});
+  const defined = [...itemKeys, ...decoyKeys, ...generatedKeys];
+  for (const key of used) if (!defined.includes(key)) issues.push(`${where}: {{${key}}} is not defined`);
+  for (const key of defined) if (!used.has(key)) issues.push(`${where}: ${key} is defined but unused`);
+  if (new Set(defined).size < defined.length) issues.push(`${where}: a key is defined twice (item, decoy or generated)`);
+  for (const [key, spec] of Object.entries(source.generated ?? {})) {
+    if (!GENERATORS[spec.generator]) issues.push(`${where}: generated ${key} has unknown generator ${spec.generator} (known: ${Object.keys(GENERATORS).join(", ")})`);
+    if (!Number.isInteger(spec.from) || spec.from < 0) issues.push(`${where}: generated ${key} needs an integer from >= 0`);
+    if (!Number.isInteger(spec.count) || spec.count < 1 || spec.count > MAX_GENERATED_ROWS)
+      issues.push(`${where}: generated ${key} needs an integer count from 1 to ${MAX_GENERATED_ROWS}`);
+  }
   if (/\{\{|\}\}/.test(String(source.template).replace(PLACEHOLDER, ""))) issues.push(`${where}: malformed placeholder`);
   for (const [key, item] of Object.entries(source.items ?? {})) {
     if (!(DET_CATEGORIES as readonly string[]).includes(item.category)) {
@@ -160,9 +171,27 @@ export function validateSource(source: DetCaseSource, lang: string): string[] {
   return issues;
 }
 
+/** The rendered base case of a (valid) source line. */
+export function caseFromSource(source: DetCaseSource): DetCase {
+  return buildCase(
+    {
+      id: source.id,
+      baseId: source.id,
+      lang: source.lang,
+      register: source.register,
+      tags: source.tags ?? [],
+      perturbation: "none",
+      ...(source.generated ? { large: true } : {}),
+      items: source.items ?? {},
+      decoys: source.decoys ?? {},
+    },
+    parseTemplate(source),
+  );
+}
+
 export interface DetDataset {
   cases: DetCase[];
-  /** sha256 of the dataset files, for run metadata. */
+  /** sha256 of the dataset files and generated texts, for run metadata. */
   hash: string;
 }
 
@@ -196,14 +225,10 @@ export function loadDetDataset(dir = DETBENCH_DIR): { dataset?: DetDataset; issu
         issues.push(...found);
         return;
       }
-      const items = source.items ?? {};
-      const decoys = source.decoys ?? {};
-      cases.push(
-        buildCase(
-          { id: source.id, baseId: source.id, lang: source.lang, register: source.register, tags: source.tags ?? [], perturbation: "none", items, decoys },
-          parseTemplate(source),
-        ),
-      );
+      const built = caseFromSource(source);
+      // Generated text comes from code, not the file: hash it so a generator change shows as a new dataset.
+      if (source.generated) hash.update(built.text);
+      cases.push(built);
     });
   }
   return { dataset: issues.length ? undefined : { cases, hash: hash.digest("hex") }, issues };

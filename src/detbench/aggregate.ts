@@ -112,6 +112,22 @@ export interface DecoySummary {
   flaggedAs: Record<string, number>;
 }
 
+/** One large generated case, scored apart so its flood does not swamp the other metrics. */
+export interface LargeCaseSummary {
+  caseId: string;
+  lang: string;
+  chars: number;
+  lines: number;
+  items: number;
+  /** Items overlapped by a detection of their own category. */
+  found: number;
+  /** Items overlapped by any detection. */
+  redacted: number;
+  /** False-positive detections (fp, decoy and wrong category), in all and per ref category. */
+  falsePositives: number;
+  fpByCategory: Record<string, number>;
+}
+
 export interface DetSummary {
   config: string;
   /** Base (unperturbed) cases only. */
@@ -129,6 +145,25 @@ export interface DetSummary {
   confusion: Record<string, Record<string, number>>;
   /** All variants together, and per perturbation type, against the same base cases. */
   perturbations: Record<string, PerturbationSummary>;
+  /** Large generated cases, left out of every metric above (absent in runs made before they existed). */
+  large?: LargeCaseSummary[];
+}
+
+export function largeCaseSummary(r: DetScored): LargeCaseSummary {
+  const fps = r.detections.filter(isFalsePositive);
+  const fpByCategory: Record<string, number> = {};
+  for (const d of fps) fpByCategory[d.category] = (fpByCategory[d.category] ?? 0) + 1;
+  return {
+    caseId: r.caseId,
+    lang: r.lang,
+    chars: r.text.length,
+    lines: r.text.split("\n").length,
+    items: r.items.length,
+    found: r.items.filter((i) => i.overlap).length,
+    redacted: r.items.filter((i) => i.redacted).length,
+    falsePositives: fps.length,
+    fpByCategory,
+  };
 }
 
 const groupBy = <T>(rows: T[], key: (r: T) => string): Map<string, T[]> => {
@@ -142,7 +177,8 @@ const groupBy = <T>(rows: T[], key: (r: T) => string): Map<string, T[]> => {
 const mapValues = <T, U>(m: Map<string, T>, f: (v: T, k: string) => U): Record<string, U> =>
   Object.fromEntries([...m].sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, f(v, k)]));
 
-export function summarizeConfig(config: string, rows: DetScored[]): DetSummary {
+export function summarizeConfig(config: string, all: DetScored[]): DetSummary {
+  const rows = all.filter((r) => !r.large);
   const base = rows.filter((r) => r.perturbation === "none");
   const variants = rows.filter((r) => r.perturbation !== "none");
   const kinds = [...new Set(base.flatMap((r) => r.items.map((i) => i.kind)))].sort();
@@ -196,6 +232,7 @@ export function summarizeConfig(config: string, rows: DetScored[]): DetSummary {
     decoys,
     confusion,
     perturbations,
+    large: all.filter((r) => r.large && r.perturbation === "none").map(largeCaseSummary),
   };
 }
 
@@ -243,6 +280,11 @@ export function detCsv(summaries: DetSummary[]): string {
     for (const [k, p] of Object.entries(s.perturbations)) {
       emit(s.config, "perturbation_base", k, p.base);
       emit(s.config, "perturbation", k, p.perturbed);
+    }
+    for (const l of s.large ?? []) {
+      for (const metric of ["chars", "items", "found", "redacted", "falsePositives"] as const)
+        lines.push(`${s.config},large,${l.caseId},${metric === "falsePositives" ? "false_positives" : metric},${l[metric]}`);
+      for (const [c, n] of Object.entries(l.fpByCategory)) lines.push(`${s.config},large,${l.caseId},false_positives_${c},${n}`);
     }
     for (const [k, d] of Object.entries(s.decoys)) {
       lines.push(`${s.config},decoy,${k},total,${d.total}`);
