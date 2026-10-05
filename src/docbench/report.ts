@@ -65,7 +65,7 @@ const PALETTE = ["#3b6fb6", "#c2652a", "#2f8f5b", "#8a4fb5", "#b23a4f", "#4a8fa8
 
 /** A log-log line chart: one series per name, optional fitted lines. */
 export function logChart(
-  series: Array<{ name: string; points: Array<[number, number]>; fit?: PowerFit | null }>,
+  series: Array<{ name: string; points: Array<[number, number]>; fit?: PowerFit | null; scatter?: boolean }>,
   opts: { xLabel: string; yLabel: string; width?: number; height?: number; yFormat?: (v: number) => string; hLines?: Array<{ y: number; label: string }>; vLines?: Array<{ x: number; label: string }> },
 ): string {
   const W = opts.width ?? 420;
@@ -96,7 +96,7 @@ export function logChart(
       const [x0, x1] = [pts[0]![0], pts[pts.length - 1]![0]];
       svg += `<line class="fit" x1="${X(x0)}" y1="${Y(s.fit.a * x0 ** s.fit.b)}" x2="${X(x1)}" y2="${Y(s.fit.a * x1 ** s.fit.b)}" stroke="${color}" stroke-width="1.5"/>`;
     }
-    svg += `<polyline fill="none" stroke="${color}" stroke-width="1.8" points="${pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}"/>`;
+    if (!s.scatter) svg += `<polyline fill="none" stroke="${color}" stroke-width="1.8" points="${pts.map(([x, y]) => `${X(x)},${Y(y)}`).join(" ")}"/>`;
     for (const [x, y] of pts) svg += `<circle cx="${X(x)}" cy="${Y(y)}" r="2.8" fill="${color}"><title>${esc(s.name)}: ${big(x)} → ${num(y, 1)}</title></circle>`;
   });
   svg += `</svg><div>${series.map((s, i) => `<span class="chip" style="color:${PALETTE[i % PALETTE.length]}">● ${esc(s.name)}${s.fit ? ` (b=${s.fit.b.toFixed(2)})` : ""}</span>`).join("")}</div>`;
@@ -139,17 +139,17 @@ function sweepSection(s: DocSummary, configs: string[]): string {
         )}</div>`,
     )
     .join("");
-  const charsChart = `<div class="card"><h3>Time vs characters of extracted text (all types)</h3>${logChart(
-    types.map((t) => ({ name: t, points: s.sweeps.filter((p) => p.type === t && p.chars).map((p) => [p.chars, p.totalMs] as [number, number]) })),
+  const charsChart = `<div class="card"><h3>Time vs characters of extracted text (fully read documents)</h3>${logChart(
+    types.map((t) => ({ name: t, points: s.sweeps.filter((p) => p.type === t && p.outcome === "checked").map((p) => [p.chars, p.totalMs] as [number, number]) })),
     { xLabel: "characters of text", yLabel: "ms", yFormat: (v) => (v >= 1000 ? `${v / 1000}s` : `${v}ms`) },
   )}</div><div class="card"><h3>Peak memory over baseline vs characters</h3>${logChart(
-    types.map((t) => ({ name: t, points: s.sweeps.filter((p) => p.type === t && p.chars && p.deltaMb).map((p) => [p.chars, Math.max(1, p.deltaMb!)] as [number, number]) })),
+    types.map((t) => ({ name: t, points: s.sweeps.filter((p) => p.type === t && p.outcome === "checked" && p.deltaMb).map((p) => [p.chars, Math.max(1, p.deltaMb!)] as [number, number]) })),
     { xLabel: "characters of text", yLabel: "MB over the worker's baseline" },
   )}</div><div class="card"><h3>Read (extraction) vs detection time</h3>${logChart(
     [
-      { name: "read", points: s.sweeps.filter((p) => p.chars).map((p) => [p.chars, p.readMs] as [number, number]) },
-      { name: `detect (${configs[0]})`, points: s.sweeps.filter((p) => p.chars).map((p) => [p.chars, p.detectMs[configs[0]!] ?? 0] as [number, number]) },
-      { name: "redact", points: s.sweeps.filter((p) => p.chars && p.redactMs).map((p) => [p.chars, p.redactMs!] as [number, number]) },
+      { name: "read", scatter: true, points: s.sweeps.filter((p) => p.outcome === "checked").map((p) => [p.chars, p.readMs] as [number, number]) },
+      { name: `detect (${configs[0]})`, scatter: true, points: s.sweeps.filter((p) => p.outcome === "checked").map((p) => [p.chars, p.detectMs[configs[0]!] ?? 0] as [number, number]) },
+      { name: "redact", scatter: true, points: s.sweeps.filter((p) => p.outcome === "checked" && p.redactMs).map((p) => [p.chars, p.redactMs!] as [number, number]) },
     ],
     { xLabel: "characters of text", yLabel: "ms", yFormat: (v) => (v >= 1000 ? `${v / 1000}s` : `${v}ms`) },
   )}</div>`;

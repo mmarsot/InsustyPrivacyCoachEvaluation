@@ -1,0 +1,6713 @@
+{
+ "ref": "main",
+ "sha": "2aece814cdd91309641ebc31a300341276b20a91",
+ "overall": {
+  "positives": 122,
+  "items": 718,
+  "extracted": 704,
+  "extractionRecall": 0.9805013927576601,
+  "configs": {
+   "default": {
+    "recall": 0.6782729805013927,
+    "detectionRecall": 0.6917613636363636,
+    "precision": 0.9643564356435643,
+    "f1": 0.7964022894521667,
+    "leaked": 0,
+    "removed": 487,
+    "redactedLeakFree": 487
+   },
+   "all": {
+    "recall": 0.8356545961002786,
+    "detectionRecall": 0.8522727272727273,
+    "precision": 0.9693053311793215,
+    "f1": 0.8975317875841436,
+    "leaked": 0,
+    "removed": 598,
+    "redactedLeakFree": 598
+   }
+  },
+  "classification": {
+   "cases": 160,
+   "ok": 160,
+   "accuracy": 1,
+   "silentClean": 0
+  },
+  "failures": {
+   "cases": 23,
+   "ok": 23,
+   "accuracy": 1,
+   "silentClean": 0
+  },
+  "negatives": {
+   "default": {
+    "falseAlarms": 11,
+    "docs": 15,
+    "docsWithFalseAlarm": 2
+   },
+   "all": {
+    "falseAlarms": 12,
+    "docs": 15,
+    "docsWithFalseAlarm": 3
+   }
+  },
+  "pdfRedaction": {
+   "inPlace": 23,
+   "fallback": 2,
+   "textCopy": 0,
+   "error": 0,
+   "findings": 110,
+   "failing": 5,
+   "failingByCategory": {
+    "EMAIL": 5
+   },
+   "failingExamples": [
+    "EMAIL: j.whitlock@hollowayco.com",
+    "EMAIL: j.weber@kranich-antriebe.de",
+    "EMAIL: jun.park@lumenfold.com",
+    "EMAIL: jnovak@seznam.cz",
+    "EMAIL: jb.morel@orange.fr"
+   ]
+  }
+ },
+ "zones": [
+  {
+   "family": "docx",
+   "zone": "body",
+   "cases": 2,
+   "items": 10,
+   "extracted": 10,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 6,
+     "detectionRecall": 0.6,
+     "recall": 0.6,
+     "precision": 1,
+     "f1": 0.7499999999999999,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    },
+    "all": {
+     "found": 9,
+     "detectionRecall": 0.9,
+     "recall": 0.9,
+     "precision": 1,
+     "f1": 0.9473684210526316,
+     "tp": 9,
+     "falseAlarms": 0,
+     "redactedLeakFree": 9,
+     "removed": 9,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "comment",
+   "cases": 2,
+   "items": 14,
+   "extracted": 14,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 9,
+     "detectionRecall": 0.6428571428571429,
+     "recall": 0.6428571428571429,
+     "precision": 1,
+     "f1": 0.782608695652174,
+     "tp": 9,
+     "falseAlarms": 0,
+     "redactedLeakFree": 9,
+     "removed": 9,
+     "leaked": 0
+    },
+    "all": {
+     "found": 12,
+     "detectionRecall": 0.8571428571428571,
+     "recall": 0.8571428571428571,
+     "precision": 1,
+     "f1": 0.923076923076923,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "embedded",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    },
+    "all": {
+     "found": 12,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "endnote",
+   "cases": 2,
+   "items": 8,
+   "extracted": 8,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 7,
+     "detectionRecall": 0.875,
+     "recall": 0.875,
+     "precision": 1,
+     "f1": 0.9333333333333333,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    },
+    "all": {
+     "found": 8,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "footer",
+   "cases": 2,
+   "items": 6,
+   "extracted": 6,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 5,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    },
+    "all": {
+     "found": 6,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "footnote",
+   "cases": 2,
+   "items": 15,
+   "extracted": 15,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 8,
+     "detectionRecall": 0.5333333333333333,
+     "recall": 0.5333333333333333,
+     "precision": 1,
+     "f1": 0.6956521739130436,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
+     "leaked": 0
+    },
+    "all": {
+     "found": 13,
+     "detectionRecall": 0.8666666666666667,
+     "recall": 0.8666666666666667,
+     "precision": 1,
+     "f1": 0.9285714285714286,
+     "tp": 13,
+     "falseAlarms": 0,
+     "redactedLeakFree": 13,
+     "removed": 13,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "header",
+   "cases": 2,
+   "items": 6,
+   "extracted": 6,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 5,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    },
+    "all": {
+     "found": 6,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "hyperlink",
+   "cases": 2,
+   "items": 8,
+   "extracted": 8,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 8,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
+     "leaked": 0
+    },
+    "all": {
+     "found": 8,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "metadata",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
+     "precision": 1,
+     "f1": 0.8571428571428571,
+     "tp": 9,
+     "falseAlarms": 0,
+     "redactedLeakFree": 9,
+     "removed": 9,
+     "leaked": 0
+    },
+    "all": {
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "split_runs",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 8,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
+     "precision": 1,
+     "f1": 0.8,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
+     "leaked": 0
+    },
+    "all": {
+     "found": 11,
+     "detectionRecall": 0.9166666666666666,
+     "recall": 0.9166666666666666,
+     "precision": 1,
+     "f1": 0.9565217391304348,
+     "tp": 11,
+     "falseAlarms": 0,
+     "redactedLeakFree": 11,
+     "removed": 11,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "table_cell",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 6,
+     "detectionRecall": 0.5,
+     "recall": 0.5,
+     "precision": 1,
+     "f1": 0.6666666666666666,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    },
+    "all": {
+     "found": 8,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
+     "precision": 1,
+     "f1": 0.8,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "text_box",
+   "cases": 2,
+   "items": 13,
+   "extracted": 13,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 10,
+     "detectionRecall": 0.7692307692307693,
+     "recall": 0.7692307692307693,
+     "precision": 1,
+     "f1": 0.8695652173913044,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    },
+    "all": {
+     "found": 12,
+     "detectionRecall": 0.9230769230769231,
+     "recall": 0.9230769230769231,
+     "precision": 1,
+     "f1": 0.9600000000000001,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "docx",
+   "zone": "tracked_deletion",
+   "cases": 2,
+   "items": 13,
+   "extracted": 13,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 10,
+     "detectionRecall": 0.7692307692307693,
+     "recall": 0.7692307692307693,
+     "precision": 1,
+     "f1": 0.8695652173913044,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    },
+    "all": {
+     "found": 12,
+     "detectionRecall": 0.9230769230769231,
+     "recall": 0.9230769230769231,
+     "precision": 1,
+     "f1": 0.9600000000000001,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "odp",
+   "zone": "slide",
+   "cases": 2,
+   "items": 17,
+   "extracted": 17,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 14,
+     "detectionRecall": 0.8235294117647058,
+     "recall": 0.8235294117647058,
+     "precision": 1,
+     "f1": 0.9032258064516129,
+     "tp": 14,
+     "falseAlarms": 0,
+     "redactedLeakFree": 14,
+     "removed": 14,
+     "leaked": 0
+    },
+    "all": {
+     "found": 15,
+     "detectionRecall": 0.8823529411764706,
+     "recall": 0.8823529411764706,
+     "precision": 1,
+     "f1": 0.9375,
+     "tp": 15,
+     "falseAlarms": 0,
+     "redactedLeakFree": 15,
+     "removed": 15,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "odp",
+   "zone": "speaker_notes",
+   "cases": 2,
+   "items": 15,
+   "extracted": 15,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 11,
+     "detectionRecall": 0.7333333333333333,
+     "recall": 0.7333333333333333,
+     "precision": 1,
+     "f1": 0.846153846153846,
+     "tp": 11,
+     "falseAlarms": 0,
+     "redactedLeakFree": 11,
+     "removed": 11,
+     "leaked": 0
+    },
+    "all": {
+     "found": 11,
+     "detectionRecall": 0.7333333333333333,
+     "recall": 0.7333333333333333,
+     "precision": 1,
+     "f1": 0.846153846153846,
+     "tp": 11,
+     "falseAlarms": 0,
+     "redactedLeakFree": 11,
+     "removed": 11,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "ods",
+   "zone": "cell",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
+     "precision": 1,
+     "f1": 0.8571428571428571,
+     "tp": 9,
+     "falseAlarms": 0,
+     "redactedLeakFree": 9,
+     "removed": 9,
+     "leaked": 0
+    },
+    "all": {
+     "found": 11,
+     "detectionRecall": 0.9166666666666666,
+     "recall": 0.9166666666666666,
+     "precision": 1,
+     "f1": 0.9565217391304348,
+     "tp": 11,
+     "falseAlarms": 0,
+     "redactedLeakFree": 11,
+     "removed": 11,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "ods",
+   "zone": "cell_comment",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 7,
+     "detectionRecall": 0.5833333333333334,
+     "recall": 0.5833333333333334,
+     "precision": 1,
+     "f1": 0.7368421052631579,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    },
+    "all": {
+     "found": 7,
+     "detectionRecall": 0.5833333333333334,
+     "recall": 0.5833333333333334,
+     "precision": 1,
+     "f1": 0.7368421052631579,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "ods",
+   "zone": "hidden_sheet",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    },
+    "all": {
+     "found": 12,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "ods",
+   "zone": "metadata",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 7,
+     "detectionRecall": 0.5833333333333334,
+     "recall": 0.5833333333333334,
+     "precision": 1,
+     "f1": 0.7368421052631579,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    },
+    "all": {
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "odt",
+   "zone": "body",
+   "cases": 2,
+   "items": 17,
+   "extracted": 17,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 10,
+     "detectionRecall": 0.5882352941176471,
+     "recall": 0.5882352941176471,
+     "precision": 1,
+     "f1": 0.7407407407407407,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    },
+    "all": {
+     "found": 17,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 17,
+     "falseAlarms": 0,
+     "redactedLeakFree": 17,
+     "removed": 17,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "odt",
+   "zone": "comment",
+   "cases": 2,
+   "items": 13,
+   "extracted": 13,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 12,
+     "detectionRecall": 0.9230769230769231,
+     "recall": 0.9230769230769231,
+     "precision": 1,
+     "f1": 0.9600000000000001,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    },
+    "all": {
+     "found": 12,
+     "detectionRecall": 0.9230769230769231,
+     "recall": 0.9230769230769231,
+     "precision": 1,
+     "f1": 0.9600000000000001,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "odt",
+   "zone": "footer",
+   "cases": 2,
+   "items": 6,
+   "extracted": 6,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 5,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    },
+    "all": {
+     "found": 5,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "odt",
+   "zone": "header",
+   "cases": 2,
+   "items": 6,
+   "extracted": 6,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 3,
+     "detectionRecall": 0.5,
+     "recall": 0.5,
+     "precision": 1,
+     "f1": 0.6666666666666666,
+     "tp": 3,
+     "falseAlarms": 0,
+     "redactedLeakFree": 3,
+     "removed": 3,
+     "leaked": 0
+    },
+    "all": {
+     "found": 5,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "odt",
+   "zone": "metadata",
+   "cases": 2,
+   "items": 10,
+   "extracted": 10,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 4,
+     "detectionRecall": 0.4,
+     "recall": 0.4,
+     "precision": 1,
+     "f1": 0.5714285714285715,
+     "tp": 4,
+     "falseAlarms": 0,
+     "redactedLeakFree": 4,
+     "removed": 4,
+     "leaked": 0
+    },
+    "all": {
+     "found": 6,
+     "detectionRecall": 0.6,
+     "recall": 0.6,
+     "precision": 1,
+     "f1": 0.7499999999999999,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "odt",
+   "zone": "table_cell",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 7,
+     "detectionRecall": 0.5833333333333334,
+     "recall": 0.5833333333333334,
+     "precision": 0.7,
+     "f1": 0.6363636363636365,
+     "tp": 7,
+     "falseAlarms": 3,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    },
+    "all": {
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 0.7692307692307693,
+     "f1": 0.8,
+     "tp": 10,
+     "falseAlarms": 3,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "odt",
+   "zone": "tracked_deletion",
+   "cases": 2,
+   "items": 18,
+   "extracted": 18,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 11,
+     "detectionRecall": 0.6111111111111112,
+     "recall": 0.6111111111111112,
+     "precision": 1,
+     "f1": 0.7586206896551725,
+     "tp": 11,
+     "falseAlarms": 0,
+     "redactedLeakFree": 11,
+     "removed": 11,
+     "leaked": 0
+    },
+    "all": {
+     "found": 16,
+     "detectionRecall": 0.8888888888888888,
+     "recall": 0.8888888888888888,
+     "precision": 1,
+     "f1": 0.9411764705882353,
+     "tp": 16,
+     "falseAlarms": 0,
+     "redactedLeakFree": 16,
+     "removed": 16,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "annotation",
+   "cases": 2,
+   "items": 10,
+   "extracted": 10,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 6,
+     "detectionRecall": 0.6,
+     "recall": 0.6,
+     "precision": 1,
+     "f1": 0.7499999999999999,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    },
+    "all": {
+     "found": 8,
+     "detectionRecall": 0.8,
+     "recall": 0.8,
+     "precision": 1,
+     "f1": 0.888888888888889,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "bookmark",
+   "cases": 2,
+   "items": 8,
+   "extracted": 8,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 5,
+     "detectionRecall": 0.625,
+     "recall": 0.625,
+     "precision": 1,
+     "f1": 0.7692307692307693,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    },
+    "all": {
+     "found": 7,
+     "detectionRecall": 0.875,
+     "recall": 0.875,
+     "precision": 1,
+     "f1": 0.9333333333333333,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "form_field",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 4,
+     "detectionRecall": 0.3333333333333333,
+     "recall": 0.3333333333333333,
+     "precision": 1,
+     "f1": 0.5,
+     "tp": 4,
+     "falseAlarms": 0,
+     "redactedLeakFree": 4,
+     "removed": 4,
+     "leaked": 0
+    },
+    "all": {
+     "found": 7,
+     "detectionRecall": 0.5833333333333334,
+     "recall": 0.5833333333333334,
+     "precision": 1,
+     "f1": 0.7368421052631579,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "hyphenated",
+   "cases": 2,
+   "items": 12,
+   "extracted": 0,
+   "extractionRecall": 0,
+   "configs": {
+    "default": {
+     "found": 0,
+     "detectionRecall": null,
+     "recall": 0,
+     "precision": 0,
+     "f1": null,
+     "tp": 0,
+     "falseAlarms": 2,
+     "redactedLeakFree": 0,
+     "removed": 0,
+     "leaked": 0
+    },
+    "all": {
+     "found": 0,
+     "detectionRecall": null,
+     "recall": 0,
+     "precision": 0,
+     "f1": null,
+     "tp": 0,
+     "falseAlarms": 2,
+     "redactedLeakFree": 0,
+     "removed": 0,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "inline",
+   "cases": 2,
+   "items": 20,
+   "extracted": 20,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 14,
+     "detectionRecall": 0.7,
+     "recall": 0.7,
+     "precision": 1,
+     "f1": 0.8235294117647058,
+     "tp": 14,
+     "falseAlarms": 0,
+     "redactedLeakFree": 14,
+     "removed": 14,
+     "leaked": 0
+    },
+    "all": {
+     "found": 17,
+     "detectionRecall": 0.85,
+     "recall": 0.85,
+     "precision": 1,
+     "f1": 0.9189189189189189,
+     "tp": 17,
+     "falseAlarms": 0,
+     "redactedLeakFree": 17,
+     "removed": 17,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "inline_email",
+   "cases": 2,
+   "items": 24,
+   "extracted": 24,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 24,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 24,
+     "falseAlarms": 0,
+     "redactedLeakFree": 24,
+     "removed": 24,
+     "leaked": 0
+    },
+    "all": {
+     "found": 24,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 24,
+     "falseAlarms": 0,
+     "redactedLeakFree": 24,
+     "removed": 24,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "fallback_text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "line_wrapped",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 2,
+     "detectionRecall": 0.16666666666666666,
+     "recall": 0.16666666666666666,
+     "precision": 1,
+     "f1": 0.2857142857142857,
+     "tp": 2,
+     "falseAlarms": 0,
+     "redactedLeakFree": 2,
+     "removed": 2,
+     "leaked": 0
+    },
+    "all": {
+     "found": 2,
+     "detectionRecall": 0.16666666666666666,
+     "recall": 0.16666666666666666,
+     "precision": 1,
+     "f1": 0.2857142857142857,
+     "tp": 2,
+     "falseAlarms": 0,
+     "redactedLeakFree": 2,
+     "removed": 2,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "metadata",
+   "cases": 2,
+   "items": 6,
+   "extracted": 6,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 5,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    },
+    "all": {
+     "found": 6,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "page",
+   "cases": 2,
+   "items": 10,
+   "extracted": 10,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 9,
+     "detectionRecall": 0.9,
+     "recall": 0.9,
+     "precision": 1,
+     "f1": 0.9473684210526316,
+     "tp": 9,
+     "falseAlarms": 0,
+     "redactedLeakFree": 9,
+     "removed": 9,
+     "leaked": 0
+    },
+    "all": {
+     "found": 9,
+     "detectionRecall": 0.9,
+     "recall": 0.9,
+     "precision": 1,
+     "f1": 0.9473684210526316,
+     "tp": 9,
+     "falseAlarms": 0,
+     "redactedLeakFree": 9,
+     "removed": 9,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "table_cell",
+   "cases": 2,
+   "items": 12,
+   "extracted": 10,
+   "extractionRecall": 0.8333333333333334,
+   "configs": {
+    "default": {
+     "found": 5,
+     "detectionRecall": 0.5,
+     "recall": 0.4166666666666667,
+     "precision": 0.35714285714285715,
+     "f1": 0.3846153846153846,
+     "tp": 5,
+     "falseAlarms": 9,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    },
+    "all": {
+     "found": 8,
+     "detectionRecall": 0.8,
+     "recall": 0.6666666666666666,
+     "precision": 0.47058823529411764,
+     "f1": 0.5517241379310345,
+     "tp": 8,
+     "falseAlarms": 9,
+     "redactedLeakFree": 8,
+     "removed": 8,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "two_column",
+   "cases": 2,
+   "items": 18,
+   "extracted": 18,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 12,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
+     "precision": 1,
+     "f1": 0.8,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    },
+    "all": {
+     "found": 17,
+     "detectionRecall": 0.9444444444444444,
+     "recall": 0.9444444444444444,
+     "precision": 1,
+     "f1": 0.9714285714285714,
+     "tp": 17,
+     "falseAlarms": 0,
+     "redactedLeakFree": 17,
+     "removed": 17,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pptx",
+   "zone": "comment",
+   "cases": 2,
+   "items": 7,
+   "extracted": 7,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 7,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    },
+    "all": {
+     "found": 7,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pptx",
+   "zone": "hidden_slide",
+   "cases": 2,
+   "items": 8,
+   "extracted": 8,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 5,
+     "detectionRecall": 0.625,
+     "recall": 0.625,
+     "precision": 1,
+     "f1": 0.7692307692307693,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    },
+    "all": {
+     "found": 7,
+     "detectionRecall": 0.875,
+     "recall": 0.875,
+     "precision": 1,
+     "f1": 0.9333333333333333,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pptx",
+   "zone": "metadata",
+   "cases": 2,
+   "items": 10,
+   "extracted": 10,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 5,
+     "detectionRecall": 0.5,
+     "recall": 0.5,
+     "precision": 1,
+     "f1": 0.6666666666666666,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    },
+    "all": {
+     "found": 6,
+     "detectionRecall": 0.6,
+     "recall": 0.6,
+     "precision": 1,
+     "f1": 0.7499999999999999,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pptx",
+   "zone": "slide",
+   "cases": 2,
+   "items": 15,
+   "extracted": 15,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 14,
+     "detectionRecall": 0.9333333333333333,
+     "recall": 0.9333333333333333,
+     "precision": 1,
+     "f1": 0.9655172413793104,
+     "tp": 14,
+     "falseAlarms": 0,
+     "redactedLeakFree": 14,
+     "removed": 14,
+     "leaked": 0
+    },
+    "all": {
+     "found": 14,
+     "detectionRecall": 0.9333333333333333,
+     "recall": 0.9333333333333333,
+     "precision": 1,
+     "f1": 0.9655172413793104,
+     "tp": 14,
+     "falseAlarms": 0,
+     "redactedLeakFree": 14,
+     "removed": 14,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pptx",
+   "zone": "slide_table",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 6,
+     "detectionRecall": 0.5,
+     "recall": 0.5,
+     "precision": 0.8571428571428571,
+     "f1": 0.631578947368421,
+     "tp": 6,
+     "falseAlarms": 1,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    },
+    "all": {
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
+     "precision": 0.9,
+     "f1": 0.8181818181818182,
+     "tp": 9,
+     "falseAlarms": 1,
+     "redactedLeakFree": 9,
+     "removed": 9,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pptx",
+   "zone": "speaker_notes",
+   "cases": 2,
+   "items": 10,
+   "extracted": 10,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 6,
+     "detectionRecall": 0.6,
+     "recall": 0.6,
+     "precision": 1,
+     "f1": 0.7499999999999999,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    },
+    "all": {
+     "found": 10,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "text",
+   "zone": "csv cell",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 5,
+     "detectionRecall": 0.4166666666666667,
+     "recall": 0.4166666666666667,
+     "precision": 1,
+     "f1": 0.5882352941176471,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    },
+    "all": {
+     "found": 5,
+     "detectionRecall": 0.4166666666666667,
+     "recall": 0.4166666666666667,
+     "precision": 1,
+     "f1": 0.5882352941176471,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "text",
+   "zone": "html body",
+   "cases": 2,
+   "items": 14,
+   "extracted": 14,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 10,
+     "detectionRecall": 0.7142857142857143,
+     "recall": 0.7142857142857143,
+     "precision": 1,
+     "f1": 0.8333333333333333,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    },
+    "all": {
+     "found": 12,
+     "detectionRecall": 0.8571428571428571,
+     "recall": 0.8571428571428571,
+     "precision": 1,
+     "f1": 0.923076923076923,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "text",
+   "zone": "json value",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 7,
+     "detectionRecall": 0.5833333333333334,
+     "recall": 0.5833333333333334,
+     "precision": 1,
+     "f1": 0.7368421052631579,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    },
+    "all": {
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
+     "precision": 1,
+     "f1": 0.8571428571428571,
+     "tp": 9,
+     "falseAlarms": 0,
+     "redactedLeakFree": 9,
+     "removed": 9,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "text",
+   "zone": "log body",
+   "cases": 2,
+   "items": 13,
+   "extracted": 13,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 7,
+     "detectionRecall": 0.5384615384615384,
+     "recall": 0.5384615384615384,
+     "precision": 1,
+     "f1": 0.7000000000000001,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    },
+    "all": {
+     "found": 13,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 13,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "text",
+   "zone": "md body",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    },
+    "all": {
+     "found": 11,
+     "detectionRecall": 0.9166666666666666,
+     "recall": 0.9166666666666666,
+     "precision": 1,
+     "f1": 0.9565217391304348,
+     "tp": 11,
+     "falseAlarms": 0,
+     "redactedLeakFree": 11,
+     "removed": 11,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "text",
+   "zone": "txt body",
+   "cases": 2,
+   "items": 8,
+   "extracted": 8,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 7,
+     "detectionRecall": 0.875,
+     "recall": 0.875,
+     "precision": 1,
+     "f1": 0.9333333333333333,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    },
+    "all": {
+     "found": 7,
+     "detectionRecall": 0.875,
+     "recall": 0.875,
+     "precision": 1,
+     "f1": 0.9333333333333333,
+     "tp": 7,
+     "falseAlarms": 0,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "xlsx",
+   "zone": "cell",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
+     "precision": 1,
+     "f1": 0.8571428571428571,
+     "tp": 9,
+     "falseAlarms": 0,
+     "redactedLeakFree": 9,
+     "removed": 9,
+     "leaked": 0
+    },
+    "all": {
+     "found": 11,
+     "detectionRecall": 0.9166666666666666,
+     "recall": 0.9166666666666666,
+     "precision": 1,
+     "f1": 0.9565217391304348,
+     "tp": 11,
+     "falseAlarms": 0,
+     "redactedLeakFree": 11,
+     "removed": 11,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "xlsx",
+   "zone": "cell_comment",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 8,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
+     "precision": 1,
+     "f1": 0.8,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
+     "leaked": 0
+    },
+    "all": {
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "xlsx",
+   "zone": "formula_result",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    },
+    "all": {
+     "found": 11,
+     "detectionRecall": 0.9166666666666666,
+     "recall": 0.9166666666666666,
+     "precision": 1,
+     "f1": 0.9565217391304348,
+     "tp": 11,
+     "falseAlarms": 0,
+     "redactedLeakFree": 11,
+     "removed": 11,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "xlsx",
+   "zone": "hidden_sheet",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 10,
+     "falseAlarms": 0,
+     "redactedLeakFree": 10,
+     "removed": 10,
+     "leaked": 0
+    },
+    "all": {
+     "found": 12,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "xlsx",
+   "zone": "metadata",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 4,
+     "detectionRecall": 0.3333333333333333,
+     "recall": 0.3333333333333333,
+     "precision": 1,
+     "f1": 0.5,
+     "tp": 4,
+     "falseAlarms": 0,
+     "redactedLeakFree": 4,
+     "removed": 4,
+     "leaked": 0
+    },
+    "all": {
+     "found": 6,
+     "detectionRecall": 0.5,
+     "recall": 0.5,
+     "precision": 1,
+     "f1": 0.6666666666666666,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "xlsx",
+   "zone": "sheet_header",
+   "cases": 2,
+   "items": 6,
+   "extracted": 6,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 3,
+     "detectionRecall": 0.5,
+     "recall": 0.5,
+     "precision": 1,
+     "f1": 0.6666666666666666,
+     "tp": 3,
+     "falseAlarms": 0,
+     "redactedLeakFree": 3,
+     "removed": 3,
+     "leaked": 0
+    },
+    "all": {
+     "found": 5,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "xlsx",
+   "zone": "very_hidden_sheet",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 8,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
+     "precision": 1,
+     "f1": 0.8,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
+     "leaked": 0
+    },
+    "all": {
+     "found": 11,
+     "detectionRecall": 0.9166666666666666,
+     "recall": 0.9166666666666666,
+     "precision": 1,
+     "f1": 0.9565217391304348,
+     "tp": 11,
+     "falseAlarms": 0,
+     "redactedLeakFree": 11,
+     "removed": 11,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "zip",
+   "zone": "entry_csv",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 7,
+     "detectionRecall": 0.5833333333333334,
+     "recall": 0.5833333333333334,
+     "precision": 0.7,
+     "f1": 0.6363636363636365,
+     "tp": 7,
+     "falseAlarms": 3,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    },
+    "all": {
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
+     "precision": 0.6923076923076923,
+     "f1": 0.7199999999999999,
+     "tp": 9,
+     "falseAlarms": 4,
+     "redactedLeakFree": 9,
+     "removed": 9,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "zip",
+   "zone": "entry_docx",
+   "cases": 2,
+   "items": 12,
+   "extracted": 12,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 12,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    },
+    "all": {
+     "found": 12,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "zip",
+   "zone": "entry_pdf",
+   "cases": 2,
+   "items": 13,
+   "extracted": 13,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 9,
+     "detectionRecall": 0.6923076923076923,
+     "recall": 0.6923076923076923,
+     "precision": 1,
+     "f1": 0.8181818181818181,
+     "tp": 9,
+     "falseAlarms": 0,
+     "redactedLeakFree": 9,
+     "removed": 9,
+     "leaked": 0
+    },
+    "all": {
+     "found": 12,
+     "detectionRecall": 0.9230769230769231,
+     "recall": 0.9230769230769231,
+     "precision": 1,
+     "f1": 0.9600000000000001,
+     "tp": 12,
+     "falseAlarms": 0,
+     "redactedLeakFree": 12,
+     "removed": 12,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "zip",
+   "zone": "entry_txt",
+   "cases": 2,
+   "items": 7,
+   "extracted": 7,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 5,
+     "detectionRecall": 0.7142857142857143,
+     "recall": 0.7142857142857143,
+     "precision": 1,
+     "f1": 0.8333333333333333,
+     "tp": 5,
+     "falseAlarms": 0,
+     "redactedLeakFree": 5,
+     "removed": 5,
+     "leaked": 0
+    },
+    "all": {
+     "found": 6,
+     "detectionRecall": 0.8571428571428571,
+     "recall": 0.8571428571428571,
+     "precision": 1,
+     "f1": 0.923076923076923,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "zip",
+   "zone": "nested_zip",
+   "cases": 2,
+   "items": 16,
+   "extracted": 16,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 16,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 16,
+     "falseAlarms": 0,
+     "redactedLeakFree": 16,
+     "removed": 16,
+     "leaked": 0
+    },
+    "all": {
+     "found": 16,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
+     "tp": 16,
+     "falseAlarms": 0,
+     "redactedLeakFree": 16,
+     "removed": 16,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 2
+   },
+   "misclassified": 0
+  }
+ ],
+ "families": [
+  {
+   "family": "docx",
+   "zone": "all zones",
+   "cases": 26,
+   "items": 141,
+   "extracted": 141,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 101,
+     "detectionRecall": 0.7163120567375887,
+     "recall": 0.7163120567375887,
+     "precision": 1,
+     "f1": 0.8347107438016529,
+     "tp": 101,
+     "falseAlarms": 0,
+     "redactedLeakFree": 101,
+     "removed": 101,
+     "leaked": 0
+    },
+    "all": {
+     "found": 127,
+     "detectionRecall": 0.900709219858156,
+     "recall": 0.900709219858156,
+     "precision": 1,
+     "f1": 0.9477611940298507,
+     "tp": 127,
+     "falseAlarms": 0,
+     "redactedLeakFree": 127,
+     "removed": 127,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 26
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "odp",
+   "zone": "all zones",
+   "cases": 4,
+   "items": 32,
+   "extracted": 32,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 25,
+     "detectionRecall": 0.78125,
+     "recall": 0.78125,
+     "precision": 1,
+     "f1": 0.8771929824561403,
+     "tp": 25,
+     "falseAlarms": 0,
+     "redactedLeakFree": 25,
+     "removed": 25,
+     "leaked": 0
+    },
+    "all": {
+     "found": 26,
+     "detectionRecall": 0.8125,
+     "recall": 0.8125,
+     "precision": 1,
+     "f1": 0.896551724137931,
+     "tp": 26,
+     "falseAlarms": 0,
+     "redactedLeakFree": 26,
+     "removed": 26,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 4
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "ods",
+   "zone": "all zones",
+   "cases": 8,
+   "items": 48,
+   "extracted": 48,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 33,
+     "detectionRecall": 0.6875,
+     "recall": 0.6875,
+     "precision": 1,
+     "f1": 0.8148148148148148,
+     "tp": 33,
+     "falseAlarms": 0,
+     "redactedLeakFree": 33,
+     "removed": 33,
+     "leaked": 0
+    },
+    "all": {
+     "found": 40,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 1,
+     "f1": 0.9090909090909091,
+     "tp": 40,
+     "falseAlarms": 0,
+     "redactedLeakFree": 40,
+     "removed": 40,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 8
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "odt",
+   "zone": "all zones",
+   "cases": 14,
+   "items": 82,
+   "extracted": 82,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 52,
+     "detectionRecall": 0.6341463414634146,
+     "recall": 0.6341463414634146,
+     "precision": 0.9454545454545454,
+     "f1": 0.759124087591241,
+     "tp": 52,
+     "falseAlarms": 3,
+     "redactedLeakFree": 52,
+     "removed": 52,
+     "leaked": 0
+    },
+    "all": {
+     "found": 71,
+     "detectionRecall": 0.8658536585365854,
+     "recall": 0.8658536585365854,
+     "precision": 0.9594594594594594,
+     "f1": 0.9102564102564101,
+     "tp": 71,
+     "falseAlarms": 3,
+     "redactedLeakFree": 70,
+     "removed": 70,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 14
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pdf",
+   "zone": "all zones",
+   "cases": 22,
+   "items": 144,
+   "extracted": 130,
+   "extractionRecall": 0.9027777777777778,
+   "configs": {
+    "default": {
+     "found": 86,
+     "detectionRecall": 0.6615384615384615,
+     "recall": 0.5972222222222222,
+     "precision": 0.8865979381443299,
+     "f1": 0.7136929460580913,
+     "tp": 86,
+     "falseAlarms": 11,
+     "redactedLeakFree": 86,
+     "removed": 86,
+     "leaked": 0
+    },
+    "all": {
+     "found": 105,
+     "detectionRecall": 0.8076923076923077,
+     "recall": 0.7291666666666666,
+     "precision": 0.9051724137931034,
+     "f1": 0.8076923076923076,
+     "tp": 105,
+     "falseAlarms": 11,
+     "redactedLeakFree": 105,
+     "removed": 105,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 20,
+    "fallback_text_copy": 2
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "pptx",
+   "zone": "all zones",
+   "cases": 12,
+   "items": 62,
+   "extracted": 62,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 43,
+     "detectionRecall": 0.6935483870967742,
+     "recall": 0.6935483870967742,
+     "precision": 0.9772727272727273,
+     "f1": 0.8113207547169812,
+     "tp": 43,
+     "falseAlarms": 1,
+     "redactedLeakFree": 43,
+     "removed": 43,
+     "leaked": 0
+    },
+    "all": {
+     "found": 53,
+     "detectionRecall": 0.8548387096774194,
+     "recall": 0.8548387096774194,
+     "precision": 0.9814814814814815,
+     "f1": 0.9137931034482759,
+     "tp": 53,
+     "falseAlarms": 1,
+     "redactedLeakFree": 53,
+     "removed": 53,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 12
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "text",
+   "zone": "all zones",
+   "cases": 12,
+   "items": 71,
+   "extracted": 71,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 46,
+     "detectionRecall": 0.647887323943662,
+     "recall": 0.647887323943662,
+     "precision": 1,
+     "f1": 0.7863247863247863,
+     "tp": 46,
+     "falseAlarms": 0,
+     "redactedLeakFree": 46,
+     "removed": 46,
+     "leaked": 0
+    },
+    "all": {
+     "found": 57,
+     "detectionRecall": 0.8028169014084507,
+     "recall": 0.8028169014084507,
+     "precision": 1,
+     "f1": 0.890625,
+     "tp": 57,
+     "falseAlarms": 0,
+     "redactedLeakFree": 56,
+     "removed": 56,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 12
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "xlsx",
+   "zone": "all zones",
+   "cases": 14,
+   "items": 78,
+   "extracted": 78,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 52,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
+     "precision": 1,
+     "f1": 0.8,
+     "tp": 52,
+     "falseAlarms": 0,
+     "redactedLeakFree": 52,
+     "removed": 52,
+     "leaked": 0
+    },
+    "all": {
+     "found": 66,
+     "detectionRecall": 0.8461538461538461,
+     "recall": 0.8461538461538461,
+     "precision": 1,
+     "f1": 0.9166666666666666,
+     "tp": 66,
+     "falseAlarms": 0,
+     "redactedLeakFree": 66,
+     "removed": 66,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "text_copy": 14
+   },
+   "misclassified": 0
+  },
+  {
+   "family": "zip",
+   "zone": "all zones",
+   "cases": 10,
+   "items": 60,
+   "extracted": 60,
+   "extractionRecall": 1,
+   "configs": {
+    "default": {
+     "found": 49,
+     "detectionRecall": 0.8166666666666667,
+     "recall": 0.8166666666666667,
+     "precision": 0.9423076923076923,
+     "f1": 0.8749999999999999,
+     "tp": 49,
+     "falseAlarms": 3,
+     "redactedLeakFree": 49,
+     "removed": 49,
+     "leaked": 0
+    },
+    "all": {
+     "found": 55,
+     "detectionRecall": 0.9166666666666666,
+     "recall": 0.9166666666666666,
+     "precision": 0.9322033898305084,
+     "f1": 0.9243697478991596,
+     "tp": 55,
+     "falseAlarms": 4,
+     "redactedLeakFree": 55,
+     "removed": 55,
+     "leaked": 0
+    }
+   },
+   "modes": {
+    "in_place": 10
+   },
+   "misclassified": 0
+  }
+ ],
+ "categories": [
+  {
+   "category": "ADDRESS",
+   "items": 49,
+   "extracted": 49,
+   "found": {
+    "default": 26,
+    "all": 26
+   }
+  },
+  {
+   "category": "COMPANY_ID",
+   "items": 35,
+   "extracted": 34,
+   "found": {
+    "default": 0,
+    "all": 25
+   }
+  },
+  {
+   "category": "DATE_OF_BIRTH",
+   "items": 66,
+   "extracted": 64,
+   "found": {
+    "default": 47,
+    "all": 47
+   }
+  },
+  {
+   "category": "EMAIL",
+   "items": 116,
+   "extracted": 113,
+   "found": {
+    "default": 113,
+    "all": 113
+   }
+  },
+  {
+   "category": "FINANCIAL",
+   "items": 122,
+   "extracted": 121,
+   "found": {
+    "default": 115,
+    "all": 115
+   }
+  },
+  {
+   "category": "IP",
+   "items": 90,
+   "extracted": 89,
+   "found": {
+    "default": 0,
+    "all": 88
+   }
+  },
+  {
+   "category": "NATIONAL_ID",
+   "items": 73,
+   "extracted": 71,
+   "found": {
+    "default": 58,
+    "all": 58
+   }
+  },
+  {
+   "category": "PHONE",
+   "items": 71,
+   "extracted": 69,
+   "found": {
+    "default": 42,
+    "all": 42
+   }
+  },
+  {
+   "category": "SECRET",
+   "items": 96,
+   "extracted": 94,
+   "found": {
+    "default": 86,
+    "all": 86
+   }
+  }
+ ],
+ "negatives": [
+  {
+   "caseId": "docx-bibliography-en",
+   "family": "docx",
+   "zone": "bibliography",
+   "lang": "en",
+   "decoys": 33,
+   "pages": null,
+   "cells": null,
+   "words": 568,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  },
+  {
+   "caseId": "docx-bibliography-fr",
+   "family": "docx",
+   "zone": "bibliography",
+   "lang": "fr",
+   "decoys": 18,
+   "pages": null,
+   "cells": null,
+   "words": 440,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  },
+  {
+   "caseId": "pdf-bibliography-en",
+   "family": "pdf",
+   "zone": "bibliography",
+   "lang": "en",
+   "decoys": 33,
+   "pages": 2,
+   "cells": null,
+   "words": 563,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": 0,
+     "per10kCells": null,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": 0,
+     "per10kCells": null,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  },
+  {
+   "caseId": "pdf-bibliography-fr",
+   "family": "pdf",
+   "zone": "bibliography",
+   "lang": "fr",
+   "decoys": 18,
+   "pages": 1,
+   "cells": null,
+   "words": 438,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": 0,
+     "per10kCells": null,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": 0,
+     "per10kCells": null,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  },
+  {
+   "caseId": "txt-diagnostic-en",
+   "family": "text",
+   "zone": "diagnostic_dump",
+   "lang": "en",
+   "decoys": 30,
+   "pages": null,
+   "cells": null,
+   "words": 455,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  },
+  {
+   "caseId": "txt-diagnostic-fr",
+   "family": "text",
+   "zone": "diagnostic_dump",
+   "lang": "fr",
+   "decoys": 20,
+   "pages": null,
+   "cells": null,
+   "words": 205,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  },
+  {
+   "caseId": "pdf-diagnostic-en",
+   "family": "pdf",
+   "zone": "diagnostic_dump",
+   "lang": "en",
+   "decoys": 30,
+   "pages": 1,
+   "cells": null,
+   "words": 450,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": 0,
+     "per10kCells": null,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": 0,
+     "per10kCells": null,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  },
+  {
+   "caseId": "xlsx-invoice-en",
+   "family": "xlsx",
+   "zone": "invoice_fields",
+   "lang": "en",
+   "decoys": 40,
+   "pages": null,
+   "cells": 82,
+   "words": 366,
+   "configs": {
+    "default": {
+     "falseAlarms": 8,
+     "decoysFlagged": 5,
+     "perPage": null,
+     "per10kCells": 975.609756097561,
+     "per1kWords": 21.85792349726776
+    },
+    "all": {
+     "falseAlarms": 8,
+     "decoysFlagged": 5,
+     "perPage": null,
+     "per10kCells": 975.609756097561,
+     "per1kWords": 21.85792349726776
+    }
+   },
+   "samples": [
+    {
+     "category": "SECRET",
+     "value": "d09GMgABAAAAAtDFK95anFL4fW8ew8Kbv9fgjNYgTCVtsLb5H5dtfl7vA+gHpGGJhMO4tgguHxPgrxR9",
+     "where": "Sheet “Invoice”"
+    },
+    {
+     "category": "SECRET",
+     "value": "/XfBlu1cn9S7Yb72cDhkrkThJm052kcV58BzmbzTsy1nOuY8VzYKqKZv5H+zCzyxifeh16cuKaNCBRYo",
+     "where": "Sheet “Invoice”"
+    },
+    {
+     "category": "SECRET",
+     "value": "VNS5vWMM7r0P66BYv+TQJATxExEgLxN+34hfHDVhDkUsGAE4cRg0shCNSLTXNKm7nIUscC7AfB51TjxE",
+     "where": "Sheet “Invoice”"
+    },
+    {
+     "category": "SECRET",
+     "value": "iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6h+xCTcBatO58ovdyTnQ6NYxFx+7jsibck8yio",
+     "where": "Sheet “Invoice”"
+    },
+    {
+     "category": "SECRET",
+     "value": "uwUYYEwAnCz4h+TKoO6OtIDYDLueVfIL/wcwycAQlZhSYiqXAl0phorkBhpvIhKbeeI5Ay15J7hPwRxB",
+     "where": "Sheet “Invoice”"
+    },
+    {
+     "category": "SECRET",
+     "value": "zPFDIfkEQaRxa6DpVXjGMq2lyEfXGshuy/X/RS6iybu15mJYAHzm9AAAAAElFTkSuQmCC",
+     "where": "Sheet “Invoice”"
+    }
+   ]
+  },
+  {
+   "caseId": "xlsx-invoice-fr",
+   "family": "xlsx",
+   "zone": "invoice_fields",
+   "lang": "fr",
+   "decoys": 40,
+   "pages": null,
+   "cells": 82,
+   "words": 263,
+   "configs": {
+    "default": {
+     "falseAlarms": 3,
+     "decoysFlagged": 1,
+     "perPage": null,
+     "per10kCells": 365.8536585365854,
+     "per1kWords": 11.406844106463879
+    },
+    "all": {
+     "falseAlarms": 3,
+     "decoysFlagged": 1,
+     "perPage": null,
+     "per10kCells": 365.8536585365854,
+     "per1kWords": 11.406844106463879
+    }
+   },
+   "samples": [
+    {
+     "category": "SECRET",
+     "value": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHehGqSmK+hvh79NTMQ1ZYDKaZ1hWhAqcTkmYU6",
+     "where": "Sheet “Facture”"
+    },
+    {
+     "category": "SECRET",
+     "value": "hi5PlGmhdsEVOpOGcHvtHs5SMLvU6Kj7s/RL3CTGE+IChNfqSAQID4o2eV4sO5ai2F0lZeeOzpTyAUQG",
+     "where": "Sheet “Facture”"
+    },
+    {
+     "category": "SECRET",
+     "value": "OEmbtX1E1Kv13OaS/muX89YuVcf0avs/KtiyAAAAAElFTkSuQmCC",
+     "where": "Sheet “Facture”"
+    }
+   ]
+  },
+  {
+   "caseId": "xlsx-orders-en",
+   "family": "xlsx",
+   "zone": "numeric_sheet",
+   "lang": "en",
+   "decoys": 0,
+   "pages": null,
+   "cells": 50005,
+   "words": 77881,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": 0,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": 0,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  },
+  {
+   "caseId": "xlsx-orders-fr",
+   "family": "xlsx",
+   "zone": "numeric_sheet",
+   "lang": "fr",
+   "decoys": 0,
+   "pages": null,
+   "cells": 50005,
+   "words": 66421,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": 0,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": 0,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  },
+  {
+   "caseId": "csv-orders-en",
+   "family": "text",
+   "zone": "numeric_sheet",
+   "lang": "en",
+   "decoys": 0,
+   "pages": null,
+   "cells": 100005,
+   "words": 155989,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": 0,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": 0,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  },
+  {
+   "caseId": "ods-orders-fr",
+   "family": "ods",
+   "zone": "numeric_sheet",
+   "lang": "fr",
+   "decoys": 0,
+   "pages": null,
+   "cells": 50005,
+   "words": 68086,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": 0,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": 0,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  },
+  {
+   "caseId": "pptx-negative-en",
+   "family": "pptx",
+   "zone": "slide",
+   "lang": "en",
+   "decoys": 18,
+   "pages": null,
+   "cells": null,
+   "words": 359,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 1,
+     "decoysFlagged": 1,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 2.785515320334262
+    }
+   },
+   "samples": [
+    {
+     "category": "IP",
+     "value": "5.9.4.2",
+     "where": "Slide 6"
+    }
+   ]
+  },
+  {
+   "caseId": "pptx-negative-fr",
+   "family": "pptx",
+   "zone": "slide",
+   "lang": "fr",
+   "decoys": 23,
+   "pages": null,
+   "cells": null,
+   "words": 366,
+   "configs": {
+    "default": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 0
+    },
+    "all": {
+     "falseAlarms": 0,
+     "decoysFlagged": 0,
+     "perPage": null,
+     "per10kCells": null,
+     "per1kWords": 0
+    }
+   },
+   "samples": []
+  }
+ ],
+ "classification": [
+  {
+   "caseId": "docx-body-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-body-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-table_cell-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "table_cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-table_cell-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "table_cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-header-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "header",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-header-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "header",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-footer-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "footer",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-footer-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "footer",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-footnote-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "footnote",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-footnote-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "footnote",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-endnote-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "endnote",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-endnote-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "endnote",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-comment-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "comment",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-comment-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "comment",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-tracked_deletion-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "tracked_deletion",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-tracked_deletion-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "tracked_deletion",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-text_box-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "text_box",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-text_box-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "text_box",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-split_runs-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "split_runs",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-split_runs-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "split_runs",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-hyperlink-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "hyperlink",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-hyperlink-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "hyperlink",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-metadata-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-metadata-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-embedded-en",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "embedded",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-embedded-fr",
+   "kind": "positive",
+   "family": "docx",
+   "zone": "embedded",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-cell-en",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-cell-fr",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-hidden_sheet-en",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "hidden_sheet",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-hidden_sheet-fr",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "hidden_sheet",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-very_hidden_sheet-en",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "very_hidden_sheet",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-very_hidden_sheet-fr",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "very_hidden_sheet",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-formula_result-en",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "formula_result",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-formula_result-fr",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "formula_result",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-cell_comment-en",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "cell_comment",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-cell_comment-fr",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "cell_comment",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-sheet_header-en",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "sheet_header",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-sheet_header-fr",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "sheet_header",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-metadata-en",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-metadata-fr",
+   "kind": "positive",
+   "family": "xlsx",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-slide-en",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "slide",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-slide-fr",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "slide",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-slide_table-en",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "slide_table",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-slide_table-fr",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "slide_table",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-speaker_notes-en",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "speaker_notes",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-speaker_notes-fr",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "speaker_notes",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-hidden_slide-en",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "hidden_slide",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-hidden_slide-fr",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "hidden_slide",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-comment-en",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "comment",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-comment-fr",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "comment",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-metadata-en",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-metadata-fr",
+   "kind": "positive",
+   "family": "pptx",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-body-en",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-body-fr",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-table_cell-en",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "table_cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-table_cell-fr",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "table_cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-header-en",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "header",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-header-fr",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "header",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-footer-en",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "footer",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-footer-fr",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "footer",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-comment-en",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "comment",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-comment-fr",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "comment",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-tracked_deletion-en",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "tracked_deletion",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-tracked_deletion-fr",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "tracked_deletion",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-metadata-en",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-metadata-fr",
+   "kind": "positive",
+   "family": "odt",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "ods-cell-en",
+   "kind": "positive",
+   "family": "ods",
+   "zone": "cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "ods-cell-fr",
+   "kind": "positive",
+   "family": "ods",
+   "zone": "cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "ods-hidden_sheet-en",
+   "kind": "positive",
+   "family": "ods",
+   "zone": "hidden_sheet",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "ods-hidden_sheet-fr",
+   "kind": "positive",
+   "family": "ods",
+   "zone": "hidden_sheet",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "ods-cell_comment-en",
+   "kind": "positive",
+   "family": "ods",
+   "zone": "cell_comment",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "ods-cell_comment-fr",
+   "kind": "positive",
+   "family": "ods",
+   "zone": "cell_comment",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "ods-metadata-en",
+   "kind": "positive",
+   "family": "ods",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "ods-metadata-fr",
+   "kind": "positive",
+   "family": "ods",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odp-slide-en",
+   "kind": "positive",
+   "family": "odp",
+   "zone": "slide",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odp-slide-fr",
+   "kind": "positive",
+   "family": "odp",
+   "zone": "slide",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odp-speaker_notes-en",
+   "kind": "positive",
+   "family": "odp",
+   "zone": "speaker_notes",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odp-speaker_notes-fr",
+   "kind": "positive",
+   "family": "odp",
+   "zone": "speaker_notes",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-page-en",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "page",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-page-fr",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "page",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-inline-en",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "inline",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-inline-fr",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "inline",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-inline_email-en",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "inline_email",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-inline_email-fr",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "inline_email",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-table_cell-en",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "table_cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-table_cell-fr",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "table_cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-two_column-en",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "two_column",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-two_column-fr",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "two_column",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-line_wrapped-en",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "line_wrapped",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-line_wrapped-fr",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "line_wrapped",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-hyphenated-en",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "hyphenated",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-hyphenated-fr",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "hyphenated",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-form_field-en",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "form_field",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-form_field-fr",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "form_field",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-annotation-en",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "annotation",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-annotation-fr",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "annotation",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-bookmark-en",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "bookmark",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-bookmark-fr",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "bookmark",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-metadata-en",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-metadata-fr",
+   "kind": "positive",
+   "family": "pdf",
+   "zone": "metadata",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "txt-body-en",
+   "kind": "positive",
+   "family": "text",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "txt-body-fr",
+   "kind": "positive",
+   "family": "text",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "md-body-en",
+   "kind": "positive",
+   "family": "text",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "md-body-fr",
+   "kind": "positive",
+   "family": "text",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "csv-cell-en",
+   "kind": "positive",
+   "family": "text",
+   "zone": "cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "csv-cell-fr",
+   "kind": "positive",
+   "family": "text",
+   "zone": "cell",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "json-value-en",
+   "kind": "positive",
+   "family": "text",
+   "zone": "value",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "json-value-fr",
+   "kind": "positive",
+   "family": "text",
+   "zone": "value",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "log-body-en",
+   "kind": "positive",
+   "family": "text",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "log-body-fr",
+   "kind": "positive",
+   "family": "text",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "html-body-en",
+   "kind": "positive",
+   "family": "text",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "html-body-fr",
+   "kind": "positive",
+   "family": "text",
+   "zone": "body",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-entry_txt-en",
+   "kind": "positive",
+   "family": "zip",
+   "zone": "entry_txt",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-entry_txt-fr",
+   "kind": "positive",
+   "family": "zip",
+   "zone": "entry_txt",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-nested_zip-en",
+   "kind": "positive",
+   "family": "zip",
+   "zone": "nested_zip",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-nested_zip-fr",
+   "kind": "positive",
+   "family": "zip",
+   "zone": "nested_zip",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-entry_docx-en",
+   "kind": "positive",
+   "family": "zip",
+   "zone": "entry_docx",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-entry_docx-fr",
+   "kind": "positive",
+   "family": "zip",
+   "zone": "entry_docx",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-entry_pdf-en",
+   "kind": "positive",
+   "family": "zip",
+   "zone": "entry_pdf",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-entry_pdf-fr",
+   "kind": "positive",
+   "family": "zip",
+   "zone": "entry_pdf",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-entry_csv-en",
+   "kind": "positive",
+   "family": "zip",
+   "zone": "entry_csv",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-entry_csv-fr",
+   "kind": "positive",
+   "family": "zip",
+   "zone": "entry_csv",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-bibliography-en",
+   "kind": "negative",
+   "family": "docx",
+   "zone": "bibliography",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-bibliography-fr",
+   "kind": "negative",
+   "family": "docx",
+   "zone": "bibliography",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-bibliography-en",
+   "kind": "negative",
+   "family": "pdf",
+   "zone": "bibliography",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-bibliography-fr",
+   "kind": "negative",
+   "family": "pdf",
+   "zone": "bibliography",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "txt-diagnostic-en",
+   "kind": "negative",
+   "family": "text",
+   "zone": "diagnostic_dump",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "txt-diagnostic-fr",
+   "kind": "negative",
+   "family": "text",
+   "zone": "diagnostic_dump",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-diagnostic-en",
+   "kind": "negative",
+   "family": "pdf",
+   "zone": "diagnostic_dump",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-invoice-en",
+   "kind": "negative",
+   "family": "xlsx",
+   "zone": "invoice_fields",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-invoice-fr",
+   "kind": "negative",
+   "family": "xlsx",
+   "zone": "invoice_fields",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-orders-en",
+   "kind": "negative",
+   "family": "xlsx",
+   "zone": "numeric_sheet",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-orders-fr",
+   "kind": "negative",
+   "family": "xlsx",
+   "zone": "numeric_sheet",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "csv-orders-en",
+   "kind": "negative",
+   "family": "text",
+   "zone": "numeric_sheet",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "ods-orders-fr",
+   "kind": "negative",
+   "family": "ods",
+   "zone": "numeric_sheet",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-negative-en",
+   "kind": "negative",
+   "family": "pptx",
+   "zone": "slide",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pptx-negative-fr",
+   "kind": "negative",
+   "family": "pptx",
+   "zone": "slide",
+   "expected": "checked",
+   "got": "checked",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-encrypted",
+   "kind": "failure",
+   "family": "pdf",
+   "zone": "encrypted",
+   "expected": "unchecked:encrypted",
+   "got": "unchecked:encrypted",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-encrypted",
+   "kind": "failure",
+   "family": "docx",
+   "zone": "encrypted",
+   "expected": "unchecked:encrypted",
+   "got": "unchecked:encrypted",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "xlsx-encrypted",
+   "kind": "failure",
+   "family": "xlsx",
+   "zone": "encrypted",
+   "expected": "unchecked:encrypted",
+   "got": "unchecked:encrypted",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "odt-encrypted",
+   "kind": "failure",
+   "family": "odt",
+   "zone": "encrypted",
+   "expected": "unchecked:encrypted",
+   "got": "unchecked:encrypted",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-encrypted",
+   "kind": "failure",
+   "family": "zip",
+   "zone": "encrypted",
+   "expected": "unchecked:encrypted",
+   "got": "unchecked:encrypted",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "zip-partly-encrypted",
+   "kind": "failure",
+   "family": "zip",
+   "zone": "encrypted_entry",
+   "expected": "partial",
+   "got": "partial",
+   "ok": true,
+   "silentClean": false,
+   "gaps": [
+    "private.txt (password-protected)"
+   ]
+  },
+  {
+   "caseId": "pdf-scanned",
+   "kind": "failure",
+   "family": "pdf",
+   "zone": "scanned",
+   "expected": "unchecked:scanned",
+   "got": "unchecked:scanned",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-partly-scanned",
+   "kind": "failure",
+   "family": "pdf",
+   "zone": "scanned_page",
+   "expected": "partial",
+   "got": "partial",
+   "ok": true,
+   "silentClean": false,
+   "gaps": [
+    "2 scanned pages with no text to read"
+   ]
+  },
+  {
+   "caseId": "pdf-signed",
+   "kind": "failure",
+   "family": "pdf",
+   "zone": "signed",
+   "expected": "checked+signed",
+   "got": "checked+signed",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-attachment",
+   "kind": "failure",
+   "family": "pdf",
+   "zone": "attached_file",
+   "expected": "partial",
+   "got": "partial",
+   "ok": true,
+   "silentClean": false,
+   "gaps": [
+    "1 file attached inside it"
+   ]
+  },
+  {
+   "caseId": "zip-bomb",
+   "kind": "failure",
+   "family": "zip",
+   "zone": "zip_bomb",
+   "expected": "partial",
+   "got": "partial",
+   "ok": true,
+   "silentClean": false,
+   "gaps": [
+    "data/huge.log (past the archive's size cap)"
+   ]
+  },
+  {
+   "caseId": "zip-nested-too-deep",
+   "kind": "failure",
+   "family": "zip",
+   "zone": "nesting",
+   "expected": "partial",
+   "got": "partial",
+   "ok": true,
+   "silentClean": false,
+   "gaps": [
+    "nested.zip › level1.zip › level2.zip › level3.zip (nested too deeply)"
+   ]
+  },
+  {
+   "caseId": "zip-too-many-entries",
+   "kind": "failure",
+   "family": "zip",
+   "zone": "entry_count",
+   "expected": "unchecked:unreadable",
+   "got": "unchecked:unreadable",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-bomb",
+   "kind": "failure",
+   "family": "docx",
+   "zone": "zip_bomb",
+   "expected": "partial",
+   "got": "partial",
+   "ok": true,
+   "silentClean": false,
+   "gaps": [
+    "parts past the size cap"
+   ]
+  },
+  {
+   "caseId": "docm-macros",
+   "kind": "failure",
+   "family": "docx",
+   "zone": "macros",
+   "expected": "partial",
+   "got": "partial",
+   "ok": true,
+   "silentClean": false,
+   "gaps": [
+    "its macros"
+   ]
+  },
+  {
+   "caseId": "xlsx-connections",
+   "kind": "failure",
+   "family": "xlsx",
+   "zone": "data_connection",
+   "expected": "partial",
+   "got": "partial",
+   "ok": true,
+   "silentClean": false,
+   "gaps": [
+    "its data connections"
+   ]
+  },
+  {
+   "caseId": "doc-legacy",
+   "kind": "failure",
+   "family": "other",
+   "zone": "legacy_format",
+   "expected": "unchecked:legacyOffice",
+   "got": "unchecked:legacyOffice",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-truncated",
+   "kind": "failure",
+   "family": "docx",
+   "zone": "damaged",
+   "expected": "unchecked:unreadable",
+   "got": "unchecked:unreadable",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "docx-not-office",
+   "kind": "failure",
+   "family": "docx",
+   "zone": "wrong_package",
+   "expected": "unchecked:office",
+   "got": "unchecked:office",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "pdf-not-pdf",
+   "kind": "failure",
+   "family": "pdf",
+   "zone": "wrong_bytes",
+   "expected": "unchecked:unreadable",
+   "got": "unchecked:unreadable",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "txt-unbroken-run",
+   "kind": "failure",
+   "family": "text",
+   "zone": "unbroken_run",
+   "expected": "unchecked:unbroken",
+   "got": "unchecked:unbroken",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "txt-over-scan-cap",
+   "kind": "failure",
+   "family": "text",
+   "zone": "scan_cap",
+   "expected": "partial",
+   "got": "partial",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  },
+  {
+   "caseId": "png-image",
+   "kind": "failure",
+   "family": "other",
+   "zone": "image",
+   "expected": "unchecked:image",
+   "got": "unchecked:image",
+   "ok": true,
+   "silentClean": false,
+   "gaps": []
+  }
+ ],
+ "sweeps": [
+  {
+   "id": "sweep-csv-1000",
+   "type": "csv",
+   "unit": "rows",
+   "size": 1000,
+   "bytes": 46712,
+   "chars": 46712,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 3.74,
+   "detectMs": {
+    "default": 21.75,
+    "all": 21.27
+   },
+   "redactMs": null,
+   "redactionMode": "none",
+   "totalMs": 25.490000000000002,
+   "peakMb": 144,
+   "deltaMb": 6,
+   "items": 2,
+   "extracted": 2,
+   "found": {
+    "default": 0,
+    "all": 0
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-csv-5000",
+   "type": "csv",
+   "unit": "rows",
+   "size": 5000,
+   "bytes": 233467,
+   "chars": 233467,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 14.57,
+   "detectMs": {
+    "default": 97.67,
+    "all": 109.33
+   },
+   "redactMs": 0.54,
+   "redactionMode": "in_place",
+   "totalMs": 112.78000000000002,
+   "peakMb": 166,
+   "deltaMb": 27,
+   "items": 10,
+   "extracted": 10,
+   "found": {
+    "default": 5,
+    "all": 6
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-csv-20000",
+   "type": "csv",
+   "unit": "rows",
+   "size": 20000,
+   "bytes": 935385,
+   "chars": 935385,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 57.51,
+   "detectMs": {
+    "default": 465.02,
+    "all": 486.51
+   },
+   "redactMs": 2,
+   "redactionMode": "in_place",
+   "totalMs": 524.53,
+   "peakMb": 200,
+   "deltaMb": 54,
+   "items": 40,
+   "extracted": 40,
+   "found": {
+    "default": 18,
+    "all": 21
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-csv-60000",
+   "type": "csv",
+   "unit": "rows",
+   "size": 60000,
+   "bytes": 2842914,
+   "chars": 2097152,
+   "pages": null,
+   "outcome": "partial",
+   "gaps": [],
+   "readMs": 123.86,
+   "detectMs": {
+    "default": 2426.2,
+    "all": 2390.76
+   },
+   "redactMs": 4.41,
+   "redactionMode": "in_place",
+   "totalMs": 2554.47,
+   "peakMb": 297,
+   "deltaMb": 131,
+   "items": 120,
+   "extracted": 89,
+   "found": {
+    "default": 45,
+    "all": 52
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-csv-100000",
+   "type": "csv",
+   "unit": "rows",
+   "size": 100000,
+   "bytes": 4770645,
+   "chars": 2097152,
+   "pages": null,
+   "outcome": "partial",
+   "gaps": [],
+   "readMs": 123.41,
+   "detectMs": {
+    "default": 2451.32,
+    "all": 2325.65
+   },
+   "redactMs": 5,
+   "redactionMode": "in_place",
+   "totalMs": 2579.73,
+   "peakMb": 308,
+   "deltaMb": 103,
+   "items": 200,
+   "extracted": 90,
+   "found": {
+    "default": 38,
+    "all": 52
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-docx-1000",
+   "type": "docx",
+   "unit": "words",
+   "size": 1000,
+   "bytes": 4589,
+   "chars": 6678,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 1.37,
+   "detectMs": {
+    "default": 2.76,
+    "all": 2.63
+   },
+   "redactMs": 0.07,
+   "redactionMode": "text_copy",
+   "totalMs": 4.2,
+   "peakMb": 141,
+   "deltaMb": 3,
+   "items": 3,
+   "extracted": 3,
+   "found": {
+    "default": 2,
+    "all": 3
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-docx-5000",
+   "type": "docx",
+   "unit": "words",
+   "size": 5000,
+   "bytes": 5598,
+   "chars": 31265,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 1.75,
+   "detectMs": {
+    "default": 13.88,
+    "all": 13.22
+   },
+   "redactMs": 0.15,
+   "redactionMode": "text_copy",
+   "totalMs": 15.780000000000001,
+   "peakMb": 143,
+   "deltaMb": 5,
+   "items": 12,
+   "extracted": 12,
+   "found": {
+    "default": 10,
+    "all": 10
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-docx-20000",
+   "type": "docx",
+   "unit": "words",
+   "size": 20000,
+   "bytes": 10675,
+   "chars": 126696,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 6.97,
+   "detectMs": {
+    "default": 62.04,
+    "all": 64.85
+   },
+   "redactMs": 1.1,
+   "redactionMode": "text_copy",
+   "totalMs": 70.11,
+   "peakMb": 161,
+   "deltaMb": 22,
+   "items": 45,
+   "extracted": 45,
+   "found": {
+    "default": 33,
+    "all": 41
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-docx-100000",
+   "type": "docx",
+   "unit": "words",
+   "size": 100000,
+   "bytes": 36608,
+   "chars": 631949,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 15.43,
+   "detectMs": {
+    "default": 314.85,
+    "all": 339.01
+   },
+   "redactMs": 5.28,
+   "redactionMode": "text_copy",
+   "totalMs": 335.56,
+   "peakMb": 209,
+   "deltaMb": 69,
+   "items": 233,
+   "extracted": 233,
+   "found": {
+    "default": 174,
+    "all": 206
+   },
+   "falseAlarms": {
+    "default": 2,
+    "all": 2
+   }
+  },
+  {
+   "id": "sweep-docx-300000",
+   "type": "docx",
+   "unit": "words",
+   "size": 300000,
+   "bytes": 102060,
+   "chars": 1896275,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 26.61,
+   "detectMs": {
+    "default": 953.8,
+    "all": 1000.41
+   },
+   "redactMs": 16.12,
+   "redactionMode": "text_copy",
+   "totalMs": 996.53,
+   "peakMb": 248,
+   "deltaMb": 104,
+   "items": 721,
+   "extracted": 721,
+   "found": {
+    "default": 543,
+    "all": 638
+   },
+   "falseAlarms": {
+    "default": 4,
+    "all": 4
+   }
+  },
+  {
+   "id": "sweep-ods-1000",
+   "type": "ods",
+   "unit": "rows",
+   "size": 1000,
+   "bytes": 20898,
+   "chars": 47719,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 26.26,
+   "detectMs": {
+    "default": 21.95,
+    "all": 21.1
+   },
+   "redactMs": 0.28,
+   "redactionMode": "text_copy",
+   "totalMs": 48.49,
+   "peakMb": 154,
+   "deltaMb": 14,
+   "items": 2,
+   "extracted": 2,
+   "found": {
+    "default": 1,
+    "all": 2
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-ods-10000",
+   "type": "ods",
+   "unit": "rows",
+   "size": 10000,
+   "bytes": 188952,
+   "chars": 477057,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 225.46,
+   "detectMs": {
+    "default": 189.51,
+    "all": 199.53
+   },
+   "redactMs": 2.46,
+   "redactionMode": "text_copy",
+   "totalMs": 417.43,
+   "peakMb": 250,
+   "deltaMb": 96,
+   "items": 20,
+   "extracted": 20,
+   "found": {
+    "default": 17,
+    "all": 20
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-ods-30000",
+   "type": "ods",
+   "unit": "rows",
+   "size": 30000,
+   "bytes": 561945,
+   "chars": 1442181,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 736.97,
+   "detectMs": {
+    "default": 1335.38,
+    "all": 1386.49
+   },
+   "redactMs": 9.06,
+   "redactionMode": "text_copy",
+   "totalMs": 2081.4100000000003,
+   "peakMb": 417,
+   "deltaMb": 224,
+   "items": 60,
+   "extracted": 60,
+   "found": {
+    "default": 45,
+    "all": 52
+   },
+   "falseAlarms": {
+    "default": 2,
+    "all": 2
+   }
+  },
+  {
+   "id": "sweep-ods-60000",
+   "type": "ods",
+   "unit": "rows",
+   "size": 60000,
+   "bytes": 1119599,
+   "chars": 0,
+   "pages": null,
+   "outcome": "partial",
+   "gaps": [
+    "1 part past its first 2 MB of text"
+   ],
+   "readMs": 1346.07,
+   "detectMs": {
+    "default": 0,
+    "all": 0
+   },
+   "redactMs": null,
+   "redactionMode": "none",
+   "totalMs": 1346.07,
+   "peakMb": 459,
+   "deltaMb": 180,
+   "items": 120,
+   "extracted": 0,
+   "found": {
+    "default": 0,
+    "all": 0
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-odt-1000",
+   "type": "odt",
+   "unit": "words",
+   "size": 1000,
+   "bytes": 2804,
+   "chars": 6161,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 1.06,
+   "detectMs": {
+    "default": 2.25,
+    "all": 2.55
+   },
+   "redactMs": 0.06,
+   "redactionMode": "text_copy",
+   "totalMs": 3.37,
+   "peakMb": 140,
+   "deltaMb": 2,
+   "items": 1,
+   "extracted": 1,
+   "found": {
+    "default": 1,
+    "all": 1
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-odt-10000",
+   "type": "odt",
+   "unit": "words",
+   "size": 10000,
+   "bytes": 5970,
+   "chars": 63534,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 3.01,
+   "detectMs": {
+    "default": 27.22,
+    "all": 25.92
+   },
+   "redactMs": 0.29,
+   "redactionMode": "text_copy",
+   "totalMs": 30.519999999999996,
+   "peakMb": 146,
+   "deltaMb": 8,
+   "items": 22,
+   "extracted": 22,
+   "found": {
+    "default": 21,
+    "all": 22
+   },
+   "falseAlarms": {
+    "default": 1,
+    "all": 1
+   }
+  },
+  {
+   "id": "sweep-odt-50000",
+   "type": "odt",
+   "unit": "words",
+   "size": 50000,
+   "bytes": 17781,
+   "chars": 314157,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 12.19,
+   "detectMs": {
+    "default": 159.61,
+    "all": 157.07
+   },
+   "redactMs": 2.37,
+   "redactionMode": "text_copy",
+   "totalMs": 174.17000000000002,
+   "peakMb": 165,
+   "deltaMb": 27,
+   "items": 103,
+   "extracted": 103,
+   "found": {
+    "default": 77,
+    "all": 86
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-odt-150000",
+   "type": "odt",
+   "unit": "words",
+   "size": 150000,
+   "bytes": 50983,
+   "chars": 948547,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 25.38,
+   "detectMs": {
+    "default": 456.08,
+    "all": 467.71
+   },
+   "redactMs": 6.86,
+   "redactionMode": "text_copy",
+   "totalMs": 488.32,
+   "peakMb": 213,
+   "deltaMb": 72,
+   "items": 366,
+   "extracted": 366,
+   "found": {
+    "default": 276,
+    "all": 327
+   },
+   "falseAlarms": {
+    "default": 1,
+    "all": 1
+   }
+  },
+  {
+   "id": "sweep-pdf-2",
+   "type": "pdf",
+   "unit": "pages",
+   "size": 2,
+   "bytes": 7601,
+   "chars": 6753,
+   "pages": 2,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 13.9,
+   "detectMs": {
+    "default": 4.57,
+    "all": 4.37
+   },
+   "redactMs": 14.21,
+   "redactionMode": "in_place",
+   "totalMs": 32.68,
+   "peakMb": 152,
+   "deltaMb": 6,
+   "items": 2,
+   "extracted": 2,
+   "found": {
+    "default": 2,
+    "all": 2
+   },
+   "falseAlarms": {
+    "default": 3,
+    "all": 3
+   }
+  },
+  {
+   "id": "sweep-pdf-10",
+   "type": "pdf",
+   "unit": "pages",
+   "size": 10,
+   "bytes": 33959,
+   "chars": 33305,
+   "pages": 9,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 38.77,
+   "detectMs": {
+    "default": 18.26,
+    "all": 16.42
+   },
+   "redactMs": 50.64,
+   "redactionMode": "in_place",
+   "totalMs": 107.67,
+   "peakMb": 183,
+   "deltaMb": 22,
+   "items": 15,
+   "extracted": 15,
+   "found": {
+    "default": 10,
+    "all": 15
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-pdf-50",
+   "type": "pdf",
+   "unit": "pages",
+   "size": 50,
+   "bytes": 167673,
+   "chars": 167126,
+   "pages": 43,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 136.77,
+   "detectMs": {
+    "default": 80.9,
+    "all": 78.19
+   },
+   "redactMs": 252.02,
+   "redactionMode": "in_place",
+   "totalMs": 469.69000000000005,
+   "peakMb": 202,
+   "deltaMb": 12,
+   "items": 59,
+   "extracted": 59,
+   "found": {
+    "default": 42,
+    "all": 52
+   },
+   "falseAlarms": {
+    "default": 5,
+    "all": 5
+   }
+  },
+  {
+   "id": "sweep-pdf-200",
+   "type": "pdf",
+   "unit": "pages",
+   "size": 200,
+   "bytes": 659797,
+   "chars": 665474,
+   "pages": 169,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 524.99,
+   "detectMs": {
+    "default": 365.27,
+    "all": 389.97
+   },
+   "redactMs": 794.03,
+   "redactionMode": "fallback_text_copy",
+   "totalMs": 1684.29,
+   "peakMb": 317,
+   "deltaMb": 95,
+   "items": 249,
+   "extracted": 248,
+   "found": {
+    "default": 179,
+    "all": 213
+   },
+   "falseAlarms": {
+    "default": 13,
+    "all": 13
+   }
+  },
+  {
+   "id": "sweep-pdf-500",
+   "type": "pdf",
+   "unit": "pages",
+   "size": 500,
+   "bytes": 1641409,
+   "chars": 1663087,
+   "pages": 420,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 1429.3,
+   "detectMs": {
+    "default": 994.2,
+    "all": 972.2
+   },
+   "redactMs": 2700.19,
+   "redactionMode": "fallback_text_copy",
+   "totalMs": 5123.6900000000005,
+   "peakMb": 398,
+   "deltaMb": 59,
+   "items": 616,
+   "extracted": 613,
+   "found": {
+    "default": 449,
+    "all": 530
+   },
+   "falseAlarms": {
+    "default": 32,
+    "all": 32
+   }
+  },
+  {
+   "id": "sweep-pptx-10",
+   "type": "pptx",
+   "unit": "slides",
+   "size": 10,
+   "bytes": 16188,
+   "chars": 3592,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 8.06,
+   "detectMs": {
+    "default": 2.35,
+    "all": 2.36
+   },
+   "redactMs": 0.06,
+   "redactionMode": "text_copy",
+   "totalMs": 10.47,
+   "peakMb": 166,
+   "deltaMb": 27,
+   "items": 3,
+   "extracted": 3,
+   "found": {
+    "default": 2,
+    "all": 2
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-pptx-50",
+   "type": "pptx",
+   "unit": "slides",
+   "size": 50,
+   "bytes": 67428,
+   "chars": 19117,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 24.61,
+   "detectMs": {
+    "default": 17.21,
+    "all": 13.05
+   },
+   "redactMs": 0.19,
+   "redactionMode": "text_copy",
+   "totalMs": 42.01,
+   "peakMb": 217,
+   "deltaMb": 70,
+   "items": 19,
+   "extracted": 19,
+   "found": {
+    "default": 15,
+    "all": 16
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-pptx-200",
+   "type": "pptx",
+   "unit": "slides",
+   "size": 200,
+   "bytes": 259028,
+   "chars": 76588,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 62.64,
+   "detectMs": {
+    "default": 80.74,
+    "all": 52.65
+   },
+   "redactMs": 1.42,
+   "redactionMode": "text_copy",
+   "totalMs": 144.79999999999998,
+   "peakMb": 237,
+   "deltaMb": 94,
+   "items": 91,
+   "extracted": 91,
+   "found": {
+    "default": 71,
+    "all": 84
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-pptx-500",
+   "type": "pptx",
+   "unit": "slides",
+   "size": 500,
+   "bytes": 642454,
+   "chars": 190265,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 164.03,
+   "detectMs": {
+    "default": 200.58,
+    "all": 151.6
+   },
+   "redactMs": 4.26,
+   "redactionMode": "text_copy",
+   "totalMs": 368.87,
+   "peakMb": 259,
+   "deltaMb": 101,
+   "items": 235,
+   "extracted": 235,
+   "found": {
+    "default": 175,
+    "all": 209
+   },
+   "falseAlarms": {
+    "default": 2,
+    "all": 2
+   }
+  },
+  {
+   "id": "sweep-txt-1000",
+   "type": "txt",
+   "unit": "words",
+   "size": 1000,
+   "bytes": 6350,
+   "chars": 6350,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 0.39,
+   "detectMs": {
+    "default": 3.08,
+    "all": 2.89
+   },
+   "redactMs": 0.05,
+   "redactionMode": "in_place",
+   "totalMs": 3.52,
+   "peakMb": 139,
+   "deltaMb": 0,
+   "items": 3,
+   "extracted": 3,
+   "found": {
+    "default": 2,
+    "all": 2
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-txt-5000",
+   "type": "txt",
+   "unit": "words",
+   "size": 5000,
+   "bytes": 32109,
+   "chars": 32109,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 1.14,
+   "detectMs": {
+    "default": 13.16,
+    "all": 13.68
+   },
+   "redactMs": 0.1,
+   "redactionMode": "in_place",
+   "totalMs": 14.4,
+   "peakMb": 139,
+   "deltaMb": 1,
+   "items": 15,
+   "extracted": 15,
+   "found": {
+    "default": 12,
+    "all": 13
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-txt-20000",
+   "type": "txt",
+   "unit": "words",
+   "size": 20000,
+   "bytes": 127874,
+   "chars": 127874,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 3.89,
+   "detectMs": {
+    "default": 58.92,
+    "all": 56.79
+   },
+   "redactMs": 0.24,
+   "redactionMode": "in_place",
+   "totalMs": 63.050000000000004,
+   "peakMb": 150,
+   "deltaMb": 12,
+   "items": 53,
+   "extracted": 53,
+   "found": {
+    "default": 39,
+    "all": 46
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-txt-100000",
+   "type": "txt",
+   "unit": "words",
+   "size": 100000,
+   "bytes": 633812,
+   "chars": 633807,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 23.26,
+   "detectMs": {
+    "default": 343.65,
+    "all": 342.08
+   },
+   "redactMs": 2.09,
+   "redactionMode": "in_place",
+   "totalMs": 368.99999999999994,
+   "peakMb": 192,
+   "deltaMb": 53,
+   "items": 238,
+   "extracted": 238,
+   "found": {
+    "default": 177,
+    "all": 210
+   },
+   "falseAlarms": {
+    "default": 2,
+    "all": 2
+   }
+  },
+  {
+   "id": "sweep-txt-300000",
+   "type": "txt",
+   "unit": "words",
+   "size": 300000,
+   "bytes": 1901224,
+   "chars": 1901211,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 68.1,
+   "detectMs": {
+    "default": 966.3,
+    "all": 1000.48
+   },
+   "redactMs": 6.3,
+   "redactionMode": "in_place",
+   "totalMs": 1040.6999999999998,
+   "peakMb": 228,
+   "deltaMb": 83,
+   "items": 709,
+   "extracted": 709,
+   "found": {
+    "default": 530,
+    "all": 626
+   },
+   "falseAlarms": {
+    "default": 5,
+    "all": 5
+   }
+  },
+  {
+   "id": "sweep-xlsx-1000",
+   "type": "xlsx",
+   "unit": "rows",
+   "size": 1000,
+   "bytes": 36453,
+   "chars": 46748,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 24.52,
+   "detectMs": {
+    "default": 21.27,
+    "all": 19.63
+   },
+   "redactMs": 0.22,
+   "redactionMode": "text_copy",
+   "totalMs": 46.01,
+   "peakMb": 154,
+   "deltaMb": 15,
+   "items": 2,
+   "extracted": 2,
+   "found": {
+    "default": 1,
+    "all": 1
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-xlsx-5000",
+   "type": "xlsx",
+   "unit": "rows",
+   "size": 5000,
+   "bytes": 167923,
+   "chars": 233568,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 67.91,
+   "detectMs": {
+    "default": 92.12,
+    "all": 95.19
+   },
+   "redactMs": 1.48,
+   "redactionMode": "text_copy",
+   "totalMs": 161.51,
+   "peakMb": 214,
+   "deltaMb": 74,
+   "items": 10,
+   "extracted": 10,
+   "found": {
+    "default": 6,
+    "all": 6
+   },
+   "falseAlarms": {
+    "default": 1,
+    "all": 1
+   }
+  },
+  {
+   "id": "sweep-xlsx-20000",
+   "type": "xlsx",
+   "unit": "rows",
+   "size": 20000,
+   "bytes": 653908,
+   "chars": 935443,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 293.52,
+   "detectMs": {
+    "default": 575.95,
+    "all": 591.83
+   },
+   "redactMs": 6.58,
+   "redactionMode": "text_copy",
+   "totalMs": 876.0500000000001,
+   "peakMb": 355,
+   "deltaMb": 189,
+   "items": 40,
+   "extracted": 40,
+   "found": {
+    "default": 35,
+    "all": 38
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-xlsx-60000",
+   "type": "xlsx",
+   "unit": "rows",
+   "size": 60000,
+   "bytes": 1956953,
+   "chars": 12,
+   "pages": null,
+   "outcome": "partial",
+   "gaps": [
+    "1 part past its first 2 MB of text"
+   ],
+   "readMs": 790.04,
+   "detectMs": {
+    "default": 2.41,
+    "all": 2.1
+   },
+   "redactMs": null,
+   "redactionMode": "none",
+   "totalMs": 792.4499999999999,
+   "peakMb": 409,
+   "deltaMb": 177,
+   "items": 120,
+   "extracted": 0,
+   "found": {
+    "default": 0,
+    "all": 0
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-xlsx-100000",
+   "type": "xlsx",
+   "unit": "rows",
+   "size": 100000,
+   "bytes": 3251089,
+   "chars": 12,
+   "pages": null,
+   "outcome": "partial",
+   "gaps": [
+    "1 part past its first 2 MB of text"
+   ],
+   "readMs": 1450.72,
+   "detectMs": {
+    "default": 3.66,
+    "all": 1.87
+   },
+   "redactMs": null,
+   "redactionMode": "none",
+   "totalMs": 1454.38,
+   "peakMb": 483,
+   "deltaMb": 183,
+   "items": 200,
+   "extracted": 0,
+   "found": {
+    "default": 0,
+    "all": 0
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-zip-10",
+   "type": "zip",
+   "unit": "entries",
+   "size": 10,
+   "bytes": 4412,
+   "chars": 5970,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 2.62,
+   "detectMs": {
+    "default": 2.57,
+    "all": 3.92
+   },
+   "redactMs": null,
+   "redactionMode": "none",
+   "totalMs": 5.1899999999999995,
+   "peakMb": 146,
+   "deltaMb": 7,
+   "items": 1,
+   "extracted": 1,
+   "found": {
+    "default": 0,
+    "all": 0
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-zip-100",
+   "type": "zip",
+   "unit": "entries",
+   "size": 100,
+   "bytes": 42432,
+   "chars": 59871,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 23.06,
+   "detectMs": {
+    "default": 26.31,
+    "all": 25.59
+   },
+   "redactMs": 4.29,
+   "redactionMode": "in_place",
+   "totalMs": 53.66,
+   "peakMb": 208,
+   "deltaMb": 68,
+   "items": 10,
+   "extracted": 10,
+   "found": {
+    "default": 9,
+    "all": 10
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-zip-1000",
+   "type": "zip",
+   "unit": "entries",
+   "size": 1000,
+   "bytes": 426745,
+   "chars": 601035,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 123.67,
+   "detectMs": {
+    "default": 286.96,
+    "all": 260.25
+   },
+   "redactMs": 49.63,
+   "redactionMode": "in_place",
+   "totalMs": 460.26,
+   "peakMb": 278,
+   "deltaMb": 128,
+   "items": 100,
+   "extracted": 100,
+   "found": {
+    "default": 76,
+    "all": 85
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-zip-4000",
+   "type": "zip",
+   "unit": "entries",
+   "size": 4000,
+   "bytes": 1703873,
+   "chars": 2096736,
+   "pages": null,
+   "outcome": "partial",
+   "gaps": [
+    "512 parts past its first 2 MB of text"
+   ],
+   "readMs": 483.23,
+   "detectMs": {
+    "default": 902.99,
+    "all": 940.33
+   },
+   "redactMs": 356.17,
+   "redactionMode": "in_place",
+   "totalMs": 1742.39,
+   "peakMb": 371,
+   "deltaMb": 164,
+   "items": 400,
+   "extracted": 349,
+   "found": {
+    "default": 258,
+    "all": 305
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  }
+ ],
+ "fits": [
+  {
+   "type": "csv",
+   "unit": "rows",
+   "read": {
+    "a": 0.006714196413112725,
+    "b": 0.9104629451360449,
+    "r2": 0.9979084501808803,
+    "points": 3
+   },
+   "detect": {
+    "a": 0.018137516963451464,
+    "b": 1.0199053259951116,
+    "r2": 0.9970859786718343,
+    "points": 3
+   },
+   "total": {
+    "a": 0.023242045066063546,
+    "b": 1.0072317491996212,
+    "r2": 0.9972455657135275,
+    "points": 3
+   },
+   "memory": {
+    "c": 8.83056478405316,
+    "k": 0.0023272425249169434,
+    "r2": 0.9385339025355893
+   },
+   "msPerKChar": 0.5607637496859582,
+   "sizeWithin1s": 20000,
+   "sizeWithin5s": 20000,
+   "within1sAtLeast": true,
+   "within5sAtLeast": true,
+   "capped": [
+    60000,
+    100000
+   ]
+  },
+  {
+   "type": "docx",
+   "unit": "words",
+   "read": {
+    "a": 0.022721550466792088,
+    "b": 0.5612582913238392,
+    "r2": 0.9602511273823403,
+    "points": 5
+   },
+   "detect": {
+    "a": 0.002254883542519041,
+    "b": 1.028439077411553,
+    "r2": 0.999869701747057,
+    "points": 5
+   },
+   "total": {
+    "a": 0.004668566262916924,
+    "b": 0.9705900029973211,
+    "r2": 0.998451999919567,
+    "points": 5
+   },
+   "memory": {
+    "c": 12.338876171823838,
+    "k": 0.00033170333131662163,
+    "r2": 0.8985032782941605
+   },
+   "msPerKChar": 0.5255197690208435,
+   "sizeWithin1s": 300000,
+   "sizeWithin5s": 300000,
+   "within1sAtLeast": true,
+   "within5sAtLeast": true,
+   "capped": []
+  },
+  {
+   "type": "ods",
+   "unit": "rows",
+   "read": {
+    "a": 0.030898346958578116,
+    "b": 0.9732412901361882,
+    "r2": 0.9987099097864579,
+    "points": 3
+   },
+   "detect": {
+    "a": 0.006118685543403486,
+    "b": 1.1662068234893632,
+    "r2": 0.9703495113584045,
+    "points": 3
+   },
+   "total": {
+    "a": 0.025872461408962082,
+    "b": 1.0791974712451797,
+    "r2": 0.9861568015473343,
+    "points": 3
+   },
+   "memory": {
+    "c": 14.281391830559741,
+    "k": 0.007101361573373677,
+    "r2": 0.9919590294434008
+   },
+   "msPerKChar": 1.4432377073335456,
+   "sizeWithin1s": 17805,
+   "sizeWithin5s": 30000,
+   "within1sAtLeast": false,
+   "within5sAtLeast": true,
+   "capped": [
+    60000
+   ]
+  },
+  {
+   "type": "odt",
+   "unit": "words",
+   "read": {
+    "a": 0.010587181971012348,
+    "b": 0.6456418737230667,
+    "r2": 0.9799945356880965,
+    "points": 4
+   },
+   "detect": {
+    "a": 0.001445930620710624,
+    "b": 1.0671713520739707,
+    "r2": 0.9994934823723334,
+    "points": 4
+   },
+   "total": {
+    "a": 0.003263241330779717,
+    "b": 1.000724990484069,
+    "r2": 0.9993274718112413,
+    "points": 4
+   },
+   "memory": {
+    "c": 2.7746720827443063,
+    "k": 0.0004639872590948947,
+    "r2": 0.9989807889289649
+   },
+   "msPerKChar": 0.5148084385908132,
+   "sizeWithin1s": 150000,
+   "sizeWithin5s": 150000,
+   "within1sAtLeast": true,
+   "within5sAtLeast": true,
+   "capped": []
+  },
+  {
+   "type": "pdf",
+   "unit": "pages",
+   "read": {
+    "a": 6.422771522809033,
+    "b": 0.8380204384085205,
+    "r2": 0.9899160712078601,
+    "points": 5
+   },
+   "detect": {
+    "a": 2.073202596408982,
+    "b": 0.9757805672488117,
+    "r2": 0.9971936694418304,
+    "points": 5
+   },
+   "total": {
+    "a": 14.97920642255962,
+    "b": 0.9095929702856776,
+    "r2": 0.9944109702050151,
+    "points": 5
+   },
+   "memory": {
+    "c": 21.73018305121626,
+    "k": 0.11200667289228172,
+    "r2": 0.3923528565708509
+   },
+   "msPerKChar": 3.080831008840789,
+   "sizeWithin1s": 101,
+   "sizeWithin5s": 500,
+   "within1sAtLeast": false,
+   "within5sAtLeast": true,
+   "capped": []
+  },
+  {
+   "type": "pptx",
+   "unit": "slides",
+   "read": {
+    "a": 1.3481596285988335,
+    "b": 0.7520819557649157,
+    "r2": 0.9915308398870161,
+    "points": 4
+   },
+   "detect": {
+    "a": 0.1818004391836065,
+    "b": 1.1401324316859804,
+    "r2": 0.9980798267390747,
+    "points": 4
+   },
+   "total": {
+    "a": 1.26118990189132,
+    "b": 0.9050326625216244,
+    "r2": 0.9989022204167991,
+    "points": 4
+   },
+   "memory": {
+    "c": 50.44871794871795,
+    "k": 0.11869095816464237,
+    "r2": 0.6232161057062864
+   },
+   "msPerKChar": 1.9387170525319948,
+   "sizeWithin1s": 500,
+   "sizeWithin5s": 500,
+   "within1sAtLeast": true,
+   "within5sAtLeast": true,
+   "capped": []
+  },
+  {
+   "type": "txt",
+   "unit": "words",
+   "read": {
+    "a": 0.0005232054627047793,
+    "b": 0.9239746005967432,
+    "r2": 0.9909384876650559,
+    "points": 5
+   },
+   "detect": {
+    "a": 0.002389048111833536,
+    "b": 1.024726402171845,
+    "r2": 0.9987433293827508,
+    "points": 5
+   },
+   "total": {
+    "a": 0.002872117595743847,
+    "b": 1.0149372823490466,
+    "r2": 0.9983835575077133,
+    "points": 5
+   },
+   "memory": {
+    "c": 6.218241468997736,
+    "k": 0.00027678120341551954,
+    "r2": 0.9093288141086389
+   },
+   "msPerKChar": 0.5473879543091218,
+   "sizeWithin1s": 288560,
+   "sizeWithin5s": 300000,
+   "within1sAtLeast": false,
+   "within5sAtLeast": true,
+   "capped": []
+  },
+  {
+   "type": "xlsx",
+   "unit": "rows",
+   "read": {
+    "a": 0.07534205985750403,
+    "b": 0.8234526750947535,
+    "r2": 0.978799935779889,
+    "points": 3
+   },
+   "detect": {
+    "a": 0.009967253600103977,
+    "b": 1.0960708797193117,
+    "r2": 0.9885633477795807,
+    "points": 3
+   },
+   "total": {
+    "a": 0.04836863957646148,
+    "b": 0.9781717206154218,
+    "r2": 0.983696191206095,
+    "points": 3
+   },
+   "memory": {
+    "c": 16.840531561461816,
+    "k": 0.008749169435215946,
+    "r2": 0.9808410756307178
+   },
+   "msPerKChar": 0.9365081570977603,
+   "sizeWithin1s": 20000,
+   "sizeWithin5s": 20000,
+   "within1sAtLeast": true,
+   "within5sAtLeast": true,
+   "capped": [
+    60000,
+    100000
+   ]
+  },
+  {
+   "type": "zip",
+   "unit": "entries",
+   "read": {
+    "a": 0.4141699468055742,
+    "b": 0.8369815347343013,
+    "r2": 0.99452358046647,
+    "points": 3
+   },
+   "detect": {
+    "a": 0.24065979256312395,
+    "b": 1.023944120168308,
+    "r2": 0.9999398397813974,
+    "points": 3
+   },
+   "total": {
+    "a": 0.5685533347534539,
+    "b": 0.9739179376405919,
+    "r2": 0.9994220451870169,
+    "points": 3
+   },
+   "memory": {
+    "c": 30.77777777777778,
+    "k": 0.0996996996996997,
+    "r2": 0.8138676879228741
+   },
+   "msPerKChar": 0.7657790311712296,
+   "sizeWithin1s": 1000,
+   "sizeWithin5s": 1000,
+   "within1sAtLeast": true,
+   "within5sAtLeast": true,
+   "capped": [
+    4000
+   ]
+  }
+ ],
+ "timing": [
+  {
+   "family": "docx",
+   "cases": 30,
+   "readMsP50": 1.46,
+   "detectMsP50": 3.92,
+   "redactMsP50": 0.03
+  },
+  {
+   "family": "xlsx",
+   "cases": 19,
+   "readMsP50": 2.95,
+   "detectMsP50": 4.12,
+   "redactMsP50": 0.04
+  },
+  {
+   "family": "pptx",
+   "cases": 14,
+   "readMsP50": 2.97,
+   "detectMsP50": 3.74,
+   "redactMsP50": 0.03
+  },
+  {
+   "family": "odt",
+   "cases": 14,
+   "readMsP50": 1.28,
+   "detectMsP50": 3.31,
+   "redactMsP50": 0.03
+  },
+  {
+   "family": "ods",
+   "cases": 9,
+   "readMsP50": 3.07,
+   "detectMsP50": 4.02,
+   "redactMsP50": 0.03
+  },
+  {
+   "family": "odp",
+   "cases": 4,
+   "readMsP50": 1.2,
+   "detectMsP50": 5.76,
+   "redactMsP50": 0.03
+  },
+  {
+   "family": "pdf",
+   "cases": 28,
+   "readMsP50": 3.78,
+   "detectMsP50": 3.03,
+   "redactMsP50": 5.27
+  },
+  {
+   "family": "text",
+   "cases": 16,
+   "readMsP50": 0.41,
+   "detectMsP50": 3.28,
+   "redactMsP50": 0.03
+  },
+  {
+   "family": "zip",
+   "cases": 13,
+   "readMsP50": 1.36,
+   "detectMsP50": 4.36,
+   "redactMsP50": 0.55
+  }
+ ]
+}

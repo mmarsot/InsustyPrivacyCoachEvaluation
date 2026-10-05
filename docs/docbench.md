@@ -23,7 +23,9 @@ the third track next to the review bench and detbench, and answers:
 Code: `src/docbench/` and `src/cli/docbench.ts`; planning in
 `src/run/plan.ts` (`parseDocbenchArgs`, `planDocbench`), shared with the
 dashboard (`src/dashboard/docbench.ts`). Tests: `tests/docbench.test.ts`.
-The research behind it is section 9 of the document-upload analysis.
+The research behind it is section 9 of the document-upload analysis. The
+baseline on `main` @ `2aece81` and what it shows are in the README
+("Document bench"); its run is `runs/docbench/main-2aece81/`.
 
 ## Running it
 

@@ -241,7 +241,9 @@ export async function loadExtApi(bundle: string): Promise<ExtApi> {
   if (typeof review.composeLabelPrefix === "function") {
     const sets = need(review.reviewInstructionSets, "reviewInstructionSets") as (rules: Rule[]) => string[];
     const reviewPrompt = need(review.reviewPrompt, "reviewPrompt") as Fn;
-    const withExamples = (rules: Rule[]) => rules.map((r) => ({ ...r, examples: r.examples ?? [] }));
+    // Since PR #52 a rule also carries what the label learned from reviews (`learned`); the bench runs a new
+    // user's labels, which have learned nothing. Older refs ignore the extra field.
+    const withExamples = (rules: Rule[]) => rules.map((r) => ({ ...r, examples: r.examples ?? [], learned: { examples: [], falseAlarms: [] } }));
     return {
       ...common,
       kind: "completion",

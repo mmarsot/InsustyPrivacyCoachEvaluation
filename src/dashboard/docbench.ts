@@ -123,8 +123,8 @@ export class DocDashboard {
     const ms = (v: number) => (v >= 1000 ? `${v / 1000}s` : `${v}ms`);
     const charts = summary.sweeps.length
       ? {
-          time: logChart(types.map((t) => ({ name: t, points: summary.sweeps.filter((p) => p.type === t && p.chars).map((p) => [p.chars, p.totalMs] as [number, number]) })), { xLabel: "characters of extracted text", yLabel: "check time", yFormat: ms, hLines: [{ y: 1000, label: "1 s" }, { y: 5000, label: "5 s" }] }),
-          memory: logChart(types.map((t) => ({ name: t, points: summary.sweeps.filter((p) => p.type === t && p.chars && p.deltaMb).map((p) => [p.chars, Math.max(1, p.deltaMb!)] as [number, number]) })), { xLabel: "characters of extracted text", yLabel: "peak MB over baseline" }),
+          time: logChart(types.map((t) => ({ name: t, points: summary.sweeps.filter((p) => p.type === t && p.outcome === "checked").map((p) => [p.chars, p.totalMs] as [number, number]) })), { xLabel: "characters of extracted text", yLabel: "check time", yFormat: ms, hLines: [{ y: 1000, label: "1 s" }, { y: 5000, label: "5 s" }] }),
+          memory: logChart(types.map((t) => ({ name: t, points: summary.sweeps.filter((p) => p.type === t && p.outcome === "checked" && p.deltaMb).map((p) => [p.chars, Math.max(1, p.deltaMb!)] as [number, number]) })), { xLabel: "characters of extracted text", yLabel: "peak MB over baseline" }),
           perType: Object.fromEntries(
             types.map((t) => {
               const pts = summary.sweeps.filter((p) => p.type === t);

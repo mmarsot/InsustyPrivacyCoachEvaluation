@@ -370,7 +370,7 @@ export function summarizeDocs(results: DocJobResult[], configs: ConfigName[], re
       detectMsP50: p50(rows.map((r) => r.timing.detectMs[configs[0]!] ?? 0)),
       redactMsP50: redacts.length ? p50(redacts) : null,
     };
-  });
+  }).filter((t) => t.cases > 0);
   return {
     ref: ref.ref,
     sha: ref.sha,
