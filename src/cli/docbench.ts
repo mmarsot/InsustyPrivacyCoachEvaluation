@@ -9,7 +9,7 @@
  *                       [--formats docx,pdf,...] [--kinds positive,negative,failure]
  *                       [--sweep-types txt,csv,docx,xlsx,pptx,pdf,odt,ods,zip|all]
  *                       [--configs default,all] [--seed 1] [--reps 3]
- *                       [--ai smollm2-360m] [--ai-tier smoke|quick|full] [--ai-sizes 1000,5000,20000,50000]
+ *                       [--ai [default|smollm2-360m,...]] [--ai-tier smoke|quick|full] [--ai-sizes 1000,5000,20000,50000]
  *                       [--name <run name>] [--max-rss-mb 3000] [--dry-run] [--cached-only]
  *   npm run bench -- --track docbench ...        (same arguments)
  *   npm run docbench -- --compare-runs runs/docbench/<A> runs/docbench/<B>
@@ -46,7 +46,7 @@ import { findLabModel } from "../lab/models.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "../lab/runtime.ts";
 import { ACTIVE_RUNS_DIR, CACHE_DIR } from "../paths.ts";
 import { cacheFile, loadCache } from "../run/jobs.ts";
-import { formatDuration as fmt, parseDocbenchArgs, planDocbench, type DocbenchOptions } from "../run/plan.ts";
+import { formatDuration as fmt, MODELS, parseDocbenchArgs, planDocbench, type DocbenchOptions } from "../run/plan.ts";
 import type { WorkerSpec } from "../run/worker.ts";
 
 /** Rough seconds per job before anything is cached (suite: per case; sweeps: per point, by type). */
@@ -80,14 +80,21 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
 
   // Private AI track: documents read now (cheap); the model jobs run below.
   let ai: { ext: Awaited<ReturnType<typeof materializeExtRef>>; extApi: Awaited<ReturnType<typeof loadExtApi>>; docs: Awaited<ReturnType<typeof readAiDocs>>; dataset: NonNullable<ReturnType<typeof compileDataset>["dataset"]> } | undefined;
-  if (o.tracks.includes("ai") && o.aiModels.length) {
+  let aiModels = o.aiModels;
+  if (o.tracks.includes("ai")) {
     const { dataset } = compileDataset({ requireSplit: true });
     if (!dataset) throw new Error("dataset is invalid: run `npm run validate`");
     const ext = await materializeExtRef(repo, refName);
     const extApi = await loadExtApi(ext.bundle);
+    if (!aiModels.length) {
+      // The ref's own default model, as a new user gets it.
+      const own = MODELS.find((m) => m.id === extApi.defaultModelId);
+      if (!own) throw new Error(`The ref's default model ${extApi.defaultModelId} is not in models/models.json.`);
+      aiModels = [own];
+    }
     const docs = await readAiDocs(aiSpecs(aiCases(dataset, o.aiTier), o.aiSizes), dataset, api, o.seed);
     ai = { ext, extApi, docs, dataset };
-    for (const m of o.aiModels) {
+    for (const m of aiModels) {
       const jobs = aiJobs(docs, dataset, ext, extApi, m.id);
       const done = loadCache(ext.sha, m.id);
       const pending = jobs.filter((j) => !done.has(j.key));
@@ -152,7 +159,7 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
   // ------------------------------------------------------------ Private AI
   let aiPoints: AiPoint[] = [];
   if (ai) {
-    for (const m of o.aiModels) {
+    for (const m of aiModels) {
       const jobs = aiJobs(ai.docs, ai.dataset, ai.ext, ai.extApi, m.id);
       const pending = jobs.filter((j) => !loadCache(ai.ext.sha, m.id).has(j.key));
       if (pending.length && !o.cachedOnly) {
@@ -199,7 +206,7 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
     sweepPoints: plan.sweeps.length,
     missing,
     verifier: { pdftotext: !!pdftotext() },
-    ...(ai ? { ai: { models: o.aiModels.map((m) => m.id), sizes: o.aiSizes, tier: o.aiTier, bench: { sha: ai.ext.sha, kind: ai.extApi.kind } } } : {}),
+    ...(ai ? { ai: { models: aiModels.map((m) => m.id), sizes: o.aiSizes, tier: o.aiTier, bench: { sha: ai.ext.sha, kind: ai.extApi.kind } } } : {}),
     node: process.versions.node,
     machine: `${cpus()[0]?.model ?? "cpu"} x${cpus().length}, ${(totalmem() / 2 ** 30).toFixed(1)} GiB RAM, ${process.platform}`,
     startedAt: startedAt.toISOString(),

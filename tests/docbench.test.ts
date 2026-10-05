@@ -123,6 +123,12 @@ test("plan: stable keys per ref, tiers and filters", () => {
   assert.throws(() => parseDocbenchArgs(["--configs", "nope"]));
   assert.throws(() => parseDocbenchArgs(["--ai", "no-such-model"]));
   assert.deepEqual(parseDocbenchArgs(["--ai", "smollm2-360m"]).tracks, ["suite", "sweep", "ai"]);
+  // `--ai` alone, or `default`: the ref's own default model, resolved at run time.
+  for (const argv of [["--ai"], ["--ai", "--tier", "smoke"], ["--ai", "default"]]) {
+    const o = parseDocbenchArgs(argv);
+    assert.deepEqual(o.aiModels, []);
+    assert.ok(o.tracks.includes("ai"));
+  }
 });
 
 test("dashboard finds docbench runs however they were started", () => {

@@ -81,7 +81,7 @@ export class DocDashboard {
         const recent = done.map((j) => cache.get(j.key)!).sort((a, b) => b.at.localeCompare(a.at));
         return { total: jobs.length, done: done.length, last: recent[0] ? { id: recent[0].jobId, at: recent[0].at, outcome: recent[0].read.outcome, ms: recent[0].timing.readMs } : null };
       };
-      return { ...base, sha: l.sha, tier: l.options!.tier, suite: part(l.plan.suite), sweeps: part(l.plan.sweeps), ai: l.options!.tracks.includes("ai") ? l.options!.aiModels.map((m) => m.short) : [] };
+      return { ...base, sha: l.sha, tier: l.options!.tier, suite: part(l.plan.suite), sweeps: part(l.plan.sweeps), ai: l.options!.tracks.includes("ai") ? (l.options!.aiModels.length ? l.options!.aiModels.map((m) => m.short) : ["the ref's default model"]) : [] };
     });
   }
 

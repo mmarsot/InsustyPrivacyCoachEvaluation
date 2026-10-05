@@ -154,6 +154,8 @@ export interface ExtApi {
   defaultPrompt: string;
   generationBudgetMs: number;
   modelIds: string[];
+  /** The model a new user gets (`DEFAULT_SLM_MODEL_ID`, else the first bundled model). */
+  defaultModelId: string;
   /** The instruction text as one string (for display and echo detection). */
   composeReviewInstructions(systemInstruction: string, rules: Rule[]): string;
   /** The prefixes the engine should prepare for these settings. */
@@ -235,6 +237,7 @@ export async function loadExtApi(bundle: string): Promise<ExtApi> {
   const common = {
     generationBudgetMs: (review.SLM_GENERATION_BUDGET_MS as number | undefined) ?? 30_000,
     modelIds: models.map((m) => m.id),
+    defaultModelId: (mod.models?.DEFAULT_SLM_MODEL_ID as string | undefined) ?? models[0]!.id,
     SlmEngine: need(mod.engine?.SlmEngine, "SlmEngine") as ExtApi["SlmEngine"],
   };
   type Fn = (...args: unknown[]) => unknown;

@@ -33,7 +33,7 @@ baseline on `main` @ `2aece81` and what it shows are in the README
 npm run docbench -- --ref main                          # suite + quick sweeps, ~5 min
 npm run docbench -- --ref main --tier full              # sweeps up to the caps (300k words, 100k rows, 500 pages, 4,000 entries)
 npm run docbench -- --ref main --compare <branch>       # two refs + runs/docbench/compare-<A>-vs-<B>.html
-npm run docbench -- --ref main --ai smollm2-360m        # adds Private AI on documents (a model, minutes to hours)
+npm run docbench -- --ref main --ai                     # adds Private AI on documents with the ref's default model (minutes to hours)
 npm run docbench -- --dry-run                           # plan and estimate only
 npm run docbench -- --validate                          # generate every case and check its ground truth
 npm run bench -- --track docbench --ref main            # the same, from npm run bench
@@ -45,7 +45,8 @@ English positive cases), `--tracks suite,sweep,ai`, `--formats docx,pdf,...`
 (families or extensions), `--kinds positive,negative,failure`,
 `--sweep-types txt,csv,docx,xlsx,pptx,pdf,odt,ods,zip`, `--configs
 default,all`, `--seed 1`, `--reps 3` (timing repetitions per sweep point,
-median kept), `--ai <models>`, `--ai-tier smoke|quick|full` (default smoke) and
+median kept), `--ai [default|<models>]` (alone or `default`: the ref's own default
+model, `DEFAULT_SLM_MODEL_ID`), `--ai-tier smoke|quick|full` (default smoke) and
 `--ai-sizes 1000,5000,20000,50000`,
 `--name`, `--max-rss-mb 3000`, `--cached-only`, `--ext-repo`.
 
@@ -215,7 +216,8 @@ Per format × zone (positive cases), per configuration:
 
 ### Private AI on documents
 
-With `--ai <model>`, dev-split custom-label cases (`--ai-tier smoke`, the
+With `--ai` (the ref's default model, SmolLM2-360M at `2aece81`, or the
+bundled models named after it), dev-split custom-label cases (`--ai-tier smoke`, the
 default: dev and finance, EN; `quick`: every profile, EN and FR, one clear
 positive each; `full`: plus one look-alike negative) are put in the middle of Word documents of
 `--ai-sizes` characters of neutral filler, read by the ref's reader and

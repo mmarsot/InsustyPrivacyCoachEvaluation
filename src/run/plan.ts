@@ -186,7 +186,10 @@ export interface DocbenchOptions {
   dryRun: boolean;
   cachedOnly: boolean;
   maxRssMb: number;
-  /** Private AI review of documents: bundled models (by short name), none by default. */
+  /**
+   * Private AI review of documents: bundled models by short name. Empty with the
+   * `ai` track on means the ref's own default model (`DEFAULT_SLM_MODEL_ID`).
+   */
   aiModels: ModelInfo[];
   /** Document sizes (characters of extracted text) for the Private AI track. */
   aiSizes: number[];
@@ -212,7 +215,9 @@ export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
   for (const c of configs) if (c !== "default" && c !== "all") bad(`unknown config ${c} (default, all)`);
   const kinds = list(opt("kinds", "positive,negative,failure")) as DocbenchOptions["kinds"];
   for (const k of kinds) if (!["positive", "negative", "failure"].includes(k)) bad(`unknown kind ${k}`);
-  const aiArg = opt("ai");
+  // `--ai` alone (or `--ai default`) runs the ref's default model; `--ai smollm2-360m,...` named bundled models.
+  const aiAt = argv.indexOf("--ai");
+  const aiArg = aiAt < 0 ? undefined : argv[aiAt + 1] && !argv[aiAt + 1]!.startsWith("--") ? argv[aiAt + 1]! : "default";
   const tracks = list(opt("tracks", aiArg ? "suite,sweep,ai" : "suite,sweep")) as DocbenchOptions["tracks"];
   for (const t of tracks) if (!["suite", "sweep", "ai"].includes(t)) bad(`unknown track ${t} (suite, sweep, ai)`);
   const sweepArg = opt("sweep-types", "all")!;
@@ -237,7 +242,7 @@ export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
     dryRun: flag("dry-run"),
     cachedOnly: flag("cached-only"),
     maxRssMb: Number(opt("max-rss-mb", "3000")),
-    aiModels: list(aiArg).map((m) => MODELS.find((x) => x.short === m || x.id === m) ?? bad(`unknown model ${m} (Private AI track: bundled models only)`)),
+    aiModels: list(aiArg === "default" ? undefined : aiArg).map((m) => MODELS.find((x) => x.short === m || x.id === m) ?? bad(`unknown model ${m} (Private AI track: bundled models only)`)),
     aiSizes: list(opt("ai-sizes", "1000,5000,20000,50000")).map(Number),
     aiTier: ((): DocTier => {
       const t = opt("ai-tier", "smoke")!;
