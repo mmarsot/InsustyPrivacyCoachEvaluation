@@ -54,7 +54,7 @@ interface Lockfile {
 }
 
 const packageName = (spec: string) => (spec.startsWith("@") ? spec.split("/").slice(0, 2).join("/") : spec.split("/")[0]!);
-const isBuiltin = (spec: string) => spec.startsWith("node:") || builtinModules.includes(packageName(spec));
+export const isBuiltin = (spec: string) => spec.startsWith("node:") || builtinModules.includes(packageName(spec));
 
 /**
  * The lockfile entries needed to install `names` and their dependencies,
@@ -99,7 +99,7 @@ export function lockSubset(lock: Lockfile, names: string[]): Record<string, Lock
 }
 
 /** Lists the bare package imports reachable from `entry`. */
-async function importedPackages(entry: string): Promise<string[]> {
+export async function importedPackages(entry: string): Promise<string[]> {
   const found = new Set<string>();
   const collect: Plugin = {
     name: "collect-packages",
@@ -115,7 +115,7 @@ async function importedPackages(entry: string): Promise<string[]> {
 }
 
 /** Installs `names` at the versions locked by the ref into `<dir>/node_modules`. */
-function installLocked(dir: string, names: string[], log: (line: string) => void): Record<string, string> {
+export function installLocked(dir: string, names: string[], log: (line: string) => void): Record<string, string> {
   if (!names.length) return {};
   const depsDir = join(dir, "_deps");
   mkdirSync(depsDir, { recursive: true });

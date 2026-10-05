@@ -23,6 +23,7 @@
     "lab:classify": "tsx src/lab/classify-cli.ts",
     "ablate": "tsx src/lab/ablate.ts",
     "detbench": "tsx src/cli/detbench.ts",
+    "docbench": "tsx src/cli/docbench.ts",
     "hosted:check": "tsx src/hosted/check.ts"
   },
   "dependencies": {
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@types/node": "^22.10.0",
     "onnxruntime-web-next": "npm:onnxruntime-web@1.24.3",
+    "pdf-lib": "1.17.1",
     "typescript": "^5.7.2"
   },
   "overrides": {

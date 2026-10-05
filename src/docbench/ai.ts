@@ -1,0 +1,190 @@
+/**
+ * Private AI redaction on documents: custom-label cases of the review
+ * dataset (`dataset/cases/`, dev split only) embedded in Word documents of
+ * growing length, read by the ref's own document reader, then reviewed by a
+ * bundled model through the existing model runner (`src/run/worker.ts`, one
+ * model at a time, under the memory guards). Results land in the shared
+ * result cache (`cache/results/<sha>/<model>.jsonl`) like any bench job.
+ *
+ * What it measures: recall of the expected passages and review time against
+ * document length, which is the evidence for where the extension's Private
+ * AI size threshold for files (`localAi.fileReviewLimit`, 5,000 to 100,000
+ * characters, 20,000 by default) should sit.
+ */
+import type { CompiledCase, CompiledDataset } from "../dataset/schema.ts";
+import { rulesFor, jobKey, type Job } from "../run/jobs.ts";
+import type { ResultRecord } from "../run/jobs.ts";
+import type { ExtApi } from "../ext/ref.ts";
+import { scoreResult, type Scored } from "../score/score.ts";
+import { fillerParagraphs, rngFor } from "./content.ts";
+import type { DocReaderApi } from "./ext.ts";
+import { readForCheck } from "./pipeline.ts";
+import type { DocTier } from "../run/plan.ts";
+import { writeDocx } from "./writers/ooxml.ts";
+
+export interface AiDocSpec {
+  id: string;
+  caseId: string;
+  profile: string;
+  lang: string;
+  /** Target length of the document's text, in characters. */
+  size: number;
+}
+
+/** Profiles of the smoke tier. */
+const SMOKE_PROFILES = ["dev", "finance"];
+
+/** Cases per tier: dev split; per profile and language, the first clear positive (and, in `full`, the first look-alike negative). */
+export function aiCases(dataset: CompiledDataset, tier: DocTier): CompiledCase[] {
+  const out: CompiledCase[] = [];
+  const profiles = [...new Set(dataset.cases.map((c) => c.profile))].sort();
+  for (const profile of tier === "smoke" ? SMOKE_PROFILES : profiles)
+    for (const lang of tier === "smoke" ? ["en"] : ["en", "fr"])
+      for (const type of tier === "full" ? ["clear_positive", "lookalike_negative"] : ["clear_positive"]) {
+        const c = dataset.cases.filter((x) => x.profile === profile && x.lang === lang && x.type === type && x.split === "dev").sort((a, b) => a.id.localeCompare(b.id))[0];
+        if (c) out.push(c);
+      }
+  return out;
+}
+
+export const aiSpecs = (cases: CompiledCase[], sizes: number[]): AiDocSpec[] =>
+  cases.flatMap((c) => sizes.map((size) => ({ id: `doc:${c.id}:${size}`, caseId: c.id, profile: c.profile, lang: c.lang, size })));
+
+/** A Word document of about `size` characters with the case's text in the middle. */
+export function aiDocument(spec: AiDocSpec, c: CompiledCase, seed: number): Uint8Array {
+  const rng = rngFor(`docbench-ai:${seed}:${spec.id}`);
+  const fillerChars = Math.max(0, spec.size - c.text.length);
+  const paras = fillerParagraphs(c.lang as "en" | "fr", Math.round(fillerChars / 6.2), rng);
+  const middle = Math.floor(paras.length / 2);
+  return writeDocx({ title: c.lang === "en" ? "Working notes" : "Notes de travail", body: [...paras.slice(0, middle), c.text, ...paras.slice(middle)].map((text) => ({ type: "p" as const, text })) });
+}
+
+export interface AiDoc {
+  spec: AiDocSpec;
+  case: CompiledCase;
+  /** The case as found in the document's extracted text: same expected passages, offsets moved. */
+  inDoc: CompiledCase;
+  chars: number;
+  readMs: number;
+}
+
+/** Builds and reads every AI document with the ref's reader. */
+export async function readAiDocs(specs: AiDocSpec[], dataset: CompiledDataset, reader: DocReaderApi, seed: number): Promise<AiDoc[]> {
+  const byId = new Map(dataset.cases.map((c) => [c.id, c]));
+  const out: AiDoc[] = [];
+  for (const spec of specs) {
+    const c = byId.get(spec.caseId)!;
+    const read = await readForCheck(reader, "notes.docx", aiDocument(spec, c, seed));
+    const at = read.text.indexOf(c.text);
+    if (at < 0) throw new Error(`${spec.id}: the case text is not in the extracted document text`);
+    out.push({ spec, case: c, inDoc: { ...c, id: spec.id, text: read.text, spans: c.spans.map((s) => ({ ...s, start: s.start + at, end: s.end + at })) }, chars: read.text.length, readMs: read.readMs });
+  }
+  return out;
+}
+
+/** Bench jobs for the model worker: the ref's shipped instruction and the `desc` label descriptions. */
+export function aiJobs(docs: AiDoc[], dataset: CompiledDataset, ext: { sha: string }, api: ExtApi, model: string): Job[] {
+  const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
+  return docs.map((d) => {
+    const rules = rulesFor(profiles.get(d.case.profile)!, "desc", api.kind === "completion");
+    return {
+      key: jobKey({ extSha: ext.sha, model, systemInstruction: api.defaultPrompt, rules, caseId: d.spec.id, text: d.inDoc.text }),
+      caseId: d.spec.id,
+      model,
+      instruction: "current",
+      labelVariant: "desc",
+      systemInstruction: api.defaultPrompt,
+      rules,
+      text: d.inDoc.text,
+    };
+  });
+}
+
+export interface AiPoint {
+  id: string;
+  model: string;
+  caseId: string;
+  profile: string;
+  lang: string;
+  size: number;
+  chars: number;
+  expected: number;
+  found: number;
+  falsePositives: number;
+  reviewMs: number;
+  requests: number;
+  failure: string;
+  error?: string;
+}
+
+export function scoreAi(docs: AiDoc[], jobs: Job[], records: Map<string, ResultRecord>, dataset: CompiledDataset, api: ExtApi): AiPoint[] {
+  const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
+  const builtin = api.reviewCategories([]);
+  const out: AiPoint[] = [];
+  docs.forEach((d, i) => {
+    const job = jobs[i]!;
+    const record = records.get(job.key);
+    if (!record) return;
+    const s: Scored = scoreResult(d.inDoc, profiles.get(d.case.profile)!, record, builtin, api.composeReviewInstructions(job.systemInstruction, job.rules), api.kind === "completion");
+    out.push({
+      id: d.spec.id,
+      model: job.model,
+      caseId: d.case.id,
+      profile: d.case.profile,
+      lang: d.case.lang,
+      size: d.spec.size,
+      chars: d.chars,
+      expected: s.expected.length,
+      found: s.expected.filter((e) => e.overlap).length,
+      falsePositives: s.predicted.filter((p) => !p.overlap).length,
+      reviewMs: record.reviewMs,
+      requests: record.chunks.length,
+      failure: s.failure,
+      ...(record.error ? { error: record.error } : {}),
+    });
+  });
+  return out;
+}
+
+export interface AiSummary {
+  model: string;
+  /** Per size: recall of expected passages, false positives, median and max review time, timeouts. */
+  bySize: Array<{ size: number; chars: number; cases: number; expected: number; found: number; recall: number | null; falsePositives: number; reviewMsP50: number; reviewMsMax: number; requestsP50: number; errors: number }>;
+  /** Review time = a * chars^b. */
+  fit: { a: number; b: number; r2: number } | null;
+  /** Largest document (characters) whose median review stays within 30 s, 60 s and 120 s, by the fit. */
+  within: Record<string, number | null>;
+}
+
+const p50 = (xs: number[]) => {
+  const s = [...xs].sort((a, b) => a - b);
+  return s.length ? s[Math.floor((s.length - 1) / 2)]! : 0;
+};
+
+export function summarizeAi(points: AiPoint[], fit: (pts: Array<[number, number]>) => { a: number; b: number; r2: number } | null): AiSummary[] {
+  return [...new Set(points.map((p) => p.model))].map((model) => {
+    const mine = points.filter((p) => p.model === model);
+    const sizes = [...new Set(mine.map((p) => p.size))].sort((a, b) => a - b);
+    const bySize = sizes.map((size) => {
+      const at = mine.filter((p) => p.size === size);
+      const expected = at.reduce((n, p) => n + p.expected, 0);
+      const found = at.reduce((n, p) => n + p.found, 0);
+      return {
+        size,
+        chars: Math.round(at.reduce((n, p) => n + p.chars, 0) / at.length),
+        cases: at.length,
+        expected,
+        found,
+        recall: expected ? found / expected : null,
+        falsePositives: at.reduce((n, p) => n + p.falsePositives, 0),
+        reviewMsP50: p50(at.map((p) => p.reviewMs)),
+        reviewMsMax: Math.max(...at.map((p) => p.reviewMs)),
+        requestsP50: p50(at.map((p) => p.requests)),
+        errors: at.filter((p) => p.error).length,
+      };
+    });
+    const f = fit(bySize.map((b) => [b.chars, b.reviewMsP50]));
+    const within = Object.fromEntries([30, 60, 120].map((s) => [`${s}s`, f && f.b > 0 ? Math.round((s * 1000 / f.a) ** (1 / f.b)) : null]));
+    return { model, bySize, fit: f, within };
+  });
+}

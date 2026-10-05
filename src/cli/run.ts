@@ -46,6 +46,17 @@ function fail(message: string): never {
 }
 
 const argv = process.argv.slice(2);
+// `--track docbench`: the document bench (src/cli/docbench.ts), same arguments as `npm run docbench`.
+const trackAt = argv.indexOf("--track");
+if (trackAt >= 0) {
+  const track = argv[trackAt + 1];
+  if (track !== "docbench" && track !== "review") fail("--track must be review (default) or docbench");
+  if (track === "docbench") {
+    const { main } = await import("./docbench.ts");
+    process.exit(await main(argv.filter((_, i) => i !== trackAt && i !== trackAt + 1)));
+  }
+  argv.splice(trackAt, 2);
+}
 let options;
 try {
   options = parseBenchArgs(argv);

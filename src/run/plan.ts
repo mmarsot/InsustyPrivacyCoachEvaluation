@@ -3,12 +3,15 @@
  * job expansion (tier x models x instructions x label variants x cases) and
  * runtime estimates. Given the same arguments, both compute the same job keys.
  */
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import type { CompiledCase, CompiledDataset, Split } from "../dataset/schema.ts";
 import { join } from "node:path";
 import { HOSTED_MODELS } from "../hosted/models.ts";
 import { MODELS_FILE, ROOT } from "../paths.ts";
 import { INSTRUCTION_VARIANTS, isLabelVariant, LABEL_VARIANTS, type InstructionVariant, type LabelVariantId } from "../variants.ts";
+import { GEN_VERSION, SWEEP_TYPES, SWEEP_UNITS, suiteSpecs, sweepSpecs, type DocSpec, type SweepType } from "../docbench/specs.ts";
+import type { DocJob } from "../docbench/types.ts";
 import { cachedTimings, DEFAULT_QUICK_CASES_PER_PROFILE, jobKey, rulesFor, selectCases, TIERS, type Job, type Tier } from "./jobs.ts";
 
 export interface ModelInfo {
@@ -161,3 +164,102 @@ export const estimateSeconds = (m: ModelInfo, pending: number, perCase = seconds
   pending ? m.priorLoadSeconds + pending * perCase * 1.1 : 0;
 export const formatDuration = (s: number) =>
   s < 90 ? `${Math.round(s)} s` : s < 5400 ? `${Math.round(s / 60)} min` : `${(s / 3600).toFixed(1)} h`;
+
+// ------------------------------------------------------------------ document bench (npm run docbench / npm run bench -- --track docbench)
+
+export type DocTier = "smoke" | "quick" | "full";
+export interface DocbenchOptions {
+  tier: DocTier;
+  seed: number;
+  configs: DocConfig[];
+  /** Report families to keep (docx, xlsx, pdf, text, zip...); empty for all. */
+  families: string[];
+  kinds: Array<DocSpec["kind"]>;
+  tracks: Array<"suite" | "sweep" | "ai">;
+  sweepTypes: SweepType[];
+  /** Timing repetitions of each sweep point (the median is kept). */
+  reps: number;
+  ref?: string;
+  compare?: string;
+  extRepo?: string;
+  name?: string;
+  dryRun: boolean;
+  cachedOnly: boolean;
+  maxRssMb: number;
+  /** Private AI review of documents: bundled models (by short name), none by default. */
+  aiModels: ModelInfo[];
+  /** Document sizes (characters of extracted text) for the Private AI track. */
+  aiSizes: number[];
+}
+type DocConfig = "default" | "all";
+
+/** Parses `npm run docbench` arguments. Throws on an unknown value. */
+export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
+  const flag = (name: string) => argv.includes(`--${name}`);
+  const opt = (name: string, fallback?: string) => {
+    const i = argv.indexOf(`--${name}`);
+    return i >= 0 ? argv[i + 1] : fallback;
+  };
+  const list = (value: string | undefined) => (value ? value.split(",").map((s) => s.trim()).filter(Boolean) : []);
+  const bad = (message: string): never => {
+    throw new Error(message);
+  };
+  const tier = (opt("tier", "quick") ?? "quick") as DocTier;
+  if (!["smoke", "quick", "full"].includes(tier)) bad("--tier must be smoke, quick or full");
+  const configs = list(opt("configs", "default,all")) as DocConfig[];
+  for (const c of configs) if (c !== "default" && c !== "all") bad(`unknown config ${c} (default, all)`);
+  const kinds = list(opt("kinds", "positive,negative,failure")) as DocbenchOptions["kinds"];
+  for (const k of kinds) if (!["positive", "negative", "failure"].includes(k)) bad(`unknown kind ${k}`);
+  const aiArg = opt("ai");
+  const tracks = list(opt("tracks", aiArg ? "suite,sweep,ai" : "suite,sweep")) as DocbenchOptions["tracks"];
+  for (const t of tracks) if (!["suite", "sweep", "ai"].includes(t)) bad(`unknown track ${t} (suite, sweep, ai)`);
+  const sweepArg = opt("sweep-types", "all")!;
+  const sweepTypes = (sweepArg === "all" ? [...SWEEP_TYPES] : list(sweepArg)) as SweepType[];
+  for (const s of sweepTypes) if (!(SWEEP_TYPES as readonly string[]).includes(s)) bad(`unknown sweep type ${s} (${SWEEP_TYPES.join(", ")})`);
+  const seed = Number(opt("seed", "1"));
+  const reps = Number(opt("reps", "3"));
+  if (!Number.isInteger(seed) || !Number.isInteger(reps) || reps < 1) bad("--seed and --reps take integers (reps >= 1)");
+  return {
+    tier,
+    seed,
+    configs,
+    families: list(opt("formats")),
+    kinds,
+    tracks,
+    sweepTypes,
+    reps,
+    ref: opt("ref"),
+    compare: opt("compare"),
+    extRepo: opt("ext-repo"),
+    name: opt("name"),
+    dryRun: flag("dry-run"),
+    cachedOnly: flag("cached-only"),
+    maxRssMb: Number(opt("max-rss-mb", "3000")),
+    aiModels: list(aiArg).map((m) => MODELS.find((x) => x.short === m || x.id === m) ?? bad(`unknown model ${m} (Private AI track: bundled models only)`)),
+    aiSizes: list(opt("ai-sizes", "1000,5000,20000,50000")).map(Number),
+  };
+}
+
+/** Bump when scoring changes what a cached result holds (results are recomputed). */
+export const DOC_SCORE_VERSION = 1;
+
+export const docJobKey = (extSha: string, o: Pick<DocbenchOptions, "seed" | "configs">, id: string, spec: unknown) =>
+  createHash("sha256").update(JSON.stringify([extSha, GEN_VERSION, DOC_SCORE_VERSION, o.seed, [...o.configs].sort(), id, spec])).digest("hex");
+
+export interface DocPlan {
+  suite: DocJob[];
+  sweeps: DocJob[];
+}
+
+/** Expands docbench options into jobs for one extension commit. The dashboard rebuilds the same plan from a run's arguments. */
+export function planDocbench(o: DocbenchOptions, extSha: string): DocPlan {
+  let specs = o.tracks.includes("suite") ? suiteSpecs() : [];
+  if (o.tier === "smoke") specs = specs.filter((s) => s.lang === "en" || s.kind !== "positive");
+  if (o.families.length) specs = specs.filter((s) => o.families.includes(s.family) || o.families.includes(s.ext));
+  specs = specs.filter((s) => o.kinds.includes(s.kind));
+  const sweeps = o.tracks.includes("sweep") ? sweepSpecs(o.tier, o.sweepTypes).filter((s) => !o.families.length || o.families.includes(s.type) || o.families.includes(SWEEP_UNITS[s.type].family)) : [];
+  return {
+    suite: specs.map((spec) => ({ key: docJobKey(extSha, o, spec.id, spec), id: spec.id, track: "suite" as const, spec })),
+    sweeps: sweeps.map((sweep) => ({ key: docJobKey(extSha, o, sweep.id, sweep), id: sweep.id, track: "sweep" as const, sweep })),
+  };
+}
