@@ -19,7 +19,10 @@ parts:
 
 Next to it, a **deterministic redaction bench** (`npm run detbench`) measures
 the extension's rule-based detector with no model: see
-[below](#deterministic-redaction-bench).
+[below](#deterministic-redaction-bench). A **document bench**
+(`npm run docbench`) measures how the extension checks attached files (Word,
+Excel, PowerPoint, OpenDocument, PDF, text and zip): see
+[below](#document-bench).
 
 ## Quick start
 
@@ -288,6 +291,36 @@ so FR addresses only too). The four large generated cases are scored apart
   95%→80%, typos in context words 90%→81%, spacing 95%→88%, punctuation
   95%→90%, `.env` rewrites 95%→90%; the others move F1 by 4 points or less.
 
+## Document bench
+
+```bash
+npm run docbench -- --ref main                       # suite + quick size sweeps, a few minutes, no model
+npm run docbench -- --ref main --compare <branch>    # two refs + a comparison page
+npm run docbench -- --ref main --tier full --ai smollm2-360m   # full sweeps + Private AI on documents
+npm run bench -- --track docbench --ref main         # the same from npm run bench
+```
+
+`npm run docbench` runs a ref's own file check (`readFileForCheck`,
+`readDocument` with PDFium and its Office part map, `detectSensitiveData`,
+and its redacted version) on documents generated deterministically from
+`dataset/detbench/` (nothing binary is committed): 156 cases, i.e. labelled
+values in 55 format × zone pairs (Word footnotes, tracked deletions, hidden
+and very hidden sheets, speaker notes, PDF form fields, wrapped and
+hyphenated values, nested zips, metadata...), hard-negative documents
+(bibliographies, diagnostic dumps, invoices, 10,000-row order sheets) and 23
+files that must be reported as not or partly checked (encrypted, scanned,
+signed, zip bombs, macros...). It scores extraction apart from detection,
+false alarms per page and per 10,000 cells, the classification of each file,
+and whether redacted values are really gone from the redacted file (read
+back by an independent reader). Size sweeps per type (words, rows, slides,
+pages, zip entries) give read, detection and redaction time and peak memory
+with fitted scaling; `--ai <model>` adds Private AI review time and recall
+against document length. Results are cached per ref commit; the dashboard's
+Documents view shows them. [docs/docbench.md](docs/docbench.md) has the
+cases, metrics and how to add cases.
+
+BASELINE_PLACEHOLDER
+
 ## Dashboard
 
 ```bash
@@ -303,7 +336,7 @@ process registers in `cache/active-runs/`, and on Linux the dashboard also
 scans `/proc`. It then rebuilds the run's exact plan from its arguments and
 compares it with the cache.
 
-It has six views:
+It has seven views:
 
 - **Live.** One card per bench run in progress, refreshed every 5 s. It shows
   overall done/total and ETA. For each model it shows status
@@ -332,6 +365,12 @@ It has six views:
   metric and by language, with p95 latency and the segment view; tick two
   rows to compare their outputs case by case. Runs in progress appear with
   their partial results (refreshed every 15 s).
+- **Documents.** Document-bench runs (`runs/docbench/`, and runs in
+  progress): overview, extraction and detection per format and zone with a
+  configuration switch, failure files, hard negatives, scaling charts and
+  fits, Private AI curves, a document list with a drill-down (the extracted
+  text with found and missed values), the full report and a comparison of
+  two runs. The Live view also shows a document-bench run's progress.
 
 ### Chat playground
 
@@ -626,7 +665,7 @@ Other commands:
 - `npm run components -- <bench arguments>` scores a completed run of a ref
   with the answer-confidence filter and example patterns (PR #32 and later)
   with each part switched off, by replaying its cached answers (no model).
-- `npm test` runs the scorer, dashboard data, playground and detbench unit
+- `npm test` runs the scorer, dashboard data, playground, detbench and docbench unit
   tests (the playground ones use a fake model process, no weights).
 - `npm run typecheck` runs the type checker.
 
@@ -644,8 +683,9 @@ src/dashboard/  local dashboard (read-only server + static page)
 src/playground/ chat playground: request logic, model host process, its manager
 src/lab/        prompt-engineering lab: configurations, shipped baseline + switches, ablation, renderer, worker, parity check
 src/detbench/   deterministic redaction bench: dataset, perturbations, detector loading, scoring, report
+src/docbench/   document bench: document writers, cases and sweeps, the ref's file check, scoring, report
 experiments/    lab iteration sets, run summaries, ablation tables, LOG.md, REPORT.md, RESEARCH.md
-src/cli/        validate, split, bench, report, compare, detbench
-runs/           committed run outputs (runs/detbench/ for the rule-based detector)
+src/cli/        validate, split, bench, report, compare, detbench, docbench
+runs/           committed run outputs (runs/detbench/ for the rule-based detector, runs/docbench/ for documents)
 cache/          (untracked) model weights, extracted refs, result cache
 ```

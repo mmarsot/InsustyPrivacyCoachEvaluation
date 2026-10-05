@@ -28,7 +28,7 @@ export interface DocRunMeta {
   sweepPoints: number;
   missing: number;
   verifier: { pdftotext: boolean };
-  ai?: { models: string[]; sizes: number[]; bench: { sha: string; kind: string } };
+  ai?: { models: string[]; sizes: number[]; tier?: string; bench: { sha: string; kind: string } };
   node: string;
   machine: string;
   startedAt: string;
@@ -156,7 +156,7 @@ function sweepSection(s: DocSummary, configs: string[]): string {
   const fitRows = s.fits
     .map(
       (f) =>
-        `<tr><td>${esc(f.type)}</td><td>${esc(f.unit)}</td><td class="n">${f.total ? `${f.total.a.toPrecision(3)} · n<sup>${f.total.b.toFixed(2)}</sup>` : "–"}</td><td class="n">${num(f.total?.r2, 3)}</td><td class="n">${f.read ? f.read.b.toFixed(2) : "–"}</td><td class="n">${f.detect ? f.detect.b.toFixed(2) : "–"}</td><td class="n">${f.memory ? `${num(f.memory.c, 0)} + ${f.memory.k.toPrecision(2)}·n` : "–"}</td><td class="n">${num(f.msPerKChar, 2)}</td><td class="n">${f.sizeWithin1s !== null ? big(f.sizeWithin1s) : "–"}</td><td class="n">${f.sizeWithin5s !== null ? big(f.sizeWithin5s) : "–"}</td></tr>`,
+        `<tr><td>${esc(f.type)}</td><td>${esc(f.unit)}</td><td class="n">${f.total ? `${f.total.a.toPrecision(3)} · n<sup>${f.total.b.toFixed(2)}</sup>` : "–"}</td><td class="n">${num(f.total?.r2, 3)}</td><td class="n">${f.read ? f.read.b.toFixed(2) : "–"}</td><td class="n">${f.detect ? f.detect.b.toFixed(2) : "–"}</td><td class="n">${f.memory ? `${num(f.memory.c, 0)} + ${f.memory.k.toPrecision(2)}·n` : "–"}</td><td class="n">${num(f.msPerKChar, 2)}</td><td class="n">${f.sizeWithin1s !== null ? `${f.within1sAtLeast ? "≥ " : ""}${big(f.sizeWithin1s)}` : "–"}</td><td class="n">${f.sizeWithin5s !== null ? `${f.within5sAtLeast ? "≥ " : ""}${big(f.sizeWithin5s)}` : "–"}</td><td class="n">${f.capped?.length ? `<span class="chip warn">${f.capped.map(big).join(", ")}</span>` : ""}</td></tr>`,
     )
     .join("");
   const points = s.sweeps
@@ -166,9 +166,9 @@ function sweepSection(s: DocSummary, configs: string[]): string {
     )
     .join("");
   return `<h2>Speed and scaling</h2>
-<p>Each point is one document checked in its own worker process (median of the timing repetitions), with labelled values at a fixed density. Times are the ref's own steps: <b>read</b> (classify + extract), <b>detect</b> (rules on the whole text), <b>redact</b> (the attached version). Peak memory is the worker's high-water mark during the check minus its resident size before it (the kernel counter is reset per document). Fits are power laws on the log-log points; <i>b</i> ≈ 1 is linear.</p>
+<p>Each point is one document checked in its own worker process (median of the timing repetitions), with labelled values at a fixed density. Times are the ref's own steps: <b>read</b> (classify + extract), <b>detect</b> (rules on the whole text), <b>redact</b> (the attached version). Peak memory is the worker's high-water mark during the check minus its resident size before it (the kernel counter is reset per document). Fits are power laws on the log-log points of fully read documents; <i>b</i> ≈ 1 is linear. Sizes the ref read only in part (its 2 MB text cap, its entry cap) are listed as capped and left out of the fits; "≥" means the budget was not reached at the largest size measured.</p>
 <div class="grid">${charts}${charsChart}</div>
-<h3>Fitted scaling per type</h3><table><tr><th>Type</th><th>Size unit</th><th class="n">Total ms ≈ a · n<sup>b</sup></th><th class="n">R²</th><th class="n">b (read)</th><th class="n">b (detect)</th><th class="n">Peak MB ≈</th><th class="n">ms / 1k chars (largest)</th><th class="n">Size within 1 s</th><th class="n">Size within 5 s</th></tr>${fitRows}</table>
+<h3>Fitted scaling per type</h3><table><tr><th>Type</th><th>Size unit</th><th class="n">Total ms ≈ a · n<sup>b</sup></th><th class="n">R²</th><th class="n">b (read)</th><th class="n">b (detect)</th><th class="n">Peak MB ≈</th><th class="n">ms / 1k chars (largest)</th><th class="n">Size within 1 s</th><th class="n">Size within 5 s</th><th class="n" title="read only in part (a text or entry cap): left out of the fits">Capped sizes</th></tr>${fitRows}</table>
 <h3>Points</h3><div class="scroll"><table><tr><th>Type</th><th class="n">Size</th><th class="n">File</th><th class="n">Chars</th><th>Read as</th><th class="n">Read</th>${configs.map((c) => `<th class="n">Detect (${c})</th>`).join("")}<th class="n">Redact</th><th>Redacted as</th><th class="n">Total</th><th class="n">Peak MB</th><th class="n">Δ MB</th><th class="n">Extracted</th>${configs.map((c) => `<th class="n">Found (${c})</th><th class="n">False alarms (${c})</th>`).join("")}</tr>${points}</table></div>`;
 }
 
@@ -205,7 +205,7 @@ export function renderDocReport(meta: DocRunMeta, s: DocSummary, suite: DocJobRe
 <tr><td>Hard-negative documents with a false alarm</td>${configs.map((c) => `<td class="n">${o.negatives[c]?.docsWithFalseAlarm ?? 0}/${o.negatives[c]?.docs ?? 0} (${o.negatives[c]?.falseAlarms ?? 0} false alarms)</td>`).join("")}</tr>
 <tr><td>Failure files reported correctly</td><td class="n" colspan="${configs.length}">${o.failures.ok}/${o.failures.cases}${o.failures.silentClean ? ` <span class="chip bad">${o.failures.silentClean} silent clean</span>` : ` <span class="chip ok">no silent clean</span>`}</td></tr>
 <tr><td>All cases read as expected</td><td class="n" colspan="${configs.length}">${o.classification.ok}/${o.classification.cases}</td></tr>
-<tr><td>PDF redaction: in place / fallback to text copy</td><td class="n" colspan="${configs.length}">${o.pdfRedaction.inPlace} / ${o.pdfRedaction.fallback}${o.pdfRedaction.error ? ` / ${o.pdfRedaction.error} errors` : ""}</td></tr></table>`;
+<tr><td>PDF redaction (${esc(configs[0])}): in place / fallback to the text copy</td><td class="n" colspan="${configs.length}">${o.pdfRedaction.inPlace} / ${o.pdfRedaction.fallback} PDFs${o.pdfRedaction.error ? ` / ${o.pdfRedaction.error} errors` : ""}${o.pdfRedaction.failing !== undefined ? ` · findings the ref cannot redact in place: ${o.pdfRedaction.failing}/${o.pdfRedaction.findings} ${Object.entries(o.pdfRedaction.failingByCategory).map(([k, v]) => `<span class="chip warn">${esc(k)} ${v}</span>`).join("")}` : ""}</td></tr></table>`;
   const negatives = s.negatives
     .map(
       (n) =>
@@ -297,9 +297,9 @@ export function docTextSummary(meta: DocRunMeta, s: DocSummary, ai?: AiSummary[]
   const lines = [
     `\nDocbench ${meta.ext.ref} @ ${meta.ext.sha.slice(0, 10)}: ${o.positives} positive documents, ${o.items} values; extraction recall ${pct(o.extractionRecall)}`,
     ...meta.configs.map((c) => `  [${c}] recall ${pct(o.configs[c]?.recall)} (detected ${pct(o.configs[c]?.detectionRecall)} of extracted) · precision ${pct(o.configs[c]?.precision)} · F1 ${pct(o.configs[c]?.f1)} · redacted values gone ${o.configs[c]?.removed}/${o.configs[c]?.redactedLeakFree}${o.configs[c]?.leaked ? `, ${o.configs[c]!.leaked} LEAKED` : ""} · hard-negative false alarms ${o.negatives[c]?.falseAlarms ?? 0} in ${o.negatives[c]?.docsWithFalseAlarm ?? 0}/${o.negatives[c]?.docs ?? 0} docs`),
-    `  failure files reported correctly ${o.failures.ok}/${o.failures.cases}, silent cleans ${o.failures.silentClean}; all cases read as expected ${o.classification.ok}/${o.classification.cases}; PDF redaction in place ${o.pdfRedaction.inPlace}, fallback ${o.pdfRedaction.fallback}`,
+    `  failure files reported correctly ${o.failures.ok}/${o.failures.cases}, silent cleans ${o.failures.silentClean}; all cases read as expected ${o.classification.ok}/${o.classification.cases}; PDF redaction in place ${o.pdfRedaction.inPlace}, fallback ${o.pdfRedaction.fallback} (findings failing alone ${o.pdfRedaction.failing ?? 0}/${o.pdfRedaction.findings ?? 0})`,
     ...s.families.map((f) => `  ${f.family.padEnd(6)} extracted ${pct(f.extractionRecall).padStart(4)} · recall ${meta.configs.map((c) => `${c} ${pct(f.configs[c]?.recall)}`).join(", ")}`),
-    ...s.fits.map((f) => `  sweep ${f.type.padEnd(5)} total ≈ ${f.total ? `${f.total.a.toPrecision(3)}·n^${f.total.b.toFixed(2)} ms` : "–"} per ${f.unit}; ${num(f.msPerKChar, 2)} ms/1k chars; within 5 s up to ${f.sizeWithin5s !== null ? big(f.sizeWithin5s) : "–"} ${f.unit}`),
+    ...s.fits.map((f) => `  sweep ${f.type.padEnd(5)} total ≈ ${f.total ? `${f.total.a.toPrecision(3)}·n^${f.total.b.toFixed(2)} ms` : "–"} per ${f.unit}; ${num(f.msPerKChar, 2)} ms/1k chars; within 5 s up to ${f.sizeWithin5s !== null ? `${f.within5sAtLeast ? "≥ " : ""}${big(f.sizeWithin5s)}` : "–"} ${f.unit}${f.capped?.length ? ` (read in part at ${f.capped.map(big).join(", ")})` : ""}`),
     ...(ai ?? []).map((m) => `  Private AI ${m.model.replace(/^.*\//, "")}: ${m.bySize.map((b) => `${big(b.chars)} chars → recall ${pct(b.recall)}, ${ms(b.reviewMsP50)}`).join("; ")}`),
   ];
   return lines.join("\n");

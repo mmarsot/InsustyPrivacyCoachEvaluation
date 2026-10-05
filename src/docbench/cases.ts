@@ -247,6 +247,27 @@ async function buildPositive(c: Ctx): Promise<Built> {
       const d = decoyFields(c);
       return { bytes: await writePdf({ blocks: [...paragraphs([title(lang), ...fill]), { type: "table", rows: fieldRows(c, f, d) }], info }), units: [...f, ...d], texts: fill };
     }
+    if (z === "inline") {
+      // Values with more text after them on the same line (the other field zones end the line with the value).
+      // Prefixes and tails vary, so the values land at varied positions on their lines.
+      const f = fields(c, 10);
+      const heads = lang === "en" ? ["", "Note:", "Updated -", "As agreed,", "Ref."] : ["", "Note :", "Mis à jour -", "Comme convenu,", "Réf."];
+      const tails = lang === "en" ? ["(checked on the last review)", "today", "and the rest is unchanged.", "- keep it up to date", "now"] : ["(vérifié lors de la dernière revue)", "aujourd'hui", "et le reste ne change pas.", "- à tenir à jour", "maintenant"];
+      const lines = f.map((u, i) => `${heads[i % heads.length]} ${fieldLine(u)} ${tails[(i * 3) % tails.length]}`.trim());
+      return { bytes: await writePdf({ blocks: paragraphs([title(lang), ...fill, ...lines]), info }), units: f, texts: fill };
+    }
+    if (z === "inline_email") {
+      // Emails followed by more text on the same line: the ref's PDF redaction refuses some of them (see the redaction probe).
+      // Regression case: at 2aece81 an email starting with "j" with text after it on its line cannot be redacted in place
+      // ("Text is still readable under a box"), so the whole PDF falls back to its text copy. Up to 4 of those, then others.
+      const all = c.pools.fields[lang].filter((u) => u.items[0]?.category === "EMAIL");
+      const jEmails = pickUnits(all.filter((u) => /^j/i.test(u.field!.value)), 4, c.rng, c.taken);
+      const emails = [...jEmails, ...pickUnits(all, 12 - jEmails.length, c.rng, c.taken)];
+      const heads = lang === "en" ? ["Mail", "Please write to", "Contact:", "cc", "Send it to", "Ask"] : ["Mail", "Merci d'écrire à", "Contact :", "cc", "Envoyer à", "Demander à"];
+      const tails = lang === "en" ? ["now", "today about the order.", "(sales)", "and keep me in copy.", "x", "for the invoice"] : ["maintenant", "aujourd'hui pour la commande.", "(ventes)", "et me mettre en copie.", "x", "pour la facture"];
+      const lines = emails.map((u, i) => `${heads[i % heads.length]} ${u.field!.value} ${tails[(i * 5) % tails.length]}`);
+      return { bytes: await writePdf({ blocks: paragraphs([title(lang), ...fill, ...lines]), info }), units: emails, texts: fill };
+    }
     if (z === "line_wrapped" || z === "hyphenated") {
       const hyphen = z === "hyphenated";
       const pool = c.pools.fields[lang].filter((u) => (hyphen ? !u.field!.value.includes(" ") && u.field!.value.length >= 8 : u.field!.value.includes(" ")));

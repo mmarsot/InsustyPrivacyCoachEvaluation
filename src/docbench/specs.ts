@@ -12,7 +12,7 @@ import type { Lang, Unit } from "./content.ts";
  * Generator version: part of every job key. Bump it whenever a writer or a
  * builder changes what a document holds, so cached results are recomputed.
  */
-export const GEN_VERSION = 1;
+export const GEN_VERSION = 3;
 
 /** Reporting families. */
 export const FORMATS = ["docx", "xlsx", "pptx", "odt", "ods", "odp", "pdf", "text", "zip", "other"] as const;
@@ -57,7 +57,7 @@ export const ZONES: Record<string, { family: DocFamily; ext: string; zones: stri
   odt: { family: "odt", ext: "odt", zones: ["body", "table_cell", "header", "footer", "comment", "tracked_deletion", "metadata"] },
   ods: { family: "ods", ext: "ods", zones: ["cell", "hidden_sheet", "cell_comment", "metadata"] },
   odp: { family: "odp", ext: "odp", zones: ["slide", "speaker_notes"] },
-  pdf: { family: "pdf", ext: "pdf", zones: ["page", "table_cell", "two_column", "line_wrapped", "hyphenated", "form_field", "annotation", "bookmark", "metadata"] },
+  pdf: { family: "pdf", ext: "pdf", zones: ["page", "inline", "inline_email", "table_cell", "two_column", "line_wrapped", "hyphenated", "form_field", "annotation", "bookmark", "metadata"] },
   txt: { family: "text", ext: "txt", zones: ["body"] },
   md: { family: "text", ext: "md", zones: ["body"] },
   csv: { family: "text", ext: "csv", zones: ["cell"] },

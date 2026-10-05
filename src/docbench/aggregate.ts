@@ -113,9 +113,14 @@ export interface SweepFit {
   memory: { c: number; k: number; r2: number } | null;
   /** Time per 1,000 characters of extracted text at the largest point. */
   msPerKChar: number | null;
-  /** Largest size whose total check time stays within 1 s and within 5 s (from the fit). */
+  /** Largest size whose total check time stays within 1 s and within 5 s (from the fit, at most the largest fitted size). */
   sizeWithin1s: number | null;
   sizeWithin5s: number | null;
+  /** The budget was not reached within the measured sizes: the size is a lower bound. */
+  within1sAtLeast: boolean;
+  within5sAtLeast: boolean;
+  /** Points left out of the fits: the ref read only part of them (a text cap, an entry cap). */
+  capped: number[];
 }
 
 export interface DocSummary {
@@ -130,7 +135,8 @@ export interface DocSummary {
     classification: { cases: number; ok: number; accuracy: number | null; silentClean: number };
     failures: { cases: number; ok: number; accuracy: number | null; silentClean: number };
     negatives: Record<string, { falseAlarms: number; docs: number; docsWithFalseAlarm: number }>;
-    pdfRedaction: { inPlace: number; fallback: number; textCopy: number; error: number };
+    /** PDFs with findings (first configuration): redacted in place or fallen back to the text copy, and the findings that fail alone. */
+    pdfRedaction: { inPlace: number; fallback: number; textCopy: number; error: number; findings: number; failing: number; failingByCategory: Record<string, number>; failingExamples: string[] };
   };
   zones: ZoneMetrics[];
   families: ZoneMetrics[];
@@ -216,11 +222,12 @@ function linearFit(points: Array<[number, number]>): { c: number; k: number; r2:
   return { c: my - k * mx, k, r2: syy ? (sxy * sxy) / (sxx * syy) : 1 };
 }
 
-/** Largest size within `ms` by the fit, clamped to 10x the largest measured size. */
-const sizeWithin = (fit: PowerFit | null, ms: number, maxMeasured: number) => {
-  if (!fit || fit.b <= 0) return null;
+/** Largest size within `ms` by the fit, never past the largest measured size (then a lower bound). */
+const sizeWithin = (fit: PowerFit | null, ms: number, maxMeasured: number): { size: number | null; atLeast: boolean } => {
+  if (!fit || fit.b <= 0) return { size: null, atLeast: false };
   const s = (ms / fit.a) ** (1 / fit.b);
-  return Number.isFinite(s) ? Math.round(Math.min(s, maxMeasured * 10)) : null;
+  if (!Number.isFinite(s)) return { size: null, atLeast: false };
+  return s >= maxMeasured ? { size: maxMeasured, atLeast: true } : { size: Math.round(s), atLeast: false };
 };
 
 export function summarizeDocs(results: DocJobResult[], configs: ConfigName[], ref: { ref: string; sha: string }): DocSummary {
@@ -229,7 +236,8 @@ export function summarizeDocs(results: DocJobResult[], configs: ConfigName[], re
   const byZone = new Map<string, DocJobResult[]>();
   const byFamily = new Map<string, DocJobResult[]>();
   for (const r of positives) {
-    const zkey = `${r.spec.family}\u0000${r.spec.zone}`;
+    // Text-like files share zone names (body, cell): keep each extension apart.
+    const zkey = `${r.spec.family}\u0000${r.spec.family === "text" ? `${r.spec.ext} ${r.spec.zone}` : r.spec.zone}`;
     byZone.set(zkey, [...(byZone.get(zkey) ?? []), r]);
     byFamily.set(r.spec.family, [...(byFamily.get(r.spec.family) ?? []), r]);
   }
@@ -284,13 +292,19 @@ export function summarizeDocs(results: DocJobResult[], configs: ConfigName[], re
     ...(r.read.error ? { error: r.read.error } : {}),
   }));
   const failures = classification.filter((c) => c.kind === "failure");
-  const pdfModes = { inPlace: 0, fallback: 0, textCopy: 0, error: 0 };
+  const pdfModes = { inPlace: 0, fallback: 0, textCopy: 0, error: 0, findings: 0, failing: 0, failingByCategory: {} as Record<string, number>, failingExamples: [] as string[] };
   for (const r of suite.filter((x) => x.read.redaction === "pdf")) {
     const m = r.configs[configs[0]!]?.redaction.mode;
     if (m === "in_place") pdfModes.inPlace++;
     else if (m === "fallback_text_copy") pdfModes.fallback++;
     else if (m === "text_copy") pdfModes.textCopy++;
     else if (m === "error") pdfModes.error++;
+    if (m && m !== "none") pdfModes.findings += r.configs[configs[0]!]?.selected ?? 0;
+    for (const f of r.configs[configs[0]!]?.redaction.failing ?? []) {
+      pdfModes.failing++;
+      pdfModes.failingByCategory[f.category] = (pdfModes.failingByCategory[f.category] ?? 0) + 1;
+      if (pdfModes.failingExamples.length < 8) pdfModes.failingExamples.push(`${f.category}: ${f.value}`);
+    }
   }
   const sweeps: SweepPoint[] = results
     .filter((r) => r.track === "sweep" && r.sweep)
@@ -322,10 +336,14 @@ export function summarizeDocs(results: DocJobResult[], configs: ConfigName[], re
     })
     .sort((a, b) => a.type.localeCompare(b.type) || a.size - b.size);
   const fits: SweepFit[] = [...new Set(sweeps.map((s) => s.type))].map((type) => {
-    const pts = sweeps.filter((s) => s.type === type);
+    const all = sweeps.filter((s) => s.type === type);
+    // A point the ref read only in part (2 MB text cap, entry cap) does not measure its size: left out of the fits.
+    const pts = all.filter((s) => s.outcome === "checked");
     const first = configs[0]!;
     const total = powerFit(pts.map((s) => [s.size, s.totalMs]));
-    const largest = pts[pts.length - 1]!;
+    const largest = pts[pts.length - 1] ?? all[all.length - 1]!;
+    const w1 = sizeWithin(total, 1000, largest.size);
+    const w5 = sizeWithin(total, 5000, largest.size);
     const memPts = pts.filter((s) => s.deltaMb !== null).map((s) => [s.size, s.deltaMb!] as [number, number]);
     return {
       type,
@@ -335,8 +353,11 @@ export function summarizeDocs(results: DocJobResult[], configs: ConfigName[], re
       total,
       memory: linearFit(memPts),
       msPerKChar: largest.chars ? (largest.totalMs * 1000) / largest.chars : null,
-      sizeWithin1s: sizeWithin(total, 1000, largest.size),
-      sizeWithin5s: sizeWithin(total, 5000, largest.size),
+      sizeWithin1s: w1.size,
+      sizeWithin5s: w5.size,
+      within1sAtLeast: w1.atLeast,
+      within5sAtLeast: w5.atLeast,
+      capped: all.filter((s) => s.outcome !== "checked").map((s) => s.size),
     };
   });
   const timing = [...new Set(suite.map((r) => r.spec.family))].map((family) => {

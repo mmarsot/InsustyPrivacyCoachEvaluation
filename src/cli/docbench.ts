@@ -9,7 +9,7 @@
  *                       [--formats docx,pdf,...] [--kinds positive,negative,failure]
  *                       [--sweep-types txt,csv,docx,xlsx,pptx,pdf,odt,ods,zip|all]
  *                       [--configs default,all] [--seed 1] [--reps 3]
- *                       [--ai smollm2-360m] [--ai-sizes 1000,5000,20000,50000]
+ *                       [--ai smollm2-360m] [--ai-tier smoke|quick|full] [--ai-sizes 1000,5000,20000,50000]
  *                       [--name <run name>] [--max-rss-mb 3000] [--dry-run] [--cached-only]
  *   npm run bench -- --track docbench ...        (same arguments)
  *   npm run docbench -- --compare-runs runs/docbench/<A> runs/docbench/<B>
@@ -32,6 +32,7 @@ import { DET_CATEGORIES } from "../detbench/schema.ts";
 import { mapCategory } from "../detbench/ext.ts";
 import { aiCases, aiJobs, aiSpecs, readAiDocs, scoreAi, summarizeAi, type AiPoint, type AiSummary } from "../docbench/ai.ts";
 import { docCsv, powerFit, summarizeDocs, type DocSummary } from "../docbench/aggregate.ts";
+import { DOCBENCH_RUNS_DIR, docCacheFile, loadDocCache } from "../docbench/cache.ts";
 import { buildDoc } from "../docbench/cases.ts";
 import { loadPools } from "../docbench/content.ts";
 import { loadDocReader, materializeDocReader } from "../docbench/ext.ts";
@@ -43,30 +44,10 @@ import type { DocWorkerSpec } from "../docbench/worker.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo } from "../ext/ref.ts";
 import { findLabModel } from "../lab/models.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "../lab/runtime.ts";
-import { ACTIVE_RUNS_DIR, CACHE_DIR, RUNS_DIR } from "../paths.ts";
+import { ACTIVE_RUNS_DIR, CACHE_DIR } from "../paths.ts";
 import { cacheFile, loadCache } from "../run/jobs.ts";
 import { formatDuration as fmt, parseDocbenchArgs, planDocbench, type DocbenchOptions } from "../run/plan.ts";
 import type { WorkerSpec } from "../run/worker.ts";
-
-export const DOCBENCH_RUNS_DIR = join(RUNS_DIR, "docbench");
-export const DOC_RESULTS_DIR = join(CACHE_DIR, "docbench", "results");
-export const docCacheFile = (sha: string) => join(DOC_RESULTS_DIR, `${sha}.jsonl`);
-
-/** Cached results of one ref, by job key (the last line for a key wins). */
-export function loadDocCache(sha: string): Map<string, DocJobResult> {
-  const map = new Map<string, DocJobResult>();
-  const file = docCacheFile(sha);
-  if (!existsSync(file)) return map;
-  for (const line of readFileSync(file, "utf8").split("\n"))
-    if (line.trim())
-      try {
-        const r = JSON.parse(line) as DocJobResult;
-        map.set(r.key, r);
-      } catch {
-        /* a line cut by a killed worker */
-      }
-  return map;
-}
 
 /** Rough seconds per job before anything is cached (suite: per case; sweeps: per point, by type). */
 const PRIOR_SUITE_S = 0.15;
@@ -104,7 +85,7 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
     if (!dataset) throw new Error("dataset is invalid: run `npm run validate`");
     const ext = await materializeExtRef(repo, refName);
     const extApi = await loadExtApi(ext.bundle);
-    const docs = await readAiDocs(aiSpecs(aiCases(dataset, o.tier), o.aiSizes), dataset, api, o.seed);
+    const docs = await readAiDocs(aiSpecs(aiCases(dataset, o.aiTier), o.aiSizes), dataset, api, o.seed);
     ai = { ext, extApi, docs, dataset };
     for (const m of o.aiModels) {
       const jobs = aiJobs(docs, dataset, ext, extApi, m.id);
@@ -122,6 +103,11 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
   writeFileSync(activeFile, JSON.stringify({ pid: process.pid, name: runName, argv: ["--track", "docbench", ...argv], track: "docbench", startedAt: startedAt.toISOString() }));
   const cleanup = () => rmSync(activeFile, { force: true });
   process.on("exit", cleanup);
+  for (const signal of ["SIGINT", "SIGTERM"] as const)
+    process.once(signal, () => {
+      cleanup();
+      process.exit(130);
+    });
   const tmp = join(CACHE_DIR, "tmp");
   mkdirSync(tmp, { recursive: true });
   const supported = SUPPORTED(api.refCategories);
@@ -158,7 +144,8 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
     }
     for (const job of pendingSweeps) {
       const big = job.sweep!.size / Math.max(...plan.sweeps.filter((s) => s.sweep!.type === job.sweep!.type).map((s) => s.sweep!.size));
-      await runWorker(job.id, [job], Math.round(300 + 900 * big));
+      // Measured peaks on the full tier stay under ~600 MB (a 100,000-row sheet); the margin is added on top.
+      await runWorker(job.id, [job], Math.round(250 + 450 * big));
     }
   }
 
@@ -212,7 +199,7 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
     sweepPoints: plan.sweeps.length,
     missing,
     verifier: { pdftotext: !!pdftotext() },
-    ...(ai ? { ai: { models: o.aiModels.map((m) => m.id), sizes: o.aiSizes, bench: { sha: ai.ext.sha, kind: ai.extApi.kind } } } : {}),
+    ...(ai ? { ai: { models: o.aiModels.map((m) => m.id), sizes: o.aiSizes, tier: o.aiTier, bench: { sha: ai.ext.sha, kind: ai.extApi.kind } } } : {}),
     node: process.versions.node,
     machine: `${cpus()[0]?.model ?? "cpu"} x${cpus().length}, ${(totalmem() / 2 ** 30).toFixed(1)} GiB RAM, ${process.platform}`,
     startedAt: startedAt.toISOString(),

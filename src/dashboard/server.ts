@@ -34,6 +34,7 @@ import {
   type MatrixRow,
   type RunListing,
 } from "./data.ts";
+import { DocDashboard, isDocbenchArgv } from "./docbench.ts";
 import { PAGE_HTML } from "./page.ts";
 import { BusyError, PlaygroundHost } from "../playground/manager.ts";
 import { DEFAULT_SETTINGS } from "../playground/logic.ts";
@@ -65,12 +66,15 @@ export class Dashboard {
   private matrixMemo?: { at: number; rows: MatrixRow[] };
   private plansMemo = new Map<string, { quick: Plan; full: Plan }>();
   private liveMemo = new Map<string, LiveRun>();
+  /** The Documents view (npm run docbench runs). */
+  readonly docs: DocDashboard;
 
   constructor(private readonly options: { extRepo?: string; ref?: string } = {}) {
     const { dataset, issues } = compileDataset({ requireSplit: false });
     if (!dataset) throw new Error(`dataset invalid: ${issues.find((i) => i.level === "error")?.message}`);
     this.dataset = dataset;
     this.cases = new Map(dataset.cases.map((c) => [c.id, c]));
+    this.docs = new DocDashboard(options);
   }
 
   /** Loads (and caches) an extension ref; undefined when no clone is configured. */
@@ -125,7 +129,8 @@ export class Dashboard {
 
   async liveRuns(): Promise<LiveRun[]> {
     const out: LiveRun[] = [];
-    for (const run of findActiveRuns()) {
+    // Document-bench runs have their own plan (Documents view).
+    for (const run of findActiveRuns().filter((r) => !isDocbenchArgv(r.argv))) {
       const id = `live:${run.pid}`;
       const memo = this.liveMemo.get(id);
       if (memo && memo.run.argv.join(" ") === run.argv.join(" ")) {
@@ -383,7 +388,19 @@ export async function handle(dash: Dashboard, req: IncomingMessage, res: ServerR
         });
       }
       case "/api/progress":
-        return send(res, 200, { runs: await dash.progress() });
+        return send(res, 200, { runs: await dash.progress(), docRuns: dash.docs.progress(findActiveRuns()) });
+      case "/api/docbench/runs":
+        return send(res, 200, { runs: dash.docs.runs(findActiveRuns()) });
+      case "/api/docbench/run":
+        return send(res, 200, dash.docs.run(p.get("id") ?? "", findActiveRuns()));
+      case "/api/docbench/cases":
+        return send(res, 200, { cases: dash.docs.cases(p.get("id") ?? "", findActiveRuns()) });
+      case "/api/docbench/case":
+        return send(res, 200, dash.docs.caseDetail(p.get("id") ?? "", p.get("case") ?? "", findActiveRuns()));
+      case "/docbench/report":
+        return send(res, 200, dash.docs.reportHtml(p.get("id") ?? "", findActiveRuns()), "text/html");
+      case "/docbench/compare":
+        return send(res, 200, dash.docs.compareHtml(p.get("a") ?? "", p.get("b") ?? "", findActiveRuns()), "text/html");
       case "/api/matrix":
         return send(res, 200, await dash.matrix());
       case "/api/runs":

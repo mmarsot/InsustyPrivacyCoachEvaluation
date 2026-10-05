@@ -50,6 +50,8 @@ export interface PipelineRedaction {
   bytes?: Uint8Array;
   ms: number;
   error?: string;
+  /** A PDF that fell back: the findings the ref cannot redact in place, each tried alone. */
+  failing?: Array<{ start: number; end: number; replacement: string }>;
 }
 
 const errorText = (e: unknown) => (e instanceof Error ? `${e.constructor.name}: ${e.message}` : String(e));
@@ -149,7 +151,17 @@ export async function redactForAttach(api: DocReaderApi, name: string, bytes: Ui
       return { mode: "in_place", name: out.name, bytes: out.bytes, ms: performance.now() - t0 };
     } catch (error) {
       // redactedVersion: any failure of the document worker falls back to the text copy.
-      return { mode: "fallback_text_copy", name: copyName, bytes: textCopy(), ms: performance.now() - t0, error: errorText(error) };
+      const ms = performance.now() - t0;
+      // Not timed: which findings fail on their own (at most 40 tried).
+      const failing: RangeLike[] = [];
+      if (read.redaction === "pdf")
+        for (const range of ranges.slice(0, 40))
+          try {
+            await api.redactDocument!(bytes, name, read.doc!, [range]);
+          } catch {
+            failing.push(range);
+          }
+      return { mode: "fallback_text_copy", name: copyName, bytes: textCopy(), ms, error: errorText(error), ...(read.redaction === "pdf" ? { failing } : {}) };
     }
   } catch (error) {
     return { mode: "error", ms: performance.now() - t0, error: errorText(error) };

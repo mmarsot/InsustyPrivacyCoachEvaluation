@@ -190,6 +190,8 @@ export interface DocbenchOptions {
   aiModels: ModelInfo[];
   /** Document sizes (characters of extracted text) for the Private AI track. */
   aiSizes: number[];
+  /** Cases of the Private AI track (`--ai-tier`, default smoke: 2 cases; quick: 16; full: 32). */
+  aiTier: DocTier;
 }
 type DocConfig = "default" | "all";
 
@@ -237,11 +239,15 @@ export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
     maxRssMb: Number(opt("max-rss-mb", "3000")),
     aiModels: list(aiArg).map((m) => MODELS.find((x) => x.short === m || x.id === m) ?? bad(`unknown model ${m} (Private AI track: bundled models only)`)),
     aiSizes: list(opt("ai-sizes", "1000,5000,20000,50000")).map(Number),
+    aiTier: ((): DocTier => {
+      const t = opt("ai-tier", "smoke")!;
+      return ["smoke", "quick", "full"].includes(t) ? (t as DocTier) : bad("--ai-tier must be smoke, quick or full");
+    })(),
   };
 }
 
 /** Bump when scoring changes what a cached result holds (results are recomputed). */
-export const DOC_SCORE_VERSION = 1;
+export const DOC_SCORE_VERSION = 2;
 
 export const docJobKey = (extSha: string, o: Pick<DocbenchOptions, "seed" | "configs">, id: string, spec: unknown) =>
   createHash("sha256").update(JSON.stringify([extSha, GEN_VERSION, DOC_SCORE_VERSION, o.seed, [...o.configs].sort(), id, spec])).digest("hex");

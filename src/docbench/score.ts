@@ -83,6 +83,8 @@ export interface DocConfigResult {
     /** Values redacted leak-free that an independent reader still finds in the output. */
     leaked: number;
     leakedValues: string[];
+    /** A PDF that fell back to its text copy: the findings that cannot be redacted in place, each tried alone. */
+    failing?: Array<{ category: string; value: string }>;
   };
 }
 
@@ -277,6 +279,9 @@ export function scoreDoc(
         removed,
         leaked,
         leakedValues,
+        ...(run.redaction?.failing
+          ? { failing: run.redaction.failing.map((r) => ({ category: r.replacement.slice(1, -1), value: read.text.slice(r.start, r.end).slice(0, 80) })) }
+          : {}),
       },
     };
   }

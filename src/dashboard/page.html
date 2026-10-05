@@ -72,7 +72,7 @@ textarea{font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--
 <header>
   <h1>Review Bench</h1>
   <nav id="nav">
-    <a href="#live">Live</a><a href="#matrix">Experiments</a><a href="#results">Results</a><a href="#compare">Compare</a><a href="#playground">Playground</a><a href="#lab">Lab</a>
+    <a href="#live">Live</a><a href="#matrix">Experiments</a><a href="#results">Results</a><a href="#compare">Compare</a><a href="#playground">Playground</a><a href="#lab">Lab</a><a href="#docs">Documents</a>
   </nav>
   <div id="meta"></div>
 </header>
@@ -110,13 +110,20 @@ const DIM_TITLES = { model: "Model", instruction: "Instruction", labelVariant: "
 
 // ------------------------------------------------------------------ live
 async function renderLive() {
-  const { runs } = await api("/api/progress");
+  const { runs, docRuns = [] } = await api("/api/progress");
   const view = $("#view");
-  if (!runs.length) {
-    view.innerHTML = `<h2>Live progress</h2><div class="card"><p>No bench run in progress. Start one with <code>npm run bench -- --tier quick</code>; this page refreshes every 5 s.</p></div>`;
+  if (!runs.length && !docRuns.length) {
+    view.innerHTML = `<h2>Live progress</h2><div class="card"><p>No bench run in progress. Start one with <code>npm run bench -- --tier quick</code> (or <code>npm run docbench</code> for documents); this page refreshes every 5 s.</p></div>`;
     return;
   }
-  view.innerHTML = runs.map(renderRunProgress).join("");
+  view.innerHTML = runs.map(renderRunProgress).join("") + docRuns.map(renderDocProgress).join("");
+}
+function renderDocProgress(r) {
+  if (r.error) return `<div class="card"><b>Documents: ${esc(r.name ?? r.argv.join(" "))}</b> <span class="chip bad">${esc(r.error)}</span></div>`;
+  const row = (label, p) => `<tr><td>${label}</td><td>${progressBar(p.done, p.total)}</td><td class="num">${p.done}/${p.total}</td><td class="muted">${p.last ? `${esc(p.last.id)} · ${esc(p.last.outcome)} · read ${p.last.ms} ms · ${new Date(p.last.at).toLocaleTimeString()}` : ""}</td></tr>`;
+  return `<h2>Live: documents ${esc(r.name ?? "")} <span class="chip">${esc(r.tier)}</span> <span class="chip">${esc(String(r.sha).slice(0, 8))}</span></h2>
+  <div class="card"><table><tr><th>Track</th><th>Progress</th><th class="num">Done</th><th>Latest</th></tr>${row("Suite documents", r.suite)}${row("Size sweeps", r.sweeps)}</table>
+  ${r.ai.length ? `<p>Private AI on documents (${esc(r.ai.join(", "))}) runs after the sweeps, in the model worker.</p>` : ""}<p><a href="#docs?run=${encodeURIComponent(r.id)}">Results so far</a></p></div>`;
 }
 function renderRunProgress(r) {
   if (r.error) return `<div class="card"><b>${esc(r.name ?? r.argv.join(" "))}</b> <span class="chip bad">${esc(r.error)}</span></div>`;
@@ -540,8 +547,114 @@ async function labCompare() {
   $("#labDiff").innerHTML = `<h3>Case by case</h3><div class="card scroll"><table style="table-layout:fixed"><tr><th style="width:140px">Case</th>${sides.map((s) => `<th>${esc(s.label)}</th>`).join("")}</tr>${ids.map((id) => `<tr><td>${esc(id)}</td>${sides.map((s) => cell(s.cases.get(id))).join("")}</tr>`).join("")}</table></div>`;
 }
 
+
+// ------------------------------------------------------------------ documents (npm run docbench)
+const docs = { run: "", config: "all", family: "", kind: "", onlyBad: false, compareA: "", compareB: "" };
+async function renderDocs() {
+  const q = new URLSearchParams(location.hash.split("?")[1] ?? "");
+  if (q.get("run")) docs.run = q.get("run");
+  const { runs } = await api("/api/docbench/runs");
+  const view = $("#view");
+  if (!runs.length) {
+    view.innerHTML = `<h2>Documents</h2><div class="card"><p>No document-bench run yet. Run <code>npm run docbench -- --ref main</code> (or <code>npm run bench -- --track docbench</code>); results land in <code>runs/docbench/</code>.</p></div>`;
+    return;
+  }
+  if (!runs.some((r) => r.id === docs.run)) docs.run = runs[0].id;
+  const data = await api(`/api/docbench/run?id=${encodeURIComponent(docs.run)}`);
+  if (data.error) {
+    view.innerHTML = `<div class="card"><p>Error: ${esc(data.error)}</p></div>`;
+    return;
+  }
+  if (!data.configs.includes(docs.config)) docs.config = data.configs[data.configs.length - 1];
+  const s = data.summary;
+  const o = s.overall;
+  const c = docs.config;
+  const committed = runs.filter((r) => r.kind === "committed");
+  const zrow = (z) => {
+    const m = z.configs[c] ?? {};
+    return `<tr class="click" data-family="${esc(z.family)}"><td>${esc(z.family)}</td><td>${esc(z.zone)}</td><td class="num">${z.cases}</td><td class="num">${z.items}</td>${meter(z.extractionRecall)}${meter(m.detectionRecall)}${meter(m.recall)}${meter(m.precision)}<td class="num">${m.falseAlarms ?? 0}</td><td class="num">${m.leaked ? `<span class="chip bad">${m.leaked}</span>` : 0}</td><td>${Object.entries(z.modes).map(([k, v]) => `<span class="chip ${k === "fallback_text_copy" ? "partial" : ""}">${esc(k)} ${v}</span>`).join("")}</td><td class="num">${z.misclassified ? `<span class="chip bad">${z.misclassified}</span>` : 0}</td></tr>`;
+  };
+  const zhead = `<tr><th>Format</th><th>Zone</th><th class="num">Docs</th><th class="num">Values</th><th class="num" title="value present in the text the ref extracted">Extracted</th><th class="num" title="detected among extracted values">Detected</th><th class="num">Recall</th><th class="num">Precision</th><th class="num">False alarms</th><th class="num">Leaks</th><th>Redacted as</th><th class="num">Misread</th></tr>`;
+  const negs = s.negatives.map((n) => { const m = n.configs[c] ?? {}; return `<tr><td>${esc(n.caseId)}</td><td>${esc(n.zone)}</td><td class="num">${m.falseAlarms}</td><td class="num">${m.perPage === null ? "–" : m.perPage.toFixed(2)}</td><td class="num">${m.per10kCells === null ? "–" : m.per10kCells.toFixed(1)}</td><td class="num">${m.per1kWords === null ? "–" : m.per1kWords.toFixed(2)}</td><td>${n.samples.map((x) => `<span class="chip" title="${esc(x.where)}">${esc(x.category)}: ${esc(x.value)}</span>`).join("")}</td></tr>`; }).join("");
+  const cls = s.classification.filter((x) => x.kind === "failure" || !x.ok).map((x) => `<tr class="click" data-case="${esc(x.caseId)}"><td>${esc(x.caseId)}</td><td>${esc(x.zone)}</td><td>${esc(x.expected)}</td><td><span class="chip ${x.ok ? "ok" : "bad"}">${esc(x.got)}</span>${x.silentClean ? ' <span class="chip bad">silent clean</span>' : ""}</td><td class="muted">${esc(x.gaps.join("; "))}</td></tr>`).join("");
+  const fits = s.fits.map((f) => `<tr><td>${esc(f.type)}</td><td>${esc(f.unit)}</td><td class="num">${f.total ? `${f.total.a.toPrecision(3)} · n^${f.total.b.toFixed(2)}` : "–"}</td><td class="num">${f.total ? f.total.r2.toFixed(3) : "–"}</td><td class="num">${f.msPerKChar === null ? "–" : f.msPerKChar.toFixed(2)}</td><td class="num">${f.memory ? `${Math.round(f.memory.c)} + ${f.memory.k.toPrecision(2)}·n` : "–"}</td><td class="num">${f.sizeWithin1s === null ? "–" : (f.within1sAtLeast ? "≥ " : "") + f.sizeWithin1s.toLocaleString()}</td><td class="num">${f.sizeWithin5s === null ? "–" : (f.within5sAtLeast ? "≥ " : "") + f.sizeWithin5s.toLocaleString()}</td><td class="num">${(f.capped ?? []).map((x) => x.toLocaleString()).join(", ")}</td></tr>`).join("");
+  const ai = (data.ai ?? []).map((m, i) => `<div class="card"><h3>${esc(short(m.model))}</h3>${data.aiCharts[i]?.chart ?? ""}<table><tr><th class="num">Chars</th><th class="num">Cases</th><th class="num">Recall</th><th class="num">FP</th><th class="num">Review p50</th><th class="num">Max</th></tr>${m.bySize.map((b) => `<tr><td class="num">${b.chars.toLocaleString()}</td><td class="num">${b.cases}</td>${meter(b.recall)}<td class="num">${b.falsePositives}</td><td class="num">${ms(b.reviewMsP50)}</td><td class="num">${ms(b.reviewMsMax)}</td></tr>`).join("")}</table></div>`).join("");
+  view.innerHTML = `<h2>Documents</h2>
+  <div class="row"><label class="f">Run<select id="docRun">${runs.map((r) => `<option value="${esc(r.id)}" ${r.id === docs.run ? "selected" : ""}>${esc(r.name)}${r.ref ? ` · ${esc(r.ref)}` : ""}</option>`).join("")}</select></label>
+  <label class="f">Configuration<select id="docCfg">${data.configs.map((x) => `<option ${x === c ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>
+  <a href="/docbench/report?id=${encodeURIComponent(docs.run)}" target="_blank">Full report</a>
+  <label class="f">Compare A<select id="docA"><option></option>${committed.map((r) => `<option value="${esc(r.id)}" ${r.id === docs.compareA ? "selected" : ""}>${esc(r.name)}</option>`).join("")}</select></label>
+  <label class="f">B<select id="docB"><option></option>${committed.map((r) => `<option value="${esc(r.id)}" ${r.id === docs.compareB ? "selected" : ""}>${esc(r.name)}</option>`).join("")}</select></label><button id="docCmp">Compare</button></div>
+  <div class="card"><div class="kv">
+    <div>Ref</div><div>${esc(s.ref)} <code>${esc(String(s.sha).slice(0, 10))}</code>${data.meta ? ` · ${esc(data.meta.ext.subject)}` : " · in progress"}</div>
+    <div>Values in positive documents</div><div>${o.items} (${o.positives} documents) · extracted ${pct(o.extractionRecall)}</div>
+    <div>Recall / precision / F1 (${esc(c)})</div><div>${pct(o.configs[c]?.recall)} / ${pct(o.configs[c]?.precision)} / ${pct(o.configs[c]?.f1)} · detected ${pct(o.configs[c]?.detectionRecall)} of extracted</div>
+    <div>Redaction check</div><div>${o.configs[c]?.removed ?? 0}/${o.configs[c]?.redactedLeakFree ?? 0} redacted values gone from the output${o.configs[c]?.leaked ? ` · <span class="chip bad">${o.configs[c].leaked} leaked</span>` : ""} · PDFs in place ${o.pdfRedaction.inPlace}, fallback ${o.pdfRedaction.fallback}${o.pdfRedaction.failing ? ` (findings the ref cannot redact in place: ${o.pdfRedaction.failing}/${o.pdfRedaction.findings})` : ""}</div>
+    <div>Hard negatives</div><div>${o.negatives[c]?.falseAlarms ?? 0} false alarms in ${o.negatives[c]?.docsWithFalseAlarm ?? 0}/${o.negatives[c]?.docs ?? 0} documents</div>
+    <div>Failure files</div><div>${o.failures.ok}/${o.failures.cases} reported correctly · ${o.failures.silentClean ? `<span class="chip bad">${o.failures.silentClean} silent clean</span>` : '<span class="chip ok">no silent clean</span>'}</div>
+  </div></div>
+  <h3>Per format</h3><div class="card scroll"><table>${zhead}${s.families.map(zrow).join("")}</table></div>
+  <h3>Per format and zone</h3><div class="card scroll"><table>${zhead}${s.zones.map(zrow).join("")}</table></div>
+  <h3>Failure files and misreads</h3><div class="card scroll"><table><tr><th>Case</th><th>What</th><th>Expected</th><th>Ref reported</th><th>Gaps</th></tr>${cls}</table></div>
+  <h3>Hard negatives (${esc(c)})</h3><div class="card scroll"><table><tr><th>Document</th><th>Content</th><th class="num">False alarms</th><th class="num">/ page</th><th class="num">/ 10k cells</th><th class="num">/ 1k words</th><th>Examples</th></tr>${negs}</table></div>
+  ${data.charts ? `<h3>Speed and scaling</h3><div class="grid2"><div class="card">${data.charts.time}</div><div class="card">${data.charts.memory}</div>${Object.entries(data.charts.perType).map(([t, svg]) => `<div class="card"><b>${esc(t)}</b>${svg}</div>`).join("")}</div>
+  <div class="card scroll"><table><tr><th>Type</th><th>Unit</th><th class="num">Total ms ≈</th><th class="num">R²</th><th class="num">ms / 1k chars</th><th class="num">Peak MB ≈</th><th class="num">Within 1 s</th><th class="num">Within 5 s</th><th class="num" title="read only in part: left out of the fit">Capped</th></tr>${fits}</table></div>` : ""}
+  ${ai ? `<h3>Private AI on documents</h3><div class="grid2">${ai}</div>` : ""}
+  <h3>Documents</h3><div class="row"><label class="f">Format<select id="docFam"><option value="">all</option>${[...new Set(s.zones.map((z) => z.family))].map((f) => `<option ${f === docs.family ? "selected" : ""}>${esc(f)}</option>`).join("")}</select></label>
+  <label class="f">Kind<select id="docKind">${["", "positive", "negative", "failure"].map((k) => `<option value="${k}" ${k === docs.kind ? "selected" : ""}>${k || "all"}</option>`).join("")}</select></label>
+  <label><input type="checkbox" id="docBad" ${docs.onlyBad ? "checked" : ""}> with a miss, a false alarm or a misread</label></div>
+  <div class="card scroll" id="docCases">loading…</div>`;
+  $("#docRun").onchange = (e) => { docs.run = e.target.value; renderDocs(); };
+  $("#docCfg").onchange = (e) => { docs.config = e.target.value; renderDocs(); };
+  $("#docFam").onchange = (e) => { docs.family = e.target.value; drawDocCases(); };
+  $("#docKind").onchange = (e) => { docs.kind = e.target.value; drawDocCases(); };
+  $("#docBad").onchange = (e) => { docs.onlyBad = e.target.checked; drawDocCases(); };
+  $("#docA").onchange = (e) => (docs.compareA = e.target.value);
+  $("#docB").onchange = (e) => (docs.compareB = e.target.value);
+  $("#docCmp").onclick = () => { if (docs.compareA && docs.compareB) window.open(`/docbench/compare?a=${encodeURIComponent(docs.compareA)}&b=${encodeURIComponent(docs.compareB)}`, "_blank"); };
+  for (const tr of document.querySelectorAll("tr[data-family]")) tr.onclick = () => { docs.family = tr.dataset.family; drawDocCases(); $("#docCases").scrollIntoView(); };
+  for (const tr of document.querySelectorAll("tr[data-case]")) tr.onclick = () => openDocCase(tr.dataset.case);
+  drawDocCases();
+}
+async function drawDocCases() {
+  const { cases } = await api(`/api/docbench/cases?id=${encodeURIComponent(docs.run)}`);
+  const c = docs.config;
+  const rows = cases.filter((x) => (!docs.family || x.family === docs.family) && (!docs.kind || x.kind === docs.kind) && (!docs.onlyBad || !x.ok || (x.falseAlarms[c] ?? 0) > 0 || (x.found[c] ?? 0) < x.items));
+  $("#docCases").innerHTML = `<table><tr><th>Document</th><th>Kind</th><th>Format</th><th>Zone</th><th>Read as</th><th class="num">Values</th><th class="num">Extracted</th><th class="num">Found</th><th class="num">False alarms</th><th>Redacted as</th><th class="num">Read</th></tr>${rows.map((x) => `<tr class="click" data-open="${esc(x.id)}"><td>${esc(x.id)}</td><td>${esc(x.kind)}</td><td>${esc(x.family)}</td><td>${esc(x.zone)}</td><td><span class="chip ${x.ok ? "ok" : "bad"}">${esc(x.got)}</span></td><td class="num">${x.items}</td><td class="num">${x.extracted}</td><td class="num">${x.found[c] ?? "–"}</td><td class="num">${x.falseAlarms[c] ?? "–"}</td><td>${esc(x.redaction[c] ?? "")}</td><td class="num">${x.readMs} ms</td></tr>`).join("")}</table>`;
+  for (const tr of document.querySelectorAll("tr[data-open]")) tr.onclick = () => openDocCase(tr.dataset.open);
+}
+async function openDocCase(id) {
+  const r = await api(`/api/docbench/case?id=${encodeURIComponent(docs.run)}&case=${encodeURIComponent(id)}`);
+  const drawer = $("#drawer");
+  drawer.classList.add("open");
+  if (r.notFound) { drawer.innerHTML = `<p>${esc(r.notFound)}</p>`; return; }
+  const c = docs.config;
+  const marks = [];
+  for (const i of r.items) if (i.extracted) marks.push({ start: i.start, end: i.end, cls: i.cfg[c]?.found ? "expected-hit" : "expected-miss", label: i.category });
+  let html = "";
+  if (r.text !== undefined) {
+    let at = 0;
+    for (const m of marks.sort((a, b) => a.start - b.start)) {
+      if (m.start < at) continue;
+      html += esc(r.text.slice(at, m.start)) + `<mark class="${m.cls}">${esc(r.text.slice(m.start, m.end))}<sup>${esc(m.label)}</sup></mark>`;
+      at = m.end;
+    }
+    html += esc(r.text.slice(at));
+  }
+  const cfg = r.configs[c];
+  drawer.innerHTML = `<button onclick="document.getElementById('drawer').classList.remove('open')">Close</button>
+  <h2>${esc(r.jobId)} <span class="chip ${r.classification.ok ? "ok" : "bad"}">${esc(r.classification.got)}</span></h2>
+  <div class="kv"><div>File</div><div>${esc(r.name)} · ${(r.bytes / 1024).toFixed(1)} KB · read as ${esc(r.read.readAs ?? "–")}${r.read.pages ? ` · ${r.read.pages} pages` : ""}</div>
+  <div>Expected</div><div>${esc(JSON.stringify(r.classification.expected))}</div><div>Gaps</div><div>${esc(r.read.gaps.join("; ") || "none")}${r.read.error ? ` · ${esc(r.read.error)}` : ""}</div>
+  <div>Timing</div><div>read ${r.timing.readMs} ms · detect ${Object.entries(r.timing.detectMs).map(([k, v]) => `${esc(k)} ${v} ms`).join(", ")} · redact ${r.timing.redactMs ?? "–"} ms</div>
+  ${cfg ? `<div>Redaction (${esc(c)})</div><div>${esc(cfg.redaction.mode)}${cfg.redaction.error ? ` (${esc(cfg.redaction.error)})` : ""} · ${cfg.redaction.failing?.length ? ` · cannot redact in place: ${cfg.redaction.failing.map((f) => `<code>${esc(f.value)}</code>`).join(" ")} · ` : " · "}${cfg.redaction.removed} gone, ${cfg.redaction.leaked} leaked ${cfg.redaction.leakedValues.map((v) => `<code>${esc(v)}</code>`).join(" ")}</div>
+  <div>False alarms (${esc(c)})</div><div>${cfg.falseAlarmSamples.map((f) => `<span class="chip FP" title="${esc(f.where)}">${esc(f.category)}: ${esc(f.value)}</span>`).join("") || "none"}</div>` : ""}</div>
+  <h3>Values</h3><table><tr><th>Category</th><th>Value</th><th>Extracted in</th><th>${esc(c)}</th></tr>${r.items.map((i) => `<tr><td>${esc(i.category)} <span class="muted">${esc(i.kind)}</span></td><td><code>${esc(i.value)}</code></td><td>${i.extracted ? esc(i.where ?? "") : '<span class="chip bad">not extracted</span>'}</td><td>${i.cfg[c] ? (i.cfg[c].found ? '<span class="chip TP">found</span>' : i.cfg[c].redacted ? `<span class="chip FP">redacted as ${esc(i.cfg[c].detectedAs.join("+"))}</span>` : '<span class="chip FN">missed</span>') + (i.cfg[c].removed === false ? ' <span class="chip bad">leaked</span>' : "") : ""}</td></tr>`).join("")}</table>
+  ${r.decoys.length ? `<h3>Hard negatives</h3><p>${r.decoys.map((d) => `<span class="chip ${d.flagged[c] ? "FP" : ""}">${esc(d.kind)}: ${esc(d.value)}</span>`).join("")}</p>` : ""}
+  ${r.text !== undefined ? `<h3>Extracted text</h3><p class="muted">${(r.segments ?? []).map((g) => esc(g.where)).join(" · ")}</p><div class="text">${html}</div>` : '<p class="muted">Text not kept (over 60,000 characters).</p>'}`;
+}
 // ------------------------------------------------------------------ routing
-const VIEWS = { live: renderLive, matrix: renderMatrix, results: renderResults, compare: renderCompare, playground: renderPlayground, lab: renderLab };
+const VIEWS = { live: renderLive, matrix: renderMatrix, results: renderResults, compare: renderCompare, playground: renderPlayground, lab: renderLab, docs: renderDocs };
 async function route() {
   const tab = (location.hash.slice(1) || "live").split("?")[0];
   for (const a of document.querySelectorAll("#nav a")) a.classList.toggle("on", a.getAttribute("href") === "#" + tab);

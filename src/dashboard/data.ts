@@ -57,10 +57,30 @@ const alive = (pid: number) => {
   }
 };
 
-/** Extracts the bench arguments from a process command line, if it is `src/cli/run.ts`. */
+/**
+ * Extracts the bench arguments from a process command line, if it is
+ * `src/cli/run.ts` or `src/cli/docbench.ts`. A document-bench run's
+ * arguments always start with `--track docbench` (as its marker file writes
+ * them), so both ways of starting it give the same argv.
+ */
 export function benchArgsFromCmdline(cmdline: readonly string[]): string[] | undefined {
+  const doc = cmdline.findIndex((part) => /(^|\/)src\/cli\/docbench\.ts$/.test(part));
+  if (doc >= 0) return normalizeTrack(["--track", "docbench", ...cmdline.slice(doc + 1)]);
   const at = cmdline.findIndex((part) => /(^|\/)src\/cli\/run\.ts$/.test(part));
-  return at >= 0 ? cmdline.slice(at + 1) : undefined;
+  return at >= 0 ? normalizeTrack(cmdline.slice(at + 1)) : undefined;
+}
+
+/** Moves a `--track docbench` pair to the front (and keeps one). */
+export function normalizeTrack(argv: readonly string[]): string[] {
+  const rest: string[] = [];
+  let doc = false;
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === "--track" && argv[i + 1] === "docbench") {
+      doc = true;
+      i++;
+    } else rest.push(argv[i]!);
+  }
+  return doc ? ["--track", "docbench", ...rest] : rest;
 }
 
 /**
@@ -74,7 +94,7 @@ export function findActiveRuns(): ActiveRun[] {
     for (const file of readdirSync(ACTIVE_RUNS_DIR).filter((f) => f.endsWith(".json")))
       try {
         const run = JSON.parse(readFileSync(join(ACTIVE_RUNS_DIR, file), "utf8")) as ActiveRun;
-        if (alive(run.pid)) runs.push(run);
+        if (alive(run.pid)) runs.push({ ...run, argv: normalizeTrack(run.argv) });
       } catch {
         /* ignore */
       }
