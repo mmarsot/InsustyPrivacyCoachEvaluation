@@ -170,22 +170,24 @@ configuration and with every category and address country on. The ref is
 materialized read-only like the model bench, and the detector's npm packages
 are installed at the versions its package-lock pins.
 
-- **Dataset** (`dataset/detbench/`): 283 fictional EN/FR prompts with 501
+- **Dataset** (`dataset/detbench/`): 301 fictional EN/FR prompts with 522
   labelled items across `SECRET`, `EMAIL`, `PHONE`, `ADDRESS`, `FINANCIAL`,
   `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP` and `COMPANY_ID` (the detector
-  upgrade's names), plus 406 hard negatives (log timestamps, git SHAs and
+  upgrade's names), plus 496 hard negatives (log timestamps, git SHAs and
   hashes, trace IDs, UUIDs, versions such as `1.2.3.4`, loopback addresses,
   ports, masked keys, public keys, `<password>` placeholders, algorithm
   names and acronyms in prose, base64 images, checksum-invalid IBAN and
   card look-alikes, ordinary dates next to dates of birth, bibliography references with
   DOIs, ISBNs, ISSNs, PMIDs, arXiv ids and DOI/JSTOR/Handle/HAL/Gallica ARK,
   Semantic Scholar and GitHub/GitLab commit links, spreadsheet rows with
-  five-digit amounts next to short cells, plain prose). Many
-  prompts mix several categories, and 49 are prose around a pasted
+  five-digit amounts next to short cells, GPU and driver identifiers in
+  about:gpu dumps, environment listings and config files, plain prose). Many
+  prompts mix several categories, and 58 are prose around a pasted
   snippet (stack traces, `.env`, docker-compose, SQL output, curl, JSON, git
-  output) with values on both sides of the fence. Two are generated
-  spreadsheets of 1,000 and 2,000 rows, scored apart, which measure a
-  false-positive flood and the detector's runtime. Values are checksum-valid
+  output) with values on both sides of the fence. Four are generated, scored
+  apart, which measure a false-positive flood and the detector's runtime:
+  spreadsheets of 1,000 and 2,000 rows and about:gpu-like reports of 360
+  and 600 lines. Values are checksum-valid
   where a checksum exists (IBAN, card, NIR, SIREN/SIRET, VAT, NHS, NINO).
 - **Perturbations**: seeded variants of every case (spacing, separators,
   alternative formats, case, line breaks inside values, punctuation, code
@@ -199,22 +201,23 @@ are installed at the versions its package-lock pins.
 [docs/detbench.md](docs/detbench.md) has the dataset format, how to add
 cases, the perturbations and the metric definitions.
 
-Baseline on `main` @ `5540306` (after the detector upgrade, PR #42, its gap
-fixes, PRs #43 and #45, and the reference-link fixes, PRs #72 and #73;
-[`runs/detbench/main-5540306/report.html`](runs/detbench/main-5540306/report.html)),
+Baseline on `main` @ `4d68779` (after the detector upgrade, PR #42, its gap
+fixes, PRs #43 and #45, the reference-link fixes, PRs #72 and #73, and the
+spreadsheet fix, PR #74;
+[`runs/detbench/main-4d68779/report.html`](runs/detbench/main-4d68779/report.html)),
 base cases, `default` config (FR addresses only, `IP` and `COMPANY_ID` off)
 and `all` (every category; the ref does not export its address-country list,
-so FR addresses only too). The two large generated tables are scored apart
+so FR addresses only too). The four large generated cases are scored apart
 (below):
 
 | | `default` | `all` |
 | --- | --- | --- |
-| F1 / precision / recall (overlap) | 83% / 89% / 77% | 92% / 91% / 93% |
-| F1, exact span | 82% | 91% |
-| Items redacted, all categories | 77% | 93% |
-| Items redacted in prose (373) / inside code blocks (122) | 77% / 79% | 91% / 97% |
-| Negative prompts with a false positive | 13% (9 / 71) | 14% (10 / 71) |
-| Hard negatives flagged | 14 / 406 | 15 / 406 |
+| F1 / precision / recall (overlap) | 81% / 85% / 78% | 90% / 87% / 93% |
+| F1, exact span | 80% | 89% |
+| Items redacted, all categories | 78% | 93% |
+| Items redacted in prose (376) / inside code blocks (136) | 77% / 81% | 91% / 97% |
+| Negative prompts with a false positive | 17% (14 / 82) | 18% (15 / 82) |
+| Hard negatives flagged | 69 / 496 | 70 / 496 |
 
 - Every category is supported. In `default`, `IP` and `COMPANY_ID` are
   opt-in, so their 79 items count as misses: most of the recall gap to `all`.
@@ -236,41 +239,54 @@ so FR addresses only too). The two large generated tables are scored apart
   redacted as PHONE by design (`en-140`, `fr-125`).
 - **Spreadsheet and CSV pastes** (`en-141`–`en-149`, `fr-127`–`fr-134`, tag
   `table_paste`; the document-upload research, where a 60,000-row sheet
-  extracted as TSV gave 29,999 false ADDRESS hits in ~11 s): the target for
-  the extension fix. Same result in both configs:
-  - fail, false ADDRESS on order, invoice and dashboard rows: the French
-    address rule matches a number cell, a text cell, a five-digit cell and a
-    word cell across tabs (`35000⇥note 10000⇥ok`,
-    `12⇥Palettes bois⇥45000⇥ok`, `12⇥Consulting days⇥18500⇥EUR`,
-    `69⇥Lyon Part-Dieu⇥48250⇥ok`): 8 in `en-141`, 4 in `en-142`, 3 each in
-    `en-146` and `en-148`, 5 in `fr-127`, 4 in `fr-129`, 2 each in `fr-130`
-    and `fr-131`, and in space-joined copies (3 in `en-144`, 2 in `fr-133`).
-  - fail, numbers across cells: three numeric TSV cells that concatenate to
-    15 digits with a valid NIR key are NATIONAL_ID (2 each in `en-145`,
-    `fr-134`); in space-joined copies a Luhn-valid row of four 4-digit cells
-    is FINANCIAL and a row of 2-digit counts a French mobile (`en-144`,
-    `fr-133`).
-  - large generated tables, scored apart: `en-149` (2,003 TSV lines, 94 KB)
-    gives 1,998 false ADDRESS in ~340 ms and `fr-132` (1,003 lines, 40 KB)
-    854 in ~110 ms, about 3.6 µs per character, so ~10 s for a 2.7 MB sheet.
-  - pass, controls that a fix must keep: the comma-separated (`en-143`) and
-    semicolon (`fr-128`) CSV copies have no false positive; emails, IBANs and
-    French addresses in cells are redacted (`en-146`, `en-147`, `fr-130`,
-    and in the middle of both large tables), and so are French addresses
-    split over Street, Postcode and City columns (`en-148`, `fr-131`), which
-    a fix that treats every tab as a hard boundary would lose. The US
-    address in `en-146` is missed like every US address (no US rule in
-    either config).
+  extracted as TSV gave 29,999 false ADDRESS hits in ~11 s): since
+  [PR #74](https://github.com/mmarsot/InsustyPromptCoach/pull/74) the TSV
+  and CSV cases, both large tables included, have no false positive and every
+  email, IBAN and French address in cells is still found (split-cell
+  addresses too). Only the space-joined copies still fail: 5 false
+  positives in `en-144` (ADDRESS on `35000 note 10000 ok`, a Luhn row as
+  FINANCIAL, counts as PHONE) and 3 in `fr-133` (ADDRESS, PHONE). At
+  `5540306` the large tables gave 1,998 and 854 false ADDRESS.
+- **GPU reports, environment listings and config files** (`en-150`–`en-160`,
+  `fr-135`–`fr-141`, tag `env_var_names`; the captain's about:gpu paste,
+  where `main` redacted 32 spans in 1,275 lines, all SECRET from the
+  "bounded high-entropy heuristic"): the target for the extension fix. Same
+  result in both configs:
+  - fail, every negative case (11 / 11) and 61 of 90 decoys: GL/EGL/Vulkan
+    extension and format names with a mixed part (`GL_EXT_texture_sRGB_decode`,
+    `…_s3tc_srgb`, `VK_FORMAT_A2B10G10R10_UNORM_PACK32`,
+    `GL_COMPRESSED_RGBA_S3TC_DXT5_EXT`), ANGLE, Chrome and Vulkan feature
+    names with digits inside a word (`emulateCopyTexImage2DFromRenderbuffers`,
+    `limitMaxTextureBytesTo2MB`, `integerDotProduct4x8BitPackedSignedAccelerated`,
+    `VaapiVideoDecoderAV1Main10Profile`), Dawn toggles and WebGPU features
+    (`use_blit_for_depth16unorm_texture_to_buffer_copy`,
+    `rg11b10ufloat-renderable`), pod and node names with a hash suffix
+    (`render-worker-7f8c9d6b5-q4xzt`), laptop model strings and a GNOME
+    terminal path holding a UUID with underscores. Uppercase environment
+    names with plain values (`XDG_SESSION_TYPE : wayland`, `GDMSESSION=ubuntu`,
+    `GPU0 : VENDOR= 0x10de, DEVICE=0x…`, `CONFIG_…=y`, versions, paths,
+    booleans) already pass: the names are not the trigger, the token shape is.
+  - large, scored apart: `en-160` (608 lines, 40 KB) gives 201 false SECRET
+    and `fr-141` (368 lines, 24 KB) 121, in ~25 ms and ~15 ms.
+  - pass, controls that a fix must keep (`en-157`–`en-160`,
+    `fr-139`–`fr-141`, tag `secret_control`): all 21 secrets under
+    environment names are redacted, exact: `API_KEY=` tokens, AWS keys,
+    `DATABASE_URL` and `REDIS_URL` passwords, GitHub, GitLab, OpenAI,
+    Stripe and Hugging Face tokens, session secrets. Three of them
+    (`X_TELEMETRY_KEY=` in `en-157`, `TELEMETRIE_CLE_ENVOI :` in `fr-140`,
+    `JETON_TELEMETRIE :` in `fr-141`) are caught only by the same
+    high-entropy heuristic, so a fix that skips `NAME=value` or
+    `NAME : value` lines would lose them.
 - Still missed in `all`: US, UK and DE phones (15), US and UK addresses (9),
   passports (4), dates of birth under a table header (2), 2 French
-  passwords, 3 SIRENs, a BIC, and part of an IPv4-mapped IPv6 (redacted,
-  not leak-free).
-- Hard negatives flagged in `all`: 11 of the spreadsheet decoys above, two
-  SSN-shaped part numbers as NATIONAL_ID, a Luhn-invalid card look-alike
-  and `net-snmp 5.9.4.2` as IP.
+  passwords, 3 SIRENs and a BIC.
+- Hard negatives flagged in `all`: the 61 GPU and environment identifiers
+  above, 5 in the space-joined spreadsheet copies, two SSN-shaped part
+  numbers as NATIONAL_ID, a Luhn-invalid card look-alike and
+  `net-snmp 5.9.4.2` as IP.
 - **Perturbations** (`all`, F1 base→perturbed): a line break inside a value
-  94%→79%, typos in context words 92%→83%, spacing 94%→87%, punctuation
-  95%→90%; the others move F1 by 4 points or less.
+  95%→80%, typos in context words 90%→81%, spacing 95%→88%, punctuation
+  95%→90%, `.env` rewrites 95%→90%; the others move F1 by 4 points or less.
 
 ## Dashboard
 

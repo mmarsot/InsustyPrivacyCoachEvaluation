@@ -4,7 +4,7 @@
 (`detectSensitiveData` in `src/detector.ts`): the part that finds secrets,
 emails, phones, addresses and, after the detector upgrade, financial data,
 national IDs, dates of birth, IP addresses and company IDs. It loads no model:
-a run over 283 base cases and ~3,100 perturbed variants takes a few seconds.
+a run over 301 base cases and ~3,200 perturbed variants takes a few seconds.
 
 Code: `src/detbench/` (dataset, perturbations, ref loading, scoring, report)
 and `src/cli/detbench.ts`. Tests: `tests/detbench.test.ts`.
@@ -204,6 +204,27 @@ columns is one item spanning the three cells and their tabs. `en-149`
 (2,003 lines, generator `orders_tsv`) and `fr-132` (1,003 lines,
 `commandes_tsv`) are the large cases, with an email, an IBAN and an address
 in cells in the middle.
+
+`en-150`–`en-160` and `fr-135`–`fr-141` (tag `env_var_names`, plus
+`diagnostic_dump`, `env_listing`, `config_file`, `feature_list`,
+`extension_list`, `secret_control`, `dump_flood`) come from a Chrome
+about:gpu report the captain pasted, where `main` redacted 32 spans as
+SECRET (the case values are fictional; the dump itself is not committed):
+about:gpu Driver Information and workaround sections, `printenv` and
+`kubectl describe` environment listings (`NAME=value`, `NAME: value`),
+vulkaninfo properties, kernel `.config`, an INI file and C code, and Chrome
+feature lists. Uppercase environment-style names with plain values
+(versions, vendor names, booleans, paths, hex device ids) are template text
+or decoys, never items. GL/EGL/Vulkan extension and format names, ANGLE,
+Dawn, WebGPU, Chrome and Vulkan feature names, pod and node names with a
+hash suffix, machine model strings and a GNOME terminal path with an
+underscored UUID are decoys of kind `identifier`. The controls put real
+secrets under such names (`API_KEY=<token>`, AWS keys, `DATABASE_URL` and
+`REDIS_URL` passwords, GitHub, GitLab, OpenAI, Stripe and Hugging Face
+tokens, and keyword-less names such as `X_TELEMETRY_KEY=` whose value only
+the high-entropy rule catches), next to the identifiers. `en-160` (600
+generated lines, generator `gpu_report`) and `fr-141` (360 lines) are the
+large cases, with secrets in `NAME : value` lines in the middle.
 
 **Adding cases**: append lines with the next free id, then run
 `npm run detbench -- --validate`. Secret-looking values must not appear raw in

@@ -348,6 +348,10 @@ test("generated placeholders render large deterministic tables, scored apart and
   };
   assert.deepEqual(validateSource(source, "en"), []);
   assert.equal(generateText({ generator: "orders_tsv", from: 10000, count: 1 }), "ORD-0-10000\tCustomer 230\t35000\tnote 10000\tok");
+  const report = generateText({ generator: "gpu_report", from: 0, count: 12 }).split("\n");
+  assert.equal(report[0], "*   emulateRenderbufferStoragePixel (OpenGL workarounds): Disabled");
+  assert.equal(report[5], "__GLX_VENDOR_LIBRARY_NAME       : mesa");
+  assert.equal(report.length, 12);
   const c = toCase(source);
   assert.ok(c.large);
   assert.equal(c.text.split("\n").length, 7);

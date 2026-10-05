@@ -1,0 +1,213 @@
+{
+  "name": "main-4d68779",
+  "ext": {
+    "ref": "main",
+    "sha": "4d687790beff9384d505cf53a41ca454c8c0c133",
+    "subject": "feat(files): check attached files before ChatGPT, claude.ai, and Gemini receive them (#75)",
+    "committedAt": "2026-10-05T15:40:49+02:00"
+  },
+  "packages": {
+    "addressit": "1.8.2",
+    "ibantools": "4.5.4",
+    "libphonenumber-js": "1.13.9",
+    "stdnum": "1.12.6",
+    "validator": "13.15.35"
+  },
+  "refCategories": [
+    "SECRET",
+    "FINANCIAL",
+    "NATIONAL_ID",
+    "DATE_OF_BIRTH",
+    "PHONE",
+    "EMAIL",
+    "ADDRESS",
+    "IP",
+    "COMPANY_ID"
+  ],
+  "supported": [
+    "SECRET",
+    "FINANCIAL",
+    "NATIONAL_ID",
+    "DATE_OF_BIRTH",
+    "PHONE",
+    "EMAIL",
+    "ADDRESS",
+    "IP",
+    "COMPANY_ID"
+  ],
+  "configs": {
+    "default": {
+      "categories": {
+        "SECRET": true,
+        "FINANCIAL": true,
+        "NATIONAL_ID": true,
+        "DATE_OF_BIRTH": true,
+        "PHONE": true,
+        "EMAIL": true,
+        "ADDRESS": true,
+        "IP": false,
+        "COMPANY_ID": false
+      },
+      "addressCountries": [
+        "FR"
+      ]
+    },
+    "all": {
+      "categories": {
+        "SECRET": true,
+        "FINANCIAL": true,
+        "NATIONAL_ID": true,
+        "DATE_OF_BIRTH": true,
+        "PHONE": true,
+        "EMAIL": true,
+        "ADDRESS": true,
+        "IP": true,
+        "COMPANY_ID": true
+      },
+      "addressCountries": [
+        "FR"
+      ]
+    }
+  },
+  "allConfigNote": "turns on IP, COMPANY_ID",
+  "datasetHash": "ab0a78537ebf9344528ce9651a9b83ef35d0d235add5f84cdf16e8d1cbe3feea",
+  "seed": 1,
+  "variantsPerType": 2,
+  "perturbations": [
+    "spacing",
+    "separators",
+    "alt_format",
+    "case",
+    "linebreak",
+    "punctuation",
+    "code_block",
+    "env",
+    "accents",
+    "typo"
+  ],
+  "baseCases": 301,
+  "variants": 3241,
+  "timing": {
+    "calls": 602,
+    "p50Ms": 0.3265529999999899,
+    "p95Ms": 5.212616999999966,
+    "maxMs": 41.401611,
+    "totalMs": 754.1059839999996,
+    "slowest": [
+      {
+        "config": "default",
+        "caseId": "en-149",
+        "chars": 93653,
+        "ms": 41.4
+      },
+      {
+        "config": "all",
+        "caseId": "en-149",
+        "chars": 93653,
+        "ms": 35.7
+      },
+      {
+        "config": "default",
+        "caseId": "en-160",
+        "chars": 40108,
+        "ms": 27
+      },
+      {
+        "config": "all",
+        "caseId": "en-160",
+        "chars": 40108,
+        "ms": 23.3
+      },
+      {
+        "config": "default",
+        "caseId": "fr-132",
+        "chars": 40050,
+        "ms": 20.6
+      },
+      {
+        "config": "all",
+        "caseId": "fr-132",
+        "chars": 40050,
+        "ms": 17.9
+      },
+      {
+        "config": "default",
+        "caseId": "fr-141",
+        "chars": 24235,
+        "ms": 15.1
+      },
+      {
+        "config": "default",
+        "caseId": "fr-103",
+        "chars": 324,
+        "ms": 14.6
+      },
+      {
+        "config": "default",
+        "caseId": "fr-078",
+        "chars": 291,
+        "ms": 13.9
+      },
+      {
+        "config": "all",
+        "caseId": "fr-141",
+        "chars": 24235,
+        "ms": 13.8
+      }
+    ],
+    "large": [
+      {
+        "config": "default",
+        "caseId": "en-149",
+        "chars": 93653,
+        "ms": 41.4
+      },
+      {
+        "config": "default",
+        "caseId": "en-160",
+        "chars": 40108,
+        "ms": 27
+      },
+      {
+        "config": "default",
+        "caseId": "fr-132",
+        "chars": 40050,
+        "ms": 20.6
+      },
+      {
+        "config": "default",
+        "caseId": "fr-141",
+        "chars": 24235,
+        "ms": 15.1
+      },
+      {
+        "config": "all",
+        "caseId": "en-149",
+        "chars": 93653,
+        "ms": 35.7
+      },
+      {
+        "config": "all",
+        "caseId": "en-160",
+        "chars": 40108,
+        "ms": 23.3
+      },
+      {
+        "config": "all",
+        "caseId": "fr-132",
+        "chars": 40050,
+        "ms": 17.9
+      },
+      {
+        "config": "all",
+        "caseId": "fr-141",
+        "chars": 24235,
+        "ms": 13.8
+      }
+    ]
+  },
+  "node": "24.18.0",
+  "machine": "8 vCPU, 7 GB",
+  "startedAt": "2026-10-05T18:58:46.396Z",
+  "finishedAt": "2026-10-05T18:58:49.948Z"
+}
