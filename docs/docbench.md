@@ -53,7 +53,7 @@ The extension clone is found like the other tracks (`--ext-repo`,
 `INSUSTY_EXT_REPO`, `bench.local.json`). Documents are generated, never
 committed: `cache/docbench/files/` holds them by spec hash. Results are
 cached per ref commit in `cache/docbench/results/<sha>.jsonl`, keyed by the
-commit, the generator and scorer versions (`GEN_VERSION` in
+commit, the hash of `dataset/detbench/`, the generator and scorer versions (`GEN_VERSION` in
 `src/docbench/specs.ts`, `DOC_SCORE_VERSION` in `src/run/plan.ts`), the seed,
 the configurations and the case spec; a rerun only computes what is missing
 and rescores. Private AI jobs go through the shared model result cache

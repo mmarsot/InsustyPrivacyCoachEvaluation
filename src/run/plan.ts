@@ -10,7 +10,7 @@ import { join } from "node:path";
 import { HOSTED_MODELS } from "../hosted/models.ts";
 import { MODELS_FILE, ROOT } from "../paths.ts";
 import { INSTRUCTION_VARIANTS, isLabelVariant, LABEL_VARIANTS, type InstructionVariant, type LabelVariantId } from "../variants.ts";
-import { GEN_VERSION, SWEEP_TYPES, SWEEP_UNITS, suiteSpecs, sweepSpecs, type DocSpec, type SweepType } from "../docbench/specs.ts";
+import { detDatasetHash, GEN_VERSION, SWEEP_TYPES, SWEEP_UNITS, suiteSpecs, sweepSpecs, type DocSpec, type SweepType } from "../docbench/specs.ts";
 import type { DocJob } from "../docbench/types.ts";
 import { cachedTimings, DEFAULT_QUICK_CASES_PER_PROFILE, jobKey, rulesFor, selectCases, TIERS, type Job, type Tier } from "./jobs.ts";
 
@@ -250,7 +250,7 @@ export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
 export const DOC_SCORE_VERSION = 2;
 
 export const docJobKey = (extSha: string, o: Pick<DocbenchOptions, "seed" | "configs">, id: string, spec: unknown) =>
-  createHash("sha256").update(JSON.stringify([extSha, GEN_VERSION, DOC_SCORE_VERSION, o.seed, [...o.configs].sort(), id, spec])).digest("hex");
+  createHash("sha256").update(JSON.stringify([extSha, GEN_VERSION, detDatasetHash(), DOC_SCORE_VERSION, o.seed, [...o.configs].sort(), id, spec])).digest("hex");
 
 export interface DocPlan {
   suite: DocJob[];

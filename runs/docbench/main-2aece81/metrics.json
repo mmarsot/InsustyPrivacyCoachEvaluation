@@ -3,27 +3,27 @@
  "sha": "2aece814cdd91309641ebc31a300341276b20a91",
  "overall": {
   "positives": 122,
-  "items": 718,
-  "extracted": 704,
-  "extractionRecall": 0.9805013927576601,
+  "items": 719,
+  "extracted": 706,
+  "extractionRecall": 0.9819193324061196,
   "configs": {
    "default": {
-    "recall": 0.6782729805013927,
-    "detectionRecall": 0.6917613636363636,
-    "precision": 0.9643564356435643,
-    "f1": 0.7964022894521667,
+    "recall": 0.6731571627260083,
+    "detectionRecall": 0.6855524079320113,
+    "precision": 0.9398058252427185,
+    "f1": 0.7844408427876823,
     "leaked": 0,
-    "removed": 487,
-    "redactedLeakFree": 487
+    "removed": 486,
+    "redactedLeakFree": 486
    },
    "all": {
-    "recall": 0.8356545961002786,
-    "detectionRecall": 0.8522727272727273,
-    "precision": 0.9693053311793215,
-    "f1": 0.8975317875841436,
+    "recall": 0.8261474269819193,
+    "detectionRecall": 0.8413597733711048,
+    "precision": 0.9488817891373802,
+    "f1": 0.8832713754646839,
     "leaked": 0,
-    "removed": 598,
-    "redactedLeakFree": 598
+    "removed": 594,
+    "redactedLeakFree": 594
    }
   },
   "classification": {
@@ -40,32 +40,33 @@
   },
   "negatives": {
    "default": {
-    "falseAlarms": 11,
+    "falseAlarms": 83,
     "docs": 15,
-    "docsWithFalseAlarm": 2
+    "docsWithFalseAlarm": 6
    },
    "all": {
-    "falseAlarms": 12,
+    "falseAlarms": 83,
     "docs": 15,
-    "docsWithFalseAlarm": 3
+    "docsWithFalseAlarm": 6
    }
   },
   "pdfRedaction": {
    "inPlace": 23,
-   "fallback": 2,
+   "fallback": 3,
    "textCopy": 0,
    "error": 0,
-   "findings": 110,
-   "failing": 5,
+   "findings": 139,
+   "failing": 6,
    "failingByCategory": {
-    "EMAIL": 5
+    "EMAIL": 6
    },
    "failingExamples": [
     "EMAIL: j.whitlock@hollowayco.com",
     "EMAIL: j.weber@kranich-antriebe.de",
     "EMAIL: jun.park@lumenfold.com",
     "EMAIL: jnovak@seznam.cz",
-    "EMAIL: jb.morel@orange.fr"
+    "EMAIL: jb.morel@orange.fr",
+    "EMAIL: j.okafor@lanternbay.io"
    ]
   }
  },
@@ -74,32 +75,32 @@
    "family": "docx",
    "zone": "body",
    "cases": 2,
-   "items": 10,
-   "extracted": 10,
+   "items": 11,
+   "extracted": 11,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 6,
-     "detectionRecall": 0.6,
-     "recall": 0.6,
-     "precision": 1,
-     "f1": 0.7499999999999999,
-     "tp": 6,
-     "falseAlarms": 0,
-     "redactedLeakFree": 6,
-     "removed": 6,
+     "found": 9,
+     "detectionRecall": 0.8181818181818182,
+     "recall": 0.8181818181818182,
+     "precision": 0.9,
+     "f1": 0.8571428571428572,
+     "tp": 9,
+     "falseAlarms": 1,
+     "redactedLeakFree": 9,
+     "removed": 9,
      "leaked": 0
     },
     "all": {
-     "found": 9,
-     "detectionRecall": 0.9,
-     "recall": 0.9,
-     "precision": 1,
-     "f1": 0.9473684210526316,
-     "tp": 9,
-     "falseAlarms": 0,
-     "redactedLeakFree": 9,
-     "removed": 9,
+     "found": 10,
+     "detectionRecall": 0.9090909090909091,
+     "recall": 0.9090909090909091,
+     "precision": 0.9090909090909091,
+     "f1": 0.9090909090909091,
+     "tp": 10,
+     "falseAlarms": 1,
+     "redactedLeakFree": 10,
+     "removed": 10,
      "leaked": 0
     }
    },
@@ -155,27 +156,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 10,
-     "detectionRecall": 0.8333333333333334,
-     "recall": 0.8333333333333334,
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
      "precision": 1,
-     "f1": 0.9090909090909091,
-     "tp": 10,
+     "f1": 0.8571428571428571,
+     "tp": 9,
      "falseAlarms": 0,
-     "redactedLeakFree": 10,
-     "removed": 10,
+     "redactedLeakFree": 9,
+     "removed": 9,
      "leaked": 0
     },
     "all": {
-     "found": 12,
-     "detectionRecall": 1,
-     "recall": 1,
+     "found": 11,
+     "detectionRecall": 0.9166666666666666,
+     "recall": 0.9166666666666666,
      "precision": 1,
-     "f1": 1,
-     "tp": 12,
+     "f1": 0.9565217391304348,
+     "tp": 11,
      "falseAlarms": 0,
-     "redactedLeakFree": 12,
-     "removed": 12,
+     "redactedLeakFree": 11,
+     "removed": 11,
      "leaked": 0
     }
    },
@@ -231,6 +232,18 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
+     "found": 4,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
+     "precision": 1,
+     "f1": 0.8,
+     "tp": 4,
+     "falseAlarms": 0,
+     "redactedLeakFree": 4,
+     "removed": 4,
+     "leaked": 0
+    },
+    "all": {
      "found": 5,
      "detectionRecall": 0.8333333333333334,
      "recall": 0.8333333333333334,
@@ -240,18 +253,6 @@
      "falseAlarms": 0,
      "redactedLeakFree": 5,
      "removed": 5,
-     "leaked": 0
-    },
-    "all": {
-     "found": 6,
-     "detectionRecall": 1,
-     "recall": 1,
-     "precision": 1,
-     "f1": 1,
-     "tp": 6,
-     "falseAlarms": 0,
-     "redactedLeakFree": 6,
-     "removed": 6,
      "leaked": 0
     }
    },
@@ -307,6 +308,18 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
+     "found": 4,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
+     "precision": 1,
+     "f1": 0.8,
+     "tp": 4,
+     "falseAlarms": 0,
+     "redactedLeakFree": 4,
+     "removed": 4,
+     "leaked": 0
+    },
+    "all": {
      "found": 5,
      "detectionRecall": 0.8333333333333334,
      "recall": 0.8333333333333334,
@@ -316,18 +329,6 @@
      "falseAlarms": 0,
      "redactedLeakFree": 5,
      "removed": 5,
-     "leaked": 0
-    },
-    "all": {
-     "found": 6,
-     "detectionRecall": 1,
-     "recall": 1,
-     "precision": 1,
-     "f1": 1,
-     "tp": 6,
-     "falseAlarms": 0,
-     "redactedLeakFree": 6,
-     "removed": 6,
      "leaked": 0
     }
    },
@@ -383,15 +384,15 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 9,
-     "detectionRecall": 0.75,
-     "recall": 0.75,
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
      "precision": 1,
-     "f1": 0.8571428571428571,
-     "tp": 9,
+     "f1": 0.9090909090909091,
+     "tp": 10,
      "falseAlarms": 0,
-     "redactedLeakFree": 9,
-     "removed": 9,
+     "redactedLeakFree": 10,
+     "removed": 10,
      "leaked": 0
     },
     "all": {
@@ -459,18 +460,6 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 6,
-     "detectionRecall": 0.5,
-     "recall": 0.5,
-     "precision": 1,
-     "f1": 0.6666666666666666,
-     "tp": 6,
-     "falseAlarms": 0,
-     "redactedLeakFree": 6,
-     "removed": 6,
-     "leaked": 0
-    },
-    "all": {
      "found": 8,
      "detectionRecall": 0.6666666666666666,
      "recall": 0.6666666666666666,
@@ -480,6 +469,18 @@
      "falseAlarms": 0,
      "redactedLeakFree": 8,
      "removed": 8,
+     "leaked": 0
+    },
+    "all": {
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
+     "precision": 1,
+     "f1": 0.8571428571428571,
+     "tp": 9,
+     "falseAlarms": 0,
+     "redactedLeakFree": 9,
+     "removed": 9,
      "leaked": 0
     }
    },
@@ -530,32 +531,32 @@
    "family": "docx",
    "zone": "tracked_deletion",
    "cases": 2,
-   "items": 13,
-   "extracted": 13,
+   "items": 8,
+   "extracted": 8,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 10,
-     "detectionRecall": 0.7692307692307693,
-     "recall": 0.7692307692307693,
+     "found": 5,
+     "detectionRecall": 0.625,
+     "recall": 0.625,
      "precision": 1,
-     "f1": 0.8695652173913044,
-     "tp": 10,
+     "f1": 0.7692307692307693,
+     "tp": 5,
      "falseAlarms": 0,
-     "redactedLeakFree": 10,
-     "removed": 10,
+     "redactedLeakFree": 5,
+     "removed": 5,
      "leaked": 0
     },
     "all": {
-     "found": 12,
-     "detectionRecall": 0.9230769230769231,
-     "recall": 0.9230769230769231,
+     "found": 7,
+     "detectionRecall": 0.875,
+     "recall": 0.875,
      "precision": 1,
-     "f1": 0.9600000000000001,
-     "tp": 12,
+     "f1": 0.9333333333333333,
+     "tp": 7,
      "falseAlarms": 0,
-     "redactedLeakFree": 12,
-     "removed": 12,
+     "redactedLeakFree": 7,
+     "removed": 7,
      "leaked": 0
     }
    },
@@ -573,27 +574,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 14,
-     "detectionRecall": 0.8235294117647058,
-     "recall": 0.8235294117647058,
+     "found": 13,
+     "detectionRecall": 0.7647058823529411,
+     "recall": 0.7647058823529411,
      "precision": 1,
-     "f1": 0.9032258064516129,
-     "tp": 14,
+     "f1": 0.8666666666666666,
+     "tp": 13,
      "falseAlarms": 0,
-     "redactedLeakFree": 14,
-     "removed": 14,
+     "redactedLeakFree": 13,
+     "removed": 13,
      "leaked": 0
     },
     "all": {
-     "found": 15,
-     "detectionRecall": 0.8823529411764706,
-     "recall": 0.8823529411764706,
+     "found": 17,
+     "detectionRecall": 1,
+     "recall": 1,
      "precision": 1,
-     "f1": 0.9375,
-     "tp": 15,
+     "f1": 1,
+     "tp": 17,
      "falseAlarms": 0,
-     "redactedLeakFree": 15,
-     "removed": 15,
+     "redactedLeakFree": 17,
+     "removed": 17,
      "leaked": 0
     }
    },
@@ -649,27 +650,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 9,
-     "detectionRecall": 0.75,
-     "recall": 0.75,
+     "found": 7,
+     "detectionRecall": 0.5833333333333334,
+     "recall": 0.5833333333333334,
      "precision": 1,
-     "f1": 0.8571428571428571,
-     "tp": 9,
+     "f1": 0.7368421052631579,
+     "tp": 7,
      "falseAlarms": 0,
-     "redactedLeakFree": 9,
-     "removed": 9,
+     "redactedLeakFree": 7,
+     "removed": 7,
      "leaked": 0
     },
     "all": {
-     "found": 11,
-     "detectionRecall": 0.9166666666666666,
-     "recall": 0.9166666666666666,
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
      "precision": 1,
-     "f1": 0.9565217391304348,
-     "tp": 11,
+     "f1": 0.9090909090909091,
+     "tp": 10,
      "falseAlarms": 0,
-     "redactedLeakFree": 11,
-     "removed": 11,
+     "redactedLeakFree": 10,
+     "removed": 10,
      "leaked": 0
     }
    },
@@ -690,24 +691,24 @@
      "found": 7,
      "detectionRecall": 0.5833333333333334,
      "recall": 0.5833333333333334,
-     "precision": 1,
-     "f1": 0.7368421052631579,
+     "precision": 0.875,
+     "f1": 0.7000000000000001,
      "tp": 7,
-     "falseAlarms": 0,
-     "redactedLeakFree": 7,
-     "removed": 7,
+     "falseAlarms": 1,
+     "redactedLeakFree": 8,
+     "removed": 8,
      "leaked": 0
     },
     "all": {
-     "found": 7,
-     "detectionRecall": 0.5833333333333334,
-     "recall": 0.5833333333333334,
-     "precision": 1,
-     "f1": 0.7368421052631579,
-     "tp": 7,
-     "falseAlarms": 0,
-     "redactedLeakFree": 7,
-     "removed": 7,
+     "found": 8,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
+     "precision": 0.8888888888888888,
+     "f1": 0.761904761904762,
+     "tp": 8,
+     "falseAlarms": 1,
+     "redactedLeakFree": 9,
+     "removed": 9,
      "leaked": 0
     }
    },
@@ -725,27 +726,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 10,
-     "detectionRecall": 0.8333333333333334,
-     "recall": 0.8333333333333334,
-     "precision": 1,
-     "f1": 0.9090909090909091,
-     "tp": 10,
-     "falseAlarms": 0,
-     "redactedLeakFree": 10,
-     "removed": 10,
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
+     "precision": 0.8181818181818182,
+     "f1": 0.7826086956521738,
+     "tp": 9,
+     "falseAlarms": 2,
+     "redactedLeakFree": 9,
+     "removed": 9,
      "leaked": 0
     },
     "all": {
-     "found": 12,
-     "detectionRecall": 1,
-     "recall": 1,
-     "precision": 1,
-     "f1": 1,
-     "tp": 12,
-     "falseAlarms": 0,
-     "redactedLeakFree": 12,
-     "removed": 12,
+     "found": 11,
+     "detectionRecall": 0.9166666666666666,
+     "recall": 0.9166666666666666,
+     "precision": 0.8461538461538461,
+     "f1": 0.8799999999999999,
+     "tp": 11,
+     "falseAlarms": 2,
+     "redactedLeakFree": 11,
+     "removed": 11,
      "leaked": 0
     }
    },
@@ -763,6 +764,18 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
+     "found": 6,
+     "detectionRecall": 0.5,
+     "recall": 0.5,
+     "precision": 1,
+     "f1": 0.6666666666666666,
+     "tp": 6,
+     "falseAlarms": 0,
+     "redactedLeakFree": 6,
+     "removed": 6,
+     "leaked": 0
+    },
+    "all": {
      "found": 7,
      "detectionRecall": 0.5833333333333334,
      "recall": 0.5833333333333334,
@@ -772,18 +785,6 @@
      "falseAlarms": 0,
      "redactedLeakFree": 7,
      "removed": 7,
-     "leaked": 0
-    },
-    "all": {
-     "found": 10,
-     "detectionRecall": 0.8333333333333334,
-     "recall": 0.8333333333333334,
-     "precision": 1,
-     "f1": 0.9090909090909091,
-     "tp": 10,
-     "falseAlarms": 0,
-     "redactedLeakFree": 10,
-     "removed": 10,
      "leaked": 0
     }
    },
@@ -796,32 +797,32 @@
    "family": "odt",
    "zone": "body",
    "cases": 2,
-   "items": 17,
-   "extracted": 17,
+   "items": 15,
+   "extracted": 15,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 10,
-     "detectionRecall": 0.5882352941176471,
-     "recall": 0.5882352941176471,
-     "precision": 1,
-     "f1": 0.7407407407407407,
-     "tp": 10,
-     "falseAlarms": 0,
-     "redactedLeakFree": 10,
-     "removed": 10,
+     "found": 11,
+     "detectionRecall": 0.7333333333333333,
+     "recall": 0.7333333333333333,
+     "precision": 0.7857142857142857,
+     "f1": 0.7586206896551724,
+     "tp": 11,
+     "falseAlarms": 3,
+     "redactedLeakFree": 11,
+     "removed": 11,
      "leaked": 0
     },
     "all": {
-     "found": 17,
+     "found": 15,
      "detectionRecall": 1,
      "recall": 1,
-     "precision": 1,
-     "f1": 1,
-     "tp": 17,
-     "falseAlarms": 0,
-     "redactedLeakFree": 17,
-     "removed": 17,
+     "precision": 0.8333333333333334,
+     "f1": 0.9090909090909091,
+     "tp": 15,
+     "falseAlarms": 3,
+     "redactedLeakFree": 15,
+     "removed": 15,
      "leaked": 0
     }
    },
@@ -889,15 +890,15 @@
      "leaked": 0
     },
     "all": {
-     "found": 5,
-     "detectionRecall": 0.8333333333333334,
-     "recall": 0.8333333333333334,
+     "found": 6,
+     "detectionRecall": 1,
+     "recall": 1,
      "precision": 1,
-     "f1": 0.9090909090909091,
-     "tp": 5,
+     "f1": 1,
+     "tp": 6,
      "falseAlarms": 0,
-     "redactedLeakFree": 5,
-     "removed": 5,
+     "redactedLeakFree": 6,
+     "removed": 6,
      "leaked": 0
     }
    },
@@ -915,15 +916,15 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 3,
-     "detectionRecall": 0.5,
-     "recall": 0.5,
+     "found": 4,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
      "precision": 1,
-     "f1": 0.6666666666666666,
-     "tp": 3,
+     "f1": 0.8,
+     "tp": 4,
      "falseAlarms": 0,
-     "redactedLeakFree": 3,
-     "removed": 3,
+     "redactedLeakFree": 4,
+     "removed": 4,
      "leaked": 0
     },
     "all": {
@@ -953,27 +954,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 4,
-     "detectionRecall": 0.4,
-     "recall": 0.4,
-     "precision": 1,
-     "f1": 0.5714285714285715,
-     "tp": 4,
-     "falseAlarms": 0,
-     "redactedLeakFree": 4,
-     "removed": 4,
-     "leaked": 0
-    },
-    "all": {
      "found": 6,
      "detectionRecall": 0.6,
      "recall": 0.6,
-     "precision": 1,
-     "f1": 0.7499999999999999,
+     "precision": 0.8571428571428571,
+     "f1": 0.7058823529411764,
      "tp": 6,
-     "falseAlarms": 0,
-     "redactedLeakFree": 5,
-     "removed": 5,
+     "falseAlarms": 1,
+     "redactedLeakFree": 7,
+     "removed": 7,
+     "leaked": 0
+    },
+    "all": {
+     "found": 7,
+     "detectionRecall": 0.7,
+     "recall": 0.7,
+     "precision": 0.875,
+     "f1": 0.7777777777777777,
+     "tp": 7,
+     "falseAlarms": 1,
+     "redactedLeakFree": 8,
+     "removed": 8,
      "leaked": 0
     }
    },
@@ -991,25 +992,25 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 7,
-     "detectionRecall": 0.5833333333333334,
-     "recall": 0.5833333333333334,
-     "precision": 0.7,
-     "f1": 0.6363636363636365,
-     "tp": 7,
-     "falseAlarms": 3,
-     "redactedLeakFree": 7,
-     "removed": 7,
+     "found": 8,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
+     "precision": 0.8888888888888888,
+     "f1": 0.761904761904762,
+     "tp": 8,
+     "falseAlarms": 1,
+     "redactedLeakFree": 8,
+     "removed": 8,
      "leaked": 0
     },
     "all": {
      "found": 10,
      "detectionRecall": 0.8333333333333334,
      "recall": 0.8333333333333334,
-     "precision": 0.7692307692307693,
-     "f1": 0.8,
+     "precision": 0.9090909090909091,
+     "f1": 0.8695652173913043,
      "tp": 10,
-     "falseAlarms": 3,
+     "falseAlarms": 1,
      "redactedLeakFree": 10,
      "removed": 10,
      "leaked": 0
@@ -1024,32 +1025,32 @@
    "family": "odt",
    "zone": "tracked_deletion",
    "cases": 2,
-   "items": 18,
-   "extracted": 18,
+   "items": 9,
+   "extracted": 9,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 11,
-     "detectionRecall": 0.6111111111111112,
-     "recall": 0.6111111111111112,
-     "precision": 1,
-     "f1": 0.7586206896551725,
-     "tp": 11,
-     "falseAlarms": 0,
-     "redactedLeakFree": 11,
-     "removed": 11,
-     "leaked": 0
-    },
-    "all": {
-     "found": 16,
+     "found": 8,
      "detectionRecall": 0.8888888888888888,
      "recall": 0.8888888888888888,
      "precision": 1,
      "f1": 0.9411764705882353,
-     "tp": 16,
+     "tp": 8,
      "falseAlarms": 0,
-     "redactedLeakFree": 16,
-     "removed": 16,
+     "redactedLeakFree": 8,
+     "removed": 8,
+     "leaked": 0
+    },
+    "all": {
+     "found": 8,
+     "detectionRecall": 0.8888888888888888,
+     "recall": 0.8888888888888888,
+     "precision": 1,
+     "f1": 0.9411764705882353,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
      "leaked": 0
     }
    },
@@ -1143,15 +1144,15 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 4,
-     "detectionRecall": 0.3333333333333333,
-     "recall": 0.3333333333333333,
+     "found": 5,
+     "detectionRecall": 0.4166666666666667,
+     "recall": 0.4166666666666667,
      "precision": 1,
-     "f1": 0.5,
-     "tp": 4,
+     "f1": 0.5882352941176471,
+     "tp": 5,
      "falseAlarms": 0,
-     "redactedLeakFree": 4,
-     "removed": 4,
+     "redactedLeakFree": 5,
+     "removed": 5,
      "leaked": 0
     },
     "all": {
@@ -1219,27 +1220,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 14,
-     "detectionRecall": 0.7,
-     "recall": 0.7,
+     "found": 15,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
      "precision": 1,
-     "f1": 0.8235294117647058,
-     "tp": 14,
+     "f1": 0.8571428571428571,
+     "tp": 15,
      "falseAlarms": 0,
-     "redactedLeakFree": 14,
-     "removed": 14,
+     "redactedLeakFree": 15,
+     "removed": 15,
      "leaked": 0
     },
     "all": {
-     "found": 17,
-     "detectionRecall": 0.85,
-     "recall": 0.85,
+     "found": 18,
+     "detectionRecall": 0.9,
+     "recall": 0.9,
      "precision": 1,
-     "f1": 0.9189189189189189,
-     "tp": 17,
+     "f1": 0.9473684210526316,
+     "tp": 18,
      "falseAlarms": 0,
-     "redactedLeakFree": 17,
-     "removed": 17,
+     "redactedLeakFree": 18,
+     "removed": 18,
      "leaked": 0
     }
    },
@@ -1333,15 +1334,15 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 5,
-     "detectionRecall": 0.8333333333333334,
-     "recall": 0.8333333333333334,
+     "found": 6,
+     "detectionRecall": 1,
+     "recall": 1,
      "precision": 1,
-     "f1": 0.9090909090909091,
-     "tp": 5,
+     "f1": 1,
+     "tp": 6,
      "falseAlarms": 0,
-     "redactedLeakFree": 5,
-     "removed": 5,
+     "redactedLeakFree": 6,
+     "removed": 6,
      "leaked": 0
     },
     "all": {
@@ -1366,32 +1367,32 @@
    "family": "pdf",
    "zone": "page",
    "cases": 2,
-   "items": 10,
-   "extracted": 10,
+   "items": 11,
+   "extracted": 11,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 9,
-     "detectionRecall": 0.9,
-     "recall": 0.9,
+     "found": 6,
+     "detectionRecall": 0.5454545454545454,
+     "recall": 0.5454545454545454,
      "precision": 1,
-     "f1": 0.9473684210526316,
-     "tp": 9,
+     "f1": 0.7058823529411764,
+     "tp": 6,
      "falseAlarms": 0,
-     "redactedLeakFree": 9,
-     "removed": 9,
+     "redactedLeakFree": 6,
+     "removed": 6,
      "leaked": 0
     },
     "all": {
-     "found": 9,
-     "detectionRecall": 0.9,
-     "recall": 0.9,
+     "found": 10,
+     "detectionRecall": 0.9090909090909091,
+     "recall": 0.9090909090909091,
      "precision": 1,
-     "f1": 0.9473684210526316,
-     "tp": 9,
+     "f1": 0.9523809523809523,
+     "tp": 10,
      "falseAlarms": 0,
-     "redactedLeakFree": 9,
-     "removed": 9,
+     "redactedLeakFree": 10,
+     "removed": 10,
      "leaked": 0
     }
    },
@@ -1405,31 +1406,31 @@
    "zone": "table_cell",
    "cases": 2,
    "items": 12,
-   "extracted": 10,
-   "extractionRecall": 0.8333333333333334,
+   "extracted": 11,
+   "extractionRecall": 0.9166666666666666,
    "configs": {
     "default": {
-     "found": 5,
-     "detectionRecall": 0.5,
-     "recall": 0.4166666666666667,
-     "precision": 0.35714285714285715,
-     "f1": 0.3846153846153846,
-     "tp": 5,
-     "falseAlarms": 9,
-     "redactedLeakFree": 5,
-     "removed": 5,
+     "found": 8,
+     "detectionRecall": 0.7272727272727273,
+     "recall": 0.6666666666666666,
+     "precision": 0.8888888888888888,
+     "f1": 0.761904761904762,
+     "tp": 8,
+     "falseAlarms": 1,
+     "redactedLeakFree": 8,
+     "removed": 8,
      "leaked": 0
     },
     "all": {
-     "found": 8,
-     "detectionRecall": 0.8,
-     "recall": 0.6666666666666666,
-     "precision": 0.47058823529411764,
-     "f1": 0.5517241379310345,
-     "tp": 8,
-     "falseAlarms": 9,
-     "redactedLeakFree": 8,
-     "removed": 8,
+     "found": 10,
+     "detectionRecall": 0.9090909090909091,
+     "recall": 0.8333333333333334,
+     "precision": 0.9090909090909091,
+     "f1": 0.8695652173913043,
+     "tp": 10,
+     "falseAlarms": 1,
+     "redactedLeakFree": 10,
+     "removed": 10,
      "leaked": 0
     }
    },
@@ -1450,29 +1451,30 @@
      "found": 12,
      "detectionRecall": 0.6666666666666666,
      "recall": 0.6666666666666666,
-     "precision": 1,
-     "f1": 0.8,
+     "precision": 0.9230769230769231,
+     "f1": 0.7741935483870968,
      "tp": 12,
-     "falseAlarms": 0,
+     "falseAlarms": 1,
      "redactedLeakFree": 12,
      "removed": 12,
      "leaked": 0
     },
     "all": {
-     "found": 17,
-     "detectionRecall": 0.9444444444444444,
-     "recall": 0.9444444444444444,
-     "precision": 1,
-     "f1": 0.9714285714285714,
-     "tp": 17,
-     "falseAlarms": 0,
-     "redactedLeakFree": 17,
-     "removed": 17,
+     "found": 13,
+     "detectionRecall": 0.7222222222222222,
+     "recall": 0.7222222222222222,
+     "precision": 0.9285714285714286,
+     "f1": 0.8125000000000001,
+     "tp": 13,
+     "falseAlarms": 1,
+     "redactedLeakFree": 13,
+     "removed": 13,
      "leaked": 0
     }
    },
    "modes": {
-    "in_place": 2
+    "fallback_text_copy": 1,
+    "in_place": 1
    },
    "misclassified": 0
   },
@@ -1518,32 +1520,32 @@
    "family": "pptx",
    "zone": "hidden_slide",
    "cases": 2,
-   "items": 8,
-   "extracted": 8,
+   "items": 13,
+   "extracted": 13,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 5,
-     "detectionRecall": 0.625,
-     "recall": 0.625,
-     "precision": 1,
-     "f1": 0.7692307692307693,
-     "tp": 5,
-     "falseAlarms": 0,
-     "redactedLeakFree": 5,
-     "removed": 5,
-     "leaked": 0
-    },
-    "all": {
      "found": 7,
-     "detectionRecall": 0.875,
-     "recall": 0.875,
+     "detectionRecall": 0.5384615384615384,
+     "recall": 0.5384615384615384,
      "precision": 1,
-     "f1": 0.9333333333333333,
+     "f1": 0.7000000000000001,
      "tp": 7,
      "falseAlarms": 0,
      "redactedLeakFree": 7,
      "removed": 7,
+     "leaked": 0
+    },
+    "all": {
+     "found": 8,
+     "detectionRecall": 0.6153846153846154,
+     "recall": 0.6153846153846154,
+     "precision": 1,
+     "f1": 0.761904761904762,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
      "leaked": 0
     }
    },
@@ -1561,18 +1563,6 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 5,
-     "detectionRecall": 0.5,
-     "recall": 0.5,
-     "precision": 1,
-     "f1": 0.6666666666666666,
-     "tp": 5,
-     "falseAlarms": 0,
-     "redactedLeakFree": 5,
-     "removed": 5,
-     "leaked": 0
-    },
-    "all": {
      "found": 6,
      "detectionRecall": 0.6,
      "recall": 0.6,
@@ -1582,6 +1572,18 @@
      "falseAlarms": 0,
      "redactedLeakFree": 6,
      "removed": 6,
+     "leaked": 0
+    },
+    "all": {
+     "found": 8,
+     "detectionRecall": 0.8,
+     "recall": 0.8,
+     "precision": 1,
+     "f1": 0.888888888888889,
+     "tp": 8,
+     "falseAlarms": 0,
+     "redactedLeakFree": 8,
+     "removed": 8,
      "leaked": 0
     }
    },
@@ -1594,32 +1596,32 @@
    "family": "pptx",
    "zone": "slide",
    "cases": 2,
-   "items": 15,
-   "extracted": 15,
+   "items": 12,
+   "extracted": 12,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 14,
-     "detectionRecall": 0.9333333333333333,
-     "recall": 0.9333333333333333,
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
      "precision": 1,
-     "f1": 0.9655172413793104,
-     "tp": 14,
+     "f1": 0.9090909090909091,
+     "tp": 10,
      "falseAlarms": 0,
-     "redactedLeakFree": 14,
-     "removed": 14,
+     "redactedLeakFree": 10,
+     "removed": 10,
      "leaked": 0
     },
     "all": {
-     "found": 14,
-     "detectionRecall": 0.9333333333333333,
-     "recall": 0.9333333333333333,
+     "found": 12,
+     "detectionRecall": 1,
+     "recall": 1,
      "precision": 1,
-     "f1": 0.9655172413793104,
-     "tp": 14,
+     "f1": 1,
+     "tp": 12,
      "falseAlarms": 0,
-     "redactedLeakFree": 14,
-     "removed": 14,
+     "redactedLeakFree": 12,
+     "removed": 12,
      "leaked": 0
     }
    },
@@ -1637,25 +1639,25 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 6,
-     "detectionRecall": 0.5,
-     "recall": 0.5,
-     "precision": 0.8571428571428571,
-     "f1": 0.631578947368421,
-     "tp": 6,
-     "falseAlarms": 1,
-     "redactedLeakFree": 6,
-     "removed": 6,
+     "found": 7,
+     "detectionRecall": 0.5833333333333334,
+     "recall": 0.5833333333333334,
+     "precision": 0.7,
+     "f1": 0.6363636363636365,
+     "tp": 7,
+     "falseAlarms": 3,
+     "redactedLeakFree": 7,
+     "removed": 7,
      "leaked": 0
     },
     "all": {
      "found": 9,
      "detectionRecall": 0.75,
      "recall": 0.75,
-     "precision": 0.9,
-     "f1": 0.8181818181818182,
+     "precision": 0.6923076923076923,
+     "f1": 0.7199999999999999,
      "tp": 9,
-     "falseAlarms": 1,
+     "falseAlarms": 4,
      "redactedLeakFree": 9,
      "removed": 9,
      "leaked": 0
@@ -1713,27 +1715,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 5,
-     "detectionRecall": 0.4166666666666667,
-     "recall": 0.4166666666666667,
-     "precision": 1,
-     "f1": 0.5882352941176471,
-     "tp": 5,
-     "falseAlarms": 0,
-     "redactedLeakFree": 5,
-     "removed": 5,
+     "found": 7,
+     "detectionRecall": 0.5833333333333334,
+     "recall": 0.5833333333333334,
+     "precision": 0.875,
+     "f1": 0.7000000000000001,
+     "tp": 7,
+     "falseAlarms": 1,
+     "redactedLeakFree": 7,
+     "removed": 7,
      "leaked": 0
     },
     "all": {
-     "found": 5,
-     "detectionRecall": 0.4166666666666667,
-     "recall": 0.4166666666666667,
-     "precision": 1,
-     "f1": 0.5882352941176471,
-     "tp": 5,
-     "falseAlarms": 0,
-     "redactedLeakFree": 5,
-     "removed": 5,
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
+     "precision": 0.9,
+     "f1": 0.8181818181818182,
+     "tp": 9,
+     "falseAlarms": 1,
+     "redactedLeakFree": 9,
+     "removed": 9,
      "leaked": 0
     }
    },
@@ -1746,32 +1748,32 @@
    "family": "text",
    "zone": "html body",
    "cases": 2,
-   "items": 14,
-   "extracted": 14,
+   "items": 11,
+   "extracted": 11,
    "extractionRecall": 1,
    "configs": {
     "default": {
      "found": 10,
-     "detectionRecall": 0.7142857142857143,
-     "recall": 0.7142857142857143,
-     "precision": 1,
-     "f1": 0.8333333333333333,
+     "detectionRecall": 0.9090909090909091,
+     "recall": 0.9090909090909091,
+     "precision": 0.8333333333333334,
+     "f1": 0.8695652173913043,
      "tp": 10,
-     "falseAlarms": 0,
+     "falseAlarms": 2,
      "redactedLeakFree": 10,
      "removed": 10,
      "leaked": 0
     },
     "all": {
-     "found": 12,
-     "detectionRecall": 0.8571428571428571,
-     "recall": 0.8571428571428571,
-     "precision": 1,
-     "f1": 0.923076923076923,
-     "tp": 12,
-     "falseAlarms": 0,
-     "redactedLeakFree": 12,
-     "removed": 12,
+     "found": 10,
+     "detectionRecall": 0.9090909090909091,
+     "recall": 0.9090909090909091,
+     "precision": 0.8333333333333334,
+     "f1": 0.8695652173913043,
+     "tp": 10,
+     "falseAlarms": 2,
+     "redactedLeakFree": 10,
+     "removed": 10,
      "leaked": 0
     }
    },
@@ -1789,27 +1791,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 7,
-     "detectionRecall": 0.5833333333333334,
-     "recall": 0.5833333333333334,
+     "found": 6,
+     "detectionRecall": 0.5,
+     "recall": 0.5,
      "precision": 1,
-     "f1": 0.7368421052631579,
-     "tp": 7,
+     "f1": 0.6666666666666666,
+     "tp": 6,
      "falseAlarms": 0,
-     "redactedLeakFree": 7,
-     "removed": 7,
+     "redactedLeakFree": 6,
+     "removed": 6,
      "leaked": 0
     },
     "all": {
-     "found": 9,
-     "detectionRecall": 0.75,
-     "recall": 0.75,
+     "found": 8,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
      "precision": 1,
-     "f1": 0.8571428571428571,
-     "tp": 9,
+     "f1": 0.8,
+     "tp": 8,
      "falseAlarms": 0,
-     "redactedLeakFree": 9,
-     "removed": 9,
+     "redactedLeakFree": 8,
+     "removed": 8,
      "leaked": 0
     }
    },
@@ -1822,32 +1824,32 @@
    "family": "text",
    "zone": "log body",
    "cases": 2,
-   "items": 13,
-   "extracted": 13,
+   "items": 17,
+   "extracted": 17,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 7,
-     "detectionRecall": 0.5384615384615384,
-     "recall": 0.5384615384615384,
-     "precision": 1,
-     "f1": 0.7000000000000001,
-     "tp": 7,
-     "falseAlarms": 0,
-     "redactedLeakFree": 7,
-     "removed": 7,
+     "found": 14,
+     "detectionRecall": 0.8235294117647058,
+     "recall": 0.8235294117647058,
+     "precision": 0.875,
+     "f1": 0.8484848484848485,
+     "tp": 14,
+     "falseAlarms": 2,
+     "redactedLeakFree": 14,
+     "removed": 14,
      "leaked": 0
     },
     "all": {
-     "found": 13,
+     "found": 17,
      "detectionRecall": 1,
      "recall": 1,
-     "precision": 1,
-     "f1": 1,
-     "tp": 13,
-     "falseAlarms": 0,
-     "redactedLeakFree": 12,
-     "removed": 12,
+     "precision": 0.8947368421052632,
+     "f1": 0.9444444444444444,
+     "tp": 17,
+     "falseAlarms": 2,
+     "redactedLeakFree": 17,
+     "removed": 17,
      "leaked": 0
     }
    },
@@ -1860,32 +1862,32 @@
    "family": "text",
    "zone": "md body",
    "cases": 2,
-   "items": 12,
-   "extracted": 12,
+   "items": 10,
+   "extracted": 10,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 10,
-     "detectionRecall": 0.8333333333333334,
-     "recall": 0.8333333333333334,
+     "found": 4,
+     "detectionRecall": 0.4,
+     "recall": 0.4,
      "precision": 1,
-     "f1": 0.9090909090909091,
+     "f1": 0.5714285714285715,
+     "tp": 4,
+     "falseAlarms": 0,
+     "redactedLeakFree": 4,
+     "removed": 4,
+     "leaked": 0
+    },
+    "all": {
+     "found": 10,
+     "detectionRecall": 1,
+     "recall": 1,
+     "precision": 1,
+     "f1": 1,
      "tp": 10,
      "falseAlarms": 0,
      "redactedLeakFree": 10,
      "removed": 10,
-     "leaked": 0
-    },
-    "all": {
-     "found": 11,
-     "detectionRecall": 0.9166666666666666,
-     "recall": 0.9166666666666666,
-     "precision": 1,
-     "f1": 0.9565217391304348,
-     "tp": 11,
-     "falseAlarms": 0,
-     "redactedLeakFree": 11,
-     "removed": 11,
      "leaked": 0
     }
    },
@@ -1898,32 +1900,32 @@
    "family": "text",
    "zone": "txt body",
    "cases": 2,
-   "items": 8,
-   "extracted": 8,
+   "items": 19,
+   "extracted": 19,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 7,
-     "detectionRecall": 0.875,
-     "recall": 0.875,
-     "precision": 1,
-     "f1": 0.9333333333333333,
-     "tp": 7,
-     "falseAlarms": 0,
-     "redactedLeakFree": 7,
-     "removed": 7,
+     "found": 14,
+     "detectionRecall": 0.7368421052631579,
+     "recall": 0.7368421052631579,
+     "precision": 0.875,
+     "f1": 0.7999999999999999,
+     "tp": 14,
+     "falseAlarms": 2,
+     "redactedLeakFree": 14,
+     "removed": 14,
      "leaked": 0
     },
     "all": {
-     "found": 7,
-     "detectionRecall": 0.875,
-     "recall": 0.875,
-     "precision": 1,
-     "f1": 0.9333333333333333,
-     "tp": 7,
-     "falseAlarms": 0,
-     "redactedLeakFree": 7,
-     "removed": 7,
+     "found": 17,
+     "detectionRecall": 0.8947368421052632,
+     "recall": 0.8947368421052632,
+     "precision": 0.8947368421052632,
+     "f1": 0.8947368421052632,
+     "tp": 17,
+     "falseAlarms": 2,
+     "redactedLeakFree": 16,
+     "removed": 16,
      "leaked": 0
     }
    },
@@ -1941,15 +1943,15 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 9,
-     "detectionRecall": 0.75,
-     "recall": 0.75,
+     "found": 8,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
      "precision": 1,
-     "f1": 0.8571428571428571,
-     "tp": 9,
+     "f1": 0.8,
+     "tp": 8,
      "falseAlarms": 0,
-     "redactedLeakFree": 9,
-     "removed": 9,
+     "redactedLeakFree": 8,
+     "removed": 8,
      "leaked": 0
     },
     "all": {
@@ -1979,27 +1981,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 8,
-     "detectionRecall": 0.6666666666666666,
-     "recall": 0.6666666666666666,
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
      "precision": 1,
-     "f1": 0.8,
-     "tp": 8,
+     "f1": 0.8571428571428571,
+     "tp": 9,
      "falseAlarms": 0,
-     "redactedLeakFree": 8,
-     "removed": 8,
+     "redactedLeakFree": 9,
+     "removed": 9,
      "leaked": 0
     },
     "all": {
-     "found": 10,
-     "detectionRecall": 0.8333333333333334,
-     "recall": 0.8333333333333334,
+     "found": 11,
+     "detectionRecall": 0.9166666666666666,
+     "recall": 0.9166666666666666,
      "precision": 1,
-     "f1": 0.9090909090909091,
-     "tp": 10,
+     "f1": 0.9565217391304348,
+     "tp": 11,
      "falseAlarms": 0,
-     "redactedLeakFree": 10,
-     "removed": 10,
+     "redactedLeakFree": 11,
+     "removed": 11,
      "leaked": 0
     }
    },
@@ -2017,15 +2019,15 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 10,
-     "detectionRecall": 0.8333333333333334,
-     "recall": 0.8333333333333334,
+     "found": 8,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
      "precision": 1,
-     "f1": 0.9090909090909091,
-     "tp": 10,
+     "f1": 0.8,
+     "tp": 8,
      "falseAlarms": 0,
-     "redactedLeakFree": 10,
-     "removed": 10,
+     "redactedLeakFree": 8,
+     "removed": 8,
      "leaked": 0
     },
     "all": {
@@ -2058,24 +2060,24 @@
      "found": 10,
      "detectionRecall": 0.8333333333333334,
      "recall": 0.8333333333333334,
-     "precision": 1,
-     "f1": 0.9090909090909091,
+     "precision": 0.7692307692307693,
+     "f1": 0.8,
      "tp": 10,
-     "falseAlarms": 0,
+     "falseAlarms": 3,
      "redactedLeakFree": 10,
      "removed": 10,
      "leaked": 0
     },
     "all": {
-     "found": 12,
-     "detectionRecall": 1,
-     "recall": 1,
-     "precision": 1,
-     "f1": 1,
-     "tp": 12,
-     "falseAlarms": 0,
-     "redactedLeakFree": 12,
-     "removed": 12,
+     "found": 11,
+     "detectionRecall": 0.9166666666666666,
+     "recall": 0.9166666666666666,
+     "precision": 0.7857142857142857,
+     "f1": 0.8461538461538461,
+     "tp": 11,
+     "falseAlarms": 3,
+     "redactedLeakFree": 11,
+     "removed": 11,
      "leaked": 0
     }
    },
@@ -2105,15 +2107,15 @@
      "leaked": 0
     },
     "all": {
-     "found": 6,
-     "detectionRecall": 0.5,
-     "recall": 0.5,
+     "found": 5,
+     "detectionRecall": 0.4166666666666667,
+     "recall": 0.4166666666666667,
      "precision": 1,
-     "f1": 0.6666666666666666,
-     "tp": 6,
+     "f1": 0.5882352941176471,
+     "tp": 5,
      "falseAlarms": 0,
-     "redactedLeakFree": 6,
-     "removed": 6,
+     "redactedLeakFree": 5,
+     "removed": 5,
      "leaked": 0
     }
    },
@@ -2131,15 +2133,15 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 3,
-     "detectionRecall": 0.5,
-     "recall": 0.5,
+     "found": 4,
+     "detectionRecall": 0.6666666666666666,
+     "recall": 0.6666666666666666,
      "precision": 1,
-     "f1": 0.6666666666666666,
-     "tp": 3,
+     "f1": 0.8,
+     "tp": 4,
      "falseAlarms": 0,
-     "redactedLeakFree": 3,
-     "removed": 3,
+     "redactedLeakFree": 4,
+     "removed": 4,
      "leaked": 0
     },
     "all": {
@@ -2169,27 +2171,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 8,
-     "detectionRecall": 0.6666666666666666,
-     "recall": 0.6666666666666666,
-     "precision": 1,
-     "f1": 0.8,
-     "tp": 8,
-     "falseAlarms": 0,
-     "redactedLeakFree": 8,
-     "removed": 8,
+     "found": 9,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
+     "precision": 0.8181818181818182,
+     "f1": 0.7826086956521738,
+     "tp": 9,
+     "falseAlarms": 2,
+     "redactedLeakFree": 9,
+     "removed": 9,
      "leaked": 0
     },
     "all": {
-     "found": 11,
-     "detectionRecall": 0.9166666666666666,
-     "recall": 0.9166666666666666,
-     "precision": 1,
-     "f1": 0.9565217391304348,
-     "tp": 11,
-     "falseAlarms": 0,
-     "redactedLeakFree": 11,
-     "removed": 11,
+     "found": 10,
+     "detectionRecall": 0.8333333333333334,
+     "recall": 0.8333333333333334,
+     "precision": 0.8333333333333334,
+     "f1": 0.8333333333333334,
+     "tp": 10,
+     "falseAlarms": 2,
+     "redactedLeakFree": 10,
+     "removed": 10,
      "leaked": 0
     }
    },
@@ -2207,27 +2209,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 7,
-     "detectionRecall": 0.5833333333333334,
-     "recall": 0.5833333333333334,
-     "precision": 0.7,
-     "f1": 0.6363636363636365,
-     "tp": 7,
+     "found": 4,
+     "detectionRecall": 0.3333333333333333,
+     "recall": 0.3333333333333333,
+     "precision": 0.5714285714285714,
+     "f1": 0.4210526315789474,
+     "tp": 4,
      "falseAlarms": 3,
-     "redactedLeakFree": 7,
-     "removed": 7,
+     "redactedLeakFree": 4,
+     "removed": 4,
      "leaked": 0
     },
     "all": {
-     "found": 9,
-     "detectionRecall": 0.75,
-     "recall": 0.75,
-     "precision": 0.6923076923076923,
-     "f1": 0.7199999999999999,
-     "tp": 9,
-     "falseAlarms": 4,
-     "redactedLeakFree": 9,
-     "removed": 9,
+     "found": 6,
+     "detectionRecall": 0.5,
+     "recall": 0.5,
+     "precision": 0.6666666666666666,
+     "f1": 0.5714285714285715,
+     "tp": 6,
+     "falseAlarms": 3,
+     "redactedLeakFree": 6,
+     "removed": 6,
      "leaked": 0
     }
    },
@@ -2240,32 +2242,32 @@
    "family": "zip",
    "zone": "entry_docx",
    "cases": 2,
-   "items": 12,
-   "extracted": 12,
+   "items": 16,
+   "extracted": 16,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 12,
-     "detectionRecall": 1,
-     "recall": 1,
+     "found": 11,
+     "detectionRecall": 0.6875,
+     "recall": 0.6875,
      "precision": 1,
-     "f1": 1,
-     "tp": 12,
+     "f1": 0.8148148148148148,
+     "tp": 11,
      "falseAlarms": 0,
-     "redactedLeakFree": 12,
-     "removed": 12,
+     "redactedLeakFree": 11,
+     "removed": 11,
      "leaked": 0
     },
     "all": {
-     "found": 12,
-     "detectionRecall": 1,
-     "recall": 1,
+     "found": 14,
+     "detectionRecall": 0.875,
+     "recall": 0.875,
      "precision": 1,
-     "f1": 1,
-     "tp": 12,
+     "f1": 0.9333333333333333,
+     "tp": 14,
      "falseAlarms": 0,
-     "redactedLeakFree": 12,
-     "removed": 12,
+     "redactedLeakFree": 14,
+     "removed": 14,
      "leaked": 0
     }
    },
@@ -2283,27 +2285,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 9,
-     "detectionRecall": 0.6923076923076923,
-     "recall": 0.6923076923076923,
+     "found": 10,
+     "detectionRecall": 0.7692307692307693,
+     "recall": 0.7692307692307693,
      "precision": 1,
-     "f1": 0.8181818181818181,
-     "tp": 9,
+     "f1": 0.8695652173913044,
+     "tp": 10,
      "falseAlarms": 0,
-     "redactedLeakFree": 9,
-     "removed": 9,
+     "redactedLeakFree": 10,
+     "removed": 10,
      "leaked": 0
     },
     "all": {
-     "found": 12,
-     "detectionRecall": 0.9230769230769231,
-     "recall": 0.9230769230769231,
+     "found": 13,
+     "detectionRecall": 1,
+     "recall": 1,
      "precision": 1,
-     "f1": 0.9600000000000001,
-     "tp": 12,
+     "f1": 1,
+     "tp": 13,
      "falseAlarms": 0,
-     "redactedLeakFree": 12,
-     "removed": 12,
+     "redactedLeakFree": 13,
+     "removed": 13,
      "leaked": 0
     }
    },
@@ -2316,32 +2318,32 @@
    "family": "zip",
    "zone": "entry_txt",
    "cases": 2,
-   "items": 7,
-   "extracted": 7,
+   "items": 13,
+   "extracted": 13,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 5,
-     "detectionRecall": 0.7142857142857143,
-     "recall": 0.7142857142857143,
+     "found": 7,
+     "detectionRecall": 0.5384615384615384,
+     "recall": 0.5384615384615384,
      "precision": 1,
-     "f1": 0.8333333333333333,
-     "tp": 5,
+     "f1": 0.7000000000000001,
+     "tp": 7,
      "falseAlarms": 0,
-     "redactedLeakFree": 5,
-     "removed": 5,
+     "redactedLeakFree": 7,
+     "removed": 7,
      "leaked": 0
     },
     "all": {
-     "found": 6,
-     "detectionRecall": 0.8571428571428571,
-     "recall": 0.8571428571428571,
+     "found": 12,
+     "detectionRecall": 0.9230769230769231,
+     "recall": 0.9230769230769231,
      "precision": 1,
-     "f1": 0.923076923076923,
-     "tp": 6,
+     "f1": 0.9600000000000001,
+     "tp": 12,
      "falseAlarms": 0,
-     "redactedLeakFree": 6,
-     "removed": 6,
+     "redactedLeakFree": 11,
+     "removed": 11,
      "leaked": 0
     }
    },
@@ -2354,32 +2356,32 @@
    "family": "zip",
    "zone": "nested_zip",
    "cases": 2,
-   "items": 16,
-   "extracted": 16,
+   "items": 9,
+   "extracted": 9,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 16,
-     "detectionRecall": 1,
-     "recall": 1,
+     "found": 7,
+     "detectionRecall": 0.7777777777777778,
+     "recall": 0.7777777777777778,
      "precision": 1,
-     "f1": 1,
-     "tp": 16,
+     "f1": 0.8750000000000001,
+     "tp": 7,
      "falseAlarms": 0,
-     "redactedLeakFree": 16,
-     "removed": 16,
+     "redactedLeakFree": 7,
+     "removed": 7,
      "leaked": 0
     },
     "all": {
-     "found": 16,
-     "detectionRecall": 1,
-     "recall": 1,
+     "found": 7,
+     "detectionRecall": 0.7777777777777778,
+     "recall": 0.7777777777777778,
      "precision": 1,
-     "f1": 1,
-     "tp": 16,
+     "f1": 0.8750000000000001,
+     "tp": 7,
      "falseAlarms": 0,
-     "redactedLeakFree": 16,
-     "removed": 16,
+     "redactedLeakFree": 7,
+     "removed": 7,
      "leaked": 0
     }
    },
@@ -2394,32 +2396,32 @@
    "family": "docx",
    "zone": "all zones",
    "cases": 26,
-   "items": 141,
-   "extracted": 141,
+   "items": 137,
+   "extracted": 137,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 101,
-     "detectionRecall": 0.7163120567375887,
-     "recall": 0.7163120567375887,
-     "precision": 1,
-     "f1": 0.8347107438016529,
-     "tp": 101,
-     "falseAlarms": 0,
-     "redactedLeakFree": 101,
-     "removed": 101,
+     "found": 99,
+     "detectionRecall": 0.7226277372262774,
+     "recall": 0.7226277372262774,
+     "precision": 0.99,
+     "f1": 0.8354430379746836,
+     "tp": 99,
+     "falseAlarms": 1,
+     "redactedLeakFree": 99,
+     "removed": 99,
      "leaked": 0
     },
     "all": {
-     "found": 127,
-     "detectionRecall": 0.900709219858156,
-     "recall": 0.900709219858156,
-     "precision": 1,
-     "f1": 0.9477611940298507,
-     "tp": 127,
-     "falseAlarms": 0,
-     "redactedLeakFree": 127,
-     "removed": 127,
+     "found": 121,
+     "detectionRecall": 0.8832116788321168,
+     "recall": 0.8832116788321168,
+     "precision": 0.9918032786885246,
+     "f1": 0.9343629343629344,
+     "tp": 121,
+     "falseAlarms": 1,
+     "redactedLeakFree": 121,
+     "removed": 121,
      "leaked": 0
     }
    },
@@ -2437,27 +2439,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 25,
-     "detectionRecall": 0.78125,
-     "recall": 0.78125,
+     "found": 24,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
      "precision": 1,
-     "f1": 0.8771929824561403,
-     "tp": 25,
+     "f1": 0.8571428571428571,
+     "tp": 24,
      "falseAlarms": 0,
-     "redactedLeakFree": 25,
-     "removed": 25,
+     "redactedLeakFree": 24,
+     "removed": 24,
      "leaked": 0
     },
     "all": {
-     "found": 26,
-     "detectionRecall": 0.8125,
-     "recall": 0.8125,
+     "found": 28,
+     "detectionRecall": 0.875,
+     "recall": 0.875,
      "precision": 1,
-     "f1": 0.896551724137931,
-     "tp": 26,
+     "f1": 0.9333333333333333,
+     "tp": 28,
      "falseAlarms": 0,
-     "redactedLeakFree": 26,
-     "removed": 26,
+     "redactedLeakFree": 28,
+     "removed": 28,
      "leaked": 0
     }
    },
@@ -2475,27 +2477,27 @@
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 33,
-     "detectionRecall": 0.6875,
-     "recall": 0.6875,
-     "precision": 1,
-     "f1": 0.8148148148148148,
-     "tp": 33,
-     "falseAlarms": 0,
-     "redactedLeakFree": 33,
-     "removed": 33,
+     "found": 29,
+     "detectionRecall": 0.6041666666666666,
+     "recall": 0.6041666666666666,
+     "precision": 0.90625,
+     "f1": 0.725,
+     "tp": 29,
+     "falseAlarms": 3,
+     "redactedLeakFree": 30,
+     "removed": 30,
      "leaked": 0
     },
     "all": {
-     "found": 40,
-     "detectionRecall": 0.8333333333333334,
-     "recall": 0.8333333333333334,
-     "precision": 1,
-     "f1": 0.9090909090909091,
-     "tp": 40,
-     "falseAlarms": 0,
-     "redactedLeakFree": 40,
-     "removed": 40,
+     "found": 36,
+     "detectionRecall": 0.75,
+     "recall": 0.75,
+     "precision": 0.9230769230769231,
+     "f1": 0.8275862068965517,
+     "tp": 36,
+     "falseAlarms": 3,
+     "redactedLeakFree": 37,
+     "removed": 37,
      "leaked": 0
     }
    },
@@ -2508,32 +2510,32 @@
    "family": "odt",
    "zone": "all zones",
    "cases": 14,
-   "items": 82,
-   "extracted": 82,
+   "items": 71,
+   "extracted": 71,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 52,
-     "detectionRecall": 0.6341463414634146,
-     "recall": 0.6341463414634146,
-     "precision": 0.9454545454545454,
-     "f1": 0.759124087591241,
-     "tp": 52,
-     "falseAlarms": 3,
-     "redactedLeakFree": 52,
-     "removed": 52,
+     "found": 54,
+     "detectionRecall": 0.7605633802816901,
+     "recall": 0.7605633802816901,
+     "precision": 0.9152542372881356,
+     "f1": 0.8307692307692307,
+     "tp": 54,
+     "falseAlarms": 5,
+     "redactedLeakFree": 55,
+     "removed": 55,
      "leaked": 0
     },
     "all": {
-     "found": 71,
-     "detectionRecall": 0.8658536585365854,
-     "recall": 0.8658536585365854,
-     "precision": 0.9594594594594594,
-     "f1": 0.9102564102564101,
-     "tp": 71,
-     "falseAlarms": 3,
-     "redactedLeakFree": 70,
-     "removed": 70,
+     "found": 63,
+     "detectionRecall": 0.8873239436619719,
+     "recall": 0.8873239436619719,
+     "precision": 0.9264705882352942,
+     "f1": 0.906474820143885,
+     "tp": 63,
+     "falseAlarms": 5,
+     "redactedLeakFree": 64,
+     "removed": 64,
      "leaked": 0
     }
    },
@@ -2546,38 +2548,38 @@
    "family": "pdf",
    "zone": "all zones",
    "cases": 22,
-   "items": 144,
-   "extracted": 130,
-   "extractionRecall": 0.9027777777777778,
+   "items": 145,
+   "extracted": 132,
+   "extractionRecall": 0.9103448275862069,
    "configs": {
     "default": {
-     "found": 86,
-     "detectionRecall": 0.6615384615384615,
-     "recall": 0.5972222222222222,
-     "precision": 0.8865979381443299,
-     "f1": 0.7136929460580913,
-     "tp": 86,
-     "falseAlarms": 11,
-     "redactedLeakFree": 86,
-     "removed": 86,
+     "found": 89,
+     "detectionRecall": 0.6742424242424242,
+     "recall": 0.6137931034482759,
+     "precision": 0.956989247311828,
+     "f1": 0.7478991596638656,
+     "tp": 89,
+     "falseAlarms": 4,
+     "redactedLeakFree": 89,
+     "removed": 89,
      "leaked": 0
     },
     "all": {
      "found": 105,
-     "detectionRecall": 0.8076923076923077,
-     "recall": 0.7291666666666666,
-     "precision": 0.9051724137931034,
-     "f1": 0.8076923076923076,
+     "detectionRecall": 0.7954545454545454,
+     "recall": 0.7241379310344828,
+     "precision": 0.963302752293578,
+     "f1": 0.8267716535433071,
      "tp": 105,
-     "falseAlarms": 11,
+     "falseAlarms": 4,
      "redactedLeakFree": 105,
      "removed": 105,
      "leaked": 0
     }
    },
    "modes": {
-    "in_place": 20,
-    "fallback_text_copy": 2
+    "in_place": 19,
+    "fallback_text_copy": 3
    },
    "misclassified": 0
   },
@@ -2585,32 +2587,32 @@
    "family": "pptx",
    "zone": "all zones",
    "cases": 12,
-   "items": 62,
-   "extracted": 62,
+   "items": 64,
+   "extracted": 64,
    "extractionRecall": 1,
    "configs": {
     "default": {
      "found": 43,
-     "detectionRecall": 0.6935483870967742,
-     "recall": 0.6935483870967742,
-     "precision": 0.9772727272727273,
-     "f1": 0.8113207547169812,
+     "detectionRecall": 0.671875,
+     "recall": 0.671875,
+     "precision": 0.9347826086956522,
+     "f1": 0.7818181818181819,
      "tp": 43,
-     "falseAlarms": 1,
+     "falseAlarms": 3,
      "redactedLeakFree": 43,
      "removed": 43,
      "leaked": 0
     },
     "all": {
-     "found": 53,
-     "detectionRecall": 0.8548387096774194,
-     "recall": 0.8548387096774194,
-     "precision": 0.9814814814814815,
-     "f1": 0.9137931034482759,
-     "tp": 53,
-     "falseAlarms": 1,
-     "redactedLeakFree": 53,
-     "removed": 53,
+     "found": 54,
+     "detectionRecall": 0.84375,
+     "recall": 0.84375,
+     "precision": 0.9310344827586207,
+     "f1": 0.8852459016393444,
+     "tp": 54,
+     "falseAlarms": 4,
+     "redactedLeakFree": 54,
+     "removed": 54,
      "leaked": 0
     }
    },
@@ -2623,32 +2625,32 @@
    "family": "text",
    "zone": "all zones",
    "cases": 12,
-   "items": 71,
-   "extracted": 71,
+   "items": 81,
+   "extracted": 81,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 46,
-     "detectionRecall": 0.647887323943662,
-     "recall": 0.647887323943662,
-     "precision": 1,
-     "f1": 0.7863247863247863,
-     "tp": 46,
-     "falseAlarms": 0,
-     "redactedLeakFree": 46,
-     "removed": 46,
+     "found": 55,
+     "detectionRecall": 0.6790123456790124,
+     "recall": 0.6790123456790124,
+     "precision": 0.8870967741935484,
+     "f1": 0.7692307692307693,
+     "tp": 55,
+     "falseAlarms": 7,
+     "redactedLeakFree": 55,
+     "removed": 55,
      "leaked": 0
     },
     "all": {
-     "found": 57,
-     "detectionRecall": 0.8028169014084507,
-     "recall": 0.8028169014084507,
-     "precision": 1,
-     "f1": 0.890625,
-     "tp": 57,
-     "falseAlarms": 0,
-     "redactedLeakFree": 56,
-     "removed": 56,
+     "found": 71,
+     "detectionRecall": 0.8765432098765432,
+     "recall": 0.8765432098765432,
+     "precision": 0.9102564102564102,
+     "f1": 0.8930817610062893,
+     "tp": 71,
+     "falseAlarms": 7,
+     "redactedLeakFree": 70,
+     "removed": 70,
      "leaked": 0
     }
    },
@@ -2669,24 +2671,24 @@
      "found": 52,
      "detectionRecall": 0.6666666666666666,
      "recall": 0.6666666666666666,
-     "precision": 1,
-     "f1": 0.8,
+     "precision": 0.9122807017543859,
+     "f1": 0.7703703703703703,
      "tp": 52,
-     "falseAlarms": 0,
+     "falseAlarms": 5,
      "redactedLeakFree": 52,
      "removed": 52,
      "leaked": 0
     },
     "all": {
-     "found": 66,
-     "detectionRecall": 0.8461538461538461,
-     "recall": 0.8461538461538461,
-     "precision": 1,
-     "f1": 0.9166666666666666,
-     "tp": 66,
-     "falseAlarms": 0,
-     "redactedLeakFree": 66,
-     "removed": 66,
+     "found": 64,
+     "detectionRecall": 0.8205128205128205,
+     "recall": 0.8205128205128205,
+     "precision": 0.927536231884058,
+     "f1": 0.870748299319728,
+     "tp": 64,
+     "falseAlarms": 5,
+     "redactedLeakFree": 64,
+     "removed": 64,
      "leaked": 0
     }
    },
@@ -2699,32 +2701,32 @@
    "family": "zip",
    "zone": "all zones",
    "cases": 10,
-   "items": 60,
-   "extracted": 60,
+   "items": 63,
+   "extracted": 63,
    "extractionRecall": 1,
    "configs": {
     "default": {
-     "found": 49,
-     "detectionRecall": 0.8166666666666667,
-     "recall": 0.8166666666666667,
-     "precision": 0.9423076923076923,
-     "f1": 0.8749999999999999,
-     "tp": 49,
+     "found": 39,
+     "detectionRecall": 0.6190476190476191,
+     "recall": 0.6190476190476191,
+     "precision": 0.9285714285714286,
+     "f1": 0.742857142857143,
+     "tp": 39,
      "falseAlarms": 3,
-     "redactedLeakFree": 49,
-     "removed": 49,
+     "redactedLeakFree": 39,
+     "removed": 39,
      "leaked": 0
     },
     "all": {
-     "found": 55,
-     "detectionRecall": 0.9166666666666666,
-     "recall": 0.9166666666666666,
-     "precision": 0.9322033898305084,
-     "f1": 0.9243697478991596,
-     "tp": 55,
-     "falseAlarms": 4,
-     "redactedLeakFree": 55,
-     "removed": 55,
+     "found": 52,
+     "detectionRecall": 0.8253968253968254,
+     "recall": 0.8253968253968254,
+     "precision": 0.9454545454545454,
+     "f1": 0.8813559322033897,
+     "tp": 52,
+     "falseAlarms": 3,
+     "redactedLeakFree": 51,
+     "removed": 51,
      "leaked": 0
     }
    },
@@ -2737,8 +2739,8 @@
  "categories": [
   {
    "category": "ADDRESS",
-   "items": 49,
-   "extracted": 49,
+   "items": 53,
+   "extracted": 53,
    "found": {
     "default": 26,
     "all": 26
@@ -2746,74 +2748,74 @@
   },
   {
    "category": "COMPANY_ID",
-   "items": 35,
-   "extracted": 34,
+   "items": 34,
+   "extracted": 33,
    "found": {
     "default": 0,
-    "all": 25
+    "all": 24
    }
   },
   {
    "category": "DATE_OF_BIRTH",
-   "items": 66,
-   "extracted": 64,
+   "items": 59,
+   "extracted": 57,
    "found": {
-    "default": 47,
-    "all": 47
+    "default": 41,
+    "all": 41
    }
   },
   {
    "category": "EMAIL",
-   "items": 116,
-   "extracted": 113,
+   "items": 121,
+   "extracted": 119,
    "found": {
-    "default": 113,
-    "all": 113
+    "default": 119,
+    "all": 119
    }
   },
   {
    "category": "FINANCIAL",
-   "items": 122,
-   "extracted": 121,
+   "items": 99,
+   "extracted": 97,
    "found": {
-    "default": 115,
-    "all": 115
+    "default": 85,
+    "all": 85
    }
   },
   {
    "category": "IP",
-   "items": 90,
-   "extracted": 89,
+   "items": 88,
+   "extracted": 87,
    "found": {
     "default": 0,
-    "all": 88
+    "all": 86
    }
   },
   {
    "category": "NATIONAL_ID",
-   "items": 73,
-   "extracted": 71,
+   "items": 59,
+   "extracted": 58,
    "found": {
-    "default": 58,
-    "all": 58
+    "default": 49,
+    "all": 49
    }
   },
   {
    "category": "PHONE",
-   "items": 71,
-   "extracted": 69,
+   "items": 76,
+   "extracted": 74,
    "found": {
-    "default": 42,
-    "all": 42
+    "default": 44,
+    "all": 44
    }
   },
   {
    "category": "SECRET",
-   "items": 96,
-   "extracted": 94,
+   "items": 130,
+   "extracted": 128,
    "found": {
-    "default": 86,
-    "all": 86
+    "default": 120,
+    "all": 120
    }
   }
  ],
@@ -2931,81 +2933,174 @@
    "family": "text",
    "zone": "diagnostic_dump",
    "lang": "en",
-   "decoys": 30,
+   "decoys": 54,
    "pages": null,
    "cells": null,
-   "words": 455,
+   "words": 1054,
    "configs": {
     "default": {
-     "falseAlarms": 0,
-     "decoysFlagged": 0,
+     "falseAlarms": 24,
+     "decoysFlagged": 24,
      "perPage": null,
      "per10kCells": null,
-     "per1kWords": 0
+     "per1kWords": 22.770398481973434
     },
     "all": {
-     "falseAlarms": 0,
-     "decoysFlagged": 0,
+     "falseAlarms": 24,
+     "decoysFlagged": 24,
      "perPage": null,
      "per10kCells": null,
-     "per1kWords": 0
+     "per1kWords": 22.770398481973434
     }
    },
-   "samples": []
+   "samples": [
+    {
+     "category": "SECRET",
+     "value": "render-worker-7f8c9d6b5-q4xzt",
+     "where": "notes.log"
+    },
+    {
+     "category": "SECRET",
+     "value": "gke-render-pool-a100-3f9b2c71-k8mz",
+     "where": "notes.log"
+    },
+    {
+     "category": "SECRET",
+     "value": "VK_FORMAT_B10G11R11_UFLOAT_PACK32",
+     "where": "notes.log"
+    },
+    {
+     "category": "SECRET",
+     "value": "HP-EliteBook-840-G10-7L4A2EA",
+     "where": "notes.log"
+    },
+    {
+     "category": "SECRET",
+     "value": "limitMaxTextureBytesTo2MB",
+     "where": "notes.log"
+    },
+    {
+     "category": "SECRET",
+     "value": "emulateCopyTexImage2DFromRenderbuffers",
+     "where": "notes.log"
+    }
+   ]
   },
   {
    "caseId": "txt-diagnostic-fr",
    "family": "text",
    "zone": "diagnostic_dump",
    "lang": "fr",
-   "decoys": 20,
+   "decoys": 47,
    "pages": null,
    "cells": null,
-   "words": 205,
+   "words": 717,
    "configs": {
     "default": {
-     "falseAlarms": 0,
-     "decoysFlagged": 0,
+     "falseAlarms": 18,
+     "decoysFlagged": 18,
      "perPage": null,
      "per10kCells": null,
-     "per1kWords": 0
+     "per1kWords": 25.10460251046025
     },
     "all": {
-     "falseAlarms": 0,
-     "decoysFlagged": 0,
+     "falseAlarms": 18,
+     "decoysFlagged": 18,
      "perPage": null,
      "per10kCells": null,
-     "per1kWords": 0
+     "per1kWords": 25.10460251046025
     }
    },
-   "samples": []
+   "samples": [
+    {
+     "category": "SECRET",
+     "value": "resetTexImage2DBaseLevel",
+     "where": "notes.log"
+    },
+    {
+     "category": "SECRET",
+     "value": "removeInvariantAndCentroidForESSL3",
+     "where": "notes.log"
+    },
+    {
+     "category": "SECRET",
+     "value": "limitMaxBufferBytesTo4MB",
+     "where": "notes.log"
+    },
+    {
+     "category": "SECRET",
+     "value": "use_blit_for_rgb9e5ufloat_texture_copy",
+     "where": "notes.log"
+    },
+    {
+     "category": "SECRET",
+     "value": "use_blit_for_depth32float_texture_to_buffer_copy",
+     "where": "notes.log"
+    },
+    {
+     "category": "SECRET",
+     "value": "rg11b10ufloat-renderable",
+     "where": "notes.log"
+    }
+   ]
   },
   {
    "caseId": "pdf-diagnostic-en",
    "family": "pdf",
    "zone": "diagnostic_dump",
    "lang": "en",
-   "decoys": 30,
-   "pages": 1,
+   "decoys": 58,
+   "pages": 3,
    "cells": null,
-   "words": 450,
+   "words": 920,
    "configs": {
     "default": {
-     "falseAlarms": 0,
-     "decoysFlagged": 0,
-     "perPage": 0,
+     "falseAlarms": 23,
+     "decoysFlagged": 23,
+     "perPage": 7.666666666666667,
      "per10kCells": null,
-     "per1kWords": 0
+     "per1kWords": 25
     },
     "all": {
-     "falseAlarms": 0,
-     "decoysFlagged": 0,
-     "perPage": 0,
+     "falseAlarms": 23,
+     "decoysFlagged": 23,
+     "perPage": 7.666666666666667,
      "per10kCells": null,
-     "per1kWords": 0
+     "per1kWords": 25
     }
    },
-   "samples": []
+   "samples": [
+    {
+     "category": "SECRET",
+     "value": "render-worker-7f8c9d6b5-q4xzt",
+     "where": "Page 1"
+    },
+    {
+     "category": "SECRET",
+     "value": "gke-render-pool-a100-3f9b2c71-k8mz",
+     "where": "Page 1"
+    },
+    {
+     "category": "SECRET",
+     "value": "VK_FORMAT_B10G11R11_UFLOAT_PACK32",
+     "where": "Page 1"
+    },
+    {
+     "category": "SECRET",
+     "value": "HP-EliteBook-840-G10-7L4A2EA",
+     "where": "Page 1"
+    },
+    {
+     "category": "SECRET",
+     "value": "VK_FORMAT_A2B10G10R10_UNORM_PACK32",
+     "where": "Page 1"
+    },
+    {
+     "category": "SECRET",
+     "value": "DXGI_FORMAT_R10G10B10A2_UNORM",
+     "where": "Page 1"
+    }
+   ]
   },
   {
    "caseId": "xlsx-invoice-en",
@@ -3015,24 +3110,29 @@
    "decoys": 40,
    "pages": null,
    "cells": 82,
-   "words": 366,
+   "words": 360,
    "configs": {
     "default": {
-     "falseAlarms": 8,
-     "decoysFlagged": 5,
+     "falseAlarms": 10,
+     "decoysFlagged": 7,
      "perPage": null,
-     "per10kCells": 975.609756097561,
-     "per1kWords": 21.85792349726776
+     "per10kCells": 1219.5121951219512,
+     "per1kWords": 27.77777777777778
     },
     "all": {
-     "falseAlarms": 8,
-     "decoysFlagged": 5,
+     "falseAlarms": 10,
+     "decoysFlagged": 7,
      "perPage": null,
-     "per10kCells": 975.609756097561,
-     "per1kWords": 21.85792349726776
+     "per10kCells": 1219.5121951219512,
+     "per1kWords": 27.77777777777778
     }
    },
    "samples": [
+    {
+     "category": "PHONE",
+     "value": "06 12 34 56 78",
+     "where": "Sheet “Invoice”"
+    },
     {
      "category": "SECRET",
      "value": "d09GMgABAAAAAtDFK95anFL4fW8ew8Kbv9fgjNYgTCVtsLb5H5dtfl7vA+gHpGGJhMO4tgguHxPgrxR9",
@@ -3045,22 +3145,17 @@
     },
     {
      "category": "SECRET",
-     "value": "VNS5vWMM7r0P66BYv+TQJATxExEgLxN+34hfHDVhDkUsGAE4cRg0shCNSLTXNKm7nIUscC7AfB51TjxE",
+     "value": "VK_FORMAT_ASTC_10x10_SRGB_BLOCK",
      "where": "Sheet “Invoice”"
     },
     {
      "category": "SECRET",
-     "value": "iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6h+xCTcBatO58ovdyTnQ6NYxFx+7jsibck8yio",
+     "value": "2x6ScJakEHnfi8UTydlop9D7DLpizN0m9D6TYZeCZnEVRfL+fRg/WZDJXgaxV5SQ",
      "where": "Sheet “Invoice”"
     },
     {
-     "category": "SECRET",
-     "value": "uwUYYEwAnCz4h+TKoO6OtIDYDLueVfIL/wcwycAQlZhSYiqXAl0phorkBhpvIhKbeeI5Ay15J7hPwRxB",
-     "where": "Sheet “Invoice”"
-    },
-    {
-     "category": "SECRET",
-     "value": "zPFDIfkEQaRxa6DpVXjGMq2lyEfXGshuy/X/RS6iybu15mJYAHzm9AAAAAElFTkSuQmCC",
+     "category": "FINANCIAL",
+     "value": "4539 1488 0343 6467",
      "where": "Sheet “Invoice”"
     }
    ]
@@ -3073,24 +3168,29 @@
    "decoys": 40,
    "pages": null,
    "cells": 82,
-   "words": 263,
+   "words": 281,
    "configs": {
     "default": {
-     "falseAlarms": 3,
-     "decoysFlagged": 1,
+     "falseAlarms": 5,
+     "decoysFlagged": 3,
      "perPage": null,
-     "per10kCells": 365.8536585365854,
-     "per1kWords": 11.406844106463879
+     "per10kCells": 609.7560975609756,
+     "per1kWords": 17.793594306049823
     },
     "all": {
-     "falseAlarms": 3,
-     "decoysFlagged": 1,
+     "falseAlarms": 5,
+     "decoysFlagged": 3,
      "perPage": null,
-     "per10kCells": 365.8536585365854,
-     "per1kWords": 11.406844106463879
+     "per10kCells": 609.7560975609756,
+     "per1kWords": 17.793594306049823
     }
    },
    "samples": [
+    {
+     "category": "SECRET",
+     "value": "limitMax3dArrayTextureSizeTo1024",
+     "where": "Sheet “Facture”"
+    },
     {
      "category": "SECRET",
      "value": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHehGqSmK+hvh79NTMQ1ZYDKaZ1hWhAqcTkmYU6",
@@ -3104,6 +3204,11 @@
     {
      "category": "SECRET",
      "value": "OEmbtX1E1Kv13OaS/muX89YuVcf0avs/KtiyAAAAAElFTkSuQmCC",
+     "where": "Sheet “Facture”"
+    },
+    {
+     "category": "SECRET",
+     "value": "rendu-chrome-6d8f7c9b4-w7kqz",
      "where": "Sheet “Facture”"
     }
    ]
@@ -3221,30 +3326,40 @@
    "family": "pptx",
    "zone": "slide",
    "lang": "en",
-   "decoys": 18,
+   "decoys": 19,
    "pages": null,
    "cells": null,
-   "words": 359,
+   "words": 372,
    "configs": {
     "default": {
-     "falseAlarms": 0,
-     "decoysFlagged": 0,
+     "falseAlarms": 3,
+     "decoysFlagged": 3,
      "perPage": null,
      "per10kCells": null,
-     "per1kWords": 0
+     "per1kWords": 8.064516129032258
     },
     "all": {
-     "falseAlarms": 1,
-     "decoysFlagged": 1,
+     "falseAlarms": 3,
+     "decoysFlagged": 3,
      "perPage": null,
      "per10kCells": null,
-     "per1kWords": 2.785515320334262
+     "per1kWords": 8.064516129032258
     }
    },
    "samples": [
     {
-     "category": "IP",
-     "value": "5.9.4.2",
+     "category": "SECRET",
+     "value": "VaapiVideoDecoderAV1Main10Profile",
+     "where": "Slide 6"
+    },
+    {
+     "category": "SECRET",
+     "value": "chromeOSDirectVideoDecoder2D",
+     "where": "Slide 6"
+    },
+    {
+     "category": "SECRET",
+     "value": "VP9PROFILE_PROFILE2_10BIT",
      "where": "Slide 6"
     }
    ]
@@ -5061,21 +5176,21 @@
    "type": "csv",
    "unit": "rows",
    "size": 1000,
-   "bytes": 46712,
-   "chars": 46712,
+   "bytes": 46722,
+   "chars": 46722,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 3.74,
+   "readMs": 2.95,
    "detectMs": {
-    "default": 21.75,
-    "all": 21.27
+    "default": 20.01,
+    "all": 21.78
    },
    "redactMs": null,
    "redactionMode": "none",
-   "totalMs": 25.490000000000002,
-   "peakMb": 144,
-   "deltaMb": 6,
+   "totalMs": 22.96,
+   "peakMb": 141,
+   "deltaMb": 0,
    "items": 2,
    "extracted": 2,
    "found": {
@@ -5092,25 +5207,25 @@
    "type": "csv",
    "unit": "rows",
    "size": 5000,
-   "bytes": 233467,
-   "chars": 233467,
+   "bytes": 233531,
+   "chars": 233531,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 14.57,
+   "readMs": 13.78,
    "detectMs": {
-    "default": 97.67,
-    "all": 109.33
+    "default": 99.77,
+    "all": 105.39
    },
-   "redactMs": 0.54,
+   "redactMs": 0.58,
    "redactionMode": "in_place",
-   "totalMs": 112.78000000000002,
-   "peakMb": 166,
-   "deltaMb": 27,
+   "totalMs": 114.13,
+   "peakMb": 182,
+   "deltaMb": 43,
    "items": 10,
    "extracted": 10,
    "found": {
-    "default": 5,
+    "default": 4,
     "all": 6
    },
    "falseAlarms": {
@@ -5123,26 +5238,26 @@
    "type": "csv",
    "unit": "rows",
    "size": 20000,
-   "bytes": 935385,
-   "chars": 935385,
+   "bytes": 935318,
+   "chars": 935317,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 57.51,
+   "readMs": 55.37,
    "detectMs": {
-    "default": 465.02,
-    "all": 486.51
+    "default": 456.95,
+    "all": 475.7
    },
-   "redactMs": 2,
+   "redactMs": 2.13,
    "redactionMode": "in_place",
-   "totalMs": 524.53,
-   "peakMb": 200,
-   "deltaMb": 54,
+   "totalMs": 514.4499999999999,
+   "peakMb": 205,
+   "deltaMb": 58,
    "items": 40,
    "extracted": 40,
    "found": {
-    "default": 18,
-    "all": 21
+    "default": 23,
+    "all": 26
    },
    "falseAlarms": {
     "default": 0,
@@ -5154,26 +5269,26 @@
    "type": "csv",
    "unit": "rows",
    "size": 60000,
-   "bytes": 2842914,
+   "bytes": 2843174,
    "chars": 2097152,
    "pages": null,
    "outcome": "partial",
    "gaps": [],
-   "readMs": 123.86,
+   "readMs": 131.42,
    "detectMs": {
-    "default": 2426.2,
-    "all": 2390.76
+    "default": 2526.52,
+    "all": 2425.52
    },
-   "redactMs": 4.41,
+   "redactMs": 4.66,
    "redactionMode": "in_place",
-   "totalMs": 2554.47,
+   "totalMs": 2662.6,
    "peakMb": 297,
-   "deltaMb": 131,
+   "deltaMb": 112,
    "items": 120,
-   "extracted": 89,
+   "extracted": 90,
    "found": {
-    "default": 45,
-    "all": 52
+    "default": 48,
+    "all": 59
    },
    "falseAlarms": {
     "default": 0,
@@ -5185,26 +5300,26 @@
    "type": "csv",
    "unit": "rows",
    "size": 100000,
-   "bytes": 4770645,
+   "bytes": 4770743,
    "chars": 2097152,
    "pages": null,
    "outcome": "partial",
    "gaps": [],
-   "readMs": 123.41,
+   "readMs": 123.46,
    "detectMs": {
-    "default": 2451.32,
-    "all": 2325.65
+    "default": 2406.87,
+    "all": 2428.13
    },
-   "redactMs": 5,
+   "redactMs": 5.67,
    "redactionMode": "in_place",
-   "totalMs": 2579.73,
-   "peakMb": 308,
-   "deltaMb": 103,
+   "totalMs": 2536,
+   "peakMb": 305,
+   "deltaMb": 91,
    "items": 200,
    "extracted": 90,
    "found": {
-    "default": 38,
-    "all": 52
+    "default": 46,
+    "all": 55
    },
    "falseAlarms": {
     "default": 0,
@@ -5216,25 +5331,25 @@
    "type": "docx",
    "unit": "words",
    "size": 1000,
-   "bytes": 4589,
-   "chars": 6678,
+   "bytes": 4330,
+   "chars": 6340,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 1.37,
+   "readMs": 1.57,
    "detectMs": {
-    "default": 2.76,
-    "all": 2.63
+    "default": 2.33,
+    "all": 2.38
    },
-   "redactMs": 0.07,
+   "redactMs": 0.08,
    "redactionMode": "text_copy",
-   "totalMs": 4.2,
-   "peakMb": 141,
-   "deltaMb": 3,
+   "totalMs": 3.9800000000000004,
+   "peakMb": 140,
+   "deltaMb": 2,
    "items": 3,
    "extracted": 3,
    "found": {
-    "default": 2,
+    "default": 3,
     "all": 3
    },
    "falseAlarms": {
@@ -5247,26 +5362,26 @@
    "type": "docx",
    "unit": "words",
    "size": 5000,
-   "bytes": 5598,
-   "chars": 31265,
+   "bytes": 5546,
+   "chars": 31335,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 1.75,
+   "readMs": 1.65,
    "detectMs": {
-    "default": 13.88,
-    "all": 13.22
+    "default": 12.6,
+    "all": 13.39
    },
-   "redactMs": 0.15,
+   "redactMs": 0.16,
    "redactionMode": "text_copy",
-   "totalMs": 15.780000000000001,
-   "peakMb": 143,
-   "deltaMb": 5,
+   "totalMs": 14.41,
+   "peakMb": 155,
+   "deltaMb": 4,
    "items": 12,
    "extracted": 12,
    "found": {
     "default": 10,
-    "all": 10
+    "all": 11
    },
    "falseAlarms": {
     "default": 0,
@@ -5278,30 +5393,30 @@
    "type": "docx",
    "unit": "words",
    "size": 20000,
-   "bytes": 10675,
-   "chars": 126696,
+   "bytes": 11559,
+   "chars": 127447,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 6.97,
+   "readMs": 5.39,
    "detectMs": {
-    "default": 62.04,
-    "all": 64.85
+    "default": 48.27,
+    "all": 50.65
    },
-   "redactMs": 1.1,
+   "redactMs": 0.44,
    "redactionMode": "text_copy",
-   "totalMs": 70.11,
-   "peakMb": 161,
-   "deltaMb": 22,
-   "items": 45,
-   "extracted": 45,
+   "totalMs": 54.1,
+   "peakMb": 148,
+   "deltaMb": 8,
+   "items": 39,
+   "extracted": 39,
    "found": {
-    "default": 33,
-    "all": 41
+    "default": 35,
+    "all": 38
    },
    "falseAlarms": {
-    "default": 0,
-    "all": 0
+    "default": 6,
+    "all": 6
    }
   },
   {
@@ -5309,30 +5424,30 @@
    "type": "docx",
    "unit": "words",
    "size": 100000,
-   "bytes": 36608,
-   "chars": 631949,
+   "bytes": 37292,
+   "chars": 632834,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 15.43,
+   "readMs": 13.34,
    "detectMs": {
-    "default": 314.85,
-    "all": 339.01
+    "default": 321.11,
+    "all": 326.38
    },
-   "redactMs": 5.28,
+   "redactMs": 5.27,
    "redactionMode": "text_copy",
-   "totalMs": 335.56,
-   "peakMb": 209,
-   "deltaMb": 69,
-   "items": 233,
-   "extracted": 233,
+   "totalMs": 339.71999999999997,
+   "peakMb": 203,
+   "deltaMb": 61,
+   "items": 229,
+   "extracted": 229,
    "found": {
     "default": 174,
-    "all": 206
+    "all": 207
    },
    "falseAlarms": {
-    "default": 2,
-    "all": 2
+    "default": 10,
+    "all": 10
    }
   },
   {
@@ -5340,30 +5455,30 @@
    "type": "docx",
    "unit": "words",
    "size": 300000,
-   "bytes": 102060,
-   "chars": 1896275,
+   "bytes": 104156,
+   "chars": 1898643,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 26.61,
+   "readMs": 30.56,
    "detectMs": {
-    "default": 953.8,
-    "all": 1000.41
+    "default": 960.97,
+    "all": 1018.54
    },
-   "redactMs": 16.12,
+   "redactMs": 15.82,
    "redactionMode": "text_copy",
-   "totalMs": 996.53,
-   "peakMb": 248,
-   "deltaMb": 104,
-   "items": 721,
-   "extracted": 721,
+   "totalMs": 1007.35,
+   "peakMb": 253,
+   "deltaMb": 93,
+   "items": 711,
+   "extracted": 711,
    "found": {
-    "default": 543,
-    "all": 638
+    "default": 535,
+    "all": 631
    },
    "falseAlarms": {
-    "default": 4,
-    "all": 4
+    "default": 22,
+    "all": 22
    }
   },
   {
@@ -5371,21 +5486,21 @@
    "type": "ods",
    "unit": "rows",
    "size": 1000,
-   "bytes": 20898,
-   "chars": 47719,
+   "bytes": 20912,
+   "chars": 47731,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 26.26,
+   "readMs": 43.9,
    "detectMs": {
-    "default": 21.95,
-    "all": 21.1
+    "default": 24.35,
+    "all": 21.08
    },
-   "redactMs": 0.28,
+   "redactMs": 0.27,
    "redactionMode": "text_copy",
-   "totalMs": 48.49,
-   "peakMb": 154,
-   "deltaMb": 14,
+   "totalMs": 68.52,
+   "peakMb": 195,
+   "deltaMb": 41,
    "items": 2,
    "extracted": 2,
    "found": {
@@ -5402,26 +5517,26 @@
    "type": "ods",
    "unit": "rows",
    "size": 10000,
-   "bytes": 188952,
-   "chars": 477057,
+   "bytes": 188810,
+   "chars": 476962,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 225.46,
+   "readMs": 226.46,
    "detectMs": {
-    "default": 189.51,
-    "all": 199.53
+    "default": 202.24,
+    "all": 193.14
    },
-   "redactMs": 2.46,
+   "redactMs": 2.31,
    "redactionMode": "text_copy",
-   "totalMs": 417.43,
-   "peakMb": 250,
-   "deltaMb": 96,
+   "totalMs": 431.01000000000005,
+   "peakMb": 232,
+   "deltaMb": 72,
    "items": 20,
    "extracted": 20,
    "found": {
-    "default": 17,
-    "all": 20
+    "default": 16,
+    "all": 17
    },
    "falseAlarms": {
     "default": 0,
@@ -5433,30 +5548,30 @@
    "type": "ods",
    "unit": "rows",
    "size": 30000,
-   "bytes": 561945,
-   "chars": 1442181,
+   "bytes": 562033,
+   "chars": 1442266,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 736.97,
+   "readMs": 668.97,
    "detectMs": {
-    "default": 1335.38,
-    "all": 1386.49
+    "default": 1228.97,
+    "all": 1269.12
    },
-   "redactMs": 9.06,
+   "redactMs": 7.29,
    "redactionMode": "text_copy",
-   "totalMs": 2081.4100000000003,
-   "peakMb": 417,
-   "deltaMb": 224,
+   "totalMs": 1905.23,
+   "peakMb": 381,
+   "deltaMb": 188,
    "items": 60,
    "extracted": 60,
    "found": {
-    "default": 45,
-    "all": 52
+    "default": 48,
+    "all": 54
    },
    "falseAlarms": {
-    "default": 2,
-    "all": 2
+    "default": 1,
+    "all": 1
    }
   },
   {
@@ -5464,22 +5579,22 @@
    "type": "ods",
    "unit": "rows",
    "size": 60000,
-   "bytes": 1119599,
+   "bytes": 1120018,
    "chars": 0,
    "pages": null,
    "outcome": "partial",
    "gaps": [
     "1 part past its first 2 MB of text"
    ],
-   "readMs": 1346.07,
+   "readMs": 1466.21,
    "detectMs": {
     "default": 0,
     "all": 0
    },
    "redactMs": null,
    "redactionMode": "none",
-   "totalMs": 1346.07,
-   "peakMb": 459,
+   "totalMs": 1466.21,
+   "peakMb": 455,
    "deltaMb": 180,
    "items": 120,
    "extracted": 0,
@@ -5497,21 +5612,424 @@
    "type": "odt",
    "unit": "words",
    "size": 1000,
-   "bytes": 2804,
-   "chars": 6161,
+   "bytes": 2893,
+   "chars": 6271,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 1.06,
+   "readMs": 1.14,
    "detectMs": {
-    "default": 2.25,
-    "all": 2.55
+    "default": 2.34,
+    "all": 2.32
    },
-   "redactMs": 0.06,
+   "redactMs": 0.05,
    "redactionMode": "text_copy",
-   "totalMs": 3.37,
+   "totalMs": 3.5299999999999994,
    "peakMb": 140,
    "deltaMb": 2,
+   "items": 2,
+   "extracted": 2,
+   "found": {
+    "default": 1,
+    "all": 2
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-odt-10000",
+   "type": "odt",
+   "unit": "words",
+   "size": 10000,
+   "bytes": 5926,
+   "chars": 63745,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 2.83,
+   "detectMs": {
+    "default": 24.44,
+    "all": 25.68
+   },
+   "redactMs": 0.29,
+   "redactionMode": "text_copy",
+   "totalMs": 27.560000000000002,
+   "peakMb": 146,
+   "deltaMb": 7,
+   "items": 24,
+   "extracted": 24,
+   "found": {
+    "default": 17,
+    "all": 21
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-odt-50000",
+   "type": "odt",
+   "unit": "words",
+   "size": 50000,
+   "bytes": 19256,
+   "chars": 316368,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 10.7,
+   "detectMs": {
+    "default": 159.92,
+    "all": 161.31
+   },
+   "redactMs": 2.37,
+   "redactionMode": "text_copy",
+   "totalMs": 172.98999999999998,
+   "peakMb": 185,
+   "deltaMb": 46,
+   "items": 117,
+   "extracted": 117,
+   "found": {
+    "default": 89,
+    "all": 101
+   },
+   "falseAlarms": {
+    "default": 2,
+    "all": 2
+   }
+  },
+  {
+   "id": "sweep-odt-150000",
+   "type": "odt",
+   "unit": "words",
+   "size": 150000,
+   "bytes": 51247,
+   "chars": 948996,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 21.62,
+   "detectMs": {
+    "default": 464.71,
+    "all": 480.64
+   },
+   "redactMs": 6.84,
+   "redactionMode": "text_copy",
+   "totalMs": 493.16999999999996,
+   "peakMb": 211,
+   "deltaMb": 66,
+   "items": 369,
+   "extracted": 369,
+   "found": {
+    "default": 279,
+    "all": 327
+   },
+   "falseAlarms": {
+    "default": 12,
+    "all": 12
+   }
+  },
+  {
+   "id": "sweep-pdf-2",
+   "type": "pdf",
+   "unit": "pages",
+   "size": 2,
+   "bytes": 7483,
+   "chars": 6656,
+   "pages": 2,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 11.86,
+   "detectMs": {
+    "default": 4.59,
+    "all": 3.84
+   },
+   "redactMs": 14.19,
+   "redactionMode": "in_place",
+   "totalMs": 30.64,
+   "peakMb": 149,
+   "deltaMb": 8,
+   "items": 4,
+   "extracted": 4,
+   "found": {
+    "default": 2,
+    "all": 2
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-pdf-10",
+   "type": "pdf",
+   "unit": "pages",
+   "size": 10,
+   "bytes": 35173,
+   "chars": 33829,
+   "pages": 9,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 38.26,
+   "detectMs": {
+    "default": 16.15,
+    "all": 16.55
+   },
+   "redactMs": 62.31,
+   "redactionMode": "in_place",
+   "totalMs": 116.72,
+   "peakMb": 183,
+   "deltaMb": 18,
+   "items": 9,
+   "extracted": 9,
+   "found": {
+    "default": 9,
+    "all": 9
+   },
+   "falseAlarms": {
+    "default": 5,
+    "all": 5
+   }
+  },
+  {
+   "id": "sweep-pdf-50",
+   "type": "pdf",
+   "unit": "pages",
+   "size": 50,
+   "bytes": 166876,
+   "chars": 166831,
+   "pages": 43,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 135.78,
+   "detectMs": {
+    "default": 78.98,
+    "all": 84.87
+   },
+   "redactMs": 90.89,
+   "redactionMode": "fallback_text_copy",
+   "totalMs": 305.65,
+   "peakMb": 203,
+   "deltaMb": 14,
+   "items": 73,
+   "extracted": 73,
+   "found": {
+    "default": 53,
+    "all": 64
+   },
+   "falseAlarms": {
+    "default": 11,
+    "all": 11
+   }
+  },
+  {
+   "id": "sweep-pdf-200",
+   "type": "pdf",
+   "unit": "pages",
+   "size": 200,
+   "bytes": 661329,
+   "chars": 666122,
+   "pages": 169,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 564.75,
+   "detectMs": {
+    "default": 391.82,
+    "all": 385.98
+   },
+   "redactMs": 1139.45,
+   "redactionMode": "fallback_text_copy",
+   "totalMs": 2096.02,
+   "peakMb": 315,
+   "deltaMb": 91,
+   "items": 248,
+   "extracted": 247,
+   "found": {
+    "default": 179,
+    "all": 214
+   },
+   "falseAlarms": {
+    "default": 18,
+    "all": 18
+   }
+  },
+  {
+   "id": "sweep-pdf-500",
+   "type": "pdf",
+   "unit": "pages",
+   "size": 500,
+   "bytes": 1649211,
+   "chars": 1665748,
+   "pages": 422,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 1310.07,
+   "detectMs": {
+    "default": 989.86,
+    "all": 975.82
+   },
+   "redactMs": 2145.52,
+   "redactionMode": "fallback_text_copy",
+   "totalMs": 4445.45,
+   "peakMb": 388,
+   "deltaMb": 55,
+   "items": 613,
+   "extracted": 611,
+   "found": {
+    "default": 445,
+    "all": 525
+   },
+   "falseAlarms": {
+    "default": 47,
+    "all": 47
+   }
+  },
+  {
+   "id": "sweep-pptx-10",
+   "type": "pptx",
+   "unit": "slides",
+   "size": 10,
+   "bytes": 16788,
+   "chars": 4301,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 7.87,
+   "detectMs": {
+    "default": 2.77,
+    "all": 2.49
+   },
+   "redactMs": 0.07,
+   "redactionMode": "text_copy",
+   "totalMs": 10.71,
+   "peakMb": 168,
+   "deltaMb": 26,
+   "items": 4,
+   "extracted": 4,
+   "found": {
+    "default": 3,
+    "all": 4
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-pptx-50",
+   "type": "pptx",
+   "unit": "slides",
+   "size": 50,
+   "bytes": 67192,
+   "chars": 18830,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 19.11,
+   "detectMs": {
+    "default": 15.33,
+    "all": 13.86
+   },
+   "redactMs": 0.2,
+   "redactionMode": "text_copy",
+   "totalMs": 34.64,
+   "peakMb": 209,
+   "deltaMb": 66,
+   "items": 24,
+   "extracted": 24,
+   "found": {
+    "default": 19,
+    "all": 19
+   },
+   "falseAlarms": {
+    "default": 0,
+    "all": 0
+   }
+  },
+  {
+   "id": "sweep-pptx-200",
+   "type": "pptx",
+   "unit": "slides",
+   "size": 200,
+   "bytes": 259169,
+   "chars": 76937,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 60.58,
+   "detectMs": {
+    "default": 94.08,
+    "all": 57.67
+   },
+   "redactMs": 1.43,
+   "redactionMode": "text_copy",
+   "totalMs": 156.09,
+   "peakMb": 245,
+   "deltaMb": 96,
+   "items": 91,
+   "extracted": 91,
+   "found": {
+    "default": 77,
+    "all": 80
+   },
+   "falseAlarms": {
+    "default": 3,
+    "all": 3
+   }
+  },
+  {
+   "id": "sweep-pptx-500",
+   "type": "pptx",
+   "unit": "slides",
+   "size": 500,
+   "bytes": 643337,
+   "chars": 191473,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 165.91,
+   "detectMs": {
+    "default": 163.03,
+    "all": 135.15
+   },
+   "redactMs": 3.47,
+   "redactionMode": "text_copy",
+   "totalMs": 332.41,
+   "peakMb": 266,
+   "deltaMb": 112,
+   "items": 226,
+   "extracted": 226,
+   "found": {
+    "default": 172,
+    "all": 204
+   },
+   "falseAlarms": {
+    "default": 9,
+    "all": 9
+   }
+  },
+  {
+   "id": "sweep-txt-1000",
+   "type": "txt",
+   "unit": "words",
+   "size": 1000,
+   "bytes": 6359,
+   "chars": 6359,
+   "pages": null,
+   "outcome": "checked",
+   "gaps": [],
+   "readMs": 0.45,
+   "detectMs": {
+    "default": 3.11,
+    "all": 3.27
+   },
+   "redactMs": 0.07,
+   "redactionMode": "in_place",
+   "totalMs": 3.63,
+   "peakMb": 138,
+   "deltaMb": 0,
    "items": 1,
    "extracted": 1,
    "found": {
@@ -5524,123 +6042,30 @@
    }
   },
   {
-   "id": "sweep-odt-10000",
-   "type": "odt",
+   "id": "sweep-txt-5000",
+   "type": "txt",
    "unit": "words",
-   "size": 10000,
-   "bytes": 5970,
-   "chars": 63534,
+   "size": 5000,
+   "bytes": 32661,
+   "chars": 32661,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 3.01,
+   "readMs": 1.15,
    "detectMs": {
-    "default": 27.22,
-    "all": 25.92
+    "default": 13.46,
+    "all": 14.52
    },
-   "redactMs": 0.29,
-   "redactionMode": "text_copy",
-   "totalMs": 30.519999999999996,
-   "peakMb": 146,
-   "deltaMb": 8,
-   "items": 22,
-   "extracted": 22,
-   "found": {
-    "default": 21,
-    "all": 22
-   },
-   "falseAlarms": {
-    "default": 1,
-    "all": 1
-   }
-  },
-  {
-   "id": "sweep-odt-50000",
-   "type": "odt",
-   "unit": "words",
-   "size": 50000,
-   "bytes": 17781,
-   "chars": 314157,
-   "pages": null,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 12.19,
-   "detectMs": {
-    "default": 159.61,
-    "all": 157.07
-   },
-   "redactMs": 2.37,
-   "redactionMode": "text_copy",
-   "totalMs": 174.17000000000002,
-   "peakMb": 165,
-   "deltaMb": 27,
-   "items": 103,
-   "extracted": 103,
-   "found": {
-    "default": 77,
-    "all": 86
-   },
-   "falseAlarms": {
-    "default": 0,
-    "all": 0
-   }
-  },
-  {
-   "id": "sweep-odt-150000",
-   "type": "odt",
-   "unit": "words",
-   "size": 150000,
-   "bytes": 50983,
-   "chars": 948547,
-   "pages": null,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 25.38,
-   "detectMs": {
-    "default": 456.08,
-    "all": 467.71
-   },
-   "redactMs": 6.86,
-   "redactionMode": "text_copy",
-   "totalMs": 488.32,
-   "peakMb": 213,
-   "deltaMb": 72,
-   "items": 366,
-   "extracted": 366,
-   "found": {
-    "default": 276,
-    "all": 327
-   },
-   "falseAlarms": {
-    "default": 1,
-    "all": 1
-   }
-  },
-  {
-   "id": "sweep-pdf-2",
-   "type": "pdf",
-   "unit": "pages",
-   "size": 2,
-   "bytes": 7601,
-   "chars": 6753,
-   "pages": 2,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 13.9,
-   "detectMs": {
-    "default": 4.57,
-    "all": 4.37
-   },
-   "redactMs": 14.21,
+   "redactMs": 0.13,
    "redactionMode": "in_place",
-   "totalMs": 32.68,
-   "peakMb": 152,
-   "deltaMb": 6,
-   "items": 2,
-   "extracted": 2,
+   "totalMs": 14.740000000000002,
+   "peakMb": 141,
+   "deltaMb": 1,
+   "items": 15,
+   "extracted": 15,
    "found": {
-    "default": 2,
-    "all": 2
+    "default": 12,
+    "all": 15
    },
    "falseAlarms": {
     "default": 3,
@@ -5648,344 +6073,34 @@
    }
   },
   {
-   "id": "sweep-pdf-10",
-   "type": "pdf",
-   "unit": "pages",
-   "size": 10,
-   "bytes": 33959,
-   "chars": 33305,
-   "pages": 9,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 38.77,
-   "detectMs": {
-    "default": 18.26,
-    "all": 16.42
-   },
-   "redactMs": 50.64,
-   "redactionMode": "in_place",
-   "totalMs": 107.67,
-   "peakMb": 183,
-   "deltaMb": 22,
-   "items": 15,
-   "extracted": 15,
-   "found": {
-    "default": 10,
-    "all": 15
-   },
-   "falseAlarms": {
-    "default": 0,
-    "all": 0
-   }
-  },
-  {
-   "id": "sweep-pdf-50",
-   "type": "pdf",
-   "unit": "pages",
-   "size": 50,
-   "bytes": 167673,
-   "chars": 167126,
-   "pages": 43,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 136.77,
-   "detectMs": {
-    "default": 80.9,
-    "all": 78.19
-   },
-   "redactMs": 252.02,
-   "redactionMode": "in_place",
-   "totalMs": 469.69000000000005,
-   "peakMb": 202,
-   "deltaMb": 12,
-   "items": 59,
-   "extracted": 59,
-   "found": {
-    "default": 42,
-    "all": 52
-   },
-   "falseAlarms": {
-    "default": 5,
-    "all": 5
-   }
-  },
-  {
-   "id": "sweep-pdf-200",
-   "type": "pdf",
-   "unit": "pages",
-   "size": 200,
-   "bytes": 659797,
-   "chars": 665474,
-   "pages": 169,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 524.99,
-   "detectMs": {
-    "default": 365.27,
-    "all": 389.97
-   },
-   "redactMs": 794.03,
-   "redactionMode": "fallback_text_copy",
-   "totalMs": 1684.29,
-   "peakMb": 317,
-   "deltaMb": 95,
-   "items": 249,
-   "extracted": 248,
-   "found": {
-    "default": 179,
-    "all": 213
-   },
-   "falseAlarms": {
-    "default": 13,
-    "all": 13
-   }
-  },
-  {
-   "id": "sweep-pdf-500",
-   "type": "pdf",
-   "unit": "pages",
-   "size": 500,
-   "bytes": 1641409,
-   "chars": 1663087,
-   "pages": 420,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 1429.3,
-   "detectMs": {
-    "default": 994.2,
-    "all": 972.2
-   },
-   "redactMs": 2700.19,
-   "redactionMode": "fallback_text_copy",
-   "totalMs": 5123.6900000000005,
-   "peakMb": 398,
-   "deltaMb": 59,
-   "items": 616,
-   "extracted": 613,
-   "found": {
-    "default": 449,
-    "all": 530
-   },
-   "falseAlarms": {
-    "default": 32,
-    "all": 32
-   }
-  },
-  {
-   "id": "sweep-pptx-10",
-   "type": "pptx",
-   "unit": "slides",
-   "size": 10,
-   "bytes": 16188,
-   "chars": 3592,
-   "pages": null,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 8.06,
-   "detectMs": {
-    "default": 2.35,
-    "all": 2.36
-   },
-   "redactMs": 0.06,
-   "redactionMode": "text_copy",
-   "totalMs": 10.47,
-   "peakMb": 166,
-   "deltaMb": 27,
-   "items": 3,
-   "extracted": 3,
-   "found": {
-    "default": 2,
-    "all": 2
-   },
-   "falseAlarms": {
-    "default": 0,
-    "all": 0
-   }
-  },
-  {
-   "id": "sweep-pptx-50",
-   "type": "pptx",
-   "unit": "slides",
-   "size": 50,
-   "bytes": 67428,
-   "chars": 19117,
-   "pages": null,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 24.61,
-   "detectMs": {
-    "default": 17.21,
-    "all": 13.05
-   },
-   "redactMs": 0.19,
-   "redactionMode": "text_copy",
-   "totalMs": 42.01,
-   "peakMb": 217,
-   "deltaMb": 70,
-   "items": 19,
-   "extracted": 19,
-   "found": {
-    "default": 15,
-    "all": 16
-   },
-   "falseAlarms": {
-    "default": 0,
-    "all": 0
-   }
-  },
-  {
-   "id": "sweep-pptx-200",
-   "type": "pptx",
-   "unit": "slides",
-   "size": 200,
-   "bytes": 259028,
-   "chars": 76588,
-   "pages": null,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 62.64,
-   "detectMs": {
-    "default": 80.74,
-    "all": 52.65
-   },
-   "redactMs": 1.42,
-   "redactionMode": "text_copy",
-   "totalMs": 144.79999999999998,
-   "peakMb": 237,
-   "deltaMb": 94,
-   "items": 91,
-   "extracted": 91,
-   "found": {
-    "default": 71,
-    "all": 84
-   },
-   "falseAlarms": {
-    "default": 0,
-    "all": 0
-   }
-  },
-  {
-   "id": "sweep-pptx-500",
-   "type": "pptx",
-   "unit": "slides",
-   "size": 500,
-   "bytes": 642454,
-   "chars": 190265,
-   "pages": null,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 164.03,
-   "detectMs": {
-    "default": 200.58,
-    "all": 151.6
-   },
-   "redactMs": 4.26,
-   "redactionMode": "text_copy",
-   "totalMs": 368.87,
-   "peakMb": 259,
-   "deltaMb": 101,
-   "items": 235,
-   "extracted": 235,
-   "found": {
-    "default": 175,
-    "all": 209
-   },
-   "falseAlarms": {
-    "default": 2,
-    "all": 2
-   }
-  },
-  {
-   "id": "sweep-txt-1000",
-   "type": "txt",
-   "unit": "words",
-   "size": 1000,
-   "bytes": 6350,
-   "chars": 6350,
-   "pages": null,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 0.39,
-   "detectMs": {
-    "default": 3.08,
-    "all": 2.89
-   },
-   "redactMs": 0.05,
-   "redactionMode": "in_place",
-   "totalMs": 3.52,
-   "peakMb": 139,
-   "deltaMb": 0,
-   "items": 3,
-   "extracted": 3,
-   "found": {
-    "default": 2,
-    "all": 2
-   },
-   "falseAlarms": {
-    "default": 0,
-    "all": 0
-   }
-  },
-  {
-   "id": "sweep-txt-5000",
-   "type": "txt",
-   "unit": "words",
-   "size": 5000,
-   "bytes": 32109,
-   "chars": 32109,
-   "pages": null,
-   "outcome": "checked",
-   "gaps": [],
-   "readMs": 1.14,
-   "detectMs": {
-    "default": 13.16,
-    "all": 13.68
-   },
-   "redactMs": 0.1,
-   "redactionMode": "in_place",
-   "totalMs": 14.4,
-   "peakMb": 139,
-   "deltaMb": 1,
-   "items": 15,
-   "extracted": 15,
-   "found": {
-    "default": 12,
-    "all": 13
-   },
-   "falseAlarms": {
-    "default": 0,
-    "all": 0
-   }
-  },
-  {
    "id": "sweep-txt-20000",
    "type": "txt",
    "unit": "words",
    "size": 20000,
-   "bytes": 127874,
-   "chars": 127874,
+   "bytes": 126694,
+   "chars": 126694,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 3.89,
+   "readMs": 5.02,
    "detectMs": {
-    "default": 58.92,
-    "all": 56.79
+    "default": 50.61,
+    "all": 54.87
    },
    "redactMs": 0.24,
    "redactionMode": "in_place",
-   "totalMs": 63.050000000000004,
-   "peakMb": 150,
-   "deltaMb": 12,
-   "items": 53,
-   "extracted": 53,
+   "totalMs": 55.87,
+   "peakMb": 147,
+   "deltaMb": 8,
+   "items": 47,
+   "extracted": 47,
    "found": {
-    "default": 39,
-    "all": 46
+    "default": 34,
+    "all": 45
    },
    "falseAlarms": {
-    "default": 0,
-    "all": 0
+    "default": 3,
+    "all": 3
    }
   },
   {
@@ -5993,30 +6108,30 @@
    "type": "txt",
    "unit": "words",
    "size": 100000,
-   "bytes": 633812,
-   "chars": 633807,
+   "bytes": 634509,
+   "chars": 634504,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 23.26,
+   "readMs": 22.18,
    "detectMs": {
-    "default": 343.65,
-    "all": 342.08
+    "default": 324.36,
+    "all": 337.62
    },
-   "redactMs": 2.09,
+   "redactMs": 2.11,
    "redactionMode": "in_place",
-   "totalMs": 368.99999999999994,
-   "peakMb": 192,
-   "deltaMb": 53,
-   "items": 238,
-   "extracted": 238,
+   "totalMs": 348.65000000000003,
+   "peakMb": 197,
+   "deltaMb": 54,
+   "items": 229,
+   "extracted": 229,
    "found": {
-    "default": 177,
-    "all": 210
+    "default": 172,
+    "all": 203
    },
    "falseAlarms": {
-    "default": 2,
-    "all": 2
+    "default": 8,
+    "all": 8
    }
   },
   {
@@ -6024,30 +6139,30 @@
    "type": "txt",
    "unit": "words",
    "size": 300000,
-   "bytes": 1901224,
-   "chars": 1901211,
+   "bytes": 1904022,
+   "chars": 1904007,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 68.1,
+   "readMs": 65.99,
    "detectMs": {
-    "default": 966.3,
-    "all": 1000.48
+    "default": 957.02,
+    "all": 1005.89
    },
-   "redactMs": 6.3,
+   "redactMs": 6.4,
    "redactionMode": "in_place",
-   "totalMs": 1040.6999999999998,
-   "peakMb": 228,
-   "deltaMb": 83,
-   "items": 709,
-   "extracted": 709,
+   "totalMs": 1029.41,
+   "peakMb": 222,
+   "deltaMb": 72,
+   "items": 712,
+   "extracted": 712,
    "found": {
-    "default": 530,
-    "all": 626
+    "default": 536,
+    "all": 632
    },
    "falseAlarms": {
-    "default": 5,
-    "all": 5
+    "default": 27,
+    "all": 27
    }
   },
   {
@@ -6055,26 +6170,26 @@
    "type": "xlsx",
    "unit": "rows",
    "size": 1000,
-   "bytes": 36453,
-   "chars": 46748,
+   "bytes": 36456,
+   "chars": 46756,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 24.52,
+   "readMs": 30.93,
    "detectMs": {
-    "default": 21.27,
-    "all": 19.63
+    "default": 22.84,
+    "all": 22.24
    },
-   "redactMs": 0.22,
+   "redactMs": 0.31,
    "redactionMode": "text_copy",
-   "totalMs": 46.01,
-   "peakMb": 154,
-   "deltaMb": 15,
+   "totalMs": 54.08,
+   "peakMb": 165,
+   "deltaMb": 25,
    "items": 2,
    "extracted": 2,
    "found": {
-    "default": 1,
-    "all": 1
+    "default": 2,
+    "all": 2
    },
    "falseAlarms": {
     "default": 0,
@@ -6086,30 +6201,30 @@
    "type": "xlsx",
    "unit": "rows",
    "size": 5000,
-   "bytes": 167923,
-   "chars": 233568,
+   "bytes": 167651,
+   "chars": 233665,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 67.91,
+   "readMs": 71.09,
    "detectMs": {
-    "default": 92.12,
-    "all": 95.19
+    "default": 94.83,
+    "all": 100.09
    },
-   "redactMs": 1.48,
+   "redactMs": 1.53,
    "redactionMode": "text_copy",
-   "totalMs": 161.51,
-   "peakMb": 214,
-   "deltaMb": 74,
+   "totalMs": 167.45000000000002,
+   "peakMb": 213,
+   "deltaMb": 68,
    "items": 10,
    "extracted": 10,
    "found": {
-    "default": 6,
-    "all": 6
+    "default": 8,
+    "all": 9
    },
    "falseAlarms": {
-    "default": 1,
-    "all": 1
+    "default": 0,
+    "all": 0
    }
   },
   {
@@ -6117,26 +6232,26 @@
    "type": "xlsx",
    "unit": "rows",
    "size": 20000,
-   "bytes": 653908,
-   "chars": 935443,
+   "bytes": 654020,
+   "chars": 935468,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 293.52,
+   "readMs": 275.75,
    "detectMs": {
-    "default": 575.95,
-    "all": 591.83
+    "default": 470.27,
+    "all": 473.1
    },
-   "redactMs": 6.58,
+   "redactMs": 5.35,
    "redactionMode": "text_copy",
-   "totalMs": 876.0500000000001,
-   "peakMb": 355,
-   "deltaMb": 189,
+   "totalMs": 751.37,
+   "peakMb": 349,
+   "deltaMb": 179,
    "items": 40,
    "extracted": 40,
    "found": {
-    "default": 35,
-    "all": 38
+    "default": 31,
+    "all": 36
    },
    "falseAlarms": {
     "default": 0,
@@ -6148,23 +6263,23 @@
    "type": "xlsx",
    "unit": "rows",
    "size": 60000,
-   "bytes": 1956953,
+   "bytes": 1956719,
    "chars": 12,
    "pages": null,
    "outcome": "partial",
    "gaps": [
     "1 part past its first 2 MB of text"
    ],
-   "readMs": 790.04,
+   "readMs": 825.67,
    "detectMs": {
-    "default": 2.41,
-    "all": 2.1
+    "default": 2.6,
+    "all": 2.12
    },
    "redactMs": null,
    "redactionMode": "none",
-   "totalMs": 792.4499999999999,
-   "peakMb": 409,
-   "deltaMb": 177,
+   "totalMs": 828.27,
+   "peakMb": 414,
+   "deltaMb": 179,
    "items": 120,
    "extracted": 0,
    "found": {
@@ -6181,23 +6296,23 @@
    "type": "xlsx",
    "unit": "rows",
    "size": 100000,
-   "bytes": 3251089,
+   "bytes": 3250349,
    "chars": 12,
    "pages": null,
    "outcome": "partial",
    "gaps": [
     "1 part past its first 2 MB of text"
    ],
-   "readMs": 1450.72,
+   "readMs": 1379.03,
    "detectMs": {
-    "default": 3.66,
-    "all": 1.87
+    "default": 3.06,
+    "all": 1.85
    },
    "redactMs": null,
    "redactionMode": "none",
-   "totalMs": 1454.38,
-   "peakMb": 483,
-   "deltaMb": 183,
+   "totalMs": 1382.09,
+   "peakMb": 470,
+   "deltaMb": 174,
    "items": 200,
    "extracted": 0,
    "found": {
@@ -6214,26 +6329,26 @@
    "type": "zip",
    "unit": "entries",
    "size": 10,
-   "bytes": 4412,
-   "chars": 5970,
+   "bytes": 4476,
+   "chars": 6029,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 2.62,
+   "readMs": 2.66,
    "detectMs": {
-    "default": 2.57,
-    "all": 3.92
+    "default": 2.68,
+    "all": 3.2
    },
-   "redactMs": null,
-   "redactionMode": "none",
-   "totalMs": 5.1899999999999995,
-   "peakMb": 146,
-   "deltaMb": 7,
+   "redactMs": 0.94,
+   "redactionMode": "in_place",
+   "totalMs": 6.279999999999999,
+   "peakMb": 150,
+   "deltaMb": 8,
    "items": 1,
    "extracted": 1,
    "found": {
-    "default": 0,
-    "all": 0
+    "default": 1,
+    "all": 1
    },
    "falseAlarms": {
     "default": 0,
@@ -6245,26 +6360,26 @@
    "type": "zip",
    "unit": "entries",
    "size": 100,
-   "bytes": 42432,
-   "chars": 59871,
+   "bytes": 42462,
+   "chars": 59894,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 23.06,
+   "readMs": 23.24,
    "detectMs": {
-    "default": 26.31,
-    "all": 25.59
+    "default": 26.41,
+    "all": 26.86
    },
-   "redactMs": 4.29,
+   "redactMs": 3.46,
    "redactionMode": "in_place",
-   "totalMs": 53.66,
-   "peakMb": 208,
-   "deltaMb": 68,
+   "totalMs": 53.11,
+   "peakMb": 198,
+   "deltaMb": 54,
    "items": 10,
    "extracted": 10,
    "found": {
-    "default": 9,
-    "all": 10
+    "default": 5,
+    "all": 8
    },
    "falseAlarms": {
     "default": 0,
@@ -6276,26 +6391,26 @@
    "type": "zip",
    "unit": "entries",
    "size": 1000,
-   "bytes": 426745,
-   "chars": 601035,
+   "bytes": 426927,
+   "chars": 601242,
    "pages": null,
    "outcome": "checked",
    "gaps": [],
-   "readMs": 123.67,
+   "readMs": 128.2,
    "detectMs": {
-    "default": 286.96,
-    "all": 260.25
+    "default": 290.18,
+    "all": 263.31
    },
-   "redactMs": 49.63,
+   "redactMs": 47.78,
    "redactionMode": "in_place",
-   "totalMs": 460.26,
-   "peakMb": 278,
-   "deltaMb": 128,
+   "totalMs": 466.15999999999997,
+   "peakMb": 274,
+   "deltaMb": 122,
    "items": 100,
    "extracted": 100,
    "found": {
     "default": 76,
-    "all": 85
+    "all": 87
    },
    "falseAlarms": {
     "default": 0,
@@ -6307,32 +6422,32 @@
    "type": "zip",
    "unit": "entries",
    "size": 4000,
-   "bytes": 1703873,
-   "chars": 2096736,
+   "bytes": 1704276,
+   "chars": 2097079,
    "pages": null,
    "outcome": "partial",
    "gaps": [
     "512 parts past its first 2 MB of text"
    ],
-   "readMs": 483.23,
+   "readMs": 498.79,
    "detectMs": {
-    "default": 902.99,
-    "all": 940.33
+    "default": 937.51,
+    "all": 965.92
    },
-   "redactMs": 356.17,
+   "redactMs": 356.83,
    "redactionMode": "in_place",
-   "totalMs": 1742.39,
-   "peakMb": 371,
-   "deltaMb": 164,
+   "totalMs": 1793.1299999999999,
+   "peakMb": 374,
+   "deltaMb": 163,
    "items": 400,
    "extracted": 349,
    "found": {
-    "default": 258,
-    "all": 305
+    "default": 261,
+    "all": 303
    },
    "falseAlarms": {
-    "default": 0,
-    "all": 0
+    "default": 1,
+    "all": 1
    }
   }
  ],
@@ -6341,29 +6456,29 @@
    "type": "csv",
    "unit": "rows",
    "read": {
-    "a": 0.006714196413112725,
-    "b": 0.9104629451360449,
-    "r2": 0.9979084501808803,
+    "a": 0.003392815477160312,
+    "b": 0.9782422759336958,
+    "r2": 0.9998221654390329,
     "points": 3
    },
    "detect": {
-    "a": 0.018137516963451464,
-    "b": 1.0199053259951116,
-    "r2": 0.9970859786718343,
+    "a": 0.014528525335030873,
+    "b": 1.0430410124857998,
+    "r2": 0.9992545711312204,
     "points": 3
    },
    "total": {
-    "a": 0.023242045066063546,
-    "b": 1.0072317491996212,
-    "r2": 0.9972455657135275,
+    "a": 0.01744103116793004,
+    "b": 1.0368180361788997,
+    "r2": 0.9993842708115945,
     "points": 3
    },
    "memory": {
-    "c": 8.83056478405316,
-    "k": 0.0023272425249169434,
-    "r2": 0.9385339025355893
+    "c": 12.086378737541533,
+    "k": 0.0024900332225913616,
+    "r2": 0.686384663601407
    },
-   "msPerKChar": 0.5607637496859582,
+   "msPerKChar": 0.5500274238573659,
    "sizeWithin1s": 20000,
    "sizeWithin5s": 20000,
    "within1sAtLeast": true,
@@ -6377,29 +6492,29 @@
    "type": "docx",
    "unit": "words",
    "read": {
-    "a": 0.022721550466792088,
-    "b": 0.5612582913238392,
-    "r2": 0.9602511273823403,
+    "a": 0.023938894830096896,
+    "b": 0.5522044093708149,
+    "r2": 0.9412446748941734,
     "points": 5
    },
    "detect": {
-    "a": 0.002254883542519041,
-    "b": 1.028439077411553,
-    "r2": 0.999869701747057,
+    "a": 0.0014750325910193598,
+    "b": 1.0614438999525886,
+    "r2": 0.9991617057677193,
     "points": 5
    },
    "total": {
-    "a": 0.004668566262916924,
-    "b": 0.9705900029973211,
-    "r2": 0.998451999919567,
+    "a": 0.0036963339398718674,
+    "b": 0.9865004519368573,
+    "r2": 0.9956604157851211,
     "points": 5
    },
    "memory": {
-    "c": 12.338876171823838,
-    "k": 0.00033170333131662163,
-    "r2": 0.8985032782941605
+    "c": 7.204139040835294,
+    "k": 0.0003098105746380834,
+    "r2": 0.9039887829905564
    },
-   "msPerKChar": 0.5255197690208435,
+   "msPerKChar": 0.5305631443088564,
    "sizeWithin1s": 300000,
    "sizeWithin5s": 300000,
    "within1sAtLeast": true,
@@ -6410,30 +6525,30 @@
    "type": "ods",
    "unit": "rows",
    "read": {
-    "a": 0.030898346958578116,
-    "b": 0.9732412901361882,
-    "r2": 0.9987099097864579,
+    "a": 0.18294150749320898,
+    "b": 0.7872989841684522,
+    "r2": 0.9929644722274832,
     "points": 3
    },
    "detect": {
-    "a": 0.006118685543403486,
-    "b": 1.1662068234893632,
-    "r2": 0.9703495113584045,
+    "a": 0.009701525719129389,
+    "b": 1.1171257061021624,
+    "r2": 0.9759748930765493,
     "points": 3
    },
    "total": {
-    "a": 0.025872461408962082,
-    "b": 1.0791974712451797,
-    "r2": 0.9861568015473343,
+    "a": 0.08875107127198524,
+    "b": 0.950214871684719,
+    "r2": 0.9804110380851114,
     "points": 3
    },
    "memory": {
-    "c": 14.281391830559741,
-    "k": 0.007101361573373677,
-    "r2": 0.9919590294434008
+    "c": 29.394856278366092,
+    "k": 0.005190620272314676,
+    "r2": 0.988675853789577
    },
-   "msPerKChar": 1.4432377073335456,
-   "sizeWithin1s": 17805,
+   "msPerKChar": 1.3209976523054694,
+   "sizeWithin1s": 18370,
    "sizeWithin5s": 30000,
    "within1sAtLeast": false,
    "within5sAtLeast": true,
@@ -6445,29 +6560,29 @@
    "type": "odt",
    "unit": "words",
    "read": {
-    "a": 0.010587181971012348,
-    "b": 0.6456418737230667,
-    "r2": 0.9799945356880965,
+    "a": 0.015614931469007162,
+    "b": 0.5984434821541273,
+    "r2": 0.9741493451874607,
     "points": 4
    },
    "detect": {
-    "a": 0.001445930620710624,
-    "b": 1.0671713520739707,
-    "r2": 0.9994934823723334,
+    "a": 0.0014408412361440414,
+    "b": 1.066303526855539,
+    "r2": 0.9991029534162695,
     "points": 4
    },
    "total": {
-    "a": 0.003263241330779717,
-    "b": 1.000724990484069,
-    "r2": 0.9993274718112413,
+    "a": 0.0033658621852838385,
+    "b": 0.9961851981195524,
+    "r2": 0.9973241765762975,
     "points": 4
    },
    "memory": {
-    "c": 2.7746720827443063,
-    "k": 0.0004639872590948947,
-    "r2": 0.9989807889289649
+    "c": 8.01368931517635,
+    "k": 0.0004215414347833867,
+    "r2": 0.8665897180549996
    },
-   "msPerKChar": 0.5148084385908132,
+   "msPerKChar": 0.5196755307714679,
    "sizeWithin1s": 150000,
    "sizeWithin5s": 150000,
    "within1sAtLeast": true,
@@ -6478,30 +6593,30 @@
    "type": "pdf",
    "unit": "pages",
    "read": {
-    "a": 6.422771522809033,
-    "b": 0.8380204384085205,
-    "r2": 0.9899160712078601,
+    "a": 5.750367059104723,
+    "b": 0.8575422952912467,
+    "r2": 0.9951032925227618,
     "points": 5
    },
    "detect": {
-    "a": 2.073202596408982,
-    "b": 0.9757805672488117,
-    "r2": 0.9971936694418304,
+    "a": 1.9482007006168844,
+    "b": 0.988499280100616,
+    "r2": 0.9951577410815929,
     "points": 5
    },
    "total": {
-    "a": 14.97920642255962,
-    "b": 0.9095929702856776,
-    "r2": 0.9944109702050151,
+    "a": 14.063262630730678,
+    "b": 0.9084423944832202,
+    "r2": 0.982244281039242,
     "points": 5
    },
    "memory": {
-    "c": 21.73018305121626,
-    "k": 0.11200667289228172,
-    "r2": 0.3923528565708509
+    "c": 21.4400572998359,
+    "k": 0.10341169750763846,
+    "r2": 0.3796616469854749
    },
-   "msPerKChar": 3.080831008840789,
-   "sizeWithin1s": 101,
+   "msPerKChar": 2.668741010044737,
+   "sizeWithin1s": 109,
    "sizeWithin5s": 500,
    "within1sAtLeast": false,
    "within5sAtLeast": true,
@@ -6511,29 +6626,29 @@
    "type": "pptx",
    "unit": "slides",
    "read": {
-    "a": 1.3481596285988335,
-    "b": 0.7520819557649157,
-    "r2": 0.9915308398870161,
+    "a": 1.145583291698733,
+    "b": 0.7719643751099584,
+    "r2": 0.9790634393190406,
     "points": 4
    },
    "detect": {
-    "a": 0.1818004391836065,
-    "b": 1.1401324316859804,
-    "r2": 0.9980798267390747,
+    "a": 0.23721409749972386,
+    "b": 1.0797840198336721,
+    "r2": 0.9898818582564025,
     "points": 4
    },
    "total": {
-    "a": 1.26118990189132,
-    "b": 0.9050326625216244,
-    "r2": 0.9989022204167991,
+    "a": 1.2423348771023357,
+    "b": 0.8971929752186804,
+    "r2": 0.9932995296075597,
     "points": 4
    },
    "memory": {
-    "c": 50.44871794871795,
-    "k": 0.11869095816464237,
-    "r2": 0.6232161057062864
+    "c": 47.1025641025641,
+    "k": 0.1468286099865047,
+    "r2": 0.7444060003043669
    },
-   "msPerKChar": 1.9387170525319948,
+   "msPerKChar": 1.7360672261885488,
    "sizeWithin1s": 500,
    "sizeWithin5s": 500,
    "within1sAtLeast": true,
@@ -6544,32 +6659,32 @@
    "type": "txt",
    "unit": "words",
    "read": {
-    "a": 0.0005232054627047793,
-    "b": 0.9239746005967432,
-    "r2": 0.9909384876650559,
+    "a": 0.0007423237575093424,
+    "b": 0.8952357587039053,
+    "r2": 0.9916163442579847,
     "points": 5
    },
    "detect": {
-    "a": 0.002389048111833536,
-    "b": 1.024726402171845,
-    "r2": 0.9987433293827508,
+    "a": 0.002508850660917839,
+    "b": 1.0159935206994952,
+    "r2": 0.9979373391196161,
     "points": 5
    },
    "total": {
-    "a": 0.002872117595743847,
-    "b": 1.0149372823490466,
-    "r2": 0.9983835575077133,
+    "a": 0.0031441958848651827,
+    "b": 1.0030679904429467,
+    "r2": 0.9975095517704907,
     "points": 5
    },
    "memory": {
-    "c": 6.218241468997736,
-    "k": 0.00027678120341551954,
-    "r2": 0.9093288141086389
+    "c": 6.191159318143544,
+    "k": 0.0002442352192706157,
+    "r2": 0.8463398759813392
    },
-   "msPerKChar": 0.5473879543091218,
-   "sizeWithin1s": 288560,
+   "msPerKChar": 0.5406545249045829,
+   "sizeWithin1s": 300000,
    "sizeWithin5s": 300000,
-   "within1sAtLeast": false,
+   "within1sAtLeast": true,
    "within5sAtLeast": true,
    "capped": []
   },
@@ -6577,29 +6692,29 @@
    "type": "xlsx",
    "unit": "rows",
    "read": {
-    "a": 0.07534205985750403,
-    "b": 0.8234526750947535,
-    "r2": 0.978799935779889,
+    "a": 0.18648230716807723,
+    "b": 0.7246173685790624,
+    "r2": 0.9678721425959531,
     "points": 3
    },
    "detect": {
-    "a": 0.009967253600103977,
-    "b": 1.0960708797193117,
-    "r2": 0.9885633477795807,
+    "a": 0.020542323045028094,
+    "b": 1.0063673146384047,
+    "r2": 0.994102022029324,
     "points": 3
    },
    "total": {
-    "a": 0.04836863957646148,
-    "b": 0.9781717206154218,
-    "r2": 0.983696191206095,
+    "a": 0.11858029437188124,
+    "b": 0.8737034648527229,
+    "r2": 0.9846541437393137,
     "points": 3
    },
    "memory": {
-    "c": 16.840531561461816,
-    "k": 0.008749169435215946,
-    "r2": 0.9808410756307178
+    "c": 22.096345514950187,
+    "k": 0.007911960132890365,
+    "r2": 0.9946857972062714
    },
-   "msPerKChar": 0.9365081570977603,
+   "msPerKChar": 0.8032022474312323,
    "sizeWithin1s": 20000,
    "sizeWithin5s": 20000,
    "within1sAtLeast": true,
@@ -6613,29 +6728,29 @@
    "type": "zip",
    "unit": "entries",
    "read": {
-    "a": 0.4141699468055742,
-    "b": 0.8369815347343013,
-    "r2": 0.99452358046647,
+    "a": 0.41367779190167797,
+    "b": 0.8415031942758657,
+    "r2": 0.9953286640329878,
     "points": 3
    },
    "detect": {
-    "a": 0.24065979256312395,
-    "b": 1.023944120168308,
-    "r2": 0.9999398397813974,
+    "a": 0.25292448528934486,
+    "b": 1.0172663411698912,
+    "r2": 0.9998201298052681,
     "points": 3
    },
    "total": {
-    "a": 0.5685533347534539,
-    "b": 0.9739179376405919,
-    "r2": 0.9994220451870169,
+    "a": 0.724405304946407,
+    "b": 0.9352876806724487,
+    "r2": 0.999975178118041,
     "points": 3
    },
    "memory": {
-    "c": 30.77777777777778,
-    "k": 0.0996996996996997,
-    "r2": 0.8138676879228741
+    "c": 24.66666666666667,
+    "k": 0.0990990990990991,
+    "r2": 0.8947841234018777
    },
-   "msPerKChar": 0.7657790311712296,
+   "msPerKChar": 0.7753284035380096,
    "sizeWithin1s": 1000,
    "sizeWithin5s": 1000,
    "within1sAtLeast": true,
@@ -6649,65 +6764,65 @@
   {
    "family": "docx",
    "cases": 30,
-   "readMsP50": 1.46,
-   "detectMsP50": 3.92,
+   "readMsP50": 1.34,
+   "detectMsP50": 3.43,
    "redactMsP50": 0.03
   },
   {
    "family": "xlsx",
    "cases": 19,
-   "readMsP50": 2.95,
-   "detectMsP50": 4.12,
-   "redactMsP50": 0.04
+   "readMsP50": 3.05,
+   "detectMsP50": 3.86,
+   "redactMsP50": 0.03
   },
   {
    "family": "pptx",
    "cases": 14,
-   "readMsP50": 2.97,
-   "detectMsP50": 3.74,
+   "readMsP50": 2.96,
+   "detectMsP50": 3.25,
    "redactMsP50": 0.03
   },
   {
    "family": "odt",
    "cases": 14,
-   "readMsP50": 1.28,
-   "detectMsP50": 3.31,
+   "readMsP50": 1.25,
+   "detectMsP50": 3.03,
    "redactMsP50": 0.03
   },
   {
    "family": "ods",
    "cases": 9,
-   "readMsP50": 3.07,
-   "detectMsP50": 4.02,
-   "redactMsP50": 0.03
+   "readMsP50": 4.05,
+   "detectMsP50": 3.91,
+   "redactMsP50": 0.04
   },
   {
    "family": "odp",
    "cases": 4,
-   "readMsP50": 1.2,
-   "detectMsP50": 5.76,
-   "redactMsP50": 0.03
+   "readMsP50": 1.62,
+   "detectMsP50": 3.96,
+   "redactMsP50": 0.04
   },
   {
    "family": "pdf",
    "cases": 28,
-   "readMsP50": 3.78,
-   "detectMsP50": 3.03,
-   "redactMsP50": 5.27
+   "readMsP50": 3.61,
+   "detectMsP50": 3.19,
+   "redactMsP50": 4.88
   },
   {
    "family": "text",
    "cases": 16,
-   "readMsP50": 0.41,
-   "detectMsP50": 3.28,
+   "readMsP50": 0.4,
+   "detectMsP50": 3.46,
    "redactMsP50": 0.03
   },
   {
    "family": "zip",
    "cases": 13,
-   "readMsP50": 1.36,
-   "detectMsP50": 4.36,
-   "redactMsP50": 0.55
+   "readMsP50": 1.32,
+   "detectMsP50": 3.06,
+   "redactMsP50": 0.7
   }
  ]
 }

@@ -12,8 +12,7 @@
     "--ai-sizes",
     "1000,2000,5000,10000,20000,50000",
     "--name",
-    "main-2aece81",
-    "--cached-only"
+    "main-2aece81"
   ],
   "ext": {
     "ref": "main",
@@ -64,7 +63,7 @@
     "all": []
   },
   "reps": 3,
-  "datasetHash": "94aa24018503e41cb5f9ec945b106f47a5f992049196eeb4e98c3c7cf76d7011",
+  "datasetHash": "ab0a78537ebf9344528ce9651a9b83ef35d0d235add5f84cdf16e8d1cbe3feea",
   "suiteCases": 160,
   "sweepPoints": 41,
   "missing": 0,
@@ -91,6 +90,6 @@
   },
   "node": "24.18.0",
   "machine": "Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz x8, 7.1 GiB RAM, linux",
-  "startedAt": "2026-10-05T22:30:33.334Z",
-  "finishedAt": "2026-10-05T22:30:33.448Z"
+  "startedAt": "2026-10-05T22:31:38.167Z",
+  "finishedAt": "2026-10-05T22:50:51.578Z"
 }

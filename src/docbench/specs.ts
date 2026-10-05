@@ -6,7 +6,18 @@
  * cheaply; `cases.ts` and `sweeps.ts` build the documents.
  */
 import { createHash } from "node:crypto";
+import { loadDetDataset } from "../detbench/dataset.ts";
 import type { Lang, Unit } from "./content.ts";
+
+let datasetHash: string | undefined;
+/**
+ * Hash of `dataset/detbench/`, which the documents are built from: part of
+ * every job and file key, so a dataset change regenerates the documents.
+ */
+export function detDatasetHash(): string {
+  datasetHash ??= loadDetDataset().dataset?.hash ?? "invalid";
+  return datasetHash;
+}
 
 /**
  * Generator version: part of every job key. Bump it whenever a writer or a
@@ -120,7 +131,7 @@ export function suiteSpecs(): DocSpec[] {
   return out;
 }
 
-export const specHash = (spec: unknown, seed: number) => createHash("sha256").update(JSON.stringify([GEN_VERSION, seed, spec])).digest("hex").slice(0, 16);
+export const specHash = (spec: unknown, seed: number) => createHash("sha256").update(JSON.stringify([GEN_VERSION, detDatasetHash(), seed, spec])).digest("hex").slice(0, 16);
 
 export const SWEEP_TYPES = ["txt", "csv", "docx", "xlsx", "pptx", "pdf", "odt", "ods", "zip"] as const;
 export type SweepType = (typeof SWEEP_TYPES)[number];
@@ -177,5 +188,5 @@ export function sweepSpecs(tier: "smoke" | "quick" | "full", types: readonly Swe
   return types.flatMap((type) => SWEEP_SIZES[tier][type].map((size) => ({ id: `sweep-${type}-${size}`, type, unit: SWEEP_UNITS[type].unit, size, lang: "en" as const })));
 }
 
-export const sweepHash = (spec: SweepSpec, seed: number) => createHash("sha256").update(JSON.stringify([GEN_VERSION, seed, "sweep", spec])).digest("hex").slice(0, 16);
+export const sweepHash = (spec: SweepSpec, seed: number) => createHash("sha256").update(JSON.stringify([GEN_VERSION, detDatasetHash(), seed, "sweep", spec])).digest("hex").slice(0, 16);
 

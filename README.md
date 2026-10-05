@@ -319,52 +319,54 @@ against document length. Results are cached per ref commit; the dashboard's
 Documents view shows them. [docs/docbench.md](docs/docbench.md) has the
 cases, metrics and how to add cases.
 
-Baseline on `main` @ `2aece81` (PR #76; tier `full`, seed 1;
+Baseline on `main` @ `2aece81` (PR #76; tier `full`, seed 1, detbench
+dataset as of `c1c7a64`;
 [`runs/docbench/main-2aece81/report.html`](runs/docbench/main-2aece81/report.html)):
 
 | | `default` | `all` |
 | --- | --- | --- |
-| Values placed / extracted by the ref | 718 / 98% | 718 / 98% |
-| Recall / precision / F1 | 68% / 96% / 80% | 84% / 97% / 90% |
-| Redacted values gone from the redacted file | 487 / 487 | 598 / 598 |
-| Hard-negative documents with a false alarm | 2 / 15 (11) | 3 / 15 (12) |
+| Values placed / extracted by the ref | 719 / 98% | 719 / 98% |
+| Recall / precision / F1 | 67% / 94% / 78% | 83% / 95% / 88% |
+| Redacted values gone from the redacted file | 486 / 486 | 594 / 594 |
+| Hard-negative documents with a false alarm | 6 / 15 (83) | 6 / 15 (83) |
 | Failure files reported correctly / silent cleans | 23 / 23, 0 | 23 / 23, 0 |
 
 - **Extraction** is complete in every Office, OpenDocument, text and zip
-  zone, hidden sheets, tracked deletions, speaker notes, comments, metadata,
-  embedded and nested files included. The misses are PDF-only: a value
-  hyphenated over two lines is never read whole (0/12), and long values in
-  narrow PDF table cells wrap (83% extracted there).
-- **Detection** (`all`, share of placed values found) follows the detector's own profile (EMAIL 97%,
-  FINANCIAL 94%, SECRET 90%, ADDRESS 53%, PHONE 59%), with document-specific
-  drops: a value wrapped over two PDF lines is read but found 17% of the
-  time, PDF form-field values 58%, CSV cells 42%, xlsx and pptx metadata
-  50-60% (label/value pairs without sentence context).
-- **False alarms**: base64 blobs in spreadsheet cells and narrow PDF table
-  cells come out as SECRET fragments (8 + 3 in the two invoices, 9 in the PDF
-  table zone); the 10,000- and 20,000-row order sheets and CSVs give none
-  since PR #74.
+  zone: hidden and very hidden sheets, tracked deletions, speaker notes,
+  comments, text boxes, values split across XML runs, metadata, embedded and
+  nested files. The misses are PDF-only: a value hyphenated over two lines
+  is never read whole (0/12), and long values wrap inside narrow PDF table
+  cells (92% extracted there).
+- **Detection** (`all`, share of placed values found) follows the
+  detector's own profile (EMAIL 98%, SECRET 92%, FINANCIAL 86%, ADDRESS 49%,
+  PHONE 58%), with document-specific drops: a value wrapped over two PDF
+  lines is read but found 17% of the time, PDF form-field values 58%, xlsx
+  metadata 42%, a CSV inside a zip 50% (label/value pairs without sentence
+  context).
+- **False alarms** come from the new detbench diagnostic decoys (GPU
+  report identifiers, pod and host names, `VK_FORMAT_*` constants) read as
+  SECRET: 18-24 per diagnostic dump (~25 per 1,000 words, 7.7 per PDF page),
+  and from base64 blobs in spreadsheet cells. The 10,000- and 20,000-row
+  order sheets and CSVs give none; bibliographies none.
 - **Redaction**: every value redacted leak-free is gone from the attached
   file (independent reader incl. `pdftotext`). Office files go out as text
   copies by design. PDFs are redacted in place except when an email starting
-  with `j` has text after it on its line: the ref's check finds "text still
-  readable under a box" and the whole PDF falls back to its text copy (5 of
-  110 findings in the suite; 7 of 75 dataset emails alone; also the 200- and
-  500-page sweep PDFs).
+  with `j` has more text after it on its line: the ref's check finds "Text
+  is still readable under a box" and the whole PDF falls back to its text
+  copy (6 of 139 PDF findings; 3 of 26 PDFs with findings, and the 50-,
+  200- and 500-page sweep PDFs).
 - **Caps**: a spreadsheet whose text passes 2 MB (60,000 rows x 5 cells) is
   skipped whole, not truncated: 12 characters of the workbook are checked
   and the file is reported partly checked (xlsx and ods). Text files past
   2 MB keep their first 2 MB; a 4,000-entry zip drops 512 of its 4,000
   parts (past 2 MB of text, reported).
-- **Speed** is linear in text size (fitted exponents 0.91-1.08, R² ≥ 0.98):
-  about 0.5 ms per 1,000 characters for txt, docx, odt and csv, ~1-1.5 for
-  xlsx and ods (XML parsing), ~2 for pptx, ~3 for PDF (PDFium reading plus
-  in-place redaction, 2.7 s of the 5.1 s for 500 pages). Detection is about
+- **Speed** is linear in text size (fitted exponents 0.87-1.04, R² ≥ 0.98):
+  about 0.5 ms per 1,000 characters for txt, docx, odt and csv, 0.8-1.3 for
+  xlsx and ods (XML parsing), 1.7 for pptx, 2.7 for PDF (PDFium reading plus
+  in-place redaction, 2.1 s of the 4.4 s for 500 pages). Detection is about
   0.5 ms per 1,000 characters everywhere, so a 2 MB text costs ~1 s of rules
-  and every type stays under 5 s up to its caps except a 500-page PDF
-  (5.1 s). Peak memory stays under 500 MB per document (worker baseline
-  ~140 MB).
-
+  and every type stays under 5 s up to its caps. Peak memory stays under
+  500 MB per document (worker baseline ~140 MB).
 - **Private AI on documents** (`--ai smollm2-135m --ai-tier smoke`, the
   extension's bundled default model; SmolLM2-360M was skipped by the memory
   guard while other lanes ran): review time grows linearly with document
