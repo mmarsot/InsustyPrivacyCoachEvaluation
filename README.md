@@ -173,10 +173,10 @@ configuration and with every category and address country on. The ref is
 materialized read-only like the model bench, and the detector's npm packages
 are installed at the versions its package-lock pins.
 
-- **Dataset** (`dataset/detbench/`): 301 fictional EN/FR prompts with 522
+- **Dataset** (`dataset/detbench/`): 316 fictional EN/FR prompts with 532
   labelled items across `SECRET`, `EMAIL`, `PHONE`, `ADDRESS`, `FINANCIAL`,
   `NATIONAL_ID`, `DATE_OF_BIRTH`, `IP` and `COMPANY_ID` (the detector
-  upgrade's names), plus 496 hard negatives (log timestamps, git SHAs and
+  upgrade's names), plus 502 hard negatives (log timestamps, git SHAs and
   hashes, trace IDs, UUIDs, versions such as `1.2.3.4`, loopback addresses,
   ports, masked keys, public keys, `<password>` placeholders, algorithm
   names and acronyms in prose, base64 images, checksum-invalid IBAN and
@@ -184,7 +184,8 @@ are installed at the versions its package-lock pins.
   DOIs, ISBNs, ISSNs, PMIDs, arXiv ids and DOI/JSTOR/Handle/HAL/Gallica ARK,
   Semantic Scholar and GitHub/GitLab commit links, spreadsheet rows with
   five-digit amounts next to short cells, GPU and driver identifiers in
-  about:gpu dumps, environment listings and config files, plain prose). Many
+  about:gpu dumps, environment listings and config files, line pairs shaped
+  like a French address block, plain prose). Many
   prompts mix several categories, and 58 are prose around a pasted
   snippet (stack traces, `.env`, docker-compose, SQL output, curl, JSON, git
   output) with values on both sides of the fence. Four are generated, scored
@@ -280,6 +281,19 @@ so FR addresses only too). The four large generated cases are scored apart
     `JETON_TELEMETRIE :` in `fr-141`) are caught only by the same
     high-entropy heuristic, so a fix that skips `NAME=value` or
     `NAME : value` lines would lose them.
+- **French multi-line address blocks** (`fr-142`–`fr-156`, tag
+  `fr_multiline_address`; added after `4d68779`, from the OCR of a scanned
+  French letter in which rule-based detection missed both postal addresses):
+  on `main` @ `3d22b5b`
+  ([`runs/detbench/main-3d22b5b/report.html`](runs/detbench/main-3d22b5b/report.html),
+  "Per tag" under the slices), in both configs, all 10 addresses are missed
+  (`fr-142`–`fr-150`, nothing detected in them): street line, then
+  `postcode CITY` (`7 rue des Glycines` / `00100 ST NULLE PART D ICI`),
+  uppercase streets ending with an OCR ` :`, ` ;` or `,`, a `CS 70001` line
+  and `CEDEX 08`. The detector scans one line at a time, so its FR pattern
+  never crosses the line break. The 6 near-miss line pairs (`fr-151`–`fr-156`,
+  tag `address_near_miss`) pass: none is flagged, so a fix must keep them
+  clean.
 - Still missed in `all`: US, UK and DE phones (15), US and UK addresses (9),
   passports (4), dates of birth under a table header (2), 2 French
   passwords, 3 SIRENs and a BIC.

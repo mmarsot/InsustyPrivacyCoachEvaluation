@@ -4,7 +4,7 @@
 (`detectSensitiveData` in `src/detector.ts`): the part that finds secrets,
 emails, phones, addresses and, after the detector upgrade, financial data,
 national IDs, dates of birth, IP addresses and company IDs. It loads no model:
-a run over 301 base cases and ~3,200 perturbed variants takes a few seconds.
+a run over 316 base cases and ~3,400 perturbed variants takes a few seconds.
 
 Code: `src/detbench/` (dataset, perturbations, ref loading, scoring, report)
 and `src/cli/detbench.ts`. Tests: `tests/detbench.test.ts`.
@@ -20,8 +20,10 @@ and `src/cli/detbench.ts`. Tests: `tests/detbench.test.ts`.
    (`npm ci` on a lockfile subset, into that cache directory; network only the
    first time), so libphonenumber metadata and any validator library match
    what that commit ships;
-3. bundles `src/detector.ts` and `src/config.ts`, resolving packages only from
-   that install.
+3. bundles the detector and its config (`src/detector.ts` and
+   `src/config.ts`, or `src/detection/detector.ts` and `src/config/config.ts`
+   since InsustyPromptCoach PR #82 grouped `src/` into folders), resolving
+   packages only from that install.
 
 Each ref runs with two configurations:
 
@@ -226,6 +228,25 @@ the high-entropy rule catches), next to the identifiers. `en-160` (600
 generated lines, generator `gpu_report`) and `fr-141` (360 lines) are the
 large cases, with secrets in `NAME : value` lines in the middle.
 
+`fr-142`–`fr-156` (tag `fr_multiline_address`) come from rule-based
+detection missing both postal addresses in the OCR of a scanned French
+letter: the detector scans one line at a time, so a French address block
+(street line, then `postcode CITY`) is never matched. Shape 1 (tag
+`address_two_line`): a street line then a `postcode CITY` line, with a
+multi-word uppercase city, `ST` abbreviated and an apostrophe lost by the OCR
+(`00100 ST NULLE PART D ICI`, tag `abbreviated_city`). Shape 2 (tags
+`uppercase_street`, `ocr_punctuation`): an all-caps street line ending with
+` :`, ` ;` or `,` added by the OCR (`45 CHEMIN DE LA FICTION :`), which the
+one-line FR pattern rejects too. Related shapes (tag `address_bp_cs_cedex`):
+a `CS` line between street and postcode, and `CEDEX` with its office number.
+`fr-150` puts a shape-1 sender and a shape-2 recipient in one letter header.
+The item is the whole block, line breaks and OCR punctuation included.
+`fr-151`–`fr-156` (tag `address_near_miss`) are line pairs that must not be
+flagged (decoy kind `address_lookalike`): a sentence line under a street-like
+line, tab-separated spreadsheet cells, a first line with no street type, a
+blank line between street and postcode, a 4-digit postcode, a year and a
+`Total` line. Tag `ocr_scan` marks the cases in the document's own shapes.
+
 **Adding cases**: append lines with the next free id, then run
 `npm run detbench -- --validate`. Secret-looking values must not appear raw in
 the files, so secret scanners (GitHub push protection) do not block the repo:
@@ -258,7 +279,7 @@ report shows the drop per type.
 ## Metrics
 
 Per configuration, over base cases, overall and per category, category ×
-language, value kind, language, case type and register:
+language, value kind, language, case type, register and tag:
 
 - **Precision / recall / F1, overlap**: a detection of the right category
   overlaps the item. **Exact**: same span.
@@ -268,6 +289,8 @@ language, value kind, language, case type and register:
 - **Wrong category**: detection overlapping only items of another supported
   category (a password flagged as EMAIL). **Merged items**: items sharing one
   detection span with another item (one span swallowed two values).
+- **Per tag**: the same metrics per dataset tag (a case counts under each of
+  its tags), so a group of regression cases reads as one row.
 - **Hard negatives**: decoys flagged, per decoy kind, and negative cases with
   any false positive.
 - **Confusion**: what each item category is detected as.

@@ -127,11 +127,12 @@ function sliceSection(summaries: DetSummary[]): string {
       ),
     )
     .join("");
-  return `<h2 id="slices">Language, case type, register, prose vs code</h2>
+  return `<h2 id="slices">Language, case type, register, prose vs code, tag</h2>
 <p><b>multi</b> cases hold several categories in one prompt (an email, a phone, an IBAN and a key together): check <i>wrong category</i> and <i>merged items</i> (one span swallowing two values). <b>negative</b> cases hold only hard negatives and ordinary prose.</p>
 ${table("Language", (s) => s.byLang)}${table("Case type", (s) => s.byType)}${table("Register", (s) => s.byRegister)}
 <h3>Prose vs code block</h3><p>Items, hard negatives and detections by where they sit: inside a fenced (<code>\`\`\`</code>, <code>~~~</code>) or indented code block, or in the prose around it. A detection counts where it starts.</p>
-<div class="scroll"><table><thead><tr><th>Config</th><th>Zone</th><th class="num">Items (supported)</th><th class="num">Items not supported</th><th class="num">F1 overlap</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1 exact</th><th class="num">Redacted</th><th class="num">Leak-free</th><th class="num">Decoys flagged</th><th class="num">Wrong category</th><th class="num">Merged items</th></tr></thead><tbody>${zoneRows}</tbody></table></div>`;
+<div class="scroll"><table><thead><tr><th>Config</th><th>Zone</th><th class="num">Items (supported)</th><th class="num">Items not supported</th><th class="num">F1 overlap</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1 exact</th><th class="num">Redacted</th><th class="num">Leak-free</th><th class="num">Decoys flagged</th><th class="num">Wrong category</th><th class="num">Merged items</th></tr></thead><tbody>${zoneRows}</tbody></table></div>
+<details><summary><b>Per tag</b> (case groups from the dataset, e.g. the regression cases of one review; a case counts under each of its tags)</summary>${table("Tag", (s) => s.byTag ?? {})}</details>`;
 }
 
 function robustnessSection(summaries: DetSummary[]): string {

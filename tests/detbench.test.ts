@@ -145,6 +145,16 @@ test("code ranges follow Markdown fences and indented blocks; spans carry their 
   assert.deepEqual(Object.keys(summarizeConfig("all", [s]).byZone), ["prose", "code"]);
 });
 
+test("a case counts under each of its tags", () => {
+  const tagged = (id: string, tags: string[]) =>
+    scoreDetCase(toCase({ id, lang: "fr", register: "doc", template: "à {{a}}", items: { a: { category: "ADDRESS", kind: "address_fr", value: "7 rue des Glycines\n00100 Nulleville" } }, tags }), [], ["ADDRESS"], "all");
+  const byTag = summarizeConfig("all", [tagged("fr-901", ["fr_multiline_address", "ocr_scan"]), tagged("fr-902", ["fr_multiline_address"])]).byTag!;
+  assert.deepEqual(Object.keys(byTag), ["fr_multiline_address", "ocr_scan"]);
+  assert.equal(byTag.fr_multiline_address!.cases, 2);
+  assert.equal(byTag.ocr_scan!.cases, 1);
+  assert.equal(byTag.ocr_scan!.overlap.recall, 0);
+});
+
 test("the code_block perturbation fences around a prompt that already has a fence", () => {
   const c = toCase({ id: "en-904", lang: "en", register: "code", template: "why?\n```\nKEY={{k}}\n```", items: { k: { category: "SECRET", kind: "generic_token", value: "nG5SwHznJ9JtvEVhx5AT1FRoNMiKsAME" } } });
   for (const v of perturbCases([c], { seed: 1, variants: 4, types: ["code_block"] })) {

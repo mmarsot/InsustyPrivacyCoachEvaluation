@@ -147,6 +147,12 @@ export function installLocked(dir: string, names: string[], log: (line: string) 
   return versions;
 }
 
+/** Where a ref keeps its detector and its config: flat `src/` before PR #82 grouped it into folders. */
+const DETECTOR_LAYOUTS = [
+  ["src/detector.ts", "src/detection/detector.ts"],
+  ["src/config.ts", "src/config/config.ts"],
+];
+
 /** Resolves and materializes the detector of a ref; cached per commit sha. */
 export async function materializeDetector(repo: string, ref: string, log: (line: string) => void = console.log): Promise<DetectorRef> {
   const { sha, subject, committedAt } = resolveCommit(repo, ref);
@@ -159,10 +165,11 @@ export async function materializeDetector(repo: string, ref: string, log: (line:
     rmSync(staging, { recursive: true, force: true });
     mkdirSync(staging, { recursive: true });
     archiveCommit(repo, sha, ["src", "package.json", "package-lock.json"], staging);
-    for (const file of ["src/detector.ts", "src/config.ts"])
-      if (!existsSync(join(staging, file))) throw new Error(`Ref ${ref} (${sha.slice(0, 8)}) has no ${file}; detbench cannot drive it.`);
+    const [detectorFile, configFile] = DETECTOR_LAYOUTS.map((files) => files.find((file) => existsSync(join(staging, file))));
+    if (!detectorFile || !configFile)
+      throw new Error(`Ref ${ref} (${sha.slice(0, 8)}) has no ${DETECTOR_LAYOUTS.map((files) => files.join(" or ")).join(" and ")}; detbench cannot drive it.`);
     const entry = join(staging, "bench-detector-entry.ts");
-    writeFileSync(entry, `export * as detector from "./src/detector.ts";\nexport * as config from "./src/config.ts";\n`);
+    writeFileSync(entry, `export * as detector from "./${detectorFile}";\nexport * as config from "./${configFile}";\n`);
     const packages = installLocked(staging, await importedPackages(entry), log);
     await build({
       entryPoints: [entry],

@@ -85,6 +85,8 @@ export const DECOY_KINDS = [
   "placeholder",
   /** A technical term or acronym in prose, e.g. in parentheses after a secret keyword: RSA-2048, v2, 2FA, OAuth2. */
   "term",
+  /** Lines shaped like a street line then a postcode line that are not an address (`3 lots livrés` / `10000 Lyon`). */
+  "address_lookalike",
 ] as const;
 export type DecoyKind = (typeof DECOY_KINDS)[number];
 

@@ -138,6 +138,8 @@ export interface DetSummary {
   byLang: Record<string, DetMetrics>;
   byType: Record<string, DetMetrics>;
   byRegister: Record<string, DetMetrics>;
+  /** Per dataset tag (a case counts under each of its tags); absent in runs made before tags were sliced. */
+  byTag?: Record<string, DetMetrics>;
   /** Items, decoys and detections in prose vs inside code blocks. */
   byZone: Record<string, DetMetrics>;
   decoys: Record<string, DecoySummary>;
@@ -229,6 +231,9 @@ export function summarizeConfig(config: string, all: DetScored[]): DetSummary {
     byType: mapValues(groupBy(base, (r) => r.type), (rs) => detMetrics(rs)),
     byRegister: mapValues(groupBy(base, (r) => r.register), (rs) => detMetrics(rs)),
     byZone: Object.fromEntries((["prose", "code"] as const).map((z) => [z, detMetrics(base, { zone: z })])),
+    byTag: Object.fromEntries(
+      [...new Set(base.flatMap((r) => r.tags))].sort().map((t) => [t, detMetrics(base.filter((r) => r.tags.includes(t)))]),
+    ),
     decoys,
     confusion,
     perturbations,
@@ -277,6 +282,7 @@ export function detCsv(summaries: DetSummary[]): string {
     for (const [k, m] of Object.entries(s.byType)) emit(s.config, "type", k, m);
     for (const [k, m] of Object.entries(s.byRegister)) emit(s.config, "register", k, m);
     for (const [k, m] of Object.entries(s.byZone)) emit(s.config, "zone", k, m);
+    for (const [k, m] of Object.entries(s.byTag ?? {})) emit(s.config, "tag", k, m);
     for (const [k, p] of Object.entries(s.perturbations)) {
       emit(s.config, "perturbation_base", k, p.base);
       emit(s.config, "perturbation", k, p.perturbed);
