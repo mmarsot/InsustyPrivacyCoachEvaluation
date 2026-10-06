@@ -129,6 +129,13 @@ test("plan: stable keys per ref, tiers and filters", () => {
     assert.deepEqual(o.aiModels, []);
     assert.ok(o.tracks.includes("ai"));
   }
+  // Hosted models only by name, next to the default or alone; budget cap 5 USD unless set.
+  const both = parseDocbenchArgs(["--ai", "default,glm47-flash-trusted"]);
+  assert.equal(both.aiDefault, true);
+  assert.deepEqual(both.aiModels.map((m) => [m.short, !!m.hosted]), [["glm47-flash-trusted", true]]);
+  assert.equal(both.budgetUsd, 5);
+  assert.equal(parseDocbenchArgs(["--ai", "glm47-flash-trusted", "--budget-usd", "1"]).aiDefault, false);
+  assert.equal(parseDocbenchArgs(["--ai", "glm47-flash-trusted", "--budget-usd", "1"]).budgetUsd, 1);
 });
 
 test("dashboard finds docbench runs however they were started", () => {

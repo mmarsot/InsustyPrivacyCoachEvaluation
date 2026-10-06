@@ -114,6 +114,9 @@ export interface AiPoint {
   reviewMs: number;
   requests: number;
   failure: string;
+  /** Hosted models: what the review cost (cached usage). */
+  usd?: number;
+  inputTokens?: number;
   error?: string;
 }
 
@@ -140,6 +143,12 @@ export function scoreAi(docs: AiDoc[], jobs: Job[], records: Map<string, ResultR
       reviewMs: record.reviewMs,
       requests: record.chunks.length,
       failure: s.failure,
+      ...(record.chunks.some((c) => c.usage)
+        ? {
+            usd: Math.round(record.chunks.reduce((a, c) => a + (c.usage?.costUsd ?? 0), 0) * 1e6) / 1e6,
+            inputTokens: record.chunks.reduce((a, c) => a + (c.usage?.inputTokens ?? 0), 0),
+          }
+        : {}),
       ...(record.error ? { error: record.error } : {}),
     });
   });
@@ -149,11 +158,16 @@ export function scoreAi(docs: AiDoc[], jobs: Job[], records: Map<string, ResultR
 export interface AiSummary {
   model: string;
   /** Per size: recall of expected passages, false positives, median and max review time, timeouts. */
-  bySize: Array<{ size: number; chars: number; cases: number; expected: number; found: number; recall: number | null; falsePositives: number; reviewMsP50: number; reviewMsMax: number; requestsP50: number; errors: number }>;
+  bySize: Array<{ size: number; chars: number; cases: number; expected: number; found: number; recall: number | null; falsePositives: number; reviewMsP50: number; reviewMsMax: number; requestsP50: number; errors: number; usd?: number }>;
+  /** Hosted models: USD of all its reviews here, and per document. */
+  usd?: number;
   /** Review time = a * chars^b. */
   fit: { a: number; b: number; r2: number } | null;
-  /** Largest document (characters) whose median review stays within 30 s, 60 s and 120 s, by the fit. */
-  within: Record<string, number | null>;
+  /**
+   * Largest document (characters) whose median review stays within 30 s, 60 s and 120 s, by the fit;
+   * never past the largest document measured (`atLeast`: the budget was not reached there).
+   */
+  within: Record<string, { chars: number; atLeast: boolean } | null>;
 }
 
 const p50 = (xs: number[]) => {
@@ -181,10 +195,19 @@ export function summarizeAi(points: AiPoint[], fit: (pts: Array<[number, number]
         reviewMsMax: Math.max(...at.map((p) => p.reviewMs)),
         requestsP50: p50(at.map((p) => p.requests)),
         errors: at.filter((p) => p.error).length,
+        ...(at.some((p) => p.usd !== undefined) ? { usd: Math.round(at.reduce((n, p) => n + (p.usd ?? 0), 0) * 1e6) / 1e6 } : {}),
       };
     });
     const f = fit(bySize.map((b) => [b.chars, b.reviewMsP50]));
-    const within = Object.fromEntries([30, 60, 120].map((s) => [`${s}s`, f && f.b > 0 ? Math.round((s * 1000 / f.a) ** (1 / f.b)) : null]));
-    return { model, bySize, fit: f, within };
+    const largest = Math.max(...bySize.map((b) => b.chars));
+    const within = Object.fromEntries(
+      [30, 60, 120].map((s) => {
+        if (!f || f.b <= 0) return [`${s}s`, null];
+        const chars = ((s * 1000) / f.a) ** (1 / f.b);
+        return [`${s}s`, !Number.isFinite(chars) || chars >= largest ? { chars: largest, atLeast: true } : { chars: Math.round(chars), atLeast: false }];
+      }),
+    );
+    const hosted = mine.some((p) => p.usd !== undefined);
+    return { model, bySize, fit: f, within, ...(hosted ? { usd: Math.round(mine.reduce((n, p) => n + (p.usd ?? 0), 0) * 1e6) / 1e6 } : {}) };
   });
 }

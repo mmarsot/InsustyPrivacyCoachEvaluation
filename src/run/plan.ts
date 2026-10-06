@@ -187,10 +187,14 @@ export interface DocbenchOptions {
   cachedOnly: boolean;
   maxRssMb: number;
   /**
-   * Private AI review of documents: bundled models by short name. Empty with the
-   * `ai` track on means the ref's own default model (`DEFAULT_SLM_MODEL_ID`).
+   * Private AI review of documents: bundled or hosted models by name (hosted ones
+   * never by default). With the `ai` track on and no name, or with `default` in the
+   * list, the ref's own default model (`DEFAULT_SLM_MODEL_ID`) runs first.
    */
   aiModels: ModelInfo[];
+  aiDefault: boolean;
+  /** Hosted models: USD the whole hosted evaluation may spend (cached lab and bench requests included). */
+  budgetUsd: number;
   /** Document sizes (characters of extracted text) for the Private AI track. */
   aiSizes: number[];
   /** Cases of the Private AI track (`--ai-tier`, default smoke: 2 cases; quick: 16; full: 32). */
@@ -242,7 +246,11 @@ export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
     dryRun: flag("dry-run"),
     cachedOnly: flag("cached-only"),
     maxRssMb: Number(opt("max-rss-mb", "3000")),
-    aiModels: list(aiArg === "default" ? undefined : aiArg).map((m) => MODELS.find((x) => x.short === m || x.id === m) ?? bad(`unknown model ${m} (Private AI track: bundled models only)`)),
+    aiModels: list(aiArg)
+      .filter((m) => m !== "default")
+      .map((m) => findBenchModel(m) ?? bad(`unknown model ${m} (Private AI track: bundled or hosted model names)`)),
+    aiDefault: aiArg !== undefined && (list(aiArg).includes("default") || !list(aiArg).length),
+    budgetUsd: Number(opt("budget-usd", "5")),
     aiSizes: list(opt("ai-sizes", "1000,5000,20000,50000")).map(Number),
     aiTier: ((): DocTier => {
       const t = opt("ai-tier", "smoke")!;

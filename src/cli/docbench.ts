@@ -9,7 +9,7 @@
  *                       [--formats docx,pdf,...] [--kinds positive,negative,failure]
  *                       [--sweep-types txt,csv,docx,xlsx,pptx,pdf,odt,ods,zip|all]
  *                       [--configs default,all] [--seed 1] [--reps 3]
- *                       [--ai [default|smollm2-360m,...]] [--ai-tier smoke|quick|full] [--ai-sizes 1000,5000,20000,50000]
+ *                       [--ai [default,<bundled or hosted model>,...]] [--ai-tier smoke|quick|full] [--budget-usd 5] [--ai-sizes 1000,5000,20000,50000]
  *                       [--name <run name>] [--max-rss-mb 3000] [--dry-run] [--cached-only]
  *   npm run bench -- --track docbench ...        (same arguments)
  *   npm run docbench -- --compare-runs runs/docbench/<A> runs/docbench/<B>
@@ -42,6 +42,8 @@ import type { DocJob, DocJobResult } from "../docbench/types.ts";
 import { independentViews, pdftotext } from "../docbench/verify.ts";
 import type { DocWorkerSpec } from "../docbench/worker.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo } from "../ext/ref.ts";
+import { releaseHostedModel } from "../hosted/client.ts";
+import { describeTarget, estimateCost, findHostedModel, hostedSpentUsd } from "../hosted/models.ts";
 import { findLabModel } from "../lab/models.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "../lab/runtime.ts";
 import { ACTIVE_RUNS_DIR, CACHE_DIR } from "../paths.ts";
@@ -81,16 +83,18 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
   // Private AI track: documents read now (cheap); the model jobs run below.
   let ai: { ext: Awaited<ReturnType<typeof materializeExtRef>>; extApi: Awaited<ReturnType<typeof loadExtApi>>; docs: Awaited<ReturnType<typeof readAiDocs>>; dataset: NonNullable<ReturnType<typeof compileDataset>["dataset"]> } | undefined;
   let aiModels = o.aiModels;
+  let hostedEstimateUsd = 0;
+  let hostedSpent = 0;
   if (o.tracks.includes("ai")) {
     const { dataset } = compileDataset({ requireSplit: true });
     if (!dataset) throw new Error("dataset is invalid: run `npm run validate`");
     const ext = await materializeExtRef(repo, refName);
     const extApi = await loadExtApi(ext.bundle);
-    if (!aiModels.length) {
+    if (o.aiDefault || !aiModels.length) {
       // The ref's own default model, as a new user gets it.
       const own = MODELS.find((m) => m.id === extApi.defaultModelId);
       if (!own) throw new Error(`The ref's default model ${extApi.defaultModelId} is not in models/models.json.`);
-      aiModels = [own];
+      aiModels = [own, ...aiModels.filter((m) => m.id !== own.id)];
     }
     const docs = await readAiDocs(aiSpecs(aiCases(dataset, o.aiTier), o.aiSizes), dataset, api, o.seed);
     ai = { ext, extApi, docs, dataset };
@@ -99,6 +103,18 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
       const done = loadCache(ext.sha, m.id);
       const pending = jobs.filter((j) => !done.has(j.key));
       console.log(`  Private AI ${m.short}: ${jobs.length} documents (${docs.length / o.aiSizes.length} cases x sizes ${o.aiSizes.join(",")} chars), ${pending.length} to compute`);
+      const h = m.hosted ? findHostedModel(m.id) : undefined;
+      if (h) {
+        // Every label of every pending document in one request (no chunking under the context budget), every answer at its cap.
+        const est = estimateCost(h, pending.flatMap((j) => j.rules.map((r) => ({ chars: j.text.length + r.prompt.length + (r.examples ?? []).join(" | ").length + 200 }))), h.maxTokens ?? 48);
+        hostedEstimateUsd += est.usd;
+        console.log(`    ${describeTarget(h)}: ~${est.inputTokens} input + <=${est.outputTokens} output tokens, <=${est.usd.toFixed(4)} USD`);
+      }
+    }
+    if (aiModels.some((m) => m.hosted)) {
+      hostedSpent = hostedSpentUsd();
+      console.log(`  Hosted spend so far ${hostedSpent.toFixed(4)} USD + this run <=${hostedEstimateUsd.toFixed(4)} USD; budget ${o.budgetUsd} USD`);
+      if (!o.cachedOnly && !o.dryRun && hostedSpent + hostedEstimateUsd > o.budgetUsd) throw new Error("The hosted cost estimate would pass --budget-usd; nothing was sent.");
     }
   }
   if (o.dryRun) return undefined;
@@ -163,18 +179,28 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
       const jobs = aiJobs(ai.docs, ai.dataset, ai.ext, ai.extApi, m.id);
       const pending = jobs.filter((j) => !loadCache(ai.ext.sha, m.id).has(j.key));
       if (pending.length && !o.cachedOnly) {
-        const labModel = findLabModel(m.id);
+        const hostedModel = m.hosted ? findHostedModel(m.id) : undefined;
+        // A hosted model holds no weights here; a local server (Ollama) does, so it waits like a bundled model.
+        const labModel = m.hosted && !hostedModel?.localServer ? undefined : findLabModel(m.id);
         if (labModel && !(await waitForMemory(labModel, minFree))) continue;
-        const spec: WorkerSpec = { bundle: ai.ext.bundle, extSha: ai.ext.sha, model: m.id, resultFile: cacheFile(ai.ext.sha, m.id), jobs: pending };
+        const spec: WorkerSpec = {
+          bundle: ai.ext.bundle,
+          extSha: ai.ext.sha,
+          model: m.id,
+          resultFile: cacheFile(ai.ext.sha, m.id),
+          jobs: pending,
+          ...(m.hosted ? { budgetUsd: Math.max(0, o.budgetUsd - hostedSpentUsd()) } : {}),
+        };
         const specFile = join(tmp, `docbench-ai-${process.pid}-${m.short}.json`);
         writeFileSync(specFile, JSON.stringify(spec));
         console.log(`\n[ai ${m.short}] ${pending.length} documents`);
         await runGuardedWorker("src/run/worker.ts", specFile, {}, `ai ${m.short}`, Math.max(o.maxRssMb, 3800), (event) => {
           if (event.type === "loaded") console.log(`[ai ${m.short}] loaded in ${(Number(event.loadMs) / 1000).toFixed(1)} s`);
-          else if (event.type === "result") console.log(`[ai ${m.short}] ${event.done}/${event.total} ${event.caseId} ${event.reviewMs} ms${event.error ? ` (${event.error})` : ""}`);
+          else if (event.type === "result") console.log(`[ai ${m.short}] ${event.done}/${event.total} ${event.caseId} ${event.reviewMs} ms${event.costUsd !== undefined ? `, ${Number(event.costUsd).toFixed(5)} USD` : ""}${event.error ? ` (${event.error})` : ""}`);
           else if (event.type === "fatal") console.error(`[ai ${m.short}] worker failed: ${event.error}`);
         }, { startupS: 600, idleS: 3600 });
         rmSync(specFile, { force: true });
+        if (hostedModel) await releaseHostedModel(hostedModel);
       }
       aiPoints = [...aiPoints, ...scoreAi(ai.docs, jobs, loadCache(ai.ext.sha, m.id), ai.dataset, ai.extApi)];
     }
@@ -206,7 +232,7 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
     sweepPoints: plan.sweeps.length,
     missing,
     verifier: { pdftotext: !!pdftotext() },
-    ...(ai ? { ai: { models: aiModels.map((m) => m.id), sizes: o.aiSizes, tier: o.aiTier, bench: { sha: ai.ext.sha, kind: ai.extApi.kind } } } : {}),
+    ...(ai ? { ai: { models: aiModels.map((m) => m.id), ...(aiModels.some((m) => m.hosted) ? { budgetUsd: o.budgetUsd } : {}), sizes: o.aiSizes, tier: o.aiTier, bench: { sha: ai.ext.sha, kind: ai.extApi.kind } } } : {}),
     node: process.versions.node,
     machine: `${cpus()[0]?.model ?? "cpu"} x${cpus().length}, ${(totalmem() / 2 ** 30).toFixed(1)} GiB RAM, ${process.platform}`,
     startedAt: startedAt.toISOString(),

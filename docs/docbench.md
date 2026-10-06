@@ -45,8 +45,10 @@ English positive cases), `--tracks suite,sweep,ai`, `--formats docx,pdf,...`
 (families or extensions), `--kinds positive,negative,failure`,
 `--sweep-types txt,csv,docx,xlsx,pptx,pdf,odt,ods,zip`, `--configs
 default,all`, `--seed 1`, `--reps 3` (timing repetitions per sweep point,
-median kept), `--ai [default|<models>]` (alone or `default`: the ref's own default
-model, `DEFAULT_SLM_MODEL_ID`), `--ai-tier smoke|quick|full` (default smoke) and
+median kept), `--ai [default,<models>]` (alone or with `default`: the ref's own default
+model, `DEFAULT_SLM_MODEL_ID`; other names are bundled models or hosted ones
+from `src/hosted/models.ts`), `--budget-usd 5` (hosted spend cap, cached
+hosted spend included), `--ai-tier smoke|quick|full` (default smoke) and
 `--ai-sizes 1000,5000,20000,50000`,
 `--name`, `--max-rss-mb 3000`, `--cached-only`, `--ext-repo`.
 
@@ -216,8 +218,8 @@ Per format × zone (positive cases), per configuration:
 
 ### Private AI on documents
 
-With `--ai` (the ref's default model, SmolLM2-360M at `2aece81`, or the
-bundled models named after it), dev-split custom-label cases (`--ai-tier smoke`, the
+With `--ai` (the ref's default model, SmolLM2-360M at `2aece81`, and any
+bundled or hosted models named after it), dev-split custom-label cases (`--ai-tier smoke`, the
 default: dev and finance, EN; `quick`: every profile, EN and FR, one clear
 positive each; `full`: plus one look-alike negative) are put in the middle of Word documents of
 `--ai-sizes` characters of neutral filler, read by the ref's reader and
@@ -228,6 +230,18 @@ max, requests; a power-law fit of review time against characters; and the
 largest document whose median review stays within 30 s, 60 s and 120 s,
 next to the extension's `localAi.fileReviewLimit` (20,000 characters by
 default; 5,000 to 100,000 offered).
+
+Hosted (connected) models run through the bench's shared hosted client
+(`src/hosted/`), exactly as `npm run bench` runs them: the ref's own
+`reviewPrompt` drives the client in place of the engine, requests are paced
+per model, keys come only from the environment (`AWS_BEARER_TOKEN_BEDROCK`,
+or the model's `apiKeyEnv`), the plan prints a cost estimate and refuses to
+start past `--budget-usd`, and each document's cost is reported. Use the
+`-trusted` entries (`glm47-flash-trusted`, `nova-micro-trusted`): they mirror
+the extension's connected-model requests (PR #48). At `2aece81` the
+connector also sends a label's learned examples and false alarms, empty for
+a new user as here, and splits prompts past its 25,000-token context budget
+(~100,000 characters), which no document here reaches.
 
 ## Outputs
 

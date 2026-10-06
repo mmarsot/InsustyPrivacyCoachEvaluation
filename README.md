@@ -297,6 +297,7 @@ so FR addresses only too). The four large generated cases are scored apart
 npm run docbench -- --ref main                       # suite + quick size sweeps, a few minutes, no model
 npm run docbench -- --ref main --compare <branch>    # two refs + a comparison page
 npm run docbench -- --ref main --tier full --ai     # full sweeps + Private AI on documents (the ref's default model)
+npm run docbench -- --ref main --ai default,glm47-flash-trusted --budget-usd 5   # plus a connected (hosted) model
 npm run bench -- --track docbench --ref main         # the same from npm run bench
 ```
 
@@ -367,17 +368,31 @@ dataset as of `c1c7a64`;
   0.5 ms per 1,000 characters everywhere, so a 2 MB text costs ~1 s of rules
   and every type stays under 5 s up to its caps. Peak memory stays under
   500 MB per document (worker baseline ~140 MB).
-- **Private AI on documents** (`--ai`, the ref's default model
-  SmolLM2-360M; `--ai-tier smoke`: 2 dev cases, 3 expected passages, each in
-  Word documents of 1,000 to 50,000 characters): review time grows linearly
-  with length, ~5 ms per character (fit `5.78 · chars^0.98`, R² 1.00):
-  5-10 s at 1,000 characters, 24-39 s at 5,000, 89-141 s at 20,000 (the
-  default `fileReviewLimit`), 229-367 s at 50,000. A 30 s budget holds
-  ~6,300 characters, 60 s ~12,700, 120 s ~25,900. Recall is low and noisy on
-  this small set: 2 of the 18 expected-passage instances found (both at
-  20,000 characters), 1 false positive (at 10,000); most answers are dropped
-  by the ref's own checks (`hallucinated`, `echo_instructions` failure
-  modes). `--ai-tier quick` (16 cases) gives a firmer recall curve.
+- **Private AI on documents** (`--ai default,glm47-flash-trusted`, pinned
+  to `2aece81`; `--ai-tier smoke`: 2 dev cases, 3 expected passages, each in
+  Word documents of 1,000 to 50,000 characters; 18 passage instances per
+  model). SmolLM2-360M is the ref's default on-device model; GLM-4.7 Flash
+  runs through the bench's hosted client with the framing of the
+  extension's connected-model (Trusted AI) requests (`glm47-flash-trusted`:
+  Bedrock Converse, native prompt, tolerant answer parser):
+
+  | | SmolLM2-360M (on device) | GLM-4.7 Flash (connected) |
+  | --- | --- | --- |
+  | Passages found | 2 / 18 (both at 20,000 chars) | 14 / 18 |
+  | False positives | 1 | 8 (`qm-payouts-worker`, `batch 7781` in a log) |
+  | Review time, 1,000 chars | 5-10 s | 1.0-1.9 s |
+  | Review time, 20,000 chars | 89-141 s | 1.4-2.0 s |
+  | Review time, 50,000 chars | 229-367 s | 1.5-3.0 s |
+  | Time fit | `5.78 · chars^0.98` ms (linear) | nearly flat (`chars^0.12`) |
+  | Within 30 s | ~6,300 chars | ≥ 49,000 chars (all sizes) |
+  | Cost | – | 0.0075 USD for the 12 documents (0.0001-0.0023 USD each) |
+
+  The 360M answers are mostly dropped by the ref's own checks
+  (`hallucinated`, `echo_instructions`). GLM finds the figure passage from
+  1,000 to 20,000 characters but not at 50,000, where it answers with the
+  passage plus a leading word ("our Q3 volumes fell…") and the ref drops
+  it. Three passages are too few for a firm recall curve; `--ai-tier
+  quick` (16 cases) gives one.
 
 ## Dashboard
 

@@ -28,7 +28,7 @@ export interface DocRunMeta {
   sweepPoints: number;
   missing: number;
   verifier: { pdftotext: boolean };
-  ai?: { models: string[]; sizes: number[]; tier?: string; bench: { sha: string; kind: string } };
+  ai?: { models: string[]; budgetUsd?: number; sizes: number[]; tier?: string; bench: { sha: string; kind: string } };
   node: string;
   machine: string;
   startedAt: string;
@@ -176,7 +176,7 @@ function aiSection(ai: AiSummary[] | undefined, meta: DocRunMeta): string {
   if (!ai?.length) return "";
   const limits = meta.fileReviewLimits ?? [];
   return `<h2>Private AI redaction on documents</h2>
-<p>Dev-split custom-label cases of the review dataset, each in the middle of a Word document of the given length, read by the ref's reader and reviewed by the model through the bench's model runner (q8, WASM, greedy; the ref's shipped instruction and <code>desc</code> label descriptions). The extension's size threshold for files is <code>localAi.fileReviewLimit</code> = ${meta.fileReviewLimit !== null ? big(meta.fileReviewLimit) : "–"} characters by default${limits.length ? ` (offered: ${limits.map(big).join(", ")})` : ""}: longer files skip Private AI.</p>
+<p>Dev-split custom-label cases of the review dataset, each in the middle of a Word document of the given length, read by the ref's reader and reviewed by the model through the bench's model runner with the ref's own <code>reviewPrompt</code> (bundled models: q8, WASM, greedy; hosted models: the bench's hosted client in place of the engine, paced per model; the ref's shipped instruction and <code>desc</code> label descriptions). The extension's size threshold for files is <code>localAi.fileReviewLimit</code> = ${meta.fileReviewLimit !== null ? big(meta.fileReviewLimit) : "–"} characters by default${limits.length ? ` (offered: ${limits.map(big).join(", ")})` : ""}: longer files skip Private AI.</p>
 <div class="grid">${ai
     .map(
       (m) => `<div class="card"><h3>${esc(m.model.replace(/^.*\//, ""))}</h3>${logChart([{ name: "review time (p50)", points: m.bySize.map((b) => [b.chars, b.reviewMsP50] as [number, number]), fit: m.fit ? { ...m.fit, points: m.bySize.length } : null }, { name: "max", points: m.bySize.map((b) => [b.chars, b.reviewMsMax] as [number, number]) }], {
@@ -186,9 +186,9 @@ function aiSection(ai: AiSummary[] | undefined, meta: DocRunMeta): string {
         vLines: limits.map((l) => ({ x: l, label: `${l / 1000}k` })),
         hLines: [{ y: 30000, label: "30 s" }],
       })}
-<table><tr><th class="n">Size</th><th class="n">Chars</th><th class="n">Cases</th><th class="n">Recall</th><th class="n">FP</th><th class="n">Review p50</th><th class="n">Max</th><th class="n">Requests p50</th><th class="n">Errors</th></tr>${m.bySize
-        .map((b) => `<tr><td class="n">${big(b.size)}</td><td class="n">${big(b.chars)}</td><td class="n">${b.cases}</td><td class="n ${cls(b.recall, 0.7, 0.4)}">${pct(b.recall)} (${b.found}/${b.expected})</td><td class="n">${b.falsePositives}</td><td class="n">${ms(b.reviewMsP50)}</td><td class="n">${ms(b.reviewMsMax)}</td><td class="n">${b.requestsP50}</td><td class="n">${b.errors}</td></tr>`)
-        .join("")}</table><p class="muted">Fit: review ms ≈ ${m.fit ? `${m.fit.a.toPrecision(3)} · chars<sup>${m.fit.b.toFixed(2)}</sup> (R² ${m.fit.r2.toFixed(2)})` : "–"}. Largest document within 30 s / 60 s / 120 s (median): ${Object.values(m.within).map((v) => (v === null ? "–" : big(v))).join(" / ")} characters.</p></div>`,
+<table><tr><th class="n">Size</th><th class="n">Chars</th><th class="n">Cases</th><th class="n">Recall</th><th class="n">FP</th><th class="n">Review p50</th><th class="n">Max</th><th class="n">Requests p50</th><th class="n">Errors</th>${m.usd !== undefined ? '<th class="n">USD</th>' : ""}</tr>${m.bySize
+        .map((b) => `<tr><td class="n">${big(b.size)}</td><td class="n">${big(b.chars)}</td><td class="n">${b.cases}</td><td class="n ${cls(b.recall, 0.7, 0.4)}">${pct(b.recall)} (${b.found}/${b.expected})</td><td class="n">${b.falsePositives}</td><td class="n">${ms(b.reviewMsP50)}</td><td class="n">${ms(b.reviewMsMax)}</td><td class="n">${b.requestsP50}</td><td class="n">${b.errors}</td>${m.usd !== undefined ? `<td class="n">${(b.usd ?? 0).toFixed(4)}</td>` : ""}</tr>`)
+        .join("")}</table>${m.usd !== undefined ? `<p class="muted">Spent on these reviews: ${m.usd.toFixed(4)} USD (on-demand prices of the model table).</p>` : ""}<p class="muted">Fit: review ms ≈ ${m.fit ? `${m.fit.a.toPrecision(3)} · chars<sup>${m.fit.b.toFixed(2)}</sup> (R² ${m.fit.r2.toFixed(2)})` : "–"}. Largest document within 30 s / 60 s / 120 s (median): ${Object.values(m.within).map((v) => (v === null ? "–" : `${v.atLeast ? "≥ " : ""}${big(v.chars)}`)).join(" / ")} characters.</p></div>`,
     )
     .join("")}</div>`;
 }
@@ -300,7 +300,7 @@ export function docTextSummary(meta: DocRunMeta, s: DocSummary, ai?: AiSummary[]
     `  failure files reported correctly ${o.failures.ok}/${o.failures.cases}, silent cleans ${o.failures.silentClean}; all cases read as expected ${o.classification.ok}/${o.classification.cases}; PDF redaction in place ${o.pdfRedaction.inPlace}, fallback ${o.pdfRedaction.fallback} (findings failing alone ${o.pdfRedaction.failing ?? 0}/${o.pdfRedaction.findings ?? 0})`,
     ...s.families.map((f) => `  ${f.family.padEnd(6)} extracted ${pct(f.extractionRecall).padStart(4)} · recall ${meta.configs.map((c) => `${c} ${pct(f.configs[c]?.recall)}`).join(", ")}`),
     ...s.fits.map((f) => `  sweep ${f.type.padEnd(5)} total ≈ ${f.total ? `${f.total.a.toPrecision(3)}·n^${f.total.b.toFixed(2)} ms` : "–"} per ${f.unit}; ${num(f.msPerKChar, 2)} ms/1k chars; within 5 s up to ${f.sizeWithin5s !== null ? `${f.within5sAtLeast ? "≥ " : ""}${big(f.sizeWithin5s)}` : "–"} ${f.unit}${f.capped?.length ? ` (read in part at ${f.capped.map(big).join(", ")})` : ""}`),
-    ...(ai ?? []).map((m) => `  Private AI ${m.model.replace(/^.*\//, "")}: ${m.bySize.map((b) => `${big(b.chars)} chars → recall ${pct(b.recall)}, ${ms(b.reviewMsP50)}`).join("; ")}`),
+    ...(ai ?? []).map((m) => `  Private AI ${m.model.replace(/^.*\//, "")}: ${m.bySize.map((b) => `${big(b.chars)} chars → recall ${pct(b.recall)}, ${ms(b.reviewMsP50)}`).join("; ")}${m.usd !== undefined ? ` · ${m.usd.toFixed(4)} USD` : ""}`),
   ];
   return lines.join("\n");
 }

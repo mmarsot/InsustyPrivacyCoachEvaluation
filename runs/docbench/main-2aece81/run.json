@@ -6,10 +6,12 @@
     "--tier",
     "full",
     "--ai",
+    "default,glm47-flash-trusted",
     "--ai-sizes",
     "1000,2000,5000,10000,20000,50000",
     "--name",
-    "main-2aece81"
+    "main-2aece81",
+    "--cached-only"
   ],
   "ext": {
     "ref": "2aece81",
@@ -69,8 +71,10 @@
   },
   "ai": {
     "models": [
-      "onnx-community/SmolLM2-360M-Instruct-ONNX"
+      "onnx-community/SmolLM2-360M-Instruct-ONNX",
+      "bedrock/zai.glm-4.7-flash#trusted"
     ],
+    "budgetUsd": 5,
     "sizes": [
       1000,
       2000,
@@ -87,6 +91,6 @@
   },
   "node": "24.18.0",
   "machine": "Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz x8, 7.1 GiB RAM, linux",
-  "startedAt": "2026-10-06T05:35:40.735Z",
-  "finishedAt": "2026-10-06T05:53:38.396Z"
+  "startedAt": "2026-10-06T06:08:54.083Z",
+  "finishedAt": "2026-10-06T06:08:54.237Z"
 }
