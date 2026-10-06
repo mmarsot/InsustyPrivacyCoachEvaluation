@@ -2,19 +2,17 @@
   "name": "main-2aece81",
   "argv": [
     "--ref",
-    "main",
+    "2aece81",
     "--tier",
     "full",
     "--ai",
-    "--ai-tier",
-    "smoke",
     "--ai-sizes",
     "1000,2000,5000,10000,20000,50000",
     "--name",
     "main-2aece81"
   ],
   "ext": {
-    "ref": "main",
+    "ref": "2aece81",
     "sha": "2aece814cdd91309641ebc31a300341276b20a91",
     "subject": "feat(files): check and redact PDFs, Office files, and zip archives (#76)",
     "committedAt": "2026-10-05T22:15:02+02:00"
@@ -89,6 +87,6 @@
   },
   "node": "24.18.0",
   "machine": "Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz x8, 7.1 GiB RAM, linux",
-  "startedAt": "2026-10-05T23:54:45.629Z",
-  "finishedAt": "2026-10-06T03:54:59.235Z"
+  "startedAt": "2026-10-06T05:35:40.735Z",
+  "finishedAt": "2026-10-06T05:53:38.396Z"
 }

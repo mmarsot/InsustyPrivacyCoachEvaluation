@@ -367,13 +367,17 @@ dataset as of `c1c7a64`;
   0.5 ms per 1,000 characters everywhere, so a 2 MB text costs ~1 s of rules
   and every type stays under 5 s up to its caps. Peak memory stays under
   500 MB per document (worker baseline ~140 MB).
-- **Private AI on documents**: not in this baseline yet. The track runs
-  the ref's default model (SmolLM2-360M at `2aece81`), which the memory
-  guard skipped twice (2.9 GB available, 3.4 GB needed with the 1.5 GB
-  margin, while other lanes ran). Run `npm run docbench -- --ref main
-  --tier full --ai --ai-sizes 1000,2000,5000,10000,20000,50000 --name
-  main-2aece81` when memory allows: suite and sweeps are cached, only the
-  reviews run, and the report gains recall and review time against length.
+- **Private AI on documents** (`--ai`, the ref's default model
+  SmolLM2-360M; `--ai-tier smoke`: 2 dev cases, 3 expected passages, each in
+  Word documents of 1,000 to 50,000 characters): review time grows linearly
+  with length, ~5 ms per character (fit `5.78 · chars^0.98`, R² 1.00):
+  5-10 s at 1,000 characters, 24-39 s at 5,000, 89-141 s at 20,000 (the
+  default `fileReviewLimit`), 229-367 s at 50,000. A 30 s budget holds
+  ~6,300 characters, 60 s ~12,700, 120 s ~25,900. Recall is low and noisy on
+  this small set: 2 of the 18 expected-passage instances found (both at
+  20,000 characters), 1 false positive (at 10,000); most answers are dropped
+  by the ref's own checks (`hallucinated`, `echo_instructions` failure
+  modes). `--ai-tier quick` (16 cases) gives a firmer recall curve.
 
 ## Dashboard
 
