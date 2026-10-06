@@ -6,7 +6,6 @@
     "--tier",
     "full",
     "--ai",
-    "smollm2-135m",
     "--ai-tier",
     "smoke",
     "--ai-sizes",
@@ -72,7 +71,7 @@
   },
   "ai": {
     "models": [
-      "onnx-community/SmolLM2-135M-Instruct-ONNX"
+      "onnx-community/SmolLM2-360M-Instruct-ONNX"
     ],
     "sizes": [
       1000,
@@ -90,6 +89,6 @@
   },
   "node": "24.18.0",
   "machine": "Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz x8, 7.1 GiB RAM, linux",
-  "startedAt": "2026-10-05T22:31:38.167Z",
-  "finishedAt": "2026-10-05T22:50:51.578Z"
+  "startedAt": "2026-10-05T23:54:45.629Z",
+  "finishedAt": "2026-10-06T03:54:59.235Z"
 }

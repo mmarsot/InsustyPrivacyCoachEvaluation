@@ -296,7 +296,7 @@ so FR addresses only too). The four large generated cases are scored apart
 ```bash
 npm run docbench -- --ref main                       # suite + quick size sweeps, a few minutes, no model
 npm run docbench -- --ref main --compare <branch>    # two refs + a comparison page
-npm run docbench -- --ref main --tier full --ai smollm2-360m   # full sweeps + Private AI on documents
+npm run docbench -- --ref main --tier full --ai     # full sweeps + Private AI on documents (the ref's default model)
 npm run bench -- --track docbench --ref main         # the same from npm run bench
 ```
 
@@ -314,7 +314,7 @@ false alarms per page and per 10,000 cells, the classification of each file,
 and whether redacted values are really gone from the redacted file (read
 back by an independent reader). Size sweeps per type (words, rows, slides,
 pages, zip entries) give read, detection and redaction time and peak memory
-with fitted scaling; `--ai <model>` adds Private AI review time and recall
+with fitted scaling; `--ai` adds Private AI review time and recall
 against document length. Results are cached per ref commit; the dashboard's
 Documents view shows them. [docs/docbench.md](docs/docbench.md) has the
 cases, metrics and how to add cases.
@@ -367,16 +367,13 @@ dataset as of `c1c7a64`;
   0.5 ms per 1,000 characters everywhere, so a 2 MB text costs ~1 s of rules
   and every type stays under 5 s up to its caps. Peak memory stays under
   500 MB per document (worker baseline ~140 MB).
-- **Private AI on documents** (`--ai smollm2-135m --ai-tier smoke`, the
-  extension's bundled default model; SmolLM2-360M was skipped by the memory
-  guard while other lanes ran): review time grows linearly with document
-  length, ~2.9 ms per character (fit `1.43 · chars^1.07`, R² 0.99): 2.5 s at
-  1,000 characters, 51 s (median) to 76 s at 20,000 (the default
-  `fileReviewLimit`), 141-192 s at 50,000; a 30 s budget holds ~11,000
-  characters, 60 s ~21,000. It found none of the 3 expected passages at any
-  length (it echoes label examples or the document's author property), so
-  this run measures time only; rerun with `--ai smollm2-360m --ai-tier
-  quick` when memory allows for recall against length.
+- **Private AI on documents**: not in this baseline yet. The track runs
+  the ref's default model (SmolLM2-360M at `2aece81`), which the memory
+  guard skipped twice (2.9 GB available, 3.4 GB needed with the 1.5 GB
+  margin, while other lanes ran). Run `npm run docbench -- --ref main
+  --tier full --ai --ai-sizes 1000,2000,5000,10000,20000,50000 --name
+  main-2aece81` when memory allows: suite and sweeps are cached, only the
+  reviews run, and the report gains recall and review time against length.
 
 ## Dashboard
 
