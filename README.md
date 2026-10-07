@@ -293,7 +293,12 @@ so FR addresses only too). The four large generated cases are scored apart
   and `CEDEX 08`. The detector scans one line at a time, so its FR pattern
   never crosses the line break. The 6 near-miss line pairs (`fr-151`–`fr-156`,
   tag `address_near_miss`) pass: none is flagged, so a fix must keep them
-  clean.
+  clean. Fixed on `main` @ `539608e` (InsustyPromptCoach PR #91;
+  [`runs/detbench/main-539608e/report.html`](runs/detbench/main-539608e/report.html)):
+  all 10 addresses are found with exact spans in both configs, the near-miss
+  pairs stay clean, and no other base case or variant changes outcome
+  (overall F1 86%→87% in `default`, 94%→95% in `all`; false positives
+  unchanged at 11 and 12).
 - Still missed in `all`: US, UK and DE phones (15), US and UK addresses (9),
   passports (4), dates of birth under a table header (2), 2 French
   passwords, 3 SIRENs and a BIC.
