@@ -34,6 +34,10 @@ import { join } from "node:path";
 import { build, type Plugin } from "esbuild";
 import { CACHE_DIR, ROOT } from "../paths.ts";
 
+/**
+ * Materialized refs, one folder per commit sha: the archived sources, the
+ * locked install and the bundle.
+ */
 export const MODULE_CACHE_DIR = join(CACHE_DIR, "module");
 
 /** Bump when the entry or the bundle options change, so cached bundles are rebuilt. */
@@ -108,6 +112,7 @@ export const LAYOUT: ReadonlyArray<{
     ],
   },
 ];
+/** The redaction-path modules a bundle can re-export (`LAYOUT`). */
 export type ModuleName =
   | "detector"
   | "config"
@@ -122,6 +127,7 @@ export type ModuleName =
   | "hostedFraming"
   | "hostedClient";
 
+/** A materialized ref: its commit, its bundle and what went into it. */
 export interface ModuleRef {
   ref: string;
   sha: string;
@@ -206,6 +212,10 @@ const packageName = (spec: string) =>
   spec.startsWith("@")
     ? spec.split("/").slice(0, 2).join("/")
     : spec.split("/")[0]!;
+/**
+ * Whether an import is a Node built-in: those are neither installed nor
+ * bundled.
+ */
 export const isBuiltin = (spec: string) =>
   spec.startsWith("node:") || builtinModules.includes(packageName(spec));
 

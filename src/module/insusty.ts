@@ -66,6 +66,10 @@ interface ReviewSpan {
   value?: string;
   reason?: string;
 }
+/**
+ * A custom label as the ref's review takes it; the bench's rules learn nothing,
+ * so `learned` is always empty.
+ */
 export interface RuleLike {
   name: string;
   label: string;
@@ -73,6 +77,7 @@ export interface RuleLike {
   examples: string[];
   learned: { examples: unknown[]; falseAlarms: unknown[] };
 }
+/** What the ref's engine reports about one generation. */
 export interface EngineRuntime {
   backend: string;
   quantization: string;
@@ -109,6 +114,10 @@ type Client = {
   ): Promise<{ output: unknown; runtime?: EngineRuntime; confidence?: number }>;
 };
 
+/**
+ * The exports of a materialized bundle the module uses; optional ones exist
+ * only from the ref that introduced them.
+ */
 export type InsustyBundle = DocumentBundle & {
   detector: {
     detectSensitiveData: (text: string, config: unknown) => Detection[];
@@ -201,11 +210,20 @@ export interface ConnectedTarget {
     | undefined;
 }
 
+/**
+ * How Private AI runs: `device` loads the on-device runtime on first use (so
+ * text-only runs never load a model), `connected` lists the connected models
+ * the module may call.
+ */
 export interface InsustyOptions {
   device?: () => Promise<DeviceRuntime>;
   connected?: ConnectedTarget[];
 }
 
+/**
+ * The extension at a ref as a contract module, plus what reports show about the
+ * ref.
+ */
 export interface InsustyModule extends RedactionModule {
   ref: ModuleRef;
   /** The ref's own category names (for reports on what a ref supports). */

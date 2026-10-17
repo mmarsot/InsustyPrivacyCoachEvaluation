@@ -18,6 +18,10 @@
 import type { CompiledCase, Profile } from "../dataset/schema.ts";
 import type { ResultRecord } from "../run/jobs.ts";
 
+/**
+ * What went wrong with a raw answer, if anything (`ok` otherwise); one per
+ * scored case.
+ */
 export const FAILURE_MODES = [
   "ok", // compliant output (findings or NONE), no dropped line
   "timeout", // hit the ref's generation budget
@@ -31,8 +35,15 @@ export const FAILURE_MODES = [
 ] as const;
 export type FailureMode = (typeof FAILURE_MODES)[number];
 
+/**
+ * How an answer follows the line protocol: `NONE`, valid lines only, some valid
+ * lines, none valid, or no text.
+ */
 export type FormatClass = "none" | "lines" | "partial" | "invalid" | "empty";
 
+/**
+ * An expected passage and how the predictions matched it (see the file header).
+ */
 export interface ScoredExpected {
   label: string;
   passage: string;
@@ -40,6 +51,10 @@ export interface ScoredExpected {
   overlap: boolean;
   anyLabel: boolean;
 }
+/**
+ * A prediction collapsed to (label, value) and whether it matched an expected
+ * passage.
+ */
 export interface ScoredPrediction {
   label: string;
   value: string;
@@ -47,6 +62,9 @@ export interface ScoredPrediction {
   overlap: boolean;
 }
 
+/**
+ * One result scored against its case: a line of `runs/<name>/results.jsonl`.
+ */
 export interface Scored {
   caseId: string;
   model: string;
@@ -82,6 +100,10 @@ export interface Scored {
   error?: string;
 }
 
+/**
+ * A configuration's display key, `<model> | <instruction> | <label variant>`;
+ * also its grouping key.
+ */
 export const configKey = (
   model: string,
   instruction: string,
@@ -219,6 +241,12 @@ export function analyzeLines(
   return result;
 }
 
+/**
+ * Scores one cached result. Findings with `builtinLabels` are counted apart;
+ * `instructions` lets the failure analysis spot echoed instructions;
+ * `completionRef` reads older records, which lack the answer cue, as one
+ * answer per label in profile order.
+ */
 export function scoreResult(
   c: CompiledCase,
   profile: Profile,

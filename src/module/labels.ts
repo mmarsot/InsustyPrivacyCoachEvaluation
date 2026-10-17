@@ -8,6 +8,10 @@
  */
 import { BUILTIN_LABELS, type BuiltinLabel } from "../../contract/types.ts";
 
+/**
+ * Ref category names that are not contract labels themselves. Add a new ref's
+ * name here; never rename a dataset category (AGENTS.md).
+ */
 export const CATEGORY_ALIASES: Record<string, BuiltinLabel> = {
   API_KEY: "SECRET",
   SECRET: "SECRET",
@@ -31,6 +35,10 @@ export const CATEGORY_ALIASES: Record<string, BuiltinLabel> = {
   BUSINESS_ID: "COMPANY_ID",
 };
 
+/**
+ * A ref's category name as a contract label, or null for one the contract does
+ * not know.
+ */
 export const toBuiltin = (category: string): BuiltinLabel | null =>
   CATEGORY_ALIASES[category] ??
   ((BUILTIN_LABELS as readonly string[]).includes(category)

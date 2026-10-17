@@ -7,6 +7,7 @@
  */
 import type { LabelSpec } from "./dataset/schema.ts";
 
+/** A system instruction a user could type. */
 export interface InstructionVariant {
   id: string;
   title: string;
@@ -14,6 +15,10 @@ export interface InstructionVariant {
   text: string | null;
 }
 
+/**
+ * The instruction variants `--instructions` picks from; ids are part of cache
+ * keys and run names, so never change what one means.
+ */
 export const INSTRUCTION_VARIANTS: readonly InstructionVariant[] = [
   {
     id: "current",
@@ -32,9 +37,11 @@ export const INSTRUCTION_VARIANTS: readonly InstructionVariant[] = [
   },
 ];
 
+/** How a custom label is described (`composeLabelDescription`). */
 export type LabelVariantId =
   "desc" | "desc_ex1" | "desc_ex3" | "ex3" | "ex_counter";
 
+/** The label-description variants `--label-variants` picks from. */
 export const LABEL_VARIANTS: ReadonlyArray<{
   id: LabelVariantId;
   title: string;
@@ -69,5 +76,6 @@ export function composeLabelDescription(
   }
 }
 
+/** Whether `value` is a label-variant id. */
 export const isLabelVariant = (value: string): value is LabelVariantId =>
   LABEL_VARIANTS.some((variant) => variant.id === value);

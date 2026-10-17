@@ -9,6 +9,10 @@ import { availableParallelism, cpus, release, totalmem, type } from "node:os";
 import type { MachineProfile } from "../../contract/types.ts";
 
 let profile: MachineProfile | undefined;
+/**
+ * This process's machine profile, computed once (`BENCH_MACHINE_ID`,
+ * `BENCH_POWER_MODE` and the tool versions included).
+ */
 export function machineProfile(): MachineProfile {
   profile ??= {
     id: process.env.BENCH_MACHINE_ID || "adhoc",

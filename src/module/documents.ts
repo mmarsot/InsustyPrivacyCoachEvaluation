@@ -24,12 +24,20 @@ import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import type { ModuleRef } from "./materialize.ts";
 
+/**
+ * A range of the ref's extracted text and where it came from, as the ref's
+ * reader reports it.
+ */
 export interface DocSegmentLike {
   start: number;
   end: number;
   where: string;
   source: { type: string; path: string[]; page?: number; office?: boolean };
 }
+/**
+ * What the ref's `readDocument` returns: the document's text, parts and gaps,
+ * or why it was not read.
+ */
 export type DocResultLike =
   | {
       kind: "document";
@@ -54,6 +62,7 @@ type FileReadLike =
     }
   | { kind: "document"; format: "pdf" | "office" | "archive" | "image" }
   | { kind: "unchecked"; format: string; reason: string };
+/** A range of the extracted text to replace when redacting (UTF-16 offsets). */
 export interface RangeLike {
   start: number;
   end: number;
@@ -100,6 +109,10 @@ export interface DocumentBundle {
   };
 }
 
+/**
+ * A file as the ref read it, with what its redaction step needs (`doc`,
+ * `textRead`); times in milliseconds.
+ */
 export interface DocRead {
   outcome: "checked" | "partial" | "unchecked" | "error";
   reason?: string;
@@ -120,6 +133,10 @@ export interface DocRead {
   textRead?: { encoding: string; bom: boolean; checkedBytes: number };
 }
 
+/**
+ * The redacted version of a file, as `redactedVersion` would make it at the
+ * ref.
+ */
 export interface DocRedaction {
   mode: "in_place" | "text_copy" | "fallback_text_copy" | "none" | "error";
   name?: string;
@@ -146,6 +163,10 @@ function replaceRanges(text: string, ranges: RangeLike[]): string {
   return out + text.slice(cursor);
 }
 
+/**
+ * The ref's file check as the module drives it: read a file, then redact it
+ * from that read.
+ */
 export interface DocumentPath {
   read(name: string, bytes: Uint8Array): Promise<DocRead>;
   redact(

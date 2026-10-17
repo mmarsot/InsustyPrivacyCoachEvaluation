@@ -1,6 +1,10 @@
 /** Aggregates scored cases into metrics, overall and per breakdown dimension. */
 import { FAILURE_MODES, type FailureMode, type Scored } from "./score.ts";
 
+/**
+ * Precision over predictions and recall over expected passages, each null when
+ * its denominator is zero.
+ */
 export interface Prf {
   tp: number;
   predicted: number;
@@ -11,6 +15,10 @@ export interface Prf {
   f1: number | null;
 }
 
+/**
+ * Review metrics over a set of scored cases; rates are 0..1 or null, latencies
+ * in milliseconds.
+ */
 export interface Metrics {
   cases: number;
   positives: number;
@@ -49,6 +57,9 @@ const prf = (
         : null;
   return { tp, predicted, expected, found, precision, recall, f1 };
 };
+/**
+ * The nearest-rank `p`th percentile (0..100) of `values`, or null when empty.
+ */
 export const percentile = (values: number[], p: number): number | null => {
   if (!values.length) return null;
   const sorted = [...values].sort((a, b) => a - b);
@@ -60,6 +71,9 @@ export const percentile = (values: number[], p: number): number | null => {
   ]!;
 };
 
+/**
+ * Metrics of `rows`; with `label`, of that label's passages and findings only.
+ */
 export function metrics(rows: Scored[], label?: string): Metrics {
   const preds = rows
     .flatMap((r) => r.predicted)
@@ -136,6 +150,9 @@ export const DIMENSIONS: ReadonlyArray<{
   { id: "errors", title: "Style: error level", get: (r) => r.errors },
 ];
 
+/**
+ * One configuration's metrics: overall, per label and per breakdown dimension.
+ */
 export interface ConfigSummary {
   config: string;
   model: string;
@@ -146,6 +163,9 @@ export interface ConfigSummary {
   breakdowns: Record<string, Record<string, Metrics>>;
 }
 
+/**
+ * One `ConfigSummary` per configuration, in the order rows first mention them.
+ */
 export function summarize(rows: Scored[]): ConfigSummary[] {
   const configs = [...new Set(rows.map((r) => r.config))];
   return configs.map((config) => {

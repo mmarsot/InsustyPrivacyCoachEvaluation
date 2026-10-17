@@ -45,6 +45,10 @@ export function resolveExtRepo(cli?: string): string {
   return path;
 }
 
+/**
+ * The ref to bench: `--ref`, then `INSUSTY_EXT_REF`, then `extRef` in
+ * `bench.local.json`, then `DEFAULT_EXT_REF`.
+ */
 export function resolveExtRefName(cli?: string): string {
   return (
     cli ??
@@ -54,6 +58,7 @@ export function resolveExtRefName(cli?: string): string {
   );
 }
 
+/** A materialized ref as the lab loads it. */
 export interface ExtRef {
   ref: string;
   sha: string;
@@ -124,21 +129,28 @@ export interface ExtApi {
   outputSchema?: string;
 }
 
+/** A custom label as the ref's review takes it. */
 export interface Rule {
   label: string;
   prompt: string;
   /** Completion refs: up to three example passages (demonstrations use the first two). */
   examples?: string[];
 }
+/**
+ * The backend and quantization a review asks the engine for; the bench always
+ * runs WASM.
+ */
 export interface RuntimeSelection {
   backend: "wasm";
   quantization: "auto" | "q8" | "q4";
 }
+/** One per-label request the ref's `reviewPrompt` hands its model client. */
 export interface ReviewRequestLike {
   instructions: string;
   input: string;
   responsePrefill?: string;
 }
+/** What the ref's engine reports about one request. */
 export interface RuntimeReportLike {
   backend: string;
   quantization: string;
@@ -150,6 +162,10 @@ export interface RuntimeReportLike {
   /** Answer confidence (lowest answer-token probability); the ref's confidence filter drops a less confident answer. */
   answerProbability?: number;
 }
+/**
+ * What the ref's `reviewPrompt` calls to get an answer: the engine on the
+ * device, a connected client, or a recording fake.
+ */
 export interface ModelClientLike {
   review(
     request: ReviewRequestLike,
@@ -157,12 +173,17 @@ export interface ModelClientLike {
     selection?: RuntimeSelection,
   ): Promise<{ output: unknown; runtime?: RuntimeReportLike }>;
 }
+/** A finding the ref's parser accepted: offsets into the reviewed text. */
 export interface FindingLike {
   category: string;
   start: number;
   end: number;
   value?: string;
 }
+/**
+ * The ref's `SlmEngine`: `prepare` caches the instruction prefixes, `review`
+ * generates within a budget in milliseconds.
+ */
 export interface EngineLike {
   prepare(
     model: string,

@@ -24,6 +24,10 @@ import { join } from "node:path";
 import type { ConnectedTarget } from "../module/insusty.ts";
 import { CACHE_DIR } from "../paths.ts";
 
+/**
+ * A connected model as the bench runs it: the extension's connection settings,
+ * where its key comes from, and its prices.
+ */
 export interface ConnectedModel {
   /** Model id (part of every cache key). */
   id: string;
@@ -87,13 +91,16 @@ export const CONNECTED_MODELS: ConnectedModel[] = [
   },
 ];
 
+/** A connected model by id or short name. */
 export const findConnectedModel = (name: string) =>
   CONNECTED_MODELS.find((m) => m.id === name || m.short === name);
 
+/** Cached connected replies, one JSONL file per model id. */
 export const CONNECTED_CACHE_DIR = join(CACHE_DIR, "hosted");
 /** Set on replies served from the cache (they cost nothing now). */
 const CACHE_HEADER = "x-bench-cache";
 const slug = (id: string) => id.replace(/[^\w.-]+/g, "_");
+/** The reply cache of one connected model. */
 export const connectedCacheFile = (m: Pick<ConnectedModel, "id">) =>
   join(CONNECTED_CACHE_DIR, `${slug(m.id)}.jsonl`);
 
