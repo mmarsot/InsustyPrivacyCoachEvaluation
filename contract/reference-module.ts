@@ -26,6 +26,10 @@ const RULES: Array<{
   },
 ];
 
+/**
+ * A fresh instance of the reference module; it holds no state, so instances are
+ * interchangeable.
+ */
 export function referenceModule(): RedactionModule {
   const info = { name: "reference-regex", version: "1.0.0" };
   return {

@@ -23,9 +23,18 @@ import type { FindingLike, Rule, RuntimeReportLike } from "../ext/ref.ts";
 import { RESULT_CACHE_DIR } from "../paths.ts";
 import { composeLabelDescription, type LabelVariantId } from "../variants.ts";
 
+/**
+ * The only backend the bench runs: WASM is what makes results reproduce the
+ * extension (AGENTS.md). Part of every job key.
+ */
 export const DEVICE = "wasm";
+/** Weight quantization of every local model run; part of every job key. */
 export const DTYPE = "q8";
 
+/**
+ * One case reviewed by one model with one instruction and label-description
+ * variant: the unit the worker computes and the cache stores.
+ */
 export interface Job {
   key: string;
   caseId: string;
@@ -37,6 +46,10 @@ export interface Job {
   text: string;
 }
 
+/**
+ * One model request of a review (the ref sends one per label and text chunk),
+ * as the scorer reads it.
+ */
 export interface ChunkRecord {
   output: string;
   runtime?: RuntimeReportLike;
@@ -56,6 +69,10 @@ export interface ChunkRecord {
   };
 }
 
+/**
+ * One cached line of `cache/results/<sha>/<model>.jsonl`: a job's outcome,
+ * keyed by `Job.key`.
+ */
 export interface ResultRecord {
   key: string;
   extSha: string;
@@ -89,6 +106,11 @@ export const rulesFor = (
     ...(withExamples ? { examples: spec.examples.slice(0, 3) } : {}),
   }));
 
+/**
+ * The cache key of a job: everything that can change a model's output (ref sha,
+ * model, backend, quantization, instruction, rules and case text) and nothing
+ * else, so reruns reuse results until one of those changes.
+ */
 export function jobKey(parts: {
   extSha: string;
   model: string;
@@ -113,11 +135,20 @@ export function jobKey(parts: {
     .digest("hex");
 }
 
+/**
+ * A model id as a file name: the part after the last `/`, other characters
+ * replaced by `_`.
+ */
 export const modelSlug = (model: string) =>
   model.replace(/^.*\//, "").replace(/[^A-Za-z0-9.-]+/g, "_");
+/** The result cache of one model at one extension commit. */
 export const cacheFile = (extSha: string, model: string) =>
   join(RESULT_CACHE_DIR, extSha, `${modelSlug(model)}.jsonl`);
 
+/**
+ * Every cached result of a model at a commit, by job key; the last line wins
+ * when a key repeats.
+ */
 export function loadCache(
   extSha: string,
   model: string,
@@ -137,6 +168,10 @@ export function loadCache(
   return map;
 }
 
+/**
+ * Appends one result as it completes, so an interrupted run keeps what it
+ * computed.
+ */
 export function appendResult(file: string, record: ResultRecord): void {
   mkdirSync(dirname(file), { recursive: true });
   appendFileSync(file, JSON.stringify(record) + "\n");
@@ -170,6 +205,7 @@ const readdirSafe = (dir: string) => {
 
 // ---------------------------------------------------------------- tiers
 
+/** How many cases a run covers: see the README's "Tiers and runtime". */
 export const TIERS = ["smoke", "quick", "full"] as const;
 export type Tier = (typeof TIERS)[number];
 

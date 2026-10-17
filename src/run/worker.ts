@@ -35,6 +35,10 @@ import {
   type ResultRecord,
 } from "./jobs.ts";
 
+/**
+ * The job file `src/cli/run.ts` writes for one model's worker. Results go to
+ * `resultFile` as they complete.
+ */
 export interface WorkerSpec {
   ref: ModuleRef;
   model: string;
@@ -44,6 +48,10 @@ export interface WorkerSpec {
   budgetUsd?: number;
 }
 
+/**
+ * One `@@{json}` stdout line to the parent: progress, then `done` with the
+ * worker's peak memory, or `fatal`.
+ */
 export type WorkerEvent =
   | { type: "loaded"; loadMs: number; threads: number; transformers: string }
   | { type: "prepared"; instruction: string; labelVariant: string; ms: number }

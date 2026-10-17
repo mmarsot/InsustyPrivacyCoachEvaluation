@@ -6,6 +6,10 @@ import { summarize, toCsv } from "../score/aggregate.ts";
 import type { Scored } from "../score/score.ts";
 import type { RunMeta } from "./meta.ts";
 
+/**
+ * Writes a run's committed outputs: `run.json`, `results.jsonl`,
+ * `metrics.json`, `metrics.csv` and `report.html`.
+ */
 export function writeRun(dir: string, meta: RunMeta, rows: Scored[]): void {
   mkdirSync(dir, { recursive: true });
   const summaries = summarize(rows);
@@ -22,6 +26,7 @@ export function writeRun(dir: string, meta: RunMeta, rows: Scored[]): void {
   writeFileSync(join(dir, "report.html"), renderReport(meta, rows));
 }
 
+/** Reads back what `writeRun` wrote, for reports and comparisons. */
 export function readRun(dir: string): { meta: RunMeta; rows: Scored[] } {
   const meta = JSON.parse(
     readFileSync(join(dir, "run.json"), "utf8"),

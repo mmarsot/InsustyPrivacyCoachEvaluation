@@ -1,3 +1,8 @@
+/**
+ * Loads and validates the review dataset (`docs/dataset.md`): profiles, then
+ * cases, then the compiled form with offsets. Every problem becomes an `Issue`
+ * rather than an exception, so `npm run validate` reports them all at once.
+ */
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -24,12 +29,18 @@ const RULE_LABEL_PATTERN = /^[A-Z][A-Z0-9_]{0,31}$/;
 const RULE_PROMPT_MAX_LENGTH = 1_000;
 const CASE_ID_PATTERN = /^([a-z]+)-(en|fr)-(\d{3})$/;
 
+/**
+ * A validation finding. Errors block compilation; warnings flag likely
+ * authoring mistakes (overlapping or glued passages, values a deterministic
+ * rule would catch first) without blocking.
+ */
 export interface Issue {
   level: "error" | "warning";
   where: string;
   message: string;
 }
 
+/** `dataset` is absent whenever `issues` holds an error. */
 export interface LoadResult {
   dataset?: CompiledDataset;
   issues: Issue[];
@@ -84,6 +95,10 @@ const readJsonl = (file: string, issues: Issue[]): unknown[] => {
   return rows;
 };
 
+/**
+ * Reads and checks every profile, appending problems to `issues`; profiles with
+ * errors are still returned so their cases can be checked too.
+ */
 export function loadProfiles(issues: Issue[]): Profile[] {
   if (!existsSync(PROFILES_DIR)) return [];
   const profiles: Profile[] = [];
@@ -145,6 +160,10 @@ export function loadProfiles(issues: Issue[]): Profile[] {
   return profiles;
 }
 
+/**
+ * Reads every case line as written, appending JSON and shape problems to
+ * `issues`; content checks happen in `compileDataset`.
+ */
 export function loadRawCases(issues: Issue[]): Case[] {
   if (!existsSync(CASES_DIR)) return [];
   const cases: Case[] = [];

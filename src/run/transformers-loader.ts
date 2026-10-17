@@ -41,6 +41,10 @@ import {
 } from "@huggingface/transformers";
 import { MODEL_CACHE_DIR, ROOT } from "../paths.ts";
 
+/**
+ * ONNX Runtime WASM threads: `min(4, CPU count)`, as the extension's
+ * `model-worker.ts` sets them.
+ */
 export const WASM_THREADS = Math.min(4, Math.max(1, availableParallelism()));
 
 env.cacheDir = MODEL_CACHE_DIR;
@@ -52,6 +56,7 @@ if (env.backends.onnx.wasm) {
   env.backends.onnx.wasm.numThreads = WASM_THREADS;
 }
 
+/** The Transformers.js version actually loaded, recorded in run metadata. */
 export const transformersVersion: string = env.version;
 
 interface GenerateOptions {
@@ -67,6 +72,7 @@ interface GenerateOptions {
   onTokenProbability?(probability: number): void;
 }
 
+/** Token ids as the `[1, n]` int64 tensor a causal model takes. */
 export const idsTensor = (ids: readonly number[]): Tensor =>
   new Tensor(
     "int64",
@@ -122,6 +128,11 @@ class TokenProbabilityRecorder extends LogitsProcessor {
   }
 }
 
+/**
+ * End-of-sequence token ids, from the generation config first (as
+ * Transformers.js does), else the model config; models declare one id or
+ * several.
+ */
 export const eosIds = (model: PreTrainedModel): number[] => {
   const config = model.config as { eos_token_id?: unknown };
   const raw =
@@ -135,6 +146,10 @@ export const eosIds = (model: PreTrainedModel): number[] => {
   return list.filter((id): id is number => typeof id === "number");
 };
 
+/**
+ * The tokenizer side of the ref's `SlmRuntimeLoader`: chat templates with the
+ * generation prompt, and ids without special tokens, as `model-worker.ts` does.
+ */
 export function adaptTokenizer(tokenizer: PreTrainedTokenizer) {
   return {
     hasChatTemplate: Boolean(tokenizer.chat_template),
@@ -154,6 +169,11 @@ export function adaptTokenizer(tokenizer: PreTrainedTokenizer) {
   };
 }
 
+/**
+ * The model side of the ref's `SlmRuntimeLoader`, as `model-worker.ts` builds
+ * it. Throws when the model declares no context length: the engine needs it to
+ * chunk.
+ */
 export function adaptModel(model: PreTrainedModel) {
   const contextLength = (model.config as { max_position_embeddings?: unknown })
     .max_position_embeddings;
@@ -292,6 +312,7 @@ export async function loadPretrained(model: string, dtype: "q8" | "q4" = "q8") {
   return { tokenizer, model: instance };
 }
 
+/** Playground decoding settings: `deadlineMs` is wall-clock, from the call. */
 export interface FreeGenerationOptions {
   maxNewTokens: number;
   sample: boolean;
@@ -370,6 +391,10 @@ export const nodeWasmLoader = {
   now: () => performance.now(),
 };
 
+/**
+ * Releases every model this process loaded (their WASM sessions); the
+ * module's `dispose` calls it.
+ */
 export async function disposeModels(): Promise<void> {
   for (const model of loaded.splice(0)) await model.dispose();
 }

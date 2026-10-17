@@ -31,10 +31,14 @@ export const BUILTIN_LABELS = [
   "IP",
   "COMPANY_ID",
 ] as const;
+/** One of `BUILTIN_LABELS`. */
 export type BuiltinLabel = (typeof BUILTIN_LABELS)[number];
 
 // ------------------------------------------------------------------ input
 
+/**
+ * What one `redact` call checks: a prompt's text, or an attached file's bytes.
+ */
 export type RedactionInput =
   | {
       kind: "text";
@@ -56,6 +60,10 @@ export interface CustomLabel {
   examples: string[];
 }
 
+/**
+ * The user's settings for one call. Harnesses derive it from `defaultConfig()`,
+ * so a field a module does not use keeps that module's own default.
+ */
 export interface ModuleConfig {
   /** Built-in labels on (`true`), found but not redacted by default (`false`), or absent (the module's default). */
   builtins: Partial<Record<BuiltinLabel, boolean>>;
@@ -77,6 +85,7 @@ export interface ModuleConfig {
 
 // ------------------------------------------------------------------ output
 
+/** What found a span, so scores can be split between rules and models. */
 export type SpanSource =
   /** A deterministic rule (regex, checksum, validator, dictionary). */
   | "rules"
@@ -87,6 +96,10 @@ export type SpanSource =
   /** A literal the module learned from the user's earlier reviews. */
   | "learned";
 
+/**
+ * One finding in `RedactionOutput.text`; a span the module found but leaves
+ * visible is still reported, with `redacted: false`.
+ */
 export interface Span {
   /** UTF-16 offsets into `RedactionOutput.text`, `start < end`. */
   start: number;
@@ -114,6 +127,10 @@ export interface TextPart {
   page?: number;
 }
 
+/**
+ * A document's redacted copy: the same format when redacted in place, else a
+ * text copy (`Redaction.mode`).
+ */
 export interface RedactedFile {
   name: string;
   /** Media type. */
@@ -121,6 +138,7 @@ export interface RedactedFile {
   bytes: Uint8Array;
 }
 
+/** What the module would send in place of the input. */
 export interface Redaction {
   /** Text input: the text with every redacted span replaced. */
   text?: string;
@@ -139,6 +157,10 @@ export interface Redaction {
   error?: string;
 }
 
+/**
+ * How much of the input was actually checked: a harness tells a clean result
+ * from an unread one by this, never by an empty `spans`.
+ */
 export interface Coverage {
   /** `full`: every part read; `partial`: some parts or text past a cap skipped; `none`: not checked. */
   checked: "full" | "partial" | "none";
@@ -157,8 +179,10 @@ export interface Coverage {
   detail?: string;
 }
 
+/** The phases of a call that `RuntimeReport.stages` times. */
 export type Stage = "read" | "ocr" | "rules" | "model" | "redact" | "verify";
 
+/** Wall time of one stage, in milliseconds. */
 export interface StageTiming {
   stage: Stage;
   ms: number;
@@ -195,6 +219,10 @@ export interface ModelRequestTrace {
   cached?: boolean;
 }
 
+/**
+ * What a call cost: times in milliseconds, memory in MB (2^20 bytes), money in
+ * US dollars.
+ */
 export interface RuntimeReport {
   stages: StageTiming[];
   /** Total wall time of the call. */
@@ -225,6 +253,10 @@ export interface RuntimeReport {
   machine?: MachineProfile;
 }
 
+/**
+ * Everything one `redact` call returns. Spans index `text`, which is what the
+ * module checked, so a harness never re-extracts a document itself.
+ */
 export interface RedactionOutput {
   /** The contract version the module implements. */
   contract: string;
@@ -241,6 +273,7 @@ export interface RedactionOutput {
 
 // ------------------------------------------------------------------ module
 
+/** Which module, and which build of it, produced an output. */
 export interface ModuleInfo {
   name: string;
   version: string;
@@ -248,6 +281,11 @@ export interface ModuleInfo {
   sha?: string;
 }
 
+/**
+ * What a module supports. A harness asks only for what is declared here, and
+ * conformance holds a module to it (an undeclared document format must come
+ * back unchecked).
+ */
 export interface ModuleCapabilities {
   builtins: BuiltinLabel[];
   customLabels: boolean;
@@ -282,6 +320,7 @@ export interface RedactionModule {
   dispose?(): Promise<void>;
 }
 
+/** What `RedactionModule.prepare` spent, in milliseconds. */
 export interface PrepareReport {
   loadMs?: number;
   prepareMs?: number;

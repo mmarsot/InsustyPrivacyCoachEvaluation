@@ -42,6 +42,10 @@ import {
   type Tier,
 } from "./jobs.ts";
 
+/**
+ * A model as the planner sees it. The priors (seconds) estimate runtime until
+ * ten timings of a local model are cached on this machine.
+ */
 export interface ModelInfo {
   id: string;
   short: string;
@@ -99,6 +103,10 @@ export const findBenchModel = (name: string) =>
     (x) => x.short === name || x.id === name,
   );
 
+/**
+ * Parsed `npm run bench` arguments: what to run, and the limits to run it
+ * within.
+ */
 export interface BenchOptions {
   tier: Tier;
   /** Quick tier only: cases per profile and language. */
@@ -215,9 +223,17 @@ export function parseBenchArgs(
   };
 }
 
+/**
+ * The split a run reports (progress line, `run.json`, the dashboard):
+ * `--split`, else `all` for the full tier and `dev` otherwise.
+ */
 export const splitLabel = (o: Pick<BenchOptions, "split" | "tier">) =>
   o.split ?? (o.tier === "full" ? "all" : "dev");
 
+/**
+ * The cases of a run and, per model id, the jobs it needs (cached ones
+ * included).
+ */
 export interface Plan {
   cases: CompiledCase[];
   jobsByModel: Map<string, Job[]>;
@@ -307,11 +323,18 @@ export function secondsPerCase(
     ? timings.reduce((a, b) => a + b, 0) / timings.length / 1000
     : m.priorSecondsPerCase;
 }
+/**
+ * Expected wall time of a model's pending jobs, in seconds: its load time
+ * plus the per-case mean, padded by 10%.
+ */
 export const estimateSeconds = (
   m: ModelInfo,
   pending: number,
   perCase = secondsPerCase(m),
 ) => (pending ? m.priorLoadSeconds + pending * perCase * 1.1 : 0);
+/**
+ * Seconds as `42 s`, `12 min` or `1.5 h`, for progress lines and the dashboard.
+ */
 export const formatDuration = (s: number) =>
   s < 90
     ? `${Math.round(s)} s`
@@ -321,7 +344,12 @@ export const formatDuration = (s: number) =>
 
 // ------------------------------------------------------------------ document bench (npm run docbench / npm run bench -- --track docbench)
 
+/**
+ * Docbench size: `smoke` drops the French positive documents; each tier has
+ * its own sweep sizes (`SWEEP_SIZES`).
+ */
 export type DocTier = "smoke" | "quick" | "full";
+/** Parsed `npm run docbench` arguments. */
 export interface DocbenchOptions {
   tier: DocTier;
   seed: number;
@@ -453,6 +481,11 @@ export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
 /** Bump when scoring changes what a cached result holds (results are recomputed). */
 export const DOC_SCORE_VERSION = 3;
 
+/**
+ * The cache key of a docbench job: the ref, the generator and detbench dataset
+ * versions, the scoring version, the seed and the configurations, so a result
+ * is reused only when the document and its scoring would be identical.
+ */
 export const docJobKey = (
   extSha: string,
   o: Pick<DocbenchOptions, "seed" | "configs">,
@@ -474,6 +507,10 @@ export const docJobKey = (
     )
     .digest("hex");
 
+/**
+ * Docbench jobs: the labelled documents (`suite`) and the size sweeps
+ * (`sweeps`).
+ */
 export interface DocPlan {
   suite: DocJob[];
   sweeps: DocJob[];
@@ -515,6 +552,7 @@ export function planDocbench(o: DocbenchOptions, extSha: string): DocPlan {
 
 // ------------------------------------------------------------------ literature benchmarks (npm run literature)
 
+/** Parsed `npm run literature` arguments. */
 export interface LiteratureOptions {
   /** Adapter ids (src/adapters/index.ts). */
   datasets: string[];

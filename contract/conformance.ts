@@ -19,6 +19,7 @@ import {
   type RedactionOutput,
 } from "./types.ts";
 
+/** The JSON Schema every contract value's JSON form must match. */
 export const SCHEMA_FILE = new URL(
   "./redaction-contract.schema.json",
   import.meta.url,
@@ -158,6 +159,10 @@ export function outputProblems(
 const SAMPLE =
   "Please wire it to FR76 3000 6000 0112 3456 7890 189 and copy jo.martin@example.org before Friday.";
 
+/**
+ * One fixed input, and the configuration to run it with, derived from the
+ * module's own defaults so it holds for any module.
+ */
 export interface ConformanceCase {
   name: string;
   input: RedactionInput;
@@ -219,6 +224,7 @@ export const CONFORMANCE_CASES: ConformanceCase[] = [
   },
 ];
 
+/** One case's verdict: the module conforms on it when `problems` is empty. */
 export interface ConformanceResult {
   case: string;
   problems: string[];

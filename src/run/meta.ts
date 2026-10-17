@@ -1,3 +1,7 @@
+/**
+ * Metadata of a committed bench run, read by reports, comparisons and the
+ * dashboard.
+ */
 import type { MachineProfile } from "../../contract/types.ts";
 
 /** Metadata written to `runs/<name>/run.json`. */
@@ -20,6 +24,10 @@ export interface RunModelMeta {
   };
 }
 
+/**
+ * `runs/<name>/run.json`: what was run (ref, dataset hash, variants, models),
+ * where and how long it took.
+ */
 export interface RunMeta {
   name: string;
   tier: string;

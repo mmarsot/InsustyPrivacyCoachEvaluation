@@ -7,6 +7,10 @@
  * passage that is not found verbatim.
  */
 
+/**
+ * The fictional client profiles; each owns its custom labels and its case
+ * files.
+ */
 export const PROFILE_IDS = [
   "sales",
   "dev",
@@ -19,6 +23,7 @@ export const PROFILE_IDS = [
 ] as const;
 export type ProfileId = (typeof PROFILE_IDS)[number];
 
+/** Case languages; scores are kept apart by language (SmolLM2 is English-first). */
 export const LANGS = ["en", "fr"] as const;
 export type Lang = (typeof LANGS)[number];
 
@@ -47,6 +52,7 @@ export const TYPE_TARGET_SHARE: Record<CaseType, number> = {
   hard: 0.15,
 };
 
+/** The author's estimate of how hard a case is, for slicing scores. */
 export const DIFFICULTIES = ["easy", "medium", "hard"] as const;
 export type Difficulty = (typeof DIFFICULTIES)[number];
 
@@ -69,6 +75,10 @@ export type Register = (typeof REGISTERS)[number];
 export const ERROR_LEVELS = ["none", "light", "heavy"] as const;
 export type ErrorLevel = (typeof ERROR_LEVELS)[number];
 
+/**
+ * `dev` is for tuning; `test` is held out (never tune instructions or
+ * descriptions on it).
+ */
 export const SPLITS = ["dev", "test"] as const;
 export type Split = (typeof SPLITS)[number];
 
@@ -103,6 +113,10 @@ export const KNOWN_TAGS = [
   "mixed_language",
 ] as const;
 
+/**
+ * A custom label as the extension's user would define it, plus the
+ * counter-examples only the bench's description variants use.
+ */
 export interface LabelSpec {
   /** Custom label as the user types it; must match /^[A-Z][A-Z0-9_]{0,31}$/. */
   label: string;
@@ -114,6 +128,7 @@ export interface LabelSpec {
   counterExamples: string[];
 }
 
+/** A fictional client: who they are and the custom labels they defined. */
 export interface Profile {
   id: ProfileId;
   name: string;
@@ -122,17 +137,23 @@ export interface Profile {
   labels: LabelSpec[];
 }
 
+/**
+ * Ground truth as a passage, not offsets, so the text can be edited without
+ * re-counting.
+ */
 export interface ExpectedFinding {
   label: string;
   /** Exact substring of `text` (case-sensitive). All occurrences count. */
   passage: string;
 }
 
+/** How a case's text is written (`REGISTERS`, `ERROR_LEVELS`). */
 export interface CaseStyle {
   register: Register;
   errors: ErrorLevel;
 }
 
+/** One source line of `dataset/cases/*.jsonl`, as written by hand. */
 export interface Case {
   /** `<profile>-<lang>-<nnn>`, stable forever (the split and the cache key rely on it). */
   id: string;
@@ -153,11 +174,19 @@ export interface Case {
   note?: string;
 }
 
+/**
+ * Text length classes for slicing scores; see `lengthBucket` for the cut-offs.
+ */
 export const LENGTH_BUCKETS = ["short", "medium", "long"] as const;
 export type LengthBucket = (typeof LENGTH_BUCKETS)[number];
+/** Under 300 characters is short, under 1,000 medium, anything longer long. */
 export const lengthBucket = (text: string): LengthBucket =>
   text.length < 300 ? "short" : text.length < 1000 ? "medium" : "long";
 
+/**
+ * One occurrence of an expected passage: UTF-16 offsets into the case text,
+ * `start < end`.
+ */
 export interface CompiledSpan extends ExpectedFinding {
   start: number;
   end: number;
@@ -172,6 +201,7 @@ export interface CompiledCase extends Case {
   spans: CompiledSpan[];
 }
 
+/** The validated dataset every bench command runs on. */
 export interface CompiledDataset {
   profiles: Profile[];
   cases: CompiledCase[];
