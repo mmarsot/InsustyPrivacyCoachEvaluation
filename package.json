@@ -18,6 +18,10 @@
     "components": "tsx src/cli/components.ts",
     "dashboard": "tsx src/cli/dashboard.ts",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write \"contract/**/*.ts\" \"src/**/*.{ts,html}\" \"tests/**/*.{ts,mjs}\" \"*.json\" \"*.js\" README.md AGENTS.md",
+    "format:check": "prettier --check \"contract/**/*.ts\" \"src/**/*.{ts,html}\" \"tests/**/*.{ts,mjs}\" \"*.json\" \"*.js\" README.md AGENTS.md",
+    "knip": "knip",
     "test": "node --import tsx --test tests/*.test.ts",
     "lab": "tsx src/lab/cli.ts",
     "lab:classify": "tsx src/lab/classify-cli.ts",
@@ -37,8 +41,15 @@
     "tsx": "^4.19.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/node": "^22.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.71.2",
+    "@typescript-eslint/parser": "^8.71.2",
+    "eslint": "^10.13.0",
+    "globals": "^15.15.0",
+    "knip": "^5.88.1",
     "pdf-lib": "1.17.1",
+    "prettier": "^3.9.10",
     "typescript": "^5.7.2"
   },
   "overrides": {
