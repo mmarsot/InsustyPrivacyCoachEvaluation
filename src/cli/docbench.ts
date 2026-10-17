@@ -43,6 +43,7 @@ import { independentViews, pdftotext } from "../docbench/verify.ts";
 import type { DocWorkerSpec } from "../docbench/worker.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo } from "../ext/ref.ts";
 import { allLabelsConfig, loadInsustyModule } from "../module/insusty.ts";
+import { machineProfile } from "../module/machine.ts";
 import { materializeModule } from "../module/materialize.ts";
 import { connectedSpentUsd, findConnectedModel } from "../hosted/connected.ts";
 import { hostedSpentUsd } from "../hosted/models.ts";
@@ -140,6 +141,8 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
   mkdirSync(tmp, { recursive: true });
   const supported = SUPPORTED(module.refCategories);
   const minFree = Number(process.env.BENCH_MIN_FREE_MB ?? 1500);
+  /** Largest peak RSS of this run's document workers (MB). */
+  let workerPeakMb = 0;
   const runWorker = async (label: string, jobs: DocJob[], needMb: number) => {
     for (let waited = 0; readMemAvailableMb() < needMb + minFree; waited += 15) {
       if (waited >= Number(process.env.LAB_MEM_WAIT_S ?? 180)) {
@@ -163,6 +166,7 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
       } else if (event.type === "fatal") console.error(`[${label}] worker failed: ${event.error}`);
     }, { startupS: 120, idleS: 900 });
     rmSync(specFile, { force: true });
+    if (typeof peak === "number") workerPeakMb = Math.max(workerPeakMb, peak);
     return peak;
   };
   if (!o.cachedOnly) {
@@ -231,6 +235,9 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
     ...(ai ? { ai: { models: aiModels.map((m) => m.id), ...(aiModels.some((m) => m.hosted) ? { budgetUsd: o.budgetUsd } : {}), sizes: o.aiSizes, tier: o.aiTier, bench: { sha: ai.ext.sha, kind: ai.extApi.kind } } } : {}),
     node: process.versions.node,
     machine: `${cpus()[0]?.model ?? "cpu"} x${cpus().length}, ${(totalmem() / 2 ** 30).toFixed(1)} GiB RAM, ${process.platform}`,
+    machineProfile: machineProfile(),
+    contract: module.contract,
+    ...(workerPeakMb ? { peakRssMb: workerPeakMb } : {}),
     startedAt: startedAt.toISOString(),
     finishedAt: new Date().toISOString(),
   };

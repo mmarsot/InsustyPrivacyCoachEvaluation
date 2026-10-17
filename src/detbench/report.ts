@@ -1,3 +1,4 @@
+import type { MachineProfile } from "../../contract/types.ts";
 /** Static HTML report, text summary and comparison page for detbench runs. */
 import { esc, meter, pct, STYLE } from "../report/html.ts";
 import { DET_CATEGORIES } from "./schema.ts";
@@ -34,6 +35,12 @@ export interface DetRunMeta {
   };
   node: string;
   machine: string;
+  /** The machine profile absolute times and memory were measured on (runs since the redaction contract). */
+  machineProfile?: MachineProfile;
+  /** The redaction contract version the module was scored through. */
+  contract?: string;
+  /** Peak RSS of the bench process (detbench) or of its largest worker (docbench), MB. */
+  peakRssMb?: number;
   startedAt: string;
   finishedAt: string;
 }
@@ -299,7 +306,7 @@ export function renderDetReport(meta: DetRunMeta, rows: DetScored[], summaries: 
 <div>Config <b>all</b></div><div>every category on and every address country: ${esc(meta.allConfigNote)}</div>
 <div>Packages</div><div>${Object.entries(meta.packages).map(([n, v]) => `<code>${esc(n)}@${esc(v)}</code>`).join(" ")} (the ref's package-lock)</div>
 <div>Dataset</div><div><code>${esc(meta.datasetHash.slice(0, 12))}</code> (<code>dataset/detbench/</code>)</div>
-<div>Speed</div><div>${meta.timing.calls} calls, p50 ${num(meta.timing.p50Ms, 2)} ms, p95 ${num(meta.timing.p95Ms, 2)} ms, max ${num(meta.timing.maxMs, 1)} ms per prompt (${esc(meta.machine)}, Node ${esc(meta.node)})${meta.timing.slowest?.length ? `<br>Slowest: ${meta.timing.slowest.map((t) => `<code>${esc(t.caseId)}</code> [${esc(t.config)}] ${num(t.ms, 0)} ms for ${t.chars.toLocaleString("en")} chars`).join(", ")}` : ""}</div>
+<div>Speed</div><div>${meta.timing.calls} calls, p50 ${num(meta.timing.p50Ms, 2)} ms, p95 ${num(meta.timing.p95Ms, 2)} ms, max ${num(meta.timing.maxMs, 1)} ms per prompt (${esc(meta.machine)}${meta.machineProfile ? ` (profile ${esc(meta.machineProfile.id)})` : ""}, Node ${esc(meta.node)})${meta.timing.slowest?.length ? `<br>Slowest: ${meta.timing.slowest.map((t) => `<code>${esc(t.caseId)}</code> [${esc(t.config)}] ${num(t.ms, 0)} ms for ${t.chars.toLocaleString("en")} chars`).join(", ")}` : ""}</div>
 </div>
 <h2 id="summary">Summary (base cases)</h2>
 <p>P/R/F1 use only items of categories the ref supports; items of other categories are reported as <i>not supported by this ref</i>, not as misses. <b>Redacted</b> and <b>leak-free</b> use every item, whatever its category, so they compare refs end to end. Only selected detections count (what gets redacted without the user ticking anything).</p>

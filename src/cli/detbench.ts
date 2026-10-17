@@ -27,6 +27,7 @@ import { defangJson, hasRawSecretPrefix } from "../detbench/defang.ts";
 import { detectorApi, type DetConfigName } from "../detbench/ext.ts";
 import { loadInsustyModule } from "../module/insusty.ts";
 import { presidioModule } from "../systems/presidio.ts";
+import { machineProfile, peakRssMb } from "../module/machine.ts";
 import { materializeModule } from "../module/materialize.ts";
 import { PERTURBATIONS, perturbCases, type Perturbation } from "../detbench/perturb.ts";
 import { detRegressions } from "../tracks/regressions.ts";
@@ -185,6 +186,9 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
     },
     node: process.versions.node,
     machine: `${cpus().length} vCPU, ${Math.round(totalmem() / 2 ** 30)} GB`,
+    machineProfile: machineProfile(),
+    contract: module.contract,
+    peakRssMb: peakRssMb(),
     startedAt,
     finishedAt: new Date().toISOString(),
   };

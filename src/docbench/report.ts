@@ -1,3 +1,4 @@
+import type { MachineProfile } from "../../contract/types.ts";
 /**
  * Static HTML report and text summary of a document-bench run, and the
  * comparison page of two runs (`--compare`). Charts are inline SVG (no
@@ -31,6 +32,12 @@ export interface DocRunMeta {
   ai?: { models: string[]; budgetUsd?: number; sizes: number[]; tier?: string; bench: { sha: string; kind: string } };
   node: string;
   machine: string;
+  /** The machine profile absolute times and memory were measured on (runs since the redaction contract). */
+  machineProfile?: MachineProfile;
+  /** The redaction contract version the module was scored through. */
+  contract?: string;
+  /** Peak RSS of the bench process (detbench) or of its largest worker (docbench), MB. */
+  peakRssMb?: number;
   startedAt: string;
   finishedAt: string;
 }
@@ -231,7 +238,7 @@ export function renderDocReport(meta: DocRunMeta, s: DocSummary, suite: DocJobRe
     .join("");
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Docbench ${esc(meta.name)}</title>${STYLE}</head><body><main>
 <h1>Document bench: ${esc(meta.ext.ref)} @ <code>${esc(meta.ext.sha.slice(0, 10))}</code></h1>
-<p class="muted">${esc(meta.ext.subject)} · tier ${esc(meta.tier)} · seed ${meta.seed} · configs ${configs.map((c) => `<code>${esc(c)}</code>${meta.configNote[c]?.length ? ` (off: ${esc(meta.configNote[c]!.join(", "))})` : ""}`).join(", ")} · ${meta.suiteCases} suite documents, ${meta.sweepPoints} sweep points${meta.missing ? ` · <b>${meta.missing} missing</b>` : ""} · dataset ${esc(meta.datasetHash.slice(0, 10))} · ${esc(meta.machine)}, Node ${esc(meta.node)} · packages ${esc(Object.entries(meta.packages).map(([k, v]) => `${k}@${v}`).join(", "))} · verifier: own zip walker${meta.verifier.pdftotext ? " + pdftotext" : ""} + raw PDF strings</p>
+<p class="muted">${esc(meta.ext.subject)} · tier ${esc(meta.tier)} · seed ${meta.seed} · configs ${configs.map((c) => `<code>${esc(c)}</code>${meta.configNote[c]?.length ? ` (off: ${esc(meta.configNote[c]!.join(", "))})` : ""}`).join(", ")} · ${meta.suiteCases} suite documents, ${meta.sweepPoints} sweep points${meta.missing ? ` · <b>${meta.missing} missing</b>` : ""} · dataset ${esc(meta.datasetHash.slice(0, 10))} · ${esc(meta.machine)}${meta.machineProfile ? ` (profile ${esc(meta.machineProfile.id)})` : ""}, Node ${esc(meta.node)} · packages ${esc(Object.entries(meta.packages).map(([k, v]) => `${k}@${v}`).join(", "))} · verifier: own zip walker${meta.verifier.pdftotext ? " + pdftotext" : ""} + raw PDF strings</p>
 <p>Generated Word, Excel, PowerPoint, OpenDocument, PDF, text and zip files are checked the way the extension checks an attached file: the ref's <code>readFileForCheck</code> and <code>readDocument</code> (PDFium, its own Office part map), then <code>detectSensitiveData</code> on the whole text, then its redacted version (in place for text files, PDFs and archives, a text copy for Office files, or the text-copy fallback). Values come from <code>dataset/detbench</code>, placed in one zone per document; extraction and detection are scored apart.</p>
 <h2>Overview</h2>${overview}
 ${zoneTable(s.families, configs, "Per format")}
