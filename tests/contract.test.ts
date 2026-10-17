@@ -136,7 +136,10 @@ test("a fully populated output and configuration match the schema, which has no 
   const walk = (v: unknown) => {
     if (Array.isArray(v)) v.forEach(walk);
     else if (v && typeof v === "object")
-      for (const [k, x] of Object.entries(v)) (used.add(k), walk(x));
+      for (const [k, x] of Object.entries(v)) {
+        used.add(k);
+        walk(x);
+      }
   };
   walk(outputToJson(FULL, true));
   walk(CONFIG);

@@ -178,7 +178,9 @@ const chrome = spawn(
 const cleanup = () => {
   try {
     process.kill(-chrome.pid!, "SIGKILL");
-  } catch {}
+  } catch {
+    // Chrome already exited, or never started.
+  }
   server.close();
   rmSync(profile, { recursive: true, force: true });
 };

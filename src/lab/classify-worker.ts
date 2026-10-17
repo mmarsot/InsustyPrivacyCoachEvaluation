@@ -140,7 +140,10 @@ async function main() {
       let max = -Infinity;
       let arg = 0;
       for (let i = 0; i < vocab; i++)
-        if (row[i]! > max) ((max = row[i]!), (arg = i));
+        if (row[i]! > max) {
+          max = row[i]!;
+          arg = i;
+        }
       let z = 0;
       for (let i = 0; i < vocab; i++) z += Math.exp(row[i]! - max);
       const p = (id: number) => Math.exp(row[id]! - max) / z;

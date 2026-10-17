@@ -45,7 +45,7 @@ const add = (
 ) => {
   const raw = text.slice(start, end);
   const trimmed = raw.replace(/[.,;:!?)\]}'"’”]+$/u, "");
-  const lead = trimmed.length - trimmed.replace(/^[(\["'“‘]+/u, "").length;
+  const lead = trimmed.length - trimmed.replace(/^[(["'“‘]+/u, "").length;
   const s = start + lead;
   const e = start + trimmed.length;
   if (e - s < 2) return;
@@ -75,7 +75,7 @@ export function generateCandidates(text: string, max = 60): Candidate[] {
   }
 
   // Capitalized sequences, with particles inside.
-  const wordRe = /[\p{L}\p{N}][\p{L}\p{N}'’\-]*/gu;
+  const wordRe = /[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu;
   const words: Array<{ w: string; s: number; e: number }> = [];
   while ((m = wordRe.exec(text)))
     words.push({ w: m[0], s: m.index, e: m.index + m[0].length });

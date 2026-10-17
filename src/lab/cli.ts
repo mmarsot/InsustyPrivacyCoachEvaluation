@@ -924,10 +924,11 @@ function checkAuc(scores: CheckScore[]): number | null {
   for (const a of pp) {
     let lo = 0;
     let hi = pn.length;
-    while (lo < hi)
-      pn[(lo + hi) >> 1]! < a
-        ? (lo = ((lo + hi) >> 1) + 1)
-        : (hi = (lo + hi) >> 1);
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (pn[mid]! < a) lo = mid + 1;
+      else hi = mid;
+    }
     let eq = lo;
     while (eq < pn.length && pn[eq] === a) eq++;
     wins += lo + (eq - lo) / 2;

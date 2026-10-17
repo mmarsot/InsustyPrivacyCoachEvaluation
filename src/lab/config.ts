@@ -798,7 +798,7 @@ export function passageShape(text: string): number[] {
     /[_\-./:@#]/u.test(t) ? 1 : 0,
     /[%€$£]|\b(?:k|m|bn|md)\b/iu.test(t) ? 1 : 0,
     words === 1 ? 0 : words === 2 ? 1 : 2,
-    /^[\p{Lu}\p{N}_\-]+$/u.test(t) ? 1 : 0,
+    /^[\p{Lu}\p{N}_-]+$/u.test(t) ? 1 : 0,
   ];
 }
 
