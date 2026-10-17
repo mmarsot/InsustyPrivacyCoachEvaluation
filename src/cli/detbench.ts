@@ -3,9 +3,9 @@
  * detector (`detectSensitiveData`) on `dataset/detbench/` and its seeded
  * perturbations. No model is loaded; a run takes seconds.
  *
- *   npm run detbench -- [--ref main] [--compare <ref B>] [--ext-repo <path>]
+ *   npm run detbench -- [--ref main] [--compare <ref B> [--gate]] [--ext-repo <path>]
  *                       [--seed 1] [--variants 2] [--perturbations all|none|spacing,case,...]
- *                       [--configs default,all] [--name <run name>]
+ *                       [--configs default,all] [--name <run name>] [--system insusty|presidio]
  *   npm run detbench -- --compare-runs runs/detbench/<A> runs/detbench/<B>
  *   npm run detbench -- --validate          # check the dataset only
  *   npm run detbench -- --defang-dataset    # escape secret prefixes in the dataset files
@@ -26,8 +26,10 @@ import { DETBENCH_DIR, DETBENCH_LANGS, loadDetDataset } from "../detbench/datase
 import { defangJson, hasRawSecretPrefix } from "../detbench/defang.ts";
 import { detectorApi, type DetConfigName } from "../detbench/ext.ts";
 import { loadInsustyModule } from "../module/insusty.ts";
+import { presidioModule } from "../systems/presidio.ts";
 import { materializeModule } from "../module/materialize.ts";
 import { PERTURBATIONS, perturbCases, type Perturbation } from "../detbench/perturb.ts";
+import { detRegressions } from "../tracks/regressions.ts";
 import { renderDetCompare, renderDetReport, textSummary, type DetRunMeta } from "../detbench/report.ts";
 import { isFalsePositive, scoreDetCase, type DetScored } from "../detbench/score.ts";
 
@@ -128,9 +130,16 @@ for (const c of configs) if (c !== "default" && c !== "all") fail(`unknown confi
 const repo = resolveExtRepo(option("ext-repo"));
 const cases = [...dataset.cases, ...perturbCases(dataset.cases, { seed, variants: perturbations.length ? variants : 0, types: perturbations })];
 
+/** `--system presidio`: the Presidio baseline on the same dataset, in place of the extension at a ref. */
+const system = option("system") ?? "insusty";
+if (system !== "insusty" && system !== "presidio") fail("--system must be insusty or presidio");
+
 async function runRef(ref: string, name?: string): Promise<RunOutput> {
-  const ext = await materializeModule(repo, ref);
-  const module = await loadInsustyModule(ext);
+  const baseline = system === "presidio" ? await presidioModule() : undefined;
+  const ext = baseline
+    ? { ref: "presidio", sha: baseline.info.version, subject: "Presidio baseline (not the extension)", committedAt: "", packages: {} as Record<string, string> }
+    : await materializeModule(repo, ref);
+  const module = baseline ?? (await loadInsustyModule(ext as Awaited<ReturnType<typeof materializeModule>>));
   const api = detectorApi(module);
   const startedAt = new Date().toISOString();
   const rows: DetScored[] = [];
@@ -148,7 +157,7 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
     }
   }
   const summaries = summarizeDet(rows);
-  const runName = name ?? `${ref.replace(/[^\w.-]+/g, "-")}-${ext.sha.slice(0, 7)}`;
+  const runName = name ?? (baseline ? `presidio-${baseline.info.version.split("+")[0]}` : `${ref.replace(/[^\w.-]+/g, "-")}-${ext.sha.slice(0, 7)}`);
   const meta: DetRunMeta = {
     name: runName,
     ext: { ref, sha: ext.sha, subject: ext.subject, committedAt: ext.committedAt },
@@ -196,6 +205,7 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
   writeFileSync(join(dir, "metrics.json"), JSON.stringify(summaries, null, 1) + "\n");
   writeFileSync(join(dir, "metrics.csv"), detCsv(summaries));
   writeFileSync(join(dir, "report.html"), renderDetReport(meta, rows, summaries));
+  await module.dispose?.();
   console.log(textSummary(meta, summaries));
   console.log(`wrote ${join(dir, "report.html")}\n`);
   return { meta, summaries };
@@ -208,4 +218,10 @@ const a = await runRef(refA, option("name"));
 if (refB) {
   const b = await runRef(refB);
   writeCompare(a, b, option("out"));
+  if (flag("gate")) {
+    const regressions = detRegressions(a.summaries, b.summaries);
+    for (const r of regressions) console.error(`REGRESSION ${r}`);
+    console.log(regressions.length ? `detbench gate: ${regressions.length} regression(s) against ${refB}` : `detbench gate: no regression against ${refB}`);
+    process.exitCode = regressions.length ? 1 : 0;
+  }
 }

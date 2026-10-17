@@ -5,13 +5,14 @@
  */
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { compileDataset } from "../dataset/load.ts";
 import type { CompiledCase, CompiledDataset } from "../dataset/schema.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo, type ExtApi, type ExtRef } from "../ext/ref.ts";
 import { CONNECTED_MODELS } from "../hosted/connected.ts";
 import { HOSTED_MODELS } from "../hosted/models.ts";
-import { MODELS_FILE, ROOT } from "../paths.ts";
+import type { LiteratureRun } from "../adapters/report.ts";
+import { MODELS_FILE, ROOT, RUNS_DIR } from "../paths.ts";
 import { MODULE_CACHE_DIR } from "../module/materialize.ts";
 import { DEFAULT_QUICK_CASES_PER_PROFILE, rulesFor, selectCases, type Job, type ResultRecord } from "../run/jobs.ts";
 import { benchRefArgs, findBenchModel, localModel, MODELS, parseBenchArgs, planJobs, refBenchModels, secondsPerCase, splitLabel, type Plan } from "../run/plan.ts";
@@ -351,6 +352,38 @@ const parseFilters = (params: URLSearchParams): Filters => {
 };
 
 /** Lab runs (npm run lab) are small JSON files under experiments/runs/. */
+/** Literature runs (runs/literature/<name>/), newest first, as headline rows. */
+function literatureRuns() {
+  const dir = join(RUNS_DIR, "literature");
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((name) => existsSync(join(dir, name, "metrics.json")))
+    .map((name) => {
+      const run = JSON.parse(readFileSync(join(dir, name, "run.json"), "utf8")) as { contract: string; machine?: { id: string }; finishedAt: string };
+      const results = JSON.parse(readFileSync(join(dir, name, "metrics.json"), "utf8")) as LiteratureRun["results"];
+      return {
+        name,
+        contract: run.contract,
+        machine: run.machine,
+        finishedAt: run.finishedAt,
+        rows: results.map((r) => ({
+          dataset: r.dataset,
+          system: r.system.name,
+          config: r.config,
+          gold: r.scores.headline.gold,
+          recall: r.scores.headline.recall,
+          recallTyped: r.scores.headline.recallTyped,
+          precision: r.scores.headline.precision,
+          f1: r.scores.headline.f1,
+          custom: r.scores.custom.recall,
+          outOfScope: r.scores.outOfScope.recall,
+          native: r.scores.nativeTotal.recall,
+        })),
+      };
+    })
+    .sort((a, b) => b.finishedAt.localeCompare(a.finishedAt));
+}
+
 const LAB_RUNS_DIR = join(ROOT, "experiments", "runs");
 const labRuns = () =>
   existsSync(LAB_RUNS_DIR)
@@ -422,6 +455,12 @@ export async function handle(dash: Dashboard, req: IncomingMessage, res: ServerR
       }
       case "/api/case":
         return send(res, 200, await dash.caseDetail(p.get("run") ?? "", p.get("config") ?? "", p.get("case") ?? ""));
+      case "/api/literature/runs":
+        return send(res, 200, { runs: literatureRuns() });
+      case "/literature/report": {
+        const file = join(RUNS_DIR, "literature", basename(p.get("id") ?? ""), "report.html");
+        return existsSync(file) ? send(res, 200, readFileSync(file, "utf8"), "text/html") : send(res, 404, { error: "no such run" });
+      }
       case "/api/lab/runs":
         return send(res, 200, { runs: labRuns() });
       case "/api/lab/run":

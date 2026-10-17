@@ -72,7 +72,7 @@ textarea{font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--
 <header>
   <h1>Review Bench</h1>
   <nav id="nav">
-    <a href="#live">Live</a><a href="#matrix">Experiments</a><a href="#results">Results</a><a href="#compare">Compare</a><a href="#playground">Playground</a><a href="#lab">Lab</a><a href="#docs">Documents</a>
+    <a href="#live">Live</a><a href="#matrix">Experiments</a><a href="#results">Results</a><a href="#compare">Compare</a><a href="#playground">Playground</a><a href="#lab">Lab</a><a href="#docs">Documents</a><a href="#literature">Literature</a>
   </nav>
   <div id="meta"></div>
 </header>
@@ -653,8 +653,22 @@ async function openDocCase(id) {
   ${r.decoys.length ? `<h3>Hard negatives</h3><p>${r.decoys.map((d) => `<span class="chip ${d.flagged[c] ? "FP" : ""}">${esc(d.kind)}: ${esc(d.value)}</span>`).join("")}</p>` : ""}
   ${r.text !== undefined ? `<h3>Extracted text</h3><p class="muted">${(r.segments ?? []).map((g) => esc(g.where)).join(" · ")}</p><div class="text">${html}</div>` : '<p class="muted">Text not kept (over 60,000 characters).</p>'}`;
 }
+// ------------------------------------------------------------------ literature benchmarks (deterministic track)
+async function renderLiterature() {
+  const { runs } = await api("/api/literature/runs");
+  const view = $("#view");
+  if (!runs.length) {
+    view.innerHTML = `<h2>Literature</h2><div class="card"><p>No literature run yet. Run <code>npm run literature -- --ref main</code> (add <code>--systems insusty,presidio</code> for the baseline); results land in <code>runs/literature/</code>.</p></div>`;
+    return;
+  }
+  const p1 = (v) => (v === null || v === undefined ? "–" : (100 * v).toFixed(1) + "%");
+  view.innerHTML = `<h2>Literature</h2><p class="muted">Published PII datasets through the redaction contract, Private AI off. The headline covers only gold the product's built-in labels map to; custom-label and out-of-scope gold are separate columns, and the native total covers everything.</p>` +
+    runs.map((r) => `<div class="card"><b>${esc(r.name)}</b> · contract ${esc(r.contract)} · ${esc(r.machine?.id ?? "")} · <a href="/literature/report?id=${encodeURIComponent(r.name)}" target="_blank">Full report</a>
+    <table><tr><th>Dataset</th><th>System</th><th>Config</th><th class="num">Gold</th><th class="num">Recall</th><th class="num">Typed</th><th class="num">Precision</th><th class="num">F1</th><th class="num">Custom-label gold</th><th class="num">Out of scope</th><th class="num">Native total</th></tr>
+    ${r.rows.map((x) => `<tr><td>${esc(x.dataset)}</td><td>${esc(x.system)}</td><td>${esc(x.config)}</td><td class="num">${x.gold}</td><td class="num">${p1(x.recall)}</td><td class="num">${p1(x.recallTyped)}</td><td class="num">${p1(x.precision)}</td><td class="num"><b>${p1(x.f1)}</b></td><td class="num">${p1(x.custom)}</td><td class="num">${p1(x.outOfScope)}</td><td class="num">${p1(x.native)}</td></tr>`).join("")}</table></div>`).join("");
+}
 // ------------------------------------------------------------------ routing
-const VIEWS = { live: renderLive, matrix: renderMatrix, results: renderResults, compare: renderCompare, playground: renderPlayground, lab: renderLab, docs: renderDocs };
+const VIEWS = { live: renderLive, matrix: renderMatrix, results: renderResults, compare: renderCompare, playground: renderPlayground, lab: renderLab, docs: renderDocs, literature: renderLiterature };
 async function route() {
   const tab = (location.hash.slice(1) || "live").split("?")[0];
   for (const a of document.querySelectorAll("#nav a")) a.classList.toggle("on", a.getAttribute("href") === "#" + tab);

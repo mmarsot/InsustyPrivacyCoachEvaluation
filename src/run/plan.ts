@@ -315,3 +315,54 @@ export function planDocbench(o: DocbenchOptions, extSha: string): DocPlan {
     sweeps: sweeps.map((sweep) => ({ key: docJobKey(extSha, o, sweep.id, sweep), id: sweep.id, track: "sweep" as const, sweep })),
   };
 }
+
+// ------------------------------------------------------------------ literature benchmarks (npm run literature)
+
+export interface LiteratureOptions {
+  /** Adapter ids (src/adapters/index.ts). */
+  datasets: string[];
+  /** Systems scored: `insusty` (the extension's module at `ref`), `presidio` (baseline), `reference`. */
+  systems: string[];
+  split?: string;
+  /** Cases per dataset; undefined = the adapter's default (a pinned sample for large splits), 0 = all. */
+  limit?: number;
+  configs: string[];
+  ref?: string;
+  extRepo?: string;
+  name?: string;
+  dryRun: boolean;
+}
+
+/** Parses `npm run literature` arguments. Throws on an unknown value. */
+export function parseLiteratureArgs(argv: readonly string[], known: { datasets: string[]; systems: readonly string[] }): LiteratureOptions {
+  const opt = (name: string) => {
+    const i = argv.indexOf(`--${name}`);
+    return i >= 0 ? argv[i + 1] : undefined;
+  };
+  const list = (value: string | undefined, fallback: string[]) => (value ? value.split(",").map((s) => s.trim()).filter(Boolean) : fallback);
+  const datasets = list(opt("datasets") ?? opt("dataset"), known.datasets);
+  for (const d of datasets) if (!known.datasets.some((k) => k === d || k.startsWith(d))) throw new Error(`unknown dataset ${d} (${known.datasets.join(", ")})`);
+  const systems = list(opt("systems") ?? opt("system"), ["insusty"]);
+  for (const s of systems) if (!known.systems.includes(s)) throw new Error(`unknown system ${s} (${known.systems.join(", ")})`);
+  const configs = list(opt("configs"), ["default", "all"]);
+  for (const c of configs) if (c !== "default" && c !== "all") throw new Error(`unknown config ${c} (default, all)`);
+  const limit = opt("limit");
+  if (limit !== undefined && !(Number.isInteger(Number(limit)) && Number(limit) >= 0)) throw new Error("--limit takes a non-negative integer (0 = all)");
+  return {
+    datasets,
+    systems,
+    split: opt("split"),
+    ...(limit !== undefined ? { limit: Number(limit) } : {}),
+    configs,
+    ref: opt("ref"),
+    extRepo: opt("ext-repo"),
+    name: opt("name"),
+    dryRun: argv.includes("--dry-run"),
+  };
+}
+
+/** One cached output of one system on one case with one configuration. */
+export const literatureJobKey = (system: { name: string; version: string }, dataset: { id: string; revision: string }, caseId: string, config: unknown) =>
+  createHash("sha256").update(JSON.stringify([LITERATURE_SCORE_VERSION, system.name, system.version, dataset.id, dataset.revision, caseId, config])).digest("hex");
+/** Bump when what a cached literature output holds changes. */
+export const LITERATURE_SCORE_VERSION = 1;

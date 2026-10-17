@@ -4,7 +4,7 @@
  * OpenDocument, PDF, text and zip files, and optionally its Private AI
  * review on documents of growing length.
  *
- *   npm run docbench -- [--ref main] [--compare <ref B>] [--ext-repo <path>]
+ *   npm run docbench -- [--ref main] [--compare <ref B> [--gate]] [--ext-repo <path>]
  *                       [--tier smoke|quick|full] [--tracks suite,sweep,ai]
  *                       [--formats docx,pdf,...] [--kinds positive,negative,failure]
  *                       [--sweep-types txt,csv,docx,xlsx,pptx,pdf,odt,ods,zip|all]
@@ -35,6 +35,7 @@ import { docCsv, powerFit, summarizeDocs, type DocSummary } from "../docbench/ag
 import { DOCBENCH_RUNS_DIR, docCacheFile, loadDocCache } from "../docbench/cache.ts";
 import { buildDoc } from "../docbench/cases.ts";
 import { loadPools } from "../docbench/content.ts";
+import { docRegressions } from "../tracks/regressions.ts";
 import { renderDocCompare, renderDocReport, docTextSummary, type DocRunMeta } from "../docbench/report.ts";
 import { suiteSpecs } from "../docbench/specs.ts";
 import type { DocJob, DocJobResult } from "../docbench/types.ts";
@@ -324,7 +325,15 @@ export async function main(argv: string[]): Promise<number> {
   const a = await runRef(o, repo, refA, argv);
   if (o.compare) {
     const b = await runRef({ ...o, name: undefined }, repo, o.compare, argv);
-    if (a && b) writeCompare(a, b);
+    if (a && b) {
+      writeCompare(a, b);
+      if (argv.includes("--gate")) {
+        const regressions = docRegressions(a.summary, b.summary);
+        for (const r of regressions) console.error(`REGRESSION ${r}`);
+        console.log(regressions.length ? `docbench gate: ${regressions.length} regression(s) against ${o.compare}` : `docbench gate: no regression against ${o.compare}`);
+        return regressions.length ? 1 : 0;
+      }
+    }
   }
   return 0;
 }

@@ -11,8 +11,9 @@ import type { RedactionModule } from "../../contract/types.ts";
 import { resolveExtRefName, resolveExtRepo } from "../ext/ref.ts";
 import { loadInsustyModule, type InsustyModule, type InsustyOptions } from "../module/insusty.ts";
 import { materializeModule } from "../module/materialize.ts";
+import { presidioModule } from "./presidio.ts";
 
-export const SYSTEMS = ["insusty", "reference"] as const;
+export const SYSTEMS = ["insusty", "presidio", "reference"] as const;
 export type SystemName = (typeof SYSTEMS)[number];
 
 /** The extension's module at a ref (`--ref`, `--ext-repo`, else the configured clone and `main`). */
@@ -25,6 +26,8 @@ export async function loadSystem(name: SystemName, o: { ref?: string; extRepo?: 
   switch (name) {
     case "insusty":
       return loadExtensionModule(o);
+    case "presidio":
+      return presidioModule(o.log);
     case "reference":
       return referenceModule();
   }

@@ -25,12 +25,16 @@
     "detbench": "tsx src/cli/detbench.ts",
     "docbench": "tsx src/cli/docbench.ts",
     "conformance": "tsx src/cli/conformance.ts",
+    "literature": "tsx src/cli/literature.ts",
+    "suite": "tsx src/cli/suite.ts",
+    "parity": "tsx src/hosted/parity.ts",
     "hosted:check": "tsx src/hosted/check.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "3.8.1",
     "ajv": "^8.20.0",
     "esbuild": "^0.25.0",
+    "hyparquet": "^1.31.4",
     "tsx": "^4.19.0"
   },
   "devDependencies": {
