@@ -6,14 +6,25 @@ browser-local small language model that scans a prompt for passages matching
 the user's custom labels (unreleased product names, deal codenames, customer
 IDs...) before it is sent to a chatbot.
 
-It is a separate data-science project, not part of the extension. It has three
-parts:
+It is a separate data-science project, not part of the extension. It scores
+a **redaction module** (the extension's, at any git ref) plus a
+**configuration** through a versioned **redaction contract**
+([`contract/`](contract/), [docs/contract.md](docs/contract.md)), so a
+baseline such as Presidio, or anyone else's module, is scored the same way.
+Benchmarks are split into two **tracks**, run with parsimony (see
+[Tracks](#tracks-and-what-a-change-reruns)): the **deterministic** track
+(rule-based detection on prompts and documents, and published PII
+datasets) and the **Private AI** track (custom labels, zero-shot, on the
+device or on a connected model).
+
+The Private AI review bench has three parts:
 
 - **Dataset**: 809 fictional prompts written like real people write them, in
   English and French. They cover 8 client profiles, and each prompt has
   `{label, passage}` ground truth.
-- **Runner**: runs the extension's own review code from any git ref, on each
-  bundled model. It caches every result.
+- **Runner**: runs the extension's own review code from any git ref, through
+  the contract, on the model it ships (or every model it ships) and on the
+  connected model. It caches every result.
 - **Report**: produces a static HTML report and CSV/JSONL results, and can
   compare two runs.
 
@@ -22,7 +33,10 @@ the extension's rule-based detector with no model: see
 [below](#deterministic-redaction-bench). A **document bench**
 (`npm run docbench`) measures how the extension checks attached files (Word,
 Excel, PowerPoint, OpenDocument, PDF, text and zip): see
-[below](#document-bench).
+[below](#document-bench). **Literature benchmarks** (`npm run literature`)
+score published, permissively licensed PII datasets (TAB, Gretel,
+Nemotron-PII) with the **Presidio** baseline next to the extension: see
+[below](#literature-benchmarks-and-the-presidio-baseline).
 
 ## Quick start
 
@@ -35,12 +49,51 @@ npm run bench -- --tier smoke          # 8 cases per model, a few minutes
 npm run bench -- --dry-run             # print the plan and the time estimate only
 npm run bench                          # quick tier: 32 cases x the ref's shipped model, a few minutes
 open runs/<run-name>/report.html
+npm run conformance -- --ref main      # the ref against the redaction contract (seconds)
+npm run suite -- --since <base ref> --ref main --dry-run   # which tracks a change needs, and their commands
+npm run literature -- --ref main       # TAB, Gretel, Nemotron-PII (datasets download once into cache/datasets/)
 ```
+
+`BENCH_RUNS_DIR=<dir>` writes run outputs there instead of `runs/` (CI and
+scratch runs).
 
 Instead of `bench.local.json`, you can set `INSUSTY_EXT_REPO=<path>` or pass
 `--ext-repo <path>`. Relative paths resolve from this repository's root. Model
 weights (133 to 512 MB each) are downloaded from Hugging Face on first use into
 `cache/models/`.
+
+## Tracks and what a change reruns
+
+`npm run suite` runs the tracks a change to the extension needs, from
+`git diff --name-only <base>...<ref>` in the clone (read-only;
+`src/tracks/select.ts`):
+
+| Change in the extension | Tracks |
+| --- | --- |
+| deterministic rules (`src/detection/`) | deterministic only |
+| document reading or OCR (`src/files/readers/`, `src/files/ocr/`, the file check, the document worker), configuration, `package-lock.json` | both |
+| Private AI (`src/private-ai/`, the model worker, review and label learning) | Private AI only |
+| anything else (UI, capture, sync, docs, tests) | none |
+
+`--full` runs every track (release runs); `--tracks` picks them by hand.
+
+- **Deterministic track**: contract conformance, detbench, docbench, and the
+  literature adapters (with the Presidio baseline on `--full`).
+- **Private AI track**: request parity with the lab's shipped baseline
+  (`npm run parity`, no model, no network), the review suites on the ref's
+  shipped on-device model (SmolLM2-360M), and Private AI on documents. The
+  connected model (GLM-4.7 Flash, paid) runs only with `--connected`.
+- **CI** (`--ci --since <base>`): the gates compare the head ref with the
+  base on the same dataset and fail on a deterministic or document
+  regression (`detbench --compare <base> --gate`, `docbench --tier smoke
+  --compare <base> --gate`: half a point of F1, recall or precision, a new
+  leak, a failure file no longer reported, more flagged hard negatives) and
+  on contract conformance and request parity. The Private AI smoke tier runs
+  on Private AI changes and never fails on score deltas.
+- **Speed and memory** are recorded on every run with the machine profile
+  (`machineProfile` in `run.json`; `BENCH_MACHINE_ID` names a declared
+  reference machine, anything else is `adhoc`). Compare absolute numbers only
+  within one profile; CI runners are not one.
 
 ## What it measures
 
@@ -117,16 +170,16 @@ Useful flags:
 
 - `--cases-per-profile 3` (quick tier volume)
 - `--models shipped` (default), `all` (every model the ref ships), or names such
-  as `smollm2-360m,qwen2.5-0.5b` (any model `models/models.json` describes); hosted models by name only
-  (`nova-micro-prefill`, `nova-micro-system`, [below](#hosted-models-amazon-bedrock)),
-  with `--budget-usd 5`
+  as `smollm2-360m,qwen2.5-0.5b` (any model `models/models.json` describes); the
+  connected model by name only (`glm47-flash-connected`,
+  [below](#connected-model-in-the-bench)), with `--budget-usd 5`
 - `--label-variants desc,desc_ex3` or `all` (alias `--labels`)
 - `--instructions all`
 - `--split test`
 - `--profiles dev,hr`
 - `--langs fr`
-- `--ref <git ref>` (default `main`); refs with the per-label completion
-  design are detected automatically (see `docs/approach.md`)
+- `--ref <git ref>` (default `main`); the bench runs refs with the
+  per-label completion design (PR #26 and later) through the contract
 - `--set tune96` (the dev cases of a lab set in `experiments/sets/` instead
   of a tier)
 - `--name my-run`
@@ -168,7 +221,8 @@ npm run detbench -- --validate                       # check dataset/detbench/
 ```
 
 `npm run detbench` scores the extension's rule-based detector
-(`detectSensitiveData`, `src/detector.ts`) from any ref, with the ref's default
+(`detectSensitiveData`, `src/detection/detector.ts`) from any ref, through the
+redaction contract,, with the ref's default
 configuration and with every category and address country on. The ref is
 materialized read-only like the model bench, and the detector's npm packages
 are installed at the versions its package-lock pins.
@@ -316,7 +370,7 @@ so FR addresses only too). The four large generated cases are scored apart
 npm run docbench -- --ref main                       # suite + quick size sweeps, a few minutes, no model
 npm run docbench -- --ref main --compare <branch>    # two refs + a comparison page
 npm run docbench -- --ref main --tier full --ai     # full sweeps + Private AI on documents (the ref's default model)
-npm run docbench -- --ref main --ai default,glm47-flash-trusted --budget-usd 5   # plus a connected (hosted) model
+npm run docbench -- --ref main --ai default,glm47-flash-connected --budget-usd 5   # plus the connected model (paid)
 npm run bench -- --track docbench --ref main         # the same from npm run bench
 ```
 
@@ -391,9 +445,10 @@ dataset as of `c1c7a64`;
   to `2aece81`; `--ai-tier smoke`: 2 dev cases, 3 expected passages, each in
   Word documents of 1,000 to 50,000 characters; 18 passage instances per
   model). SmolLM2-360M is the ref's default on-device model; GLM-4.7 Flash
-  runs through the bench's hosted client with the framing of the
-  extension's connected-model (Trusted AI) requests (`glm47-flash-trusted`:
-  Bedrock Converse, native prompt, tolerant answer parser):
+  ran through the bench's own hosted client with its copy of the framing of
+  the extension's connected-model (Trusted AI) requests (`glm47-flash-trusted`:
+  Bedrock Converse, native prompt, tolerant answer parser; the bench now
+  runs `glm47-flash-connected` through the ref's own client instead):
 
   | | SmolLM2-360M (on device) | GLM-4.7 Flash (connected) |
   | --- | --- | --- |
@@ -413,6 +468,92 @@ dataset as of `c1c7a64`;
   it. Three passages are too few for a firm recall curve; `--ai-tier
   quick` (16 cases) gives one.
 
+## Literature benchmarks and the Presidio baseline
+
+```bash
+npm run literature -- --ref main                                   # TAB, Gretel, Nemotron-PII; default and all configs
+npm run literature -- --systems insusty,presidio --datasets nemotron --limit 0   # every Nemotron record, with the baseline
+npm run detbench -- --system presidio                              # Presidio on our own prompts
+npm run conformance -- --system presidio
+```
+
+Published PII datasets, scored through the contract with each dataset's
+labels mapped by an adapter (`src/adapters/`). Files download once into
+`cache/datasets/<id>/<revision>/` at a pinned revision and are checked
+against pinned SHA-256s; nothing is committed. Only datasets whose licence
+allows a commercial project to publish results are wired, each confirmed on
+its card at the pinned revision:
+
+| Dataset | Licence | Revision | What is scored |
+| --- | --- | --- | --- |
+| [TAB](https://github.com/NorskRegnesentral/text-anonymization-benchmark) (ECHR judgements, EN) | MIT | `558e09e` | test split, 127 documents; TAB's ER_di / ER_qi as native metrics |
+| [Gretel synthetic PII finance multilingual](https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual) | Apache-2.0 | `7b844d1` | EN and FR test files, 3,334 documents (the French source) |
+| [Nemotron-PII](https://huggingface.co/datasets/nvidia/Nemotron-PII) (EN, US and international) | CC BY 4.0 (NVIDIA) | `b70ffaf` | seeded sample of 3,000 of the 100,000 test records (`--limit 0`: all) |
+
+**Not wired: ai4privacy open-pii-masking-500k.** Its card metadata says
+`license: other` (named cc-by-4.0), but its body puts use and redistribution
+under the Llama 3.1/3.3 Community License ("Built with Llama" attribution,
+model-naming rule, Llama acceptable-use policy) and says commercial use
+beyond the permitted scope may need written permission from Ai4Privacy
+(checked at `506996d`, 2026-10-17). Do not add it back without a licence
+decision; ai4privacy pii-masking-300k/400k are non-commercial.
+
+**How it is scored.** The **headline** covers only gold whose label maps
+to one of the contract's built-in labels (Gretel `iban` → FINANCIAL, TAB
+`CODE` ← any identifier label...), the same denominator for every system.
+Gold mapped to custom labels (names, organisations: Private AI territory)
+and gold the product has no rule for (dates, locations, demographics...)
+are separate rows, next to the benchmark-native total, never in the
+headline. Recall counts a gold span as masked when a redacted span overlaps
+it (`typed`: with a label the map accepts; `exact`: same boundaries);
+precision counts a redacted span as right when it overlaps any span that
+must be masked. Over-redaction is characters masked outside every such span
+per 1,000 characters. Runs write `runs/literature/<name>/` (report.html,
+metrics.json, run.json with the dataset hashes and licences, spans.jsonl
+without text); outputs are cached per system version, dataset revision,
+case and configuration (`cache/literature/`), and the dashboard's
+Literature view lists the runs.
+
+**Presidio** (`src/systems/presidio.ts`) is a baseline only, never a
+component: presidio-analyzer 2.2.364 with spaCy `en_core_web_sm`, default
+recognizers, every text analysed as English. It runs locally in a pinned
+uv environment (`src/systems/presidio/requirements.txt`, created under
+`cache/tmp/presidio/` on first use) with sockets disabled and tldextract
+pinned to its bundled Public Suffix List, so it never reaches the network.
+Its types map to built-in labels as in the design report (LOCATION →
+ADDRESS, DATE_TIME → DATE_OF_BIRTH only after birth words, PERSON and
+ORGANIZATION dropped); it has no secret recognizer.
+
+First scores, `main` @ `95454ec` (2026-10-17, machine profile `adhoc`: the
+8-thread, 7 GB bench laptop), in-scope recall / precision / F1:
+
+| Dataset | Extension `default` | Extension `all` | Presidio |
+| --- | --- | --- | --- |
+| TAB test (1,612 in-scope `CODE` mentions) | 0.0% / – / 0.0% (3 spans in 648k chars) | same | 3.3% / 74.7% / 6.4% |
+| Gretel EN+FR test (4,670 in-scope spans) | 23.2% / 48.4% / 31.4% | 26.3% / 50.9% / 34.7% | 60.5% / 22.2% / 32.5% |
+| Nemotron-PII sample (6,063 in-scope spans) | 48.9% / 99.4% / 65.5% | 54.0% / 99.3% / 70.0% | 74.2% / 95.6% / 83.5% |
+| Our detbench prompts (all categories, share of items redacted) | 78.5% (F1 87.0%) | 93.1% (F1 95.3%) | 66.7% (F1 62.8%, 0/117 secrets) |
+
+- **TAB is out of the product's scope by construction**: its in-scope
+  `CODE` mentions are ECHR application numbers (`36110/97`), which no rule
+  targets; its direct identifiers are mostly person names (custom-label
+  territory). ER_di is 0.0% for both systems.
+- **Where Presidio leads** (Gretel, Nemotron): US-style phones (Nemotron
+  94% vs 28%), street addresses (its LOCATION; the extension's ADDRESS is
+  FR-only in both configurations because `main` does not export its
+  address-country list), national ids, and account and routing numbers the
+  extension does not validate as FINANCIAL (card recall 11% on Nemotron,
+  whose synthetic card numbers often fail the checksum the extension
+  requires).
+- **Where the extension leads**: secrets (Nemotron 57% vs 0% typed, Gretel
+  72% vs 0%), precision on its own prompts and hard negatives (detbench: 9 vs
+  110 of 502 decoys flagged), and speed: about 1.3 M characters per second
+  vs 27-32 k for Presidio (45x), single process.
+- **Caveats**: Gretel's synthetic gold leaves many real-looking e-mails and
+  identifiers unlabelled, so precision there is understated for every system;
+  Nemotron flags a real weakness (SECRET fires on Markdown bold labels such as
+  `Policy**`).
+
 ## Dashboard
 
 ```bash
@@ -428,7 +569,7 @@ process registers in `cache/active-runs/`, and on Linux the dashboard also
 scans `/proc`. It then rebuilds the run's exact plan from its arguments and
 compares it with the cache.
 
-It has seven views:
+It has eight views:
 
 - **Live.** One card per bench run in progress, refreshed every 5 s. It shows
   overall done/total and ETA. For each model it shows status
@@ -463,6 +604,9 @@ It has seven views:
   fits, Private AI curves, a document list with a drill-down (the extracted
   text with found and missed values), the full report and a comparison of
   two runs. The Live view also shows a document-bench run's progress.
+- **Literature.** Literature runs (`runs/literature/`): the headline, custom-label,
+  out-of-scope and native-total rows per dataset, system and configuration,
+  and the full report.
 
 ### Chat playground
 
@@ -496,6 +640,28 @@ Rough RSS on this laptop: SmolLM2-135M about 1 GB. Qwen2.5-0.5B can peak above
   ground truth when the text is an unedited example.
 
 The playground calls the model only when you click; it writes no files.
+
+## Connected model in the bench
+
+```bash
+npm run bench -- --tier smoke --models glm47-flash-connected --dry-run   # plan + cost estimate
+npm run bench -- --set tune96 --models glm47-flash-connected,smollm2-360m
+npm run docbench -- --ref main --ai default,glm47-flash-connected --budget-usd 5
+```
+
+The Private AI track's connected model, GLM-4.7 Flash on Bedrock
+(`glm47-flash-connected`, `src/hosted/connected.ts`), runs through the
+ref's **own** connected-model client (`createHostedModelClient`, the
+`HOSTED_CONTEXT_BUDGET` and learned-example limits), configured as a user
+would connect it (Trusted AI connection, `auto` format, the default 15 s
+time limit). The ref builds every request, paces and retries it and parses
+the answer; the bench supplies only the transport: a reply cache keyed by
+the exact request (`cache/hosted/`), cost from the provider's token usage,
+and the `--budget-usd` cap. Its results are marked connected, with their
+cost. Smoke on `main` @ `95454ec` (16 prompts): F1 51.9% (P 41.2%, R
+70.0%, 6 of 8 negatives flagged), 1.9 s per prompt (p50), 40 requests for
+0.0011 USD (0.072 USD per 1,000 prompts); SmolLM2-360M on the device:
+F1 33.3% (P 37.5%, R 30.0%), 3.7 s per prompt.
 
 ## Prompt-engineering lab
 
@@ -554,29 +720,23 @@ candidate models (`models/candidates.json`). Each named configuration in
   `experiments/LOG.md`, and the current best configuration with its evidence
   is `experiments/REPORT.md`.
 
-### Hosted models (Amazon Bedrock, OpenAI-compatible servers)
+### Hosted models in the lab (Amazon Bedrock, OpenAI-compatible servers)
 
 ```bash
 npm run hosted:check -- --models nova-micro-prefill,glm47-flash-oai-native-v2   # one synthetic request each ("Test connection")
-npm run bench -- --set tune96 --models nova-micro-prefill,smollm2-360m --dry-run   # plan + cost estimate
-npm run bench -- --set tune96 --models nova-micro-prefill,nova-micro-system,smollm2-360m --name hosted-tune96
-npm run bench -- --set connector-smoke --models <new model> --name connector-smoke   # 2 cases: a new adapter or endpoint end to end
 npm run lab -- --configs shipped --models nova-micro-prefill --set tune96 --by-lang
-npx tsx src/hosted/parity.ts --set tune96     # lab requests vs the ref's own reviewPrompt requests (no model, no network)
+npm run parity -- --set tune96     # lab requests vs the ref's own reviewPrompt requests (no model, no network)
 ```
 
-Bench runs with hosted models show in the dashboard like any other run:
-Live while they run, and Results/Compare from `runs/<name>/` once they have
-finished. Lab runs show in the Lab view. Results so far:
+Lab runs show in the Lab view. Results so far:
 `runs/hosted-{tune96,confirm48,test}-1c377d7/`, `runs/connector-smoke-1c377d7/`
+(bench runs from before the redaction contract)
 and [`experiments/REPORT.md`](experiments/REPORT.md) "Hosted models" (LOG B1-B7).
 
-For the "connect a trusted hosted model" question, the bench and the lab can
-send the extension's per-label requests to a hosted or self-hosted model
-instead of a local one. In the bench, the ref's own `reviewPrompt` drives a
-hosted model client in place of the engine: pagination, the code-fence skip,
-parsing, anchoring, patterns and the confidence filter are the extension's.
-The backend is provider-neutral (`src/hosted/`):
+To try framings, prompts and endpoints the extension does not ship, the lab
+sends the shipped baseline's per-label requests to a hosted or self-hosted
+model through the bench's own provider-neutral backend (`src/hosted/`);
+the bench itself only runs what a ref ships (above):
 
 - `framing.ts` turns the ref's request (`{instructions, input,
   responsePrefill}`) into a neutral chat or completion request, in one of
@@ -586,7 +746,7 @@ The backend is provider-neutral (`src/hosted/`):
   - `-completion`: the completion text and cue as a raw completion prompt;
   - `-system`: the instruction line as the system prompt, and the
     demonstrations, text and cue as the user turn;
-  - `-native*` (bench only): a chat-native request for the same label: a
+  - `-native*`: a chat-native request for the same label: a
     system prompt describing the task and the answer format
     (`NATIVE_SYSTEM` v1/v2), then the label's name, description and
     examples (`-noex`: none) and the prompt.
@@ -611,15 +771,17 @@ ones (`nova-micro-prefill-stop`: `\nText:`); OpenAI-compatible entries send
 
 The `-trusted` entries (`nova-micro-trusted`, `glm47-flash-trusted`,
 `glm47-flash-oai-trusted`, `ollama-*-completion-trusted`,
-`ollama-*-native-v2-trusted`) send what the extension's Trusted AI redaction
-sends since PR #48 (`src/hosted-framing.ts` @ 71e0c25): a `\nText:` stop for
+`ollama-*-native-v2-trusted`) are the bench's copy of what the extension's
+Trusted AI redaction sent at PR #48 (`src/hosted-framing.ts` @ 71e0c25),
+kept for the lab and older results: a `\nText:` stop for
 answer-cue requests (prefill or completion), no stop for native chat, and
 the extension's tolerant answer parser (`tolerantAnswer` in `framing.ts`:
 repeated `LABEL:` cue stripped, split on `|`, empty and `NONE` parts
 dropped) before the ref's parser. Known extension behaviours the bench does
 not model: one retry with a minimal OpenAI body after an HTTP 400, topK and
 GLM's thinking switch sent only to Nova and GLM (the bench always sends topK
-1 on Converse), and confidence capped at 1.
+1 on Converse), and confidence capped at 1. The bench's connected model
+runs the ref's own client instead, so it has none of these gaps.
 
 - **Models:** `nova-micro-*`: Amazon Nova Micro through the EU inference
   profile `eu.amazon.nova-micro-v1:0`. `glm47-flash-*`: Z.ai GLM-4.7 Flash
@@ -676,28 +838,53 @@ the previous default model in a second worker, after the first one exits.
 
 ## How it runs the extension's code
 
-The runner never modifies the extension clone. It resolves the ref to a commit
-and runs `git archive` from the clone's object store into `cache/ext/<sha>/`.
-It then bundles that commit's `slm-review`, `slm-engine`, `config` and
-`slm-models` modules with esbuild and imports them.
+The bench never modifies the extension clone. One materializer
+(`src/module/materialize.ts`) resolves the ref to a commit, runs `git
+archive` from the clone's object store into `cache/module/<sha>/`, installs
+the npm packages the ref's redaction path imports at the versions its
+lockfile pins, and bundles every module of that path it finds (detection,
+configuration, file reading and redaction, Private AI review, engine, model
+list, connected-model client) into one `module.mjs`. `src/module/insusty.ts`
+adapts that bundle to the redaction contract, and every bench (review,
+detbench, docbench, literature) scores the ref only through its
+`redact()`:
 
-The benchmark therefore runs the shipped code for:
+- rules: the ref's `detectSensitiveData` with its `DEFAULT_CONFIG` and the
+  contract configuration applied (built-in labels, address countries);
+- documents: the ref's file check, document reader and redacted version;
+- Private AI on the device: the ref's `reviewPrompt` and `SlmEngine` (prompt
+  composition, framing, prefill, stop rules, generation budget, parsing,
+  anchoring, patterns, confidence filter) on the bench's Node loader;
+- Private AI on a connected model: the ref's own connected-model client;
+- the final merge of rule and custom-label findings follows the extension's
+  `reviewForRedaction`, which lives in its service worker: the one step
+  mirrored rather than imported.
 
-- prompt composition
-- `<text_to_scan>` framing
-- the `Findings:` prefill
-- the line-protocol stop rule
-- the generation budget
-- parsing and code-side anchoring
-
-The default ref is `main`, which ships the line protocol since PR #17. Pass
-`--ref <branch or sha>` to benchmark any other commit.
+The default ref is `main`. Pass `--ref <branch or sha>` to benchmark any
+other commit; refs from before the per-label design (PR #26) score only
+the deterministic track. The model list comes from the ref
+(`SLM_MODELS`, `DEFAULT_SLM_MODEL_ID`); `models/models.json` only describes
+models (priors, sizes, advertised languages).
 
 Inference uses onnxruntime-web WASM in Node, which is the same runtime the
-extension uses. Each model runs in its own child process, one model at a time.
+extension uses; the bench checks its versions against the ref's lockfile.
+Each model runs in its own child process, one model at a time.
 [docs/approach.md](docs/approach.md) has the details and the measurements
 behind these choices. For example, native onnxruntime-node changes the greedy
 output, so the bench does not use it.
+
+What still needs an extension-side change before a bench-side copy can go:
+
+- the inference loader (`src/run/transformers-loader.ts` mirrors the ref's
+  browser-only `src/model-worker.ts` adapters): needs a Node-loadable
+  runtime entry in the extension;
+- the rule and custom-label merge (`reviewForRedaction` in
+  `src/background/review.ts`): needs a pure, exported merge function;
+- `SUPPORTED_ADDRESS_COUNTRIES` (`src/config/config.ts`) is not exported, so
+  the `all` configuration stays FR-only instead of FR, US, CA and AU;
+- the lab's `shipped` baseline and its switches re-render the extension's
+  prompts (with no code-fence skip): they move next to the module, with exact
+  parity, when the lab moves.
 
 ## Dataset
 
@@ -747,7 +934,8 @@ Each run writes `runs/<name>/`:
 - `results.jsonl`: one scored row per job, with the raw model output.
 - `metrics.csv`: long format (config, dimension, value, metric, number).
 - `metrics.json`: the same data as nested JSON.
-- `run.json`: ref, sha, dataset hash, axes, machine, peak RSS per model and timings.
+- `run.json`: ref, sha, the runtime versions its lockfile pins, contract
+  version, dataset hash, axes, machine profile, peak RSS per model and timings.
 
 Other commands:
 
@@ -757,8 +945,10 @@ Other commands:
 - `npm run components -- <bench arguments>` scores a completed run of a ref
   with the answer-confidence filter and example patterns (PR #32 and later)
   with each part switched off, by replaying its cached answers (no model).
-- `npm test` runs the scorer, dashboard data, playground, detbench and docbench unit
-  tests (the playground ones use a fake model process, no weights).
+- `npm test` runs the contract, scorer, dashboard data, playground, detbench,
+  docbench, adapter and track unit tests (the playground ones use a fake model
+  process, no weights; the contract conformance of the extension runs when a
+  clone is configured).
 - `npm run typecheck` runs the type checker.
 
 ## Repository layout
@@ -767,8 +957,13 @@ Other commands:
 dataset/        profiles, cases, style guides; detbench/ for the rule-based detector
 models/         bundled and candidate model metadata (sizes, dtypes, advertised languages + sources)
 src/dataset/    schema, loader/validator
-src/ext/        extension ref materialization and API surface
-src/run/        jobs, tiers, cache, per-model worker, Node Transformers.js loader
+contract/       redaction contract v1: types, JSON Schema, conformance checks, reference module
+src/module/     the one materializer and the extension's module behind the contract (rules, documents, Private AI)
+src/systems/    systems the harness scores: the extension at a ref, Presidio (baseline, Python), the reference module
+src/adapters/   literature benchmark adapters (TAB, Gretel, Nemotron-PII): pinned downloads, label maps, scoring, report
+src/tracks/     the two tracks, change-based selection, regression gates
+src/ext/        ref resolution and the lab's view of the ref's Private AI internals
+src/run/        jobs, tiers, cache, planning, per-model worker (through the contract), Node Transformers.js loader
 src/score/      per-case scoring and aggregation
 src/report/     HTML report, run comparison
 src/dashboard/  local dashboard (read-only server + static page)
@@ -776,8 +971,9 @@ src/playground/ chat playground: request logic, model host process, its manager
 src/lab/        prompt-engineering lab: configurations, shipped baseline + switches, ablation, renderer, worker, parity check
 src/detbench/   deterministic redaction bench: dataset, perturbations, detector loading, scoring, report
 src/docbench/   document bench: document writers, cases and sweeps, the ref's file check, scoring, report
+src/hosted/     connected models of the Private AI track (transport for the ref's own client); the lab's hosted framings and adapters
 experiments/    lab iteration sets, run summaries, ablation tables, LOG.md, REPORT.md, RESEARCH.md
-src/cli/        validate, split, bench, report, compare, detbench, docbench
-runs/           committed run outputs (runs/detbench/ for the rule-based detector, runs/docbench/ for documents)
-cache/          (untracked) model weights, extracted refs, result cache
+src/cli/        validate, split, bench, report, compare, detbench, docbench, conformance, literature, suite
+runs/           committed run outputs (runs/detbench/ for the rule-based detector, runs/docbench/ for documents, runs/literature/)
+cache/          (untracked) model weights, materialized refs, downloaded datasets, the Presidio environment, result caches
 ```

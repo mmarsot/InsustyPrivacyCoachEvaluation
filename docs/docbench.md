@@ -72,29 +72,31 @@ time through `src/run/worker.ts`, with the bench's memory wait.
 
 ## How a ref is run
 
-`src/docbench/ext.ts` materializes the ref read-only like detbench
-(`git archive` of `src`, `package.json`, `package-lock.json` into
-`cache/docbench/ext/<sha>/`), installs the npm packages its file check
-imports at the ref's locked versions (`@embedpdf/pdfium`, `fflate`, the
-detector's libraries), and bundles `src/file-check.ts`,
-`src/document-reader.ts`, `src/document-model.ts`, `src/redaction.ts`,
-`src/detector.ts` and `src/config.ts`. PDFium is loaded in Node from the
-ref's own `pdfium.wasm`, as the extension's own tests do.
-
-`src/docbench/pipeline.ts` then follows the extension's `checkFile` and
-`redactedVersion` (`src/file-attach.ts`) step by step, with each step timed:
+The ref is materialized read-only by the bench's one materializer
+(`src/module/materialize.ts`: `git archive` into `cache/module/<sha>/`, the
+npm packages at the ref's locked versions, including `@embedpdf/pdfium`,
+`fflate` and the detector's libraries). PDFium is loaded in Node from the
+ref's own `pdfium.wasm`, as the extension's own tests do. Each document goes
+through the module's `redact()` (the redaction contract, `docs/contract.md`),
+once per configuration, and `src/docbench/pipeline.ts` reads the outputs
+back for scoring. Inside, `src/module/documents.ts` follows the extension's
+`checkFile` and `redactedVersion` (`src/files/file-attach.ts`) step by step,
+each step timed:
 
 1. `readFileForCheck` classifies the file by its bytes and name;
 2. `readDocument` reads a PDF, Office/OpenDocument file or zip (text,
    parts, gaps, signed);
 3. `detectSensitiveData` scans the whole text, per configuration
    (`default` = the ref's `DEFAULT_CONFIG`, `all` = every category on); a
-   switched-off category's findings start unselected, as in
+   switched-off category's findings are found but not redacted, as in
    `reviewDetectionsOf`;
 4. the redacted version: a text file re-encoded in place (`redactPrompt`,
    `encodeText`), a PDF or an archive by `redactDocument`, falling back to
    the redacted text copy when that throws (the extension's D2 fallback),
    an Office file as its text copy (`textCopy`).
+
+OCR is not wired in Node yet: images and scanned pages are reported as the
+ref reports them with OCR off.
 
 A ref without `src/document-reader.ts` (before PR #76) still runs: its PDFs,
 Office files and zips come out `unchecked:<reason>` as the ref would report
@@ -219,7 +221,7 @@ Per format × zone (positive cases), per configuration:
 ### Private AI on documents
 
 With `--ai` (the ref's default model, SmolLM2-360M at `2aece81`, and any
-bundled or hosted models named after it), dev-split custom-label cases (`--ai-tier smoke`, the
+local or connected models named after it), dev-split custom-label cases (`--ai-tier smoke`, the
 default: dev and finance, EN; `quick`: every profile, EN and FR, one clear
 positive each; `full`: plus one look-alike negative) are put in the middle of Word documents of
 `--ai-sizes` characters of neutral filler, read by the ref's reader and
@@ -231,17 +233,15 @@ largest document whose median review stays within 30 s, 60 s and 120 s,
 next to the extension's `localAi.fileReviewLimit` (20,000 characters by
 default; 5,000 to 100,000 offered).
 
-Hosted (connected) models run through the bench's shared hosted client
-(`src/hosted/`), exactly as `npm run bench` runs them: the ref's own
-`reviewPrompt` drives the client in place of the engine, requests are paced
-per model, keys come only from the environment (`AWS_BEARER_TOKEN_BEDROCK`,
-or the model's `apiKeyEnv`), the plan prints a cost estimate and refuses to
-start past `--budget-usd`, and each document's cost is reported. Use the
-`-trusted` entries (`glm47-flash-trusted`, `nova-micro-trusted`): they mirror
-the extension's connected-model requests (PR #48). At `2aece81` the
-connector also sends a label's learned examples and false alarms, empty for
-a new user as here, and splits prompts past its 25,000-token context budget
-(~100,000 characters), which no document here reaches.
+The connected model (`glm47-flash-connected`, `src/hosted/connected.ts`)
+runs exactly as `npm run bench` runs it: through the contract, on the ref's
+own connected-model client (requests, pacing, retries, parsing, its
+25,000-token context budget and learned-example limits), with the bench
+supplying only the transport (reply cache, cost, budget). The key comes only
+from the environment (`AWS_BEARER_TOKEN_BEDROCK`), the plan prints a cost
+estimate and refuses to start past `--budget-usd`, and each document's cost
+is reported. The `2aece81` results above ran the bench's older copy of that
+client (`glm47-flash-trusted`).
 
 ## Outputs
 

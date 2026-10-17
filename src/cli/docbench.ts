@@ -9,7 +9,7 @@
  *                       [--formats docx,pdf,...] [--kinds positive,negative,failure]
  *                       [--sweep-types txt,csv,docx,xlsx,pptx,pdf,odt,ods,zip|all]
  *                       [--configs default,all] [--seed 1] [--reps 3]
- *                       [--ai [default,<bundled or hosted model>,...]] [--ai-tier smoke|quick|full] [--budget-usd 5] [--ai-sizes 1000,5000,20000,50000]
+ *                       [--ai [default,<local or connected model>,...]] [--ai-tier smoke|quick|full] [--budget-usd 5] [--ai-sizes 1000,5000,20000,50000]
  *                       [--name <run name>] [--max-rss-mb 3000] [--dry-run] [--cached-only]
  *   npm run bench -- --track docbench ...        (same arguments)
  *   npm run docbench -- --compare-runs runs/docbench/<A> runs/docbench/<B>

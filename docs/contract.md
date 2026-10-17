@@ -14,7 +14,10 @@ extension's module at a git ref (`src/module/`), baselines such as Presidio
 | `reference-module.ts` | the smallest conforming module (e-mail and IBAN regexes), the tests' reference |
 
 `npm test` runs `tests/contract.test.ts`, which also checks that the types
-and the schema have the same fields.
+and the schema have the same fields, and runs the conformance cases on the
+extension's module when a clone is configured. `npm run conformance -- --ref
+main` does the same from the command line (`--system presidio` for the
+baseline).
 
 ## Versioning
 
@@ -27,7 +30,15 @@ new required field, a changed meaning) is a major bump. The schema's
 ## Shape
 
 ```ts
-redact(input: RedactionInput, config: ModuleConfig): Promise<RedactionOutput>
+RedactionModule = {
+  contract, info: { name, version, sha? },
+  capabilities: { builtins[], customLabels, documents, ocr, privateAi: ("device" | "connected")[],
+                  addressCountries?, models?: [{ id, runsOn, default?, bytes? }] },
+  defaultConfig(): ModuleConfig,
+  redact(input, config): Promise<RedactionOutput>,
+  prepare?(config): Promise<{ loadMs?, prepareMs?, backend? }>,   // warm-up, so redact() measures warm latency
+  dispose?(),
+}
 
 RedactionInput = { kind: "text"; text; language? } | { kind: "document"; name; bytes }
 

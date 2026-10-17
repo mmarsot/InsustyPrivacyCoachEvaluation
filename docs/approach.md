@@ -32,18 +32,29 @@ exposes both through the same `runReview` / `preparedInstructions` calls:
 
 ## Materializing a ref without touching the clone
 
-`src/ext/ref.ts`:
+`src/module/materialize.ts` is the one materializer every bench uses:
 
 1. `git -C <clone> rev-parse --verify <ref>^{commit}` gives the commit sha.
-2. `git -C <clone> archive <sha> src package.json | tar -x -C cache/ext/<sha>/`
+2. `git -C <clone> archive <sha> src package.json package-lock.json | tar -x -C cache/module/<sha>/`
    reads the files straight from the clone's object store. The clone's working
    tree, index and branches are never touched (no checkout, no worktree, no
    install, no build), so uncommitted edits there are irrelevant and safe.
-3. esbuild bundles a tiny entry (`export * as review from "./src/slm-review.ts"`,
-   same for `slm-engine`, `config`, `slm-models`, `slm-generation`) into
-   `cache/ext/<sha>/bench-ext.mjs`, with `@huggingface/transformers` external.
-4. The runner imports that bundle. It is cached per sha, so switching refs is
-   instant after the first time.
+3. An entry re-exports every module of the redaction path the ref has
+   (detector, config, redaction, file check, document reader and model,
+   Private AI review, engine, model list, generation, connected-model framing
+   and client), each found by its area-folder path (since PR #82) or the flat
+   one before.
+4. The npm packages they import are installed at the ref's locked versions
+   (`npm ci` on a lockfile subset; network only the first time), and esbuild
+   bundles the entry into `cache/module/<sha>/module.mjs`, resolving packages
+   only from that install, with `@huggingface/transformers` external (the
+   bench supplies the runtime, below).
+5. `src/module/insusty.ts` adapts the bundle to the redaction contract
+   (`docs/contract.md`); the harness scores the ref only through it. The
+   lab and the playground also read the bundle's Private AI internals
+   (`loadExtApi` in `src/ext/ref.ts`).
+
+It is cached per sha, so switching refs is instant after the first time.
 
 The default ref is `main` (the line protocol of PR #17 is merged there); pass
 `--ref <branch or sha>` or set `INSUSTY_EXT_REF` to benchmark another commit. Every result is
@@ -55,8 +66,9 @@ a browser worker entry point and cannot be imported). If a future ref changes
 how the worker drives Transformers.js (not the engine or review modules, which
 are imported), update `src/run/transformers-loader.ts` to match.
 
-The runner warns if the ref's `@huggingface/transformers` range differs from the
-version installed here (currently both 3.8.1).
+The runner warns when the `@huggingface/transformers` or `onnxruntime-web`
+version the ref's lockfile pins differs from the one installed here
+(`runtimeMismatches`; both agree today: 3.8.1 and 1.22.0-dev.20250409).
 
 ## Runtime: onnxruntime-web WASM in Node
 

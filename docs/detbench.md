@@ -1,7 +1,7 @@
 # Deterministic redaction bench
 
 `npm run detbench` measures the extension's **rule-based** detector
-(`detectSensitiveData` in `src/detector.ts`): the part that finds secrets,
+(`detectSensitiveData` in `src/detection/detector.ts`): the part that finds secrets,
 emails, phones, addresses and, after the detector upgrade, financial data,
 national IDs, dates of birth, IP addresses and company IDs. It loads no model:
 a run over 316 base cases and ~3,400 perturbed variants takes a few seconds.
@@ -11,26 +11,22 @@ and `src/cli/detbench.ts`. Tests: `tests/detbench.test.ts`.
 
 ## How a ref is run
 
-`src/detbench/ext.ts` reuses the bench's read-only ref materialization
-(`git archive`, see [approach.md](approach.md)) into
-`cache/detbench/ext/<sha>/`, then:
-
-1. lists the npm packages the detector imports (a first esbuild pass);
-2. installs exactly the versions the ref's `package-lock.json` pins
-   (`npm ci` on a lockfile subset, into that cache directory; network only the
-   first time), so libphonenumber metadata and any validator library match
-   what that commit ships;
-3. bundles the detector and its config (`src/detector.ts` and
-   `src/config.ts`, or `src/detection/detector.ts` and `src/config/config.ts`
-   since InsustyPromptCoach PR #82 grouped `src/` into folders), resolving
-   packages only from that install.
+The ref is materialized read-only by the bench's one materializer
+(`src/module/materialize.ts`, see [approach.md](approach.md)): the ref's
+`git archive` into `cache/module/<sha>/`, its npm packages at the versions its
+`package-lock.json` pins (so libphonenumber metadata and validators match what
+that commit ships), one bundle. detbench scores the built-in spans of the
+module's `redact()` on each prompt, through the redaction contract
+(`src/detbench/ext.ts`, `docs/contract.md`), with Private AI off. Any other
+contract implementation scores the same way: `--system presidio` runs the
+Presidio baseline on this dataset.
 
 Each ref runs with two configurations:
 
 | Config | What it is |
 | --- | --- |
-| `default` | the ref's `DEFAULT_CONFIG`, as a new user gets it |
-| `all` | every category in the ref's `CATEGORIES` on, and every `SUPPORTED_ADDRESS_COUNTRIES` when the ref exports that list (`main` does not, so `all` keeps its `FR`) |
+| `default` | the module's default configuration (the ref's `DEFAULT_CONFIG`), as a new user gets it |
+| `all` | every built-in label the module declares on, and every address country it declares (the ref's `SUPPORTED_ADDRESS_COUNTRIES` when exported; `main` does not export it, so `all` keeps its `FR`) |
 
 Only **selected** detections count: what gets redacted without the user
 ticking anything. A category switched off leaves its detections unselected.
