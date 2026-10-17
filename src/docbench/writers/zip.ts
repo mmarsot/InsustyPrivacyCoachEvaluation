@@ -8,6 +8,7 @@
  */
 import { deflateRawSync } from "node:zlib";
 
+/** One zip entry. */
 export interface ZipInput {
   name: string;
   data: Uint8Array | string;
@@ -29,6 +30,10 @@ const CRC_TABLE = Uint32Array.from({ length: 256 }, (_, n) => {
   return c >>> 0;
 });
 
+/**
+ * The zip CRC-32 of `bytes`; pass a previous result as `crc` to continue over
+ * several chunks.
+ */
 export function crc32(bytes: Uint8Array, crc = 0): number {
   let c = ~crc >>> 0;
   for (let i = 0; i < bytes.length; i++)
@@ -143,6 +148,7 @@ export function writeZip(entries: ZipInput[], comment = ""): Uint8Array {
   ]);
 }
 
+/** Joins byte arrays into one. */
 export function concat(chunks: Uint8Array[]): Uint8Array {
   const out = new Uint8Array(chunks.reduce((n, c) => n + c.length, 0));
   let at = 0;

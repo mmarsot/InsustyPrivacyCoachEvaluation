@@ -19,6 +19,7 @@ import { loadDetDataset } from "../detbench/dataset.ts";
 import { rngFor, type Rng } from "../detbench/perturb.ts";
 import type { DetCase, DetCategory } from "../detbench/schema.ts";
 
+/** Document languages: those of the detbench prompts the content comes from. */
 export type Lang = "en" | "fr";
 
 /** One ground-truth value as placed in a document. */
@@ -28,6 +29,7 @@ export interface PlacedItem {
   kind: string;
   value: string;
 }
+/** One hard negative as placed in a document. */
 export interface PlacedDecoy {
   key: string;
   kind: string;
@@ -179,16 +181,25 @@ const DECOY_LABELS: Record<string, [string, string]> = {
   placeholder: ["Password", "Mot de passe"],
   term: ["Method", "Méthode"],
 };
+/**
+ * The field label a value gets in a two-cell row (`IBAN | FR76 …`), in the
+ * document's language.
+ */
 export const itemLabel = (kind: string, category: DetCategory, lang: Lang) =>
   (ITEM_LABELS[kind] ??
     (category === "SECRET" ? SECRET_LABEL : [category, category]))[
     lang === "en" ? 0 : 1
   ];
+/** Like `itemLabel`, for a hard negative. */
 export const decoyLabel = (kind: string, lang: Lang) =>
   (DECOY_LABELS[kind] ?? ["Value", "Valeur"])[lang === "en" ? 0 : 1];
 
 // ------------------------------------------------------------ pools
 
+/**
+ * Everything documents are built from, drawn from the detbench base cases
+ * (large cases left out).
+ */
 export interface ContentPools {
   hash: string;
   prose: Record<Lang, Unit[]>;
@@ -221,6 +232,10 @@ const unitOf = (c: DetCase): Unit => ({
 /** Splits a multi-line value (a PEM block) out of field units: a cell keeps one line. */
 const oneLine = (v: string) => !/[\r\n]/.test(v);
 
+/**
+ * Builds the pools from the detbench dataset; throws when the dataset does not
+ * validate.
+ */
 export function loadPools(): ContentPools {
   const { dataset, issues } = loadDetDataset();
   if (!dataset)

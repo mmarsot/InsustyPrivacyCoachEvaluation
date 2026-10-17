@@ -90,6 +90,10 @@ export const DECOY_KINDS = [
 ] as const;
 export type DecoyKind = (typeof DECOY_KINDS)[number];
 
+/**
+ * A sensitive value in a template. Values are fictional, and checksum-valid for
+ * kinds that have a checksum (`checksums.ts`).
+ */
 export interface DetItem {
   category: DetCategory;
   kind: string;
@@ -97,6 +101,10 @@ export interface DetItem {
   /** DATE_OF_BIRTH only: the date as YYYY-MM-DD, for format perturbations. */
   iso?: string;
 }
+/**
+ * A hard negative in a template: any detection overlapping it counts against
+ * precision.
+ */
 export interface DetDecoy {
   kind: DecoyKind;
   value: string;
@@ -157,6 +165,10 @@ export type Part =
   | { t: "item"; key: string; s: string }
   | { t: "decoy"; key: string; s: string };
 
+/**
+ * A ground-truth item's span in the rendered text: UTF-16 offsets, `start <
+ * end`.
+ */
 export interface GoldSpan {
   key: string;
   category: DetCategory;
@@ -166,6 +178,7 @@ export interface GoldSpan {
   value: string;
   zone: Zone;
 }
+/** A decoy's span in the rendered text: UTF-16 offsets, `start < end`. */
 export interface DecoySpan {
   key: string;
   kind: DecoyKind;

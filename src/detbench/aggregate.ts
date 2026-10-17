@@ -3,6 +3,11 @@ import { DET_CATEGORIES, type DetCategory, type Zone } from "./schema.ts";
 import { PERTURBATIONS } from "./perturb.ts";
 import { isFalsePositive, type DetScored } from "./score.ts";
 
+/**
+ * Detection metrics over a set of scored cases. Rates are 0..1, or null when
+ * their denominator is zero (no supported item, no negative case...), so an
+ * empty slice never reads as 0%.
+ */
 export interface DetMetrics {
   cases: number;
   /** Ground-truth items, all categories. */
@@ -44,6 +49,7 @@ const ratio = (n: number, d: number) => (d ? n / d : null);
 const f1 = (p: number | null, r: number | null) =>
   p === null || r === null ? null : p + r > 0 ? (2 * p * r) / (p + r) : 0;
 
+/** The slice `detMetrics` keeps; an absent field keeps everything. */
 export interface MetricFilter {
   category?: DetCategory;
   kind?: string;
@@ -51,6 +57,11 @@ export interface MetricFilter {
   zone?: Zone;
 }
 
+/**
+ * Metrics of `rows` restricted to one slice. Precision and recall count
+ * supported items only; `redactedRecall` and `leakFreeRate` count every item,
+ * since a redaction under another name still hides the value.
+ */
 export function detMetrics(
   rows: DetScored[],
   filter: MetricFilter = {},
@@ -135,6 +146,10 @@ export function detMetrics(
   };
 }
 
+/**
+ * One perturbation's effect: its variants against the very base cases they came
+ * from, so the difference is the perturbation's alone.
+ */
 export interface PerturbationSummary {
   /** Base cases the perturbation applied to. */
   baseCases: number;
@@ -145,6 +160,10 @@ export interface PerturbationSummary {
   byCategory: Record<string, { base: DetMetrics; perturbed: DetMetrics }>;
 }
 
+/**
+ * Hard negatives of one kind: how many a detection overlapped, and under which
+ * ref categories.
+ */
 export interface DecoySummary {
   total: number;
   flagged: number;
@@ -167,6 +186,10 @@ export interface LargeCaseSummary {
   fpByCategory: Record<string, number>;
 }
 
+/**
+ * Everything the report shows for one configuration. Every metric covers base
+ * cases only, except `perturbations` and `large`.
+ */
 export interface DetSummary {
   config: string;
   /** Base (unperturbed) cases only. */
@@ -190,6 +213,9 @@ export interface DetSummary {
   large?: LargeCaseSummary[];
 }
 
+/**
+ * The found, redacted and false-positive counts of one large generated case.
+ */
 export function largeCaseSummary(r: DetScored): LargeCaseSummary {
   const fps = r.detections.filter(isFalsePositive);
   const fpByCategory: Record<string, number> = {};
@@ -224,6 +250,7 @@ const mapValues = <T, U>(
     [...m].sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, f(v, k)]),
   );
 
+/** Summarizes one configuration's rows; large cases go to `large` only. */
 export function summarizeConfig(config: string, all: DetScored[]): DetSummary {
   const rows = all.filter((r) => !r.large);
   const base = rows.filter((r) => r.perturbation === "none");
@@ -324,6 +351,7 @@ export function summarizeConfig(config: string, all: DetScored[]): DetSummary {
   };
 }
 
+/** One `DetSummary` per configuration present in `rows`. */
 export function summarizeDet(rows: DetScored[]): DetSummary[] {
   return [...groupBy(rows, (r) => r.config)].map(([config, rs]) =>
     summarizeConfig(config, rs),

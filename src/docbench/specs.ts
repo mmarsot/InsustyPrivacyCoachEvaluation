@@ -40,7 +40,12 @@ export const FORMATS = [
 ] as const;
 export type DocFamily = (typeof FORMATS)[number];
 
+/**
+ * What the extension tells the user about a file: fully read, read with gaps,
+ * or not read (with a reason).
+ */
 export type Outcome = "checked" | "partial" | "unchecked";
+/** What a case's read must report; `classify` compares it with the read. */
 export interface Expectation {
   outcome: Outcome;
   /** For `unchecked`: the reason the ref should give (`encrypted`, `scanned`...). */
@@ -49,6 +54,11 @@ export interface Expectation {
   signed?: boolean;
 }
 
+/**
+ * One suite case: a document of one format (`ext`) with values in one zone, in
+ * one language, of one kind (see `cases.ts`). Specs are plain data, so they key
+ * the cache and the planner never loads a writer.
+ */
 export interface DocSpec {
   id: string;
   family: DocFamily;
@@ -418,12 +428,17 @@ export function suiteSpecs(): DocSpec[] {
   return out;
 }
 
+/**
+ * A short hash identifying the bytes a spec generates (generator version,
+ * detbench dataset, seed).
+ */
 export const specHash = (spec: unknown, seed: number) =>
   createHash("sha256")
     .update(JSON.stringify([GEN_VERSION, detDatasetHash(), seed, spec]))
     .digest("hex")
     .slice(0, 16);
 
+/** The file types the size sweeps cover. */
 export const SWEEP_TYPES = [
   "txt",
   "csv",
@@ -436,8 +451,10 @@ export const SWEEP_TYPES = [
   "zip",
 ] as const;
 export type SweepType = (typeof SWEEP_TYPES)[number];
+/** What a sweep's `size` counts for its type (`SWEEP_UNITS`). */
 export type SweepUnit = "words" | "rows" | "slides" | "pages" | "entries";
 
+/** Each sweep type's size unit, reporting family and file extension. */
 export const SWEEP_UNITS: Record<
   SweepType,
   { unit: SweepUnit; family: DocFamily; ext: string }
@@ -493,6 +510,7 @@ export const SWEEP_SIZES: Record<
   },
 };
 
+/** One sweep point: a document of one type at one size, in English. */
 export interface SweepSpec {
   id: string;
   type: SweepType;
@@ -501,6 +519,7 @@ export interface SweepSpec {
   lang: "en";
 }
 
+/** The sweep points of a tier, per type in `SWEEP_SIZES` order. */
 export function sweepSpecs(
   tier: "smoke" | "quick" | "full",
   types: readonly SweepType[] = SWEEP_TYPES,
@@ -516,6 +535,7 @@ export function sweepSpecs(
   );
 }
 
+/** Like `specHash`, for a sweep point. */
 export const sweepHash = (spec: SweepSpec, seed: number) =>
   createHash("sha256")
     .update(

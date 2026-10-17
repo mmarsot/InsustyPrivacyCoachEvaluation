@@ -45,6 +45,7 @@ import { writeDocx } from "./writers/ooxml.ts";
 import { writePdf } from "./writers/pdf.ts";
 import type { DocJob, DocJobResult } from "./types.ts";
 
+/** The job file the docbench CLI writes for one worker process. */
 export interface DocWorkerSpec {
   ref: ModuleRef;
   seed: number;

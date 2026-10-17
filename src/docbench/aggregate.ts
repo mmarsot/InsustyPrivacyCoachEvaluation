@@ -14,12 +14,17 @@
  */
 import type { DocJobResult } from "./types.ts";
 
+/** The module configurations docbench scores (`src/detbench/ext.ts`). */
 export type ConfigName = "default" | "all";
 
 const ratio = (a: number, b: number): number | null => (b ? a / b : null);
 const f1 = (p: number | null, r: number | null) =>
   p === null || r === null || p + r === 0 ? null : (2 * p * r) / (p + r);
 
+/**
+ * Positive cases of one format and zone. Rates are 0..1, null when their
+ * denominator is zero.
+ */
 export interface ZoneMetrics {
   family: string;
   zone: string;
@@ -50,6 +55,10 @@ export interface ZoneMetrics {
   misclassified: number;
 }
 
+/**
+ * One hard-negative document: its false alarms, also per page, per 10,000 cells
+ * and per 1,000 words where the format has them.
+ */
 export interface NegativeMetrics {
   caseId: string;
   family: string;
@@ -72,6 +81,10 @@ export interface NegativeMetrics {
   samples: Array<{ category: string; value: string; where: string }>;
 }
 
+/**
+ * One case's read against its expectation; a `silentClean` is the failure that
+ * matters most.
+ */
 export interface ClassificationRow {
   caseId: string;
   kind: string;
@@ -85,6 +98,10 @@ export interface ClassificationRow {
   error?: string;
 }
 
+/**
+ * One measured sweep document: sizes, step times in milliseconds, memory in MB
+ * (`deltaMb` over the worker's baseline), and recall at that size.
+ */
 export interface SweepPoint {
   id: string;
   type: string;
@@ -108,6 +125,7 @@ export interface SweepPoint {
   falseAlarms: Record<string, number>;
 }
 
+/** A power-law fit of time (milliseconds) against size. */
 export interface PowerFit {
   /** time = a * size^b, fitted on log-log points (least squares). */
   a: number;
@@ -116,6 +134,10 @@ export interface PowerFit {
   points: number;
 }
 
+/**
+ * How one sweep type scales: time fits per step, a linear memory fit, and the
+ * sizes that fit within a time budget.
+ */
 export interface SweepFit {
   type: string;
   unit: string;
@@ -136,6 +158,10 @@ export interface SweepFit {
   capped: number[];
 }
 
+/**
+ * Everything the report, the CLI summary and the dashboard show for one
+ * docbench run.
+ */
 export interface DocSummary {
   ref: string;
   sha: string;
@@ -318,6 +344,7 @@ const sizeWithin = (
     : { size: Math.round(s), atLeast: false };
 };
 
+/** Summarizes a run's results for the configurations it scored. */
 export function summarizeDocs(
   results: DocJobResult[],
   configs: ConfigName[],

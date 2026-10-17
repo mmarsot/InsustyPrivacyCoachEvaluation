@@ -13,6 +13,10 @@ const XML = '<?xml version="1.0" encoding="UTF-8"?>\n';
 const NS =
   'xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" office:version="1.3"';
 
+/**
+ * Document metadata (meta.xml): places a user's text can hide that readers must
+ * not miss.
+ */
 export interface OdfMeta {
   title?: string;
   subject?: string;
@@ -62,6 +66,10 @@ function pack(
   ]);
 }
 
+/**
+ * A text document: body, page header and footer, comments and tracked
+ * deletions.
+ */
 export interface OdtSpec {
   body: Block[];
   header?: string[];
@@ -71,6 +79,7 @@ export interface OdtSpec {
   meta?: OdfMeta;
 }
 
+/** Writes an `.odt`; the same spec always gives the same bytes. */
 export function writeOdt(spec: OdtSpec): Uint8Array {
   const blocks = spec.body
     .map((b) =>
@@ -112,17 +121,23 @@ export function writeOdt(spec: OdtSpec): Uint8Array {
   );
 }
 
+/**
+ * One sheet: rows of cells (`null` is an empty cell), optionally hidden, with
+ * cell comments at zero-based positions.
+ */
 export interface OdsSheet {
   name: string;
   hidden?: boolean;
   rows: Array<Array<string | number | null>>;
   comments?: Array<{ row: number; col: number; text: string }>;
 }
+/** A spreadsheet: its sheets and metadata. */
 export interface OdsSpec {
   sheets: OdsSheet[];
   meta?: OdfMeta;
 }
 
+/** Writes an `.ods`; the same spec always gives the same bytes. */
 export function writeOds(spec: OdsSpec): Uint8Array {
   const sheets = spec.sheets
     .map((sh) => {
@@ -157,11 +172,13 @@ export function writeOds(spec: OdsSpec): Uint8Array {
   );
 }
 
+/** A presentation: slides with title, body lines and speaker notes. */
 export interface OdpSpec {
   slides: Array<{ title?: string; body?: string[]; notes?: string[] }>;
   meta?: OdfMeta;
 }
 
+/** Writes an `.odp`; the same spec always gives the same bytes. */
 export function writeOdp(spec: OdpSpec): Uint8Array {
   const frame = (lines: string[], y: number) =>
     `<draw:frame svg:x="2cm" svg:y="${y}cm" svg:width="24cm" svg:height="3cm"><draw:text-box>${p(lines.join("\n"))}</draw:text-box></draw:frame>`;

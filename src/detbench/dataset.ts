@@ -19,7 +19,9 @@ import {
   type Zone,
 } from "./schema.ts";
 
+/** The detbench dataset: one `<lang>.jsonl` of case sources per language. */
 export const DETBENCH_DIR = join(DATASET_DIR, "detbench");
+/** Detbench languages, one dataset file each. */
 export const DETBENCH_LANGS = ["en", "fr"] as const;
 
 const PLACEHOLDER = /\{\{([a-z0-9_]+)\}\}/g;
@@ -138,6 +140,10 @@ export function renderParts(
   return { text, gold, decoySpans };
 }
 
+/**
+ * Derived from the items' categories, never written by hand, so it cannot drift
+ * from them.
+ */
 export function caseType(items: DetCase["items"]): DetCaseType {
   const categories = new Set(Object.values(items).map((i) => i.category));
   return categories.size === 0
@@ -265,6 +271,7 @@ export function caseFromSource(source: DetCaseSource): DetCase {
   );
 }
 
+/** The rendered base cases (perturbed variants are derived per run). */
 export interface DetDataset {
   cases: DetCase[];
   /** sha256 of the dataset files and generated texts, for run metadata. */

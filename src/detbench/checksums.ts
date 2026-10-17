@@ -77,6 +77,7 @@ export function luhn(value: string): boolean {
   return sum % 10 === 0;
 }
 
+/** Payment card: 13 to 19 digits, Luhn. */
 export const isValidCard = (value: string): boolean => {
   const digits = compact(value);
   return /^\d{13,19}$/.test(digits) && luhn(digits);
@@ -94,6 +95,7 @@ export const isValidSiret = (value: string): boolean =>
 export function frenchVatKey(siren: string): string {
   return String((12 + 3 * (Number(siren) % 97)) % 97).padStart(2, "0");
 }
+/** French intra-EU VAT number: a valid SIREN and its key (`frenchVatKey`). */
 export function isValidFrenchVat(value: string): boolean {
   const v = compact(value).toUpperCase();
   const m = /^FR(\d{2})(\d{9})$/.exec(v);
@@ -105,6 +107,10 @@ export function nirKey(first13: string): string {
   const n = first13.toUpperCase().replace("2A", "19").replace("2B", "18");
   return String(97 - Number(BigInt(n) % 97n)).padStart(2, "0");
 }
+/**
+ * French NIR: sex digit, birth year and month, department (2A/2B for Corsica),
+ * commune, order number, then its key (`nirKey`).
+ */
 export function isValidNir(value: string): boolean {
   const v = compact(value).toUpperCase();
   const m = /^([12]\d{4}(?:\d{2}|2A|2B)\d{6})(\d{2})$/.exec(v);

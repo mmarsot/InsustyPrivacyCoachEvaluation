@@ -25,9 +25,14 @@ import { codeRanges, zoneAt } from "./dataset.ts";
 import type { RefDetection } from "./ext.ts";
 import type { DetCase, DetCategory, Zone } from "./schema.ts";
 
+/** A detection's verdict; the file header defines each. */
 export type Verdict =
   "tp" | "wrong_category" | "unsupported_item" | "decoy" | "fp";
 
+/**
+ * A ground-truth item and how the detections treated it (the file header
+ * defines each flag).
+ */
 export interface ScoredItem {
   key: string;
   category: DetCategory;
@@ -45,6 +50,7 @@ export interface ScoredItem {
   /** Ref categories of the detections overlapping it. */
   detectedAs: string[];
 }
+/** A selected detection with its verdict and the items it overlaps. */
 export interface ScoredDetection {
   category: string;
   mapped: DetCategory | null;
@@ -58,6 +64,7 @@ export interface ScoredDetection {
   decoyKinds: string[];
   zone: Zone;
 }
+/** A decoy, `flagged` when a detection overlaps it and overlaps no item. */
 export interface ScoredDecoy {
   key: string;
   kind: string;
@@ -67,6 +74,7 @@ export interface ScoredDecoy {
   zone: Zone;
 }
 
+/** One case scored under one configuration: a line of `results.jsonl`. */
 export interface DetScored {
   config: string;
   caseId: string;
@@ -92,6 +100,10 @@ const overlaps = (
   b: { start: number; end: number },
 ) => a.start < b.end && b.start < a.end;
 
+/**
+ * Scores a case's detections under one configuration; `supported` is the
+ * categories the module can report.
+ */
 export function scoreDetCase(
   c: DetCase,
   detections: RefDetection[],

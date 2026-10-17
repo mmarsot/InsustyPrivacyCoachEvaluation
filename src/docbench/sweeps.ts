@@ -36,6 +36,10 @@ function supply(pool: Unit[], seed: string): () => Unit {
   };
 }
 
+/**
+ * Generates one sweep document; the same spec, pools and seed always give the
+ * same bytes.
+ */
 export async function buildSweepDoc(
   spec: SweepSpec,
   pools: ContentPools,

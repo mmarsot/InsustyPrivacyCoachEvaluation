@@ -11,6 +11,10 @@
  */
 import { writeZip, type ZipInput } from "./zip.ts";
 
+/**
+ * Text as XML character data: escapes markup and drops the control characters
+ * XML 1.0 forbids, which Office would refuse to open.
+ */
 export const xmlEscape = (s: string) =>
   s
     .replace(
@@ -26,6 +30,10 @@ const REL =
   "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 const PKG_REL = "http://schemas.openxmlformats.org/package/2006/relationships";
 
+/**
+ * Document properties (core, app and custom): places a user's text can hide
+ * that readers must not miss.
+ */
 export interface DocProperties {
   title?: string;
   subject?: string;
@@ -39,6 +47,10 @@ export interface DocProperties {
   custom?: Array<[string, string]>;
 }
 
+/**
+ * A file in the document's embeddings folder: an embedded workbook,
+ * document, PDF or OLE binary.
+ */
 export interface Embedded {
   /** File name inside the embeddings folder, with its extension (`.xlsx`, `.docx`, `.pdf`, `.bin`). */
   name: string;
@@ -140,6 +152,10 @@ function packageRoot(
 
 // ------------------------------------------------------------ Word
 
+/**
+ * A Word document: every part a user's text can live in, each optional but the
+ * body.
+ */
 export interface WordSpec {
   /** First paragraph (it carries the comment anchors and note references). */
   title?: string;
@@ -205,6 +221,7 @@ function splitRunsXml(text: string): string {
   return `<w:p>${out}</w:p>`;
 }
 
+/** Writes a `.docx`; the same spec always gives the same bytes. */
 export function writeDocx(spec: WordSpec): Uint8Array {
   const p = spec.properties ?? {};
   const relList: Array<[string, string, string, boolean?]> = [
@@ -360,6 +377,10 @@ export function writeDocx(spec: WordSpec): Uint8Array {
 /** A cell: text, a number, or a formula with its cached result (what Excel saves). */
 export type Cell = string | number | { formula: string; result: string } | null;
 
+/**
+ * One worksheet; `hidden: "very"` is Excel's very hidden state, which its
+ * menus cannot unhide.
+ */
 export interface SheetSpec {
   name: string;
   hidden?: boolean | "very";
@@ -370,6 +391,7 @@ export interface SheetSpec {
   /** Cell notes (legacy comments). */
   comments?: Array<{ ref: string; text: string }>;
 }
+/** A workbook: its sheets and properties. */
 export interface WorkbookSpec {
   sheets: SheetSpec[];
   properties?: DocProperties;
@@ -382,6 +404,7 @@ const colName = (i: number): string =>
     ? String.fromCharCode(65 + i)
     : colName(Math.floor(i / 26) - 1) + String.fromCharCode(65 + (i % 26));
 
+/** Writes an `.xlsx`; the same spec always gives the same bytes. */
 export function writeXlsx(spec: WorkbookSpec): Uint8Array {
   const strings: string[] = [];
   const index = new Map<string, number>();
@@ -507,6 +530,10 @@ export function writeXlsx(spec: WorkbookSpec): Uint8Array {
 
 // ------------------------------------------------------------ PowerPoint
 
+/**
+ * One slide: title, body lines, a table and speaker notes; `hidden` slides are
+ * skipped in a slideshow but still in the file.
+ */
 export interface SlideSpec {
   title?: string;
   body?: string[];
@@ -514,6 +541,7 @@ export interface SlideSpec {
   notes?: string[];
   hidden?: boolean;
 }
+/** A presentation: its slides, comments and properties. */
 export interface DeckSpec {
   slides: SlideSpec[];
   /** Modern comments on the first slide. */
@@ -528,6 +556,7 @@ const aPara = (t: string) =>
 const shape = (id: number, name: string, lines: string[], y: number) =>
   `<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="${name}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="457200" y="${y}"/><a:ext cx="8229600" cy="1143000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr><p:txBody><a:bodyPr wrap="square"/><a:lstStyle/>${lines.map(aPara).join("")}</p:txBody></p:sp>`;
 
+/** Writes a `.pptx`; the same spec always gives the same bytes. */
 export function writePptx(spec: DeckSpec): Uint8Array {
   const parts: ZipInput[] = [];
   const overrides: Array<[string, string]> = [

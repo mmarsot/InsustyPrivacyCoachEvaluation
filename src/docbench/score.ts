@@ -35,6 +35,7 @@ import type {
 } from "./pipeline.ts";
 import { normalizeSpaces, type Views } from "./verify.ts";
 
+/** What one configuration did to one placed value. */
 export interface ItemConfigResult {
   /** A detection of the item's own category overlaps it. */
   found: boolean;
@@ -47,6 +48,10 @@ export interface ItemConfigResult {
   /** Redacted leak-free and absent from the redacted output (independent read); undefined when not redacted or no output. */
   removed?: boolean;
 }
+/**
+ * One placed value: whether the read extracted it, where (`where`, offsets into
+ * the extracted text), and per configuration what the detector did.
+ */
 export interface DocItemResult {
   unit: string;
   key: string;
@@ -59,6 +64,10 @@ export interface DocItemResult {
   end?: number;
   cfg: Partial<Record<ConfigName, ItemConfigResult>>;
 }
+/**
+ * One placed hard negative, `flagged` per configuration when a detection
+ * overlaps it.
+ */
 export interface DocDecoyResult {
   unit: string;
   kind: string;
@@ -66,12 +75,17 @@ export interface DocDecoyResult {
   extracted: boolean;
   flagged: Partial<Record<ConfigName, boolean>>;
 }
+/** A detection on no placed value, for the report's samples. */
 export interface FalseAlarm {
   category: string;
   value: string;
   where: string;
   verdict: string;
 }
+/**
+ * One configuration on one document: detection counts and the redaction check
+ * (milliseconds, bytes).
+ */
 export interface DocConfigResult {
   detectMs: number;
   detections: number;
@@ -98,6 +112,10 @@ export interface DocConfigResult {
   };
 }
 
+/**
+ * The read's outcome (`got`, e.g. `unchecked:encrypted` or `checked+signed`)
+ * against the expectation.
+ */
 export interface Classification {
   expected: Expectation;
   got: string;
@@ -106,6 +124,11 @@ export interface Classification {
   silentClean: boolean;
 }
 
+/**
+ * Compares a read with the expectation; a read that threw counts as
+ * `unchecked:failed`. The reason and the signature are compared only when the
+ * expectation states them.
+ */
 export function classify(
   read: PipelineRead,
   expected: Expectation,
@@ -244,6 +267,7 @@ export function locate(
   return { items, gold, decoys, decoySpans };
 }
 
+/** A document's placed values and decoys, and each configuration's result. */
 export interface ScoredDoc {
   items: DocItemResult[];
   decoys: DocDecoyResult[];

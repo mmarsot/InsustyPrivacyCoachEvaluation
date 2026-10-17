@@ -21,6 +21,10 @@ import type { RedactionModule } from "../../contract/types.ts";
 import type { DocTier } from "../run/plan.ts";
 import { writeDocx } from "./writers/ooxml.ts";
 
+/**
+ * One Private AI document: a review case embedded in a Word document of a
+ * target length.
+ */
 export interface AiDocSpec {
   id: string;
   caseId: string;
@@ -59,6 +63,7 @@ export function aiCases(
   return out;
 }
 
+/** One document per case and size. */
 export const aiSpecs = (cases: CompiledCase[], sizes: number[]): AiDocSpec[] =>
   cases.flatMap((c) =>
     sizes.map((size) => ({
@@ -92,6 +97,7 @@ export function aiDocument(
   });
 }
 
+/** A Private AI document after the module read it. */
 export interface AiDoc {
   spec: AiDocSpec;
   case: CompiledCase;
@@ -188,6 +194,10 @@ export function aiJobs(
   });
 }
 
+/**
+ * One reviewed document: passages found against expected, false positives,
+ * review time in milliseconds.
+ */
 export interface AiPoint {
   id: string;
   model: string;
@@ -208,6 +218,10 @@ export interface AiPoint {
   error?: string;
 }
 
+/**
+ * Scores each document's cached review with the bench's scorer and the ref's
+ * own parser; documents without a cached result are left out.
+ */
 export function scoreAi(
   docs: AiDoc[],
   jobs: Job[],
@@ -263,6 +277,7 @@ export function scoreAi(
   return out;
 }
 
+/** One model's Private AI results by document size, with a time fit. */
 export interface AiSummary {
   model: string;
   /** Per size: recall of expected passages, false positives, median and max review time, timeouts. */
@@ -296,6 +311,10 @@ const p50 = (xs: number[]) => {
   return s.length ? s[Math.floor((s.length - 1) / 2)]! : 0;
 };
 
+/**
+ * Summarizes points per model; `fit` is the power-law fitter `aggregate.ts`
+ * uses.
+ */
 export function summarizeAi(
   points: AiPoint[],
   fit: (

@@ -13,6 +13,7 @@ const END = 0xfffffffe;
 const FREE = 0xffffffff;
 const FATSECT = 0xfffffffd;
 
+/** A compound file holding `streams` at its root, in order. */
 export function writeCfb(
   streams: Array<{ name: string; data: Uint8Array }>,
 ): Uint8Array {

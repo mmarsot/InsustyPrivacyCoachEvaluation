@@ -21,6 +21,7 @@ export { CATEGORY_ALIASES } from "../module/labels.ts";
 export const mapCategory = (category: string): DetCategory | null =>
   toBuiltin(category);
 
+/** One built-in span of the module, in the dataset's vocabulary. */
 export interface RefDetection {
   /** The module's label. */
   category: string;
@@ -34,8 +35,16 @@ export interface RefDetection {
   selected: boolean;
 }
 
+/**
+ * The two configurations detbench scores: the module's default, and every
+ * built-in label on.
+ */
 export type DetConfigName = "default" | "all";
 
+/**
+ * What detbench needs of a module: its categories, its two configurations and
+ * one call per text.
+ */
 export interface DetectorApi {
   /** The module's own category names (the extension's `CATEGORIES`), else its built-in labels. */
   refCategories: string[];
@@ -51,6 +60,10 @@ export interface DetectorApi {
   ): Promise<{ detections: RefDetection[]; ms: number }>;
 }
 
+/**
+ * Wraps a contract module as a `DetectorApi`; both configurations keep Private
+ * AI off, so no model is ever loaded.
+ */
 export function detectorApi(
   module: RedactionModule & { refCategories?: string[] },
 ): DetectorApi {

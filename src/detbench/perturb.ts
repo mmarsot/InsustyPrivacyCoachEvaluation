@@ -11,6 +11,7 @@
 import { buildCase } from "./dataset.ts";
 import type { DetCase, DetItem, Part } from "./schema.ts";
 
+/** Perturbation types, in report order (`PERTURBATION_INFO` describes each). */
 export const PERTURBATIONS = [
   "spacing",
   "separators",
@@ -57,6 +58,7 @@ const fnv1a = (s: string): number => {
   return h;
 };
 
+/** A seeded generator of numbers in [0, 1), like `Math.random`. */
 export type Rng = () => number;
 
 /** mulberry32 seeded from a string key. */

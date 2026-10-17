@@ -1,9 +1,9 @@
-import type { MachineProfile } from "../../contract/types.ts";
 /**
  * Static HTML report and text summary of a document-bench run, and the
  * comparison page of two runs (`--compare`). Charts are inline SVG (no
  * script, no network). Secret-looking values are defanged in the HTML.
  */
+import type { MachineProfile } from "../../contract/types.ts";
 import { defangHtml } from "../detbench/defang.ts";
 import type { AiSummary } from "./ai.ts";
 import type {
@@ -14,6 +14,10 @@ import type {
 } from "./aggregate.ts";
 import type { DocJobResult } from "./types.ts";
 
+/**
+ * `runs/docbench/<name>/run.json`: what was run (ref, tier, seed,
+ * configurations, the ref's file limits), with what, and where.
+ */
 export interface DocRunMeta {
   name: string;
   argv: string[];
@@ -367,6 +371,10 @@ function aiSection(ai: AiSummary[] | undefined, meta: DocRunMeta): string {
     .join("")}</div>`;
 }
 
+/**
+ * The `report.html` of one docbench run (`ai`: the Private AI section, when
+ * run).
+ */
 export function renderDocReport(
   meta: DocRunMeta,
   s: DocSummary,
@@ -464,6 +472,7 @@ ${aiSection(ai, meta)}
   return defangHtml(html);
 }
 
+/** A comparison page of two docbench runs, for the configurations both ran. */
 export function renderDocCompare(
   a: { meta: DocRunMeta; summary: DocSummary; ai?: AiSummary[] },
   b: { meta: DocRunMeta; summary: DocSummary; ai?: AiSummary[] },
@@ -523,6 +532,7 @@ export function renderDocCompare(
   return defangHtml(html);
 }
 
+/** The terminal summary of a docbench run. */
 export function docTextSummary(
   meta: DocRunMeta,
   s: DocSummary,

@@ -4,8 +4,14 @@ import { join } from "node:path";
 import { CACHE_DIR, RUNS_DIR } from "../paths.ts";
 import type { DocJobResult } from "./types.ts";
 
+/**
+ * Committed docbench runs, `runs/docbench/<name>/` (under `BENCH_RUNS_DIR` when
+ * set).
+ */
 export const DOCBENCH_RUNS_DIR = join(RUNS_DIR, "docbench");
+/** Cached docbench results, one JSONL file per extension commit. */
 export const DOC_RESULTS_DIR = join(CACHE_DIR, "docbench", "results");
+/** The docbench result cache of one extension commit. */
 export const docCacheFile = (sha: string) =>
   join(DOC_RESULTS_DIR, `${sha}.jsonl`);
 

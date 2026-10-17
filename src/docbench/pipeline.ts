@@ -11,8 +11,12 @@ import type {
   RedactionOutput,
 } from "../../contract/types.ts";
 
+/** The module configurations docbench runs a document through. */
 export type ConfigName = "default" | "all";
 
+/**
+ * Where a range of the extracted text came from (`TextPart` in the contract).
+ */
 export interface DocSegmentLike {
   start: number;
   end: number;
@@ -20,6 +24,7 @@ export interface DocSegmentLike {
   page?: number;
 }
 
+/** A module's read of one file, as the scorer uses it. */
 export interface PipelineRead {
   outcome: "checked" | "partial" | "unchecked" | "error";
   reason?: string;
@@ -38,6 +43,7 @@ export interface PipelineRead {
   error?: string;
 }
 
+/** The redacted output of one configuration. */
 export interface PipelineRedaction {
   /** `in_place` (same file redacted), `text_copy` (Office: by design), `fallback_text_copy` (a PDF or archive the module could not redact safely). */
   mode: "in_place" | "text_copy" | "fallback_text_copy" | "none" | "error";
@@ -49,6 +55,7 @@ export interface PipelineRedaction {
   failing?: Array<{ start: number; end: number; replacement: string }>;
 }
 
+/** One configuration's detections and redaction of a document. */
 export interface ConfigRun {
   detections: Array<{
     category: string;

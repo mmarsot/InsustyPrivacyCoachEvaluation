@@ -54,6 +54,11 @@ function pdfStrings(src: string): string {
 
 /** The reading methods of the independent reader; each one is a full view of the output. */
 export type View = "text" | "strings" | "pdftotext";
+/**
+ * Every view of one output. The scorer counts a value as gone when no view
+ * still holds it (values under 8 characters skip the raw-bytes view, where
+ * digits abound).
+ */
 export type Views = Record<View, string>;
 
 function pdfViews(bytes: Uint8Array): Views {

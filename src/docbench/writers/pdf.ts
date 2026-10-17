@@ -30,6 +30,10 @@ import {
 import type { Block } from "./ooxml.ts";
 import { concat, crc32 } from "./zip.ts";
 
+/**
+ * A PDF: text blocks laid out on A4 pages, and the extras a PDF can hide text
+ * in.
+ */
 export interface PdfSpec {
   blocks: Block[];
   columns?: 1 | 2;
@@ -61,6 +65,10 @@ const MARGIN = 56;
 
 /** WinAnsi can encode Latin-1 and a few typographic marks; anything else becomes "?". */
 const WIN_ANSI_EXTRA = "€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ";
+/**
+ * Text Helvetica can draw: characters outside WinAnsi become `?` and tabs four
+ * spaces, since pdf-lib throws on what its standard fonts cannot encode.
+ */
 export const winAnsiSafe = (s: string) =>
   [...s]
     .map((c) => (c.charCodeAt(0) < 256 || WIN_ANSI_EXTRA.includes(c) ? c : "?"))
@@ -152,6 +160,10 @@ export function scanPng(
   ]);
 }
 
+/**
+ * Writes a PDF; the same spec always gives the same bytes (fixed dates and
+ * ids).
+ */
 export async function writePdf(spec: PdfSpec): Promise<Uint8Array> {
   const doc = await PDFDocument.create({ updateMetadata: false });
   doc.setCreationDate(FIXED_DATE);

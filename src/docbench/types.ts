@@ -17,6 +17,10 @@ export interface DocJob {
   sweep?: SweepSpec;
 }
 
+/**
+ * One cached line of a ref's docbench results: the document, how the module
+ * read it, and its scores per configuration.
+ */
 export interface DocJobResult {
   key: string;
   jobId: string;

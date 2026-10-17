@@ -1,5 +1,5 @@
-import type { MachineProfile } from "../../contract/types.ts";
 /** Static HTML report, text summary and comparison page for detbench runs. */
+import type { MachineProfile } from "../../contract/types.ts";
 import { esc, meter, pct, STYLE } from "../report/html.ts";
 import { DET_CATEGORIES } from "./schema.ts";
 import { PERTURBATION_INFO, type Perturbation } from "./perturb.ts";
@@ -7,6 +7,10 @@ import { defangHtml } from "./defang.ts";
 import type { DetMetrics, DetSummary, LargeCaseSummary } from "./aggregate.ts";
 import type { DetScored } from "./score.ts";
 
+/**
+ * `runs/detbench/<name>/run.json`: what was scored (ref, dataset hash, seed,
+ * perturbations), with what packages, where and how fast.
+ */
 export interface DetRunMeta {
   name: string;
   ext: { ref: string; sha: string; subject: string; committedAt: string };
@@ -262,6 +266,10 @@ function highlighted(r: DetScored): string {
   return out + clipped(r.text, at, r.text.length, long);
 }
 
+/**
+ * One case as an expandable HTML block: each item's verdict, then the
+ * detections (on items first, then false positives).
+ */
 export function caseDetails(r: DetScored): string {
   const items = r.items
     .map(
@@ -374,6 +382,7 @@ function casesSection(rows: DetScored[], summaries: DetSummary[]): string {
   return `<h2 id="cases">Cases</h2><p>Highlighted: ground-truth items (red when nothing redacts them). Every result is in <code>results.jsonl</code>.</p>${parts.join("")}`;
 }
 
+/** The `report.html` of one detbench run. */
 export function renderDetReport(
   meta: DetRunMeta,
   rows: DetScored[],
@@ -469,6 +478,10 @@ export function textSummary(meta: DetRunMeta, summaries: DetSummary[]): string {
 
 // ------------------------------------------------------------ comparison
 
+/**
+ * A comparison page of two detbench runs: each metric as A → B with its
+ * change in points, per configuration both ran.
+ */
 export function renderDetCompare(
   a: { meta: DetRunMeta; summaries: DetSummary[] },
   b: { meta: DetRunMeta; summaries: DetSummary[] },
