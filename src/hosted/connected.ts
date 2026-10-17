@@ -8,8 +8,8 @@
  * - a disk cache of replies keyed by the exact request (`cache/hosted/`),
  *   so a rerun sends nothing new and costs nothing;
  * - cost per reply from the provider's token usage and the model's on-demand
- *   prices, and the `--budget-usd` cap over every cached hosted spend
- *   (`hostedSpentUsd`);
+ *   prices, and the `--budget-usd` cap over every cached connected spend
+ *   (`connectedSpentUsd`);
  * - the key, read from the environment only (never printed, logged or
  *   stored).
  *

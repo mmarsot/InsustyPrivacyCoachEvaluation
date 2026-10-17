@@ -8,9 +8,8 @@
  *   npm run ablate -- [--set tune96] [--model smollm2-360m] [--with id,id]
  *                     [--name ablate-tune96-smollm2-360m] [--dry-run] [--allow-test]
  *
- * The model switch (the shipped default model) runs the baseline on the
- * previous default in a second lab call, after the first one exits.
- * Rerunning with nothing new only rescores.
+ * Retired switches (their "off" state can no longer run) are listed with
+ * their reason. Rerunning with nothing new only rescores.
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -39,9 +38,8 @@ for (const id of proposals) if (!LAB_CONFIGS[id]) fail(`unknown config ${id}`);
 const name = opt("name") ?? `ablate-${set}-${model.short}${proposals.length ? "-with" : ""}`;
 const passThrough = [...(flag("dry-run") ? ["--dry-run"] : []), ...(flag("allow-test") ? ["--allow-test"] : [])];
 
-const configRows = SHIPPED_COMPONENTS.filter((c) => c.off);
-// The model switch only means something when the baseline runs on the shipped default model.
-const modelRows = model.short === SHIPPED_MODEL ? SHIPPED_COMPONENTS.filter((c) => c.offModel) : [];
+const configRows = SHIPPED_COMPONENTS.filter((c) => c.off && !c.retired);
+const retiredRows = SHIPPED_COMPONENTS.filter((c) => c.retired);
 
 function lab(configs: string[], modelShort: string, runName: string) {
   const labArgs = ["--import", "tsx", join(ROOT, "src/lab/cli.ts"), "--configs", configs.join(","), "--models", modelShort, "--set", set, "--name", runName, ...passThrough];
@@ -51,7 +49,6 @@ function lab(configs: string[], modelShort: string, runName: string) {
 }
 
 lab([SHIPPED_CONFIG.id, ...configRows.map(shippedOffId), ...proposals], model.short, name);
-for (const c of modelRows) lab([SHIPPED_CONFIG.id], c.offModel!, `${name}-no-${c.id}`);
 if (flag("dry-run")) process.exit(0);
 
 // ------------------------------------------------------------------ table
@@ -112,10 +109,7 @@ const row = (label: string, note: string, s: RunSummary | undefined, isBaseline 
 const rows = [
   row("**nothing (shipped baseline)**", SHIPPED_CONFIG.note ?? "", baseline, true),
   ...configRows.map((c) => row(c.title, c.offNote, find(main, shippedOffId(c), model.short))),
-  ...modelRows.map((c) => {
-    const run = runFile(`${name}-no-${c.id}`);
-    return row(c.title, c.offNote, find(run, SHIPPED_CONFIG.id, findLabModel(c.offModel!)!.short));
-  }),
+  ...retiredRows.map((c) => `| ${c.title} | retired: ${c.retired} | | | | | | | | | | | | | |`),
   ...proposals.map((id) => row(`(proposal, added) ${id}`, LAB_CONFIGS[id]!.note ?? "", find(main, id, model.short))),
 ];
 
@@ -126,7 +120,7 @@ Leave-one-out grid of the shipped design (\`npm run ablate -- --set ${set} --mod
 ${new Date().toISOString().slice(0, 10)}, set \`${set}\` (${cases} cases), model ${model.short} (${model.dtype}), extension ${main.ext.ref}@${main.ext.sha.slice(0, 7)}.
 Each row turns one shipped improvement off (docs/shipped-improvements.md); deltas are vs the baseline row, in points
 (latency in seconds). Overlap F1 / precision / recall at passage level, FP rate = negatives with a false finding,
-p50 = median review time per prompt. Lab runs: ${[name, ...modelRows.map((c) => `${name}-no-${c.id}`)].map((n) => `\`experiments/runs/${n}.json\``).join(", ")}.
+p50 = median review time per prompt. Lab run: \`experiments/runs/${name}.json\`.
 
 ${header}
 ${rows.join("\n")}

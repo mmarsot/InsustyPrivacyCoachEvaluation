@@ -10,7 +10,6 @@ import { compileDataset } from "../dataset/load.ts";
 import type { CompiledCase, CompiledDataset } from "../dataset/schema.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo, type ExtApi, type ExtRef } from "../ext/ref.ts";
 import { CONNECTED_MODELS } from "../hosted/connected.ts";
-import { HOSTED_MODELS } from "../hosted/models.ts";
 import type { LiteratureRun } from "../adapters/report.ts";
 import { MODELS_FILE, ROOT, RUNS_DIR } from "../paths.ts";
 import { MODULE_CACHE_DIR } from "../module/materialize.ts";
@@ -335,11 +334,10 @@ async function handlePlayground(dash: Dashboard, path: string, req: IncomingMess
 
 // ------------------------------------------------------------ HTTP
 
-/** Local models (models/models.json), connected ones (src/hosted/connected.ts) and the lab's hosted ones (src/hosted/models.ts), for language support next to results. */
+/** Local models (models/models.json) and connected ones (src/hosted/connected.ts), for language support next to results. */
 const MODEL_META = [
   ...(JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: unknown[] }).models,
   ...CONNECTED_MODELS.map((h) => ({ id: h.id, short: h.short, hosted: true, languages: h.languages })),
-  ...HOSTED_MODELS.map((h) => ({ id: h.id, short: h.short, hosted: true, languages: h.languages })),
 ];
 
 const parseFilters = (params: URLSearchParams): Filters => {

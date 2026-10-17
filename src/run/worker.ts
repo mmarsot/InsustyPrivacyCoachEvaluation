@@ -22,7 +22,6 @@
 import { readFileSync } from "node:fs";
 import type { ModuleConfig } from "../../contract/types.ts";
 import { connectedSpentUsd, connectedTarget, findConnectedModel } from "../hosted/connected.ts";
-import { hostedSpentUsd } from "../hosted/models.ts";
 import { loadInsustyModule } from "../module/insusty.ts";
 import type { ModuleRef } from "../module/materialize.ts";
 import { appendResult, type ChunkRecord, type Job, type ResultRecord } from "./jobs.ts";
@@ -59,7 +58,7 @@ async function main() {
   let transformers = "";
   const module = await loadInsustyModule(spec.ref, {
     ...(connected
-      ? { connected: [connectedTarget(connected, { budgetUsd: spec.budgetUsd ?? 0, spentUsd: () => hostedSpentUsd() + connectedSpentUsd() })] }
+      ? { connected: [connectedTarget(connected, { budgetUsd: spec.budgetUsd ?? 0, spentUsd: () => connectedSpentUsd() })] }
       : {
           device: async () => {
             const { nodeWasmLoader, disposeModels, transformersVersion, WASM_THREADS } = await import("./transformers-loader.ts");

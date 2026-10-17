@@ -35,7 +35,7 @@ test("the shipped baseline renders the extension's completion request (EN and FR
 
 test("every config switch is a registered leave-one-out config that differs from the baseline", () => {
   for (const component of SHIPPED_COMPONENTS) {
-    assert.ok(component.off || component.offModel, component.id);
+    assert.ok(component.off || component.retired, component.id);
     if (!component.off) continue;
     const off = LAB_CONFIGS[shippedOffId(component)];
     assert.ok(off, shippedOffId(component));

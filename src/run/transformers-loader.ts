@@ -40,9 +40,7 @@ export const WASM_THREADS = Math.min(4, Math.max(1, availableParallelism()));
 env.cacheDir = MODEL_CACHE_DIR;
 env.allowLocalModels = false;
 if (env.backends.onnx.wasm) {
-  // `LAB_ORT=next`: lab worker running a candidate on the newer onnxruntime-web (src/lab/ort-next-hooks.mjs).
-  const ortPackage = process.env.LAB_ORT === "next" ? "onnxruntime-web-next" : "onnxruntime-web";
-  env.backends.onnx.wasm.wasmPaths = pathToFileURL(join(ROOT, "node_modules", ortPackage, "dist") + "/").href;
+  env.backends.onnx.wasm.wasmPaths = pathToFileURL(join(ROOT, "node_modules", "onnxruntime-web", "dist") + "/").href;
   env.backends.onnx.wasm.numThreads = WASM_THREADS;
 }
 

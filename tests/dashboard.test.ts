@@ -14,6 +14,7 @@ import {
   groupMetrics,
   listCases,
   matrixStatus,
+  RESULT_DIMENSIONS,
   readCacheFile,
 } from "../src/dashboard/data.ts";
 import { compareRows } from "../src/report/compare-data.ts";
@@ -72,7 +73,7 @@ test("recognizes bench processes from /proc command lines", () => {
 });
 
 test("parses bench arguments and plans the same keys twice", () => {
-  const o = parseBenchArgs(["--tier", "full", "--models", "smollm2-135m", "--labels", "desc,ex3", "--instructions", "current,short"]);
+  const o = parseBenchArgs(["--tier", "full", "--models", "smollm2-360m", "--labels", "desc,ex3", "--instructions", "current,short"]);
   assert.equal(o.tier, "full");
   assert.deepEqual(o.labelVariants, ["desc", "ex3"]);
   assert.throws(() => parseBenchArgs(["--labels", "nope"]));
@@ -94,7 +95,7 @@ test("reads a growing cache file and tolerates a torn last line", () => {
 });
 
 test("computes live progress, statuses and ETA", () => {
-  const o = parseBenchArgs(["--tier", "full", "--models", "smollm2-135m,qwen2.5-0.5b", "--labels", "desc"]);
+  const o = parseBenchArgs(["--tier", "full", "--models", "smollm2-360m,glm47-flash-connected", "--labels", "desc"]);
   const plan = planJobs(dataset, o, "sha", "p");
   const [m1, m2] = o.models.map((m) => m.id) as [string, string];
   const jobs1 = plan.jobsByModel.get(m1)!;
@@ -118,7 +119,7 @@ test("computes live progress, statuses and ETA", () => {
 });
 
 test("marks the experiment matrix done / running / partial / pending", () => {
-  const o = parseBenchArgs(["--tier", "full", "--models", "smollm2-135m", "--labels", "desc,ex3", "--instructions", "current,short"]);
+  const o = parseBenchArgs(["--tier", "full", "--models", "smollm2-360m", "--labels", "desc,ex3", "--instructions", "current,short"]);
   const jobs = planJobs(dataset, o, "sha", "p").jobsByModel;
   const all = [...jobs.values()].flat();
   const cellOf = (j: Job) => `${j.instruction}/${j.labelVariant}`;
@@ -131,16 +132,16 @@ test("marks the experiment matrix done / running / partial / pending", () => {
 });
 
 const scoredRows = (): Scored[] => {
-  const o = parseBenchArgs(["--tier", "full", "--models", "smollm2-135m,qwen2.5-0.5b", "--labels", "desc"]);
+  const o = parseBenchArgs(["--tier", "full", "--models", "smollm2-360m,glm47-flash-connected", "--labels", "desc"]);
   const plan = planJobs(dataset, o, "sha", "p");
   const rows: Scored[] = [];
   for (const jobs of plan.jobsByModel.values())
     for (const job of jobs) {
       const c = cases.find((x) => x.id === job.caseId)!;
-      const qwen = job.model.includes("Qwen");
-      // Qwen finds Orwell and flags Zoom; SmolLM2 answers NONE everywhere.
+      const glm = job.model.includes("glm");
+      // GLM finds Orwell and flags Zoom; SmolLM2 answers NONE everywhere.
       const findings =
-        qwen && c.id === "sales-en-001" ? [{ category: "PRODUCT", start: 5, end: 11, value: "Orwell" }] : qwen && c.id === "sales-en-002" ? [{ category: "PRODUCT", start: 8, end: 12, value: "Zoom" }] : [];
+        glm && c.id === "sales-en-001" ? [{ category: "PRODUCT", start: 5, end: 11, value: "Orwell" }] : glm && c.id === "sales-en-002" ? [{ category: "PRODUCT", start: 8, end: 12, value: "Zoom" }] : [];
       const output = findings.map((f) => `PRODUCT: ${f.value}`).join("\n") || "NONE";
       rows.push(scoreResult(c, profile, record(job, output, findings, "2026-01-01T00:00:00Z"), ["EMAIL"]));
     }
@@ -150,18 +151,19 @@ const scoredRows = (): Scored[] => {
 test("filters, groups and lists results with verdicts", () => {
   const rows = scoredRows();
   assert.deepEqual(filterOptions(rows).lang, ["en", "fr"]);
-  const qwenEn = filterRows(rows, { model: ["Qwen2.5-0.5B-Instruct"], lang: ["en"] });
-  assert.equal(qwenEn.length, 2);
+  const glmName = RESULT_DIMENSIONS.model!(rows.find((r) => r.model.includes("glm"))!);
+  const glmEn = filterRows(rows, { model: [glmName], lang: ["en"] });
+  assert.equal(glmEn.length, 2);
   const groups = groupMetrics(rows, ["model", "lang"]);
   assert.equal(groups.length, 4);
-  const g = groups.find((x) => x.keys.join() === "Qwen2.5-0.5B-Instruct,en")!;
+  const g = groups.find((x) => x.keys.join() === `${glmName},en`)!;
   assert.equal(g.metrics.caseDetection, 1);
   assert.equal(g.metrics.falsePositiveRate, 1);
   assert.equal(g.metrics.overlap.precision, 0.5);
   assert.deepEqual(groupMetrics(rows, [])[0]!.keys, ["all"]);
-  assert.deepEqual(qwenEn.map(caseVerdict).sort(), ["FP", "TP"]);
+  assert.deepEqual(glmEn.map(caseVerdict).sort(), ["FP", "TP"]);
   const fns = listCases(rows, "FN");
-  assert.equal(fns.total, 3); // SmolLM2 misses both positives, Qwen misses the French one
+  assert.equal(fns.total, 3); // SmolLM2 misses both positives, GLM misses the French one
   assert.equal(listCases(rows, undefined, 1).items.length, 1);
 });
 

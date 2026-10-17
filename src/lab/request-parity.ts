@@ -1,21 +1,22 @@
 /**
- * Request parity for hosted models, no model and no network: runs the ref's
- * own `reviewPrompt` with a recording client (answers NONE) and checks that
+ * Request parity of the lab's shipped baseline, no model and no network
+ * (`npm run parity`, a CI gate of the Private AI track): runs the ref's own
+ * `reviewPrompt` with a recording client (answers NONE) and checks that
  * every request it hands its model client, `{instructions, input,
- * responsePrefill}`, equals what the lab's `shipped` configuration sends a
- * hosted model (src/lab/cli.ts runHosted: prefix, suffix minus cue, cue).
+ * responsePrefill}`, equals what the lab's `shipped` configuration renders
+ * (prefix, suffix minus cue, cue).
  * Since extension PR #42 (fb52dc6) the ref leaves fenced code blocks out of
  * the scanned text, which the lab's `shipped` configuration does not model
  * yet: those requests are counted apart as "code-fence skip".
  *
- *   npx tsx src/hosted/parity.ts [--set tune96] [--allow-test] [--ref main]
+ *   npm run parity -- [--set tune96] [--allow-test] [--ref main]
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { compileDataset } from "../dataset/load.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo, type ModelClientLike, type ReviewRequestLike } from "../ext/ref.ts";
-import { buildRaw } from "../lab/config.ts";
-import { SHIPPED_CONFIG } from "../lab/shipped.ts";
+import { buildRaw } from "./config.ts";
+import { SHIPPED_CONFIG } from "./shipped.ts";
 import { ROOT } from "../paths.ts";
 import { rulesFor } from "../run/jobs.ts";
 

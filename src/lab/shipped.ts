@@ -16,7 +16,7 @@ import { REF_CONFIG, withOverrides, type LabConfig } from "./config.ts";
 
 const EXT_PR = (n: number) => `https://github.com/mmarsot/InsustyPromptCoach/pull/${n}`;
 
-/** Default model of the extension, and the previous default the model switch falls back to. */
+/** Default model of the extension. */
 export const SHIPPED_MODEL = "smollm2-360m";
 
 export const SHIPPED_CONFIG: LabConfig = withOverrides(REF_CONFIG, "shipped", {
@@ -64,8 +64,11 @@ export interface ShippedComponent {
   pr: string;
   /** Overrides that turn this improvement off on the baseline. */
   off?: Partial<LabConfig>;
-  /** Model switch: the baseline runs on this model instead. */
-  offModel?: string;
+  /**
+   * A switch that can no longer run: why (its "off" state needs something the
+   * bench removed). The ledger entry stays; the ablation lists it as retired.
+   */
+  retired?: string;
   /** What "off" means, for tables and the ledger. */
   offNote: string;
 }
@@ -130,7 +133,7 @@ export const SHIPPED_COMPONENTS: ShippedComponent[] = [
     title: "Pinned greedy decoding (repetition_penalty 1, no_repeat_ngram_size 0)",
     pr: EXT_PR(26),
     off: { repetitionPenalty: null, noRepeatNgram: null },
-    offNote: "penalties from the model's generation_config.json (greedy kept; SmolLM2 ships none, Qwen2.5 ships repetition_penalty 1.1)",
+    offNote: "penalties from the model's generation_config.json (greedy kept; SmolLM2 ships none)",
   },
   {
     id: "plausible",
@@ -143,7 +146,7 @@ export const SHIPPED_COMPONENTS: ShippedComponent[] = [
     id: "model",
     title: "SmolLM2-360M default, SmolLM2-135M removed",
     pr: EXT_PR(26),
-    offModel: "smollm2-135m",
+    retired: "SmolLM2-135M was removed from the bench (captain's decision, 2026-10-17): the baseline can no longer run on the previous default",
     offNote: "baseline on SmolLM2-135M, the previous default",
   },
   {

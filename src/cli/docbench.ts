@@ -46,7 +46,6 @@ import { allLabelsConfig, loadInsustyModule } from "../module/insusty.ts";
 import { machineProfile } from "../module/machine.ts";
 import { materializeModule } from "../module/materialize.ts";
 import { connectedSpentUsd, findConnectedModel } from "../hosted/connected.ts";
-import { hostedSpentUsd } from "../hosted/models.ts";
 import { findLabModel } from "../lab/models.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "../lab/runtime.ts";
 import { ACTIVE_RUNS_DIR, CACHE_DIR } from "../paths.ts";
@@ -118,7 +117,7 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
       }
     }
     if (aiModels.some((m) => m.hosted)) {
-      hostedSpent = hostedSpentUsd() + connectedSpentUsd();
+      hostedSpent = connectedSpentUsd();
       console.log(`  Hosted spend so far ${hostedSpent.toFixed(4)} USD + this run <=${hostedEstimateUsd.toFixed(4)} USD; budget ${o.budgetUsd} USD`);
       if (!o.cachedOnly && !o.dryRun && hostedSpent + hostedEstimateUsd > o.budgetUsd) throw new Error("The hosted cost estimate would pass --budget-usd; nothing was sent.");
     }

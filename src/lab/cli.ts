@@ -4,7 +4,7 @@
  * comparison. Built for fast iteration; the bench (`npm run bench`) stays the
  * reference for what the extension ships.
  *
- *   npm run lab -- --configs ref,rp1 [--models smollm2-360m,qwen2.5-0.5b]
+ *   npm run lab -- --configs ref,rp1 [--models smollm2-360m]
  *                  [--set iter32 | --cases id,id] [--dtype q8] [--name label]
  *                  [--show-prompt] [--dry-run] [--max-rss-mb 3500] [--min-free-mb 1500]
  *
@@ -29,8 +29,6 @@ import { scoreResult, type Scored } from "../score/score.ts";
 import { answerConfidence, buildMessages, buildRaw, configCategories, detectLang, filterLines, plausibleLines, withExtraStopWords, maskPassages, isRequestLike, shapeSimilarity, jsonToLines, passagesToLines, relaxLines, CONTENT_MARKER, type LabConfig, type RefTexts } from "./config.ts";
 import { LAB_CONFIGS } from "./configs.ts";
 import { findLabModel, type LabModel } from "./models.ts";
-import { HostedError, reviewHosted } from "../hosted/client.ts";
-import { estimateCost, hostedSpentUsd, type HostedModel } from "../hosted/models.ts";
 import { labelPatterns, patternFindings } from "./patterns.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "./runtime.ts";
 import { checkInput, decide, inputBlock, policyAndDemos, segmentText, YESNO_INSTRUCTION, type Segment } from "./segment.ts";
@@ -116,7 +114,7 @@ interface Planned {
    * even with neighbor context, so the check is unresolved without a request.
    */
   check?: Segment & { index: number; skipped: boolean };
-  /** Raw configurations: the answer cue that ends `suffix` (a hosted model's assistant prefill). */
+  /** Raw configurations: the answer cue that ends `suffix` (the request's assistant prefill). */
   cue?: string;
 }
 
@@ -137,14 +135,11 @@ const relaxedAnchor = opt("anchor") === "relaxed";
  */
 const postFilters = list(opt("filter"));
 const filterSuffix = postFilters.length ? `+${postFilters.join("+")}` : "";
-/** onnxruntime-web build: `pinned` (the extension's, default) or `next` (1.24.3, needed by newer ONNX exports). */
-const ortOverride = opt("ort");
-const ortFor = (model: LabModel) => ortOverride ?? model.ort;
-const skipPrefix = (model: LabModel) => noPrefixCache || !model.prefixCache;
+const skipPrefix = (_model: LabModel) => noPrefixCache;
 /** `--backend webgpu`: score results produced in Chrome by src/lab/browser/ (separate cache file). */
 const backend = opt("backend") ?? "wasm";
 const cacheFileFor = (model: LabModel, dtype: string) =>
-  model.hosted ? join(LAB_DIR, `${slug(model.id)}-${dtype}.jsonl`) : join(LAB_DIR, `${slug(model.id)}-${dtype}${ortFor(model) === "next" ? "-ortnext" : ""}${skipPrefix(model) ? "-nopkv" : ""}${backend === "wasm" ? "" : `-${backend}`}.jsonl`);
+  join(LAB_DIR, `${slug(model.id)}-${dtype}${skipPrefix(model) ? "-nopkv" : ""}${backend === "wasm" ? "" : `-${backend}`}.jsonl`);
 const loadLabCache = (file: string) => {
   const map = new Map<string, LabRecord>();
   if (existsSync(file))
@@ -158,10 +153,7 @@ const loadLabCache = (file: string) => {
 
 
 async function plan(model: LabModel, cache: Map<string, LabRecord> = new Map()): Promise<Planned[]> {
-  // Hosted models take the completion-framed request as text: no local tokenizer.
-  if (model.hosted?.framing === "native") fail(`${model.short}: the native framing builds its own request from the label; run it with \`npm run bench\``);
-  if (model.hosted) for (const config of configs) if (!config.raw || config.segment) fail(`${model.short}: hosted models run completion-framed (raw) configurations only, not ${config.id}`);
-  const tokenizer = model.hosted ? (undefined as never) : await AutoTokenizer.from_pretrained(model.id);
+  const tokenizer = await AutoTokenizer.from_pretrained(model.id);
   const dtype = dtypeOverride ?? model.dtype;
   const out: Planned[] = [];
   for (const config of configs) {
@@ -182,7 +174,6 @@ async function plan(model: LabModel, cache: Map<string, LabRecord> = new Map()):
         if (cfg.raw) {
           const raw = buildRaw(cfg, scope, refTexts, c.text);
           ({ prefix, instructions } = raw);
-          if (model.rawBos) prefix = `${String((tokenizer as unknown as { bos_token?: string }).bos_token ?? "")}${prefix}`;
           suffix = raw.suffix(c.text);
           cue = raw.prefill;
         } else {
@@ -260,8 +251,7 @@ function planChecks(model: LabModel, tokenizer: Awaited<ReturnType<typeof AutoTo
       prefix = rendered.slice(0, at);
       tail = rendered.slice(at + CONTENT_MARKER.length);
     } else {
-      const bos = model.rawBos ? String((tokenizer as unknown as { bos_token?: string }).bos_token ?? "") : "";
-      prefix = `${bos}${YESNO_INSTRUCTION}\n\n${head}`;
+      prefix = `${YESNO_INSTRUCTION}\n\n${head}`;
     }
     const scope = { ...profile, labels: [spec] };
     const prefixTokens = tokens(prefix);
@@ -297,7 +287,7 @@ async function runWorker(model: LabModel, dtype: string, pending: Planned[]): Pr
   const t0 = performance.now();
   let last = 0;
   let lastWrite = performance.now();
-  const peak = await runGuardedWorker("src/lab/worker.ts", specFile, { LAB_ORT: ortFor(model) }, model.short, maxRssMb, (event, rss) => {
+  const peak = await runGuardedWorker("src/lab/worker.ts", specFile, {}, model.short, maxRssMb, (event, rss) => {
     const e = event as unknown as LabEvent;
     if (e.type === "loaded") console.log(`[${model.short}] loaded in ${(e.loadMs / 1000).toFixed(1)} s, ort-web ${e.ort}, context ${e.contextLength}, rss ${rss} MB`);
     else if (e.type === "result") {
@@ -315,128 +305,6 @@ async function runWorker(model: LabModel, dtype: string, pending: Planned[]): Pr
   });
   console.log(`[${model.short}] worker done, peak RSS ${peak} MB, ${Math.round((performance.now() - t0) / 1000)} s`);
 }
-
-// ------------------------------------------------------------------ hosted
-/** Extra fields of a hosted model's cache record (src/hosted/client.ts). */
-interface HostedRecord extends LabRecord {
-  raw: string;
-  stopReason: string;
-  inputTokens: number;
-  outputTokens: number;
-  costUsd: number;
-  serverMs: number;
-  totalMs: number;
-  attempts: number;
-}
-/** Budget of the whole hosted evaluation (lab and bench caches, `hostedSpentUsd`) plus this run (`--budget-usd`). */
-const budgetUsd = Number(opt("budget-usd") ?? 5);
-/** Pre-run cost estimate of the pending requests of a hosted model. */
-function hostedEstimate(model: LabModel, pending: Planned[]) {
-  const unique = [...new Map(pending.map((p) => [p.key, p])).values()];
-  return estimateCost(model.hosted!, unique.map((p) => ({ chars: p.prefix.length + p.suffix.length })), Math.max(...unique.map((p) => p.gen.maxNewTokens || 48)));
-}
-
-/**
- * Sends the pending requests of a hosted model one at a time (sequential, so
- * each latency is one request's, network included), appending each result to
- * the model's cache file like a worker. Stops when the running total would
- * pass the budget.
- */
-async function runHosted(model: LabModel, pending: Planned[]): Promise<void> {
-  const hosted: HostedModel = model.hosted!;
-  const file = cacheFileFor(model, model.dtype);
-  mkdirSync(LAB_DIR, { recursive: true });
-  const unique = [...new Map(pending.map((p) => [p.key, p])).values()];
-  let spent = hostedSpentUsd();
-  let runUsd = 0;
-  const t0 = performance.now();
-  let last = 0;
-  let lastWrite = performance.now();
-  for (const [i, p] of unique.entries()) {
-    if (spent >= budgetUsd) {
-      console.error(`[${model.short}] STOPPED: spent ${spent.toFixed(4)} USD, budget ${budgetUsd} USD`);
-      return;
-    }
-    const cue = p.cue!;
-    if (!p.suffix.endsWith(cue)) fail(`${model.short}: request suffix does not end with its answer cue`);
-    const request = { instructions: p.prefix, input: p.suffix.slice(0, p.suffix.length - cue.length), responsePrefill: cue };
-    let r: Awaited<ReturnType<typeof reviewHosted>>;
-    try {
-      r = await reviewHosted(hosted, request, { maxTokens: p.gen.maxNewTokens || 48, stopAtNewline: Boolean(p.gen.stopAtNewline) });
-    } catch (error) {
-      // Access, validation or auth errors stop the run; a request that ran out of retries stays pending for a rerun.
-      if (!(error instanceof HostedError) || !error.retryable) fail(`[${model.short}] ${(error as Error).message}`);
-      console.error(`[${model.short}] ${p.c.id}: gave up after retries (${error.message}); rerun to complete`);
-      continue;
-    }
-    const cut = r.cut;
-    const record: HostedRecord = {
-      key: p.key,
-      model: model.id,
-      dtype: model.dtype,
-      caseId: p.c.id,
-      output: r.output,
-      promptTokens: r.inputTokens,
-      generatedTokens: r.outputTokens,
-      finishReason: cut ? "line" : r.stopReason === "length" ? "length" : "eos",
-      // The answer confidence, as a one-token list: the shipped filter's min over it is the confidence.
-      ...(r.answerProbability === undefined ? {} : { tokenProbs: [r.answerProbability] }),
-      ms: r.ms,
-      at: new Date().toISOString(),
-      raw: r.raw,
-      stopReason: r.stopReason,
-      inputTokens: r.inputTokens,
-      outputTokens: r.outputTokens,
-      costUsd: r.costUsd,
-      serverMs: r.serverMs,
-      totalMs: r.totalMs,
-      attempts: r.attempts,
-    };
-    appendFileSync(file, JSON.stringify(record) + "\n");
-    spent += r.costUsd;
-    runUsd += r.costUsd;
-    const now = performance.now();
-    if (now - last > 20_000 || i === unique.length - 1) {
-      last = now;
-      console.log(`[${model.short}] ${i + 1}/${unique.length} ${p.c.id} ${r.ms} ms ${r.outputTokens} tok · run ${runUsd.toFixed(4)} USD, total ${spent.toFixed(4)} USD · ${Math.round((now - t0) / 1000)} s`);
-    }
-    if (now - lastWrite > 30_000 && i < unique.length - 1) {
-      lastWrite = now;
-      progressHook?.(`${model.short}: ${i + 1}/${unique.length} requests`);
-    }
-  }
-}
-
-const quantile = (xs: number[], q: number) => {
-  if (!xs.length) return null;
-  const s = [...xs].sort((a, b) => a - b);
-  return s[Math.min(s.length - 1, Math.ceil(q * s.length) - 1)]!;
-};
-
-/** Token usage, cost and per-request latency of a hosted model's scored requests. */
-function hostedUsage(parts: Planned[], cache: Map<string, LabRecord>, prompts: number) {
-  const records = [...new Set(parts.map((p) => p.key))].map((k) => cache.get(k) as HostedRecord | undefined).filter((r): r is HostedRecord => r !== undefined);
-  const inputTokens = records.reduce((a, r) => a + r.inputTokens, 0);
-  const outputTokens = records.reduce((a, r) => a + r.outputTokens, 0);
-  const usd = records.reduce((a, r) => a + r.costUsd, 0);
-  // Cost of a prompt = all its label requests (a case's requests, also when another configuration shares one).
-  const perPrompt = parts.reduce((a, p) => a + ((cache.get(p.key) as HostedRecord | undefined)?.costUsd ?? 0), 0) / Math.max(1, prompts);
-  return {
-    requests: records.length,
-    inputTokens,
-    outputTokens,
-    meanInputTokens: records.length ? Math.round(inputTokens / records.length) : null,
-    meanOutputTokens: records.length ? Math.round((10 * outputTokens) / records.length) / 10 : null,
-    usd: Math.round(usd * 1e6) / 1e6,
-    usdPer1000Prompts: Math.round(perPrompt * 1000 * 1e4) / 1e4,
-    requestP50ms: quantile(records.map((r) => r.ms), 0.5),
-    requestP95ms: quantile(records.map((r) => r.ms), 0.95),
-    serverP50ms: quantile(records.map((r) => r.serverMs), 0.5),
-    retries: records.reduce((a, r) => a + r.attempts - 1, 0),
-    cutAtFirstLine: records.filter((r) => r.finishReason === "line").length,
-  };
-}
-type HostedUsage = ReturnType<typeof hostedUsage>;
 
 // ------------------------------------------------------------------ score
 interface Row extends Scored {
@@ -516,7 +384,7 @@ function score(allParts: Planned[], cache: Map<string, LabRecord>, agree?: Set<s
       : basic;
     const categories = configCategories(part.config, part.scope, refTexts);
     if (!deadline) findings.push(...validateModelOutput(parsed, { text: p.c.text, offset: 0 }, 0, categories));
-    chunks.push({ output: parsed, ms: r.ms, runtime: { backend: p.model.hosted?.provider ?? "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } });
+    chunks.push({ output: parsed, ms: r.ms, runtime: { backend: "wasm", quantization: p.dtype, promptTokens: r.promptTokens, generatedTokens: r.generatedTokens, finishReason: r.finishReason } });
   });
   if (agree) findings.splice(0, findings.length, ...findings.filter((f) => agree.has(`${f.category}\u0000${(f.value ?? "").toLowerCase()}`)));
   // Segment configurations (src/lab/segment.ts): decisions of the Yes/No checks.
@@ -704,7 +572,7 @@ function line(m: Metrics) {
 }
 
 // ------------------------------------------------------------------ main
-type Summary = { model: string; dtype: string; config: string; note?: string; overall: Metrics; en: Metrics; fr: Metrics; seg: SegSummary; segmentConfig: boolean; hosted?: HostedUsage };
+type Summary = { model: string; dtype: string; config: string; note?: string; overall: Metrics; en: Metrics; fr: Metrics; seg: SegSummary; segmentConfig: boolean };
 const planned: Planned[][] = [];
 const runName = opt("name") ?? `${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}`;
 for (const model of models) planned.push(await plan(model, loadLabCache(cacheFileFor(model, dtypeOverride ?? model.dtype))));
@@ -712,7 +580,7 @@ for (const model of models) planned.push(await plan(model, loadLabCache(cacheFil
 if (opt("export-jobs")) {
   // Requests for the browser bench (src/lab/browser/): same keys as the lab cache.
   const jobs = planned.flat().map((p) => ({ key: p.key, caseId: p.c.id, prompt: p.prefix + p.suffix, gen: p.gen }));
-  writeFileSync(opt("export-jobs")!, JSON.stringify({ model: models[0]!.id, dtype: dtypeOverride ?? models[0]!.dtype, rawBos: models[0]!.rawBos, jobs }));
+  writeFileSync(opt("export-jobs")!, JSON.stringify({ model: models[0]!.id, dtype: dtypeOverride ?? models[0]!.dtype, jobs }));
   console.log(`exported ${jobs.length} requests to ${opt("export-jobs")}`);
   process.exit(0);
 }
@@ -743,16 +611,6 @@ for (let m = 0; m < planned.length; m++) {
     const pending = ps.filter((p) => isPending(p, cache));
     const unique = new Set(pending.map((p) => p.key)).size;
     console.log(`[${model.short} ${dtype}] ${ps.length} jobs, ${unique} to compute (~${Math.round((unique * model.secondsPerCase) / 60)} min)`);
-    if (model.hosted) {
-      const est = hostedEstimate(model, pending);
-      const spent = hostedSpentUsd();
-      console.log(`[${model.short}] estimate for ${unique} requests: ~${est.inputTokens} input + <=${est.outputTokens} output tokens, <=${est.usd.toFixed(4)} USD; spent so far ${spent.toFixed(4)} USD, budget ${budgetUsd} USD`);
-      if (unique && spent + est.usd > budgetUsd) fail(`[${model.short}] the estimate would pass the budget (${(spent + est.usd).toFixed(4)} > ${budgetUsd} USD); nothing sent`);
-      if (flag("dry-run") || !unique) break;
-      await runHosted(model, pending);
-      planned[m] = await plan(model, loadLabCache(cacheFileFor(model, dtype)));
-      continue;
-    }
     if (flag("dry-run") || !unique) break;
     if (!(await waitForMemory(model, minFreeMb))) break;
     await runWorker(model, dtype, pending);
@@ -787,9 +645,7 @@ function scoreAll() {
       .map((parts) => score(parts, cache, agreeing?.get(parts[0]!.c.id)));
     allRows.push(...rows);
     if (!rows.length) continue;
-    const done = new Set(rows.map((r) => r.caseId));
-    const hosted = model.hosted ? hostedUsage(ps.filter((p) => p.config.id === cfg.id && done.has(p.c.id)), cache, rows.length) : undefined;
-    summary.push({ model: model.short, dtype, config: `${cfg.id}${relaxedAnchor ? "+relax" : ""}${filterSuffix}`, note: cfg.note, overall: metrics(rows), en: metrics(rows.filter((r) => r.lang === "en")), fr: metrics(rows.filter((r) => r.lang === "fr")), seg: segMetrics(rows), segmentConfig: Boolean(cfg.segment), ...(hosted ? { hosted } : {}) });
+    summary.push({ model: model.short, dtype, config: `${cfg.id}${relaxedAnchor ? "+relax" : ""}${filterSuffix}`, note: cfg.note, overall: metrics(rows), en: metrics(rows.filter((r) => r.lang === "en")), fr: metrics(rows.filter((r) => r.lang === "fr")), seg: segMetrics(rows), segmentConfig: Boolean(cfg.segment) });
   }
   }
   return { allRows, summary };
@@ -818,16 +674,6 @@ for (const s of summary) {
   const sec = (ms: number | null) => String(Math.round((ms ?? 0) / 100) / 10).padStart(6);
   const checks = s.segmentConfig ? ` | ${pct(g.unresolvedRate)}  ${pct(g.incompleteCases)} ${g.checkAuc === null ? "   -" : g.checkAuc.toFixed(2).padStart(4)} ${pct(g.checkPrecision)} ${pct(g.checkRecall)} ${pct(g.falseYesRate)} ${pct(g.meanPYesPos)} ${pct(g.meanPYesNeg)}${g.verifiedFindings ? `  vAUC ${g.verifyAuc?.toFixed(2) ?? "-"} over ${g.verifiedFindings} findings` : ""}` : "";
   console.log(`${`${s.model}/${s.config}`.padEnd(34)} ${pct(g.segPrecision)} ${pct(g.segRecall)} ${pct(g.overRedaction)} ${(g.requestsPerPrompt ?? 0).toFixed(1).padStart(5)} ${sec(s.overall.latencyP50)} ${sec(s.overall.latencyP95)}${checks}`);
-}
-if (summary.some((s) => s.hosted)) {
-  // Hosted models: token usage, cost and per-request latency (network included).
-  console.log(`\n${"hosted usage".padEnd(34)}   req  in/req out/req      USD  USD/1k prompts  req p50  req p95  server p50  retries`);
-  for (const s of summary.filter((x) => x.hosted)) {
-    const h = s.hosted!;
-    const sec = (ms: number | null) => `${((ms ?? 0) / 1000).toFixed(2)} s`.padStart(8);
-    console.log(`${`${s.model}/${s.config}`.padEnd(34)} ${String(h.requests).padStart(5)} ${String(h.meanInputTokens).padStart(7)} ${String(h.meanOutputTokens).padStart(7)} ${h.usd.toFixed(4).padStart(8)} ${h.usdPer1000Prompts.toFixed(4).padStart(15)} ${sec(h.requestP50ms)} ${sec(h.requestP95ms)} ${sec(h.serverP50ms).padStart(11)} ${String(h.retries).padStart(8)}`);
-  }
-  console.log(`hosted spend so far (every cached hosted request, lab and bench): ${hostedSpentUsd().toFixed(4)} USD`);
 }
 if (flag("seg-diag")) {
   // Diagnosis of the Yes/No checks: answer forms, P(Yes) distribution, AUC per language and label.
@@ -891,7 +737,6 @@ function writeRun(summary: Summary[], allRows: Row[], inProgress?: string): stri
           en: compact(s.en),
           fr: compact(s.fr),
           seg: Object.fromEntries(Object.entries(s.seg).map(([k, v]) => [k, v === null ? null : Math.round(v * 1000) / 1000])),
-          ...(s.hosted ? { hosted: s.hosted } : {}),
         })),
         cases: allRows.map((r) => ({
           model: findLabModel(r.model)?.short ?? r.model,

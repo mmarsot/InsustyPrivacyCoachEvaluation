@@ -20,8 +20,7 @@
  * (`--models glm47-flash-connected`, src/hosted/connected.ts; never part of
  * `all`) run the ref's own connected-model client against a paid API: the
  * plan prints their cost estimate, and the run refuses to start when the
- * hosted spend so far plus the estimate passes `--budget-usd`. The lab's
- * bench-side framings (src/hosted/models.ts) run in `npm run lab` only.
+ * connected spend so far plus the estimate passes `--budget-usd`.
  */
 import { spawn } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -39,7 +38,6 @@ import { writeRun } from "../run/outputs.ts";
 import { benchRefArgs, estimateSeconds, formatDuration as fmt, parseBenchArgs, planJobs, secondsPerCase, splitLabel } from "../run/plan.ts";
 import type { WorkerEvent, WorkerSpec } from "../run/worker.ts";
 import { connectedSpentUsd, findConnectedModel } from "../hosted/connected.ts";
-import { hostedSpentUsd } from "../hosted/models.ts";
 import { findLabModel } from "../lab/models.ts";
 import { readMemAvailableMb, waitForMemory } from "../lab/runtime.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
@@ -117,7 +115,7 @@ for (const m of models.filter((x) => x.hosted)) {
   hostedEstimateUsd += usd;
   console.log(`  ${m.short.padEnd(14)} ~${requests} requests, ~${inputTokens} input + <=${requests * cap} output tokens: <=${usd.toFixed(4)} USD (connected: ${h.connection.provider} ${h.connection.model}; cached replies cost nothing)`);
 }
-const hostedSpent = models.some((m) => m.hosted) ? hostedSpentUsd() + connectedSpentUsd() : 0;
+const hostedSpent = models.some((m) => m.hosted) ? connectedSpentUsd() : 0;
 if (models.some((m) => m.hosted)) {
   console.log(`Hosted spend so far ${hostedSpent.toFixed(4)} USD + this run <=${hostedEstimateUsd.toFixed(4)} USD; budget ${options.budgetUsd} USD`);
   if (!options.cachedOnly && hostedSpent + hostedEstimateUsd > options.budgetUsd) fail("The hosted cost estimate would pass --budget-usd; nothing was sent.");

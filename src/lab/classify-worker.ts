@@ -7,10 +7,8 @@
  * Usage (spawned by src/lab/classify-cli.ts): node --import tsx src/lab/classify-worker.ts <spec.json>
  */
 import { appendFileSync, readFileSync } from "node:fs";
-import { register } from "node:module";
 import type { PreTrainedModel, Tensor } from "@huggingface/transformers";
 
-if (process.env.LAB_ORT === "next") register(new URL("./ort-next-hooks.mjs", import.meta.url));
 const { ones, Tensor: TensorClass } = await import("@huggingface/transformers");
 const { idsTensor, loadPretrained } = await import("../run/transformers-loader.ts");
 

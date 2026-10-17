@@ -1,5 +1,5 @@
 {
-  "$comment": "Local models the bench can describe: InsustyPromptCoach ships or once shipped them. Which ones a ref ships, and its default, come from the ref (SLM_MODELS, DEFAULT_SLM_MODEL_ID), not from this file. Sizes are the q8 ('model_quantized.onnx') files the extension loads on WASM, read from the Hugging Face API on 2026-09-26. 'languages' is what each base model card advertises; the bench reports every metric split by language next to it.",
+  "$comment": "The local model the bench runs: InsustyPromptCoach's shipped SmolLM2-360M. Which models a ref ships, and its default, come from the ref (SLM_MODELS, DEFAULT_SLM_MODEL_ID); this file only describes them (sizes, priors, advertised languages). Sizes are the q8 ('model_quantized.onnx') files the extension loads on WASM, read from the Hugging Face API on 2026-09-26.",
   "backend": {
     "device": "wasm",
     "dtype": "q8",
@@ -7,27 +7,6 @@
     "numThreads": "min(4, CPU count), like src/model-worker.ts"
   },
   "models": [
-    {
-      "id": "onnx-community/SmolLM2-135M-Instruct-ONNX",
-      "short": "smollm2-135m",
-      "extensionLabel": "Very small (135M)",
-      "parameters": "135M",
-      "architecture": "Llama (30 layers, hidden 576)",
-      "contextLength": 8192,
-      "dtype": "q8",
-      "weightsFile": "onnx/model_quantized.onnx",
-      "weightsBytes": 135658354,
-      "hfRevision": "b8a5c0f183b78c55955a5364f610c36668b5e681",
-      "baseModel": "HuggingFaceTB/SmolLM2-135M-Instruct",
-      "languages": {
-        "advertised": ["en"],
-        "fr": "not advertised",
-        "summary": "English-first. The card metadata lists only 'en' and states: 'SmolLM2 models primarily understand and generate content in English.'",
-        "source": "https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct"
-      },
-      "priorSecondsPerCase": 20,
-      "priorLoadSeconds": 5
-    },
     {
       "id": "onnx-community/SmolLM2-360M-Instruct-ONNX",
       "short": "smollm2-360m",
@@ -41,34 +20,15 @@
       "hfRevision": "fe7c7db4c8921c9e3fa1c65cfd296fb3b1b1a8f9",
       "baseModel": "HuggingFaceTB/SmolLM2-360M-Instruct",
       "languages": {
-        "advertised": ["en"],
+        "advertised": [
+          "en"
+        ],
         "fr": "not advertised",
         "summary": "English-first. The card metadata lists only 'en' and states: 'SmolLM2 models primarily understand and generate content in English.'",
         "source": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct"
       },
       "priorSecondsPerCase": 16,
       "priorLoadSeconds": 10
-    },
-    {
-      "id": "onnx-community/Qwen2.5-0.5B-Instruct-ONNX",
-      "short": "qwen2.5-0.5b",
-      "extensionLabel": "Medium (500M)",
-      "parameters": "494M",
-      "architecture": "Qwen2 (24 layers, hidden 896)",
-      "contextLength": 32768,
-      "dtype": "q8",
-      "weightsFile": "onnx/model_quantized.onnx",
-      "weightsBytes": 512096557,
-      "hfRevision": "4b32b4541cf2de9d0c0a85125e8fe8d9943f7982",
-      "baseModel": "Qwen/Qwen2.5-0.5B-Instruct",
-      "languages": {
-        "advertised": ["en", "fr", "zh", "es", "pt", "de", "it", "ru", "ja", "ko", "vi", "th", "ar", "..."],
-        "fr": "advertised",
-        "summary": "Multilingual. The card states: 'Multilingual support for over 29 languages, including Chinese, English, French, Spanish, Portuguese, German, Italian, Russian, Japanese, Korean, Vietnamese, Thai, Arabic, and more.' (card metadata tag lists only 'en').",
-        "source": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct"
-      },
-      "priorSecondsPerCase": 12,
-      "priorLoadSeconds": 15
     }
   ]
 }

@@ -27,8 +27,7 @@
     "conformance": "tsx src/cli/conformance.ts",
     "literature": "tsx src/cli/literature.ts",
     "suite": "tsx src/cli/suite.ts",
-    "parity": "tsx src/hosted/parity.ts",
-    "hosted:check": "tsx src/hosted/check.ts"
+    "parity": "tsx src/lab/request-parity.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "3.8.1",
@@ -39,7 +38,6 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
-    "onnxruntime-web-next": "npm:onnxruntime-web@1.24.3",
     "pdf-lib": "1.17.1",
     "typescript": "^5.7.2"
   },
