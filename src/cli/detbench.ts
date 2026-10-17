@@ -18,14 +18,15 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cpus, totalmem } from "node:os";
 import { join, resolve } from "node:path";
-import { performance } from "node:perf_hooks";
 import { resolveExtRefName, resolveExtRepo } from "../ext/ref.ts";
 import { RUNS_DIR } from "../paths.ts";
 import { percentile } from "../score/aggregate.ts";
 import { detCsv, summarizeDet, type DetSummary } from "../detbench/aggregate.ts";
 import { DETBENCH_DIR, DETBENCH_LANGS, loadDetDataset } from "../detbench/dataset.ts";
 import { defangJson, hasRawSecretPrefix } from "../detbench/defang.ts";
-import { loadDetector, materializeDetector, type DetConfigName } from "../detbench/ext.ts";
+import { detectorApi, type DetConfigName } from "../detbench/ext.ts";
+import { loadInsustyModule } from "../module/insusty.ts";
+import { materializeModule } from "../module/materialize.ts";
 import { PERTURBATIONS, perturbCases, type Perturbation } from "../detbench/perturb.ts";
 import { renderDetCompare, renderDetReport, textSummary, type DetRunMeta } from "../detbench/report.ts";
 import { isFalsePositive, scoreDetCase, type DetScored } from "../detbench/score.ts";
@@ -128,19 +129,18 @@ const repo = resolveExtRepo(option("ext-repo"));
 const cases = [...dataset.cases, ...perturbCases(dataset.cases, { seed, variants: perturbations.length ? variants : 0, types: perturbations })];
 
 async function runRef(ref: string, name?: string): Promise<RunOutput> {
-  const ext = await materializeDetector(repo, ref);
-  const api = await loadDetector(ext.bundle);
+  const ext = await materializeModule(repo, ref);
+  const module = await loadInsustyModule(ext);
+  const api = detectorApi(module);
   const startedAt = new Date().toISOString();
   const rows: DetScored[] = [];
   const timings: number[] = [];
   const perCase: Array<{ config: string; caseId: string; chars: number; ms: number; large: boolean }> = [];
   for (const config of configs) {
-    api.detect("warm up 06 12 34 56 78", config);
+    await api.detect("warm up 06 12 34 56 78", config);
     for (const c of cases) {
-      const t0 = performance.now();
-      const detections = api.detect(c.text, config);
+      const { detections, ms } = await api.detect(c.text, config);
       if (c.perturbation === "none") {
-        const ms = performance.now() - t0;
         timings.push(ms);
         perCase.push({ config, caseId: c.id, chars: c.text.length, ms: Math.round(ms * 10) / 10, large: !!c.large });
       }
@@ -156,7 +156,7 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
     refCategories: api.refCategories,
     supported: api.supported,
     configs: Object.fromEntries(
-      configs.map((c) => [c, { categories: api.configs[c].categories, addressCountries: api.configs[c].addressCountries }]),
+      configs.map((c) => [c, { categories: api.configs[c].builtins, addressCountries: api.configs[c].addressCountries }]),
     ),
     allConfigNote: api.allConfigNote,
     datasetHash: dataset!.hash,

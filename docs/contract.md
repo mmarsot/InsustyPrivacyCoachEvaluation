@@ -48,11 +48,11 @@ RedactionOutput = {
             redacted, confidence?, page?, box? }],
   redaction: { text?, file?: { name, type, bytes }, mode: "in_place" | "text_copy" | "fallback_text_copy" | "none" | "error",
                leakChecked, unredactable?, error? },
-  coverage: { checked: "full" | "partial" | "none", reason?, gaps[], format?, pages?, ocrPages, signed? },
+  coverage: { checked: "full" | "partial" | "none", reason?, gaps[], format?, pages?, ocrPages, signed?, detail? },
   runtime: { stages: [{ stage: "read" | "ocr" | "rules" | "model" | "redact" | "verify", ms, pages?, requests? }],
              totalMs, peakRssMb?, charsPerSecond?, pagesPerMinute?,
              backend?: { name: "wasm" | "webgpu" | "native" | "python" | "api", threads?, dtype? },
-             model?: { id, bytes?, cold, loadMs? }, cost?: { usd, provider, connected: true },
+             model?: { id, bytes?, cold, loadMs?, prepareMs? }, cost?: { usd, provider, connected: true },
              requests?: [{ label?, ms, promptTokens?, outputTokens?, finishReason?, output?, confidence?, cached? }],
              machine?: { id, cpu, cores, ramMb, os, node?, python?, chrome?, powerMode? } },
 }

@@ -388,6 +388,9 @@
         },
         "signed": {
           "type": "boolean"
+        },
+        "detail": {
+          "type": "string"
         }
       },
       "required": [
@@ -575,6 +578,10 @@
             "loadMs": {
               "type": "number",
               "minimum": 0
+            },
+            "prepareMs": {
+              "type": "number",
+              "minimum": 0
             }
           },
           "required": [
@@ -669,6 +676,43 @@
             ]
           },
           "uniqueItems": true
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "runsOn": {
+                "enum": [
+                  "device",
+                  "connected"
+                ]
+              },
+              "default": {
+                "type": "boolean"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "id",
+              "runsOn"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "addressCountries": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$"
+          }
         }
       },
       "required": [

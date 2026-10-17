@@ -1,3 +1,5 @@
+import type { MachineProfile } from "../../contract/types.ts";
+
 /** Metadata written to `runs/<name>/run.json`. */
 export interface RunModelMeta {
   id: string;
@@ -20,10 +22,15 @@ export interface RunMeta {
   instructions: string[];
   labelVariants: string[];
   models: RunModelMeta[];
-  ext: { ref: string; sha: string; subject: string; committedAt: string; transformersRange?: string };
+  /** `runtime`: inference packages the ref's lockfile pins (older runs: `transformersRange` from its package.json). */
+  ext: { ref: string; sha: string; subject: string; committedAt: string; transformersRange?: string; runtime?: Record<string, string> };
+  /** The redaction contract version the module was scored through (absent on runs from before the contract). */
+  contract?: string;
   datasetHash: string;
   runtime: string;
   machine: string;
+  /** The machine profile absolute times and memory were measured on (`src/module/machine.ts`). */
+  machineProfile?: MachineProfile;
   node: string;
   startedAt: string;
   finishedAt: string;

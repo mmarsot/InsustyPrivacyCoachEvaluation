@@ -15,12 +15,14 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } fr
 import { dirname, join } from "node:path";
 import { performance } from "node:perf_hooks";
 import { defangJson } from "../detbench/defang.ts";
+import { allLabelsConfig, loadInsustyModule } from "../module/insusty.ts";
+import { procMemoryMb as procField, resetPeakRss as resetPeak } from "../module/machine.ts";
+import type { ModuleRef } from "../module/materialize.ts";
 import { CACHE_DIR } from "../paths.ts";
 import { buildDoc } from "./cases.ts";
 import { specHash, sweepHash, type BuiltDoc, type DocSpec, type SweepSpec } from "./specs.ts";
 import { loadPools } from "./content.ts";
-import { loadDocReader, type DocReaderRef } from "./ext.ts";
-import { detect, rangesOf, readForCheck, redactForAttach, type ConfigName } from "./pipeline.ts";
+import { checkDocument, readOf, runOf, type ConfigName } from "./pipeline.ts";
 import { classify, scoreDoc } from "./score.ts";
 import { buildSweepDoc } from "./sweeps.ts";
 import { independentViews } from "./verify.ts";
@@ -29,7 +31,7 @@ import { writePdf } from "./writers/pdf.ts";
 import type { DocJob, DocJobResult } from "./types.ts";
 
 export interface DocWorkerSpec {
-  ref: DocReaderRef;
+  ref: ModuleRef;
   seed: number;
   configs: ConfigName[];
   /** Timing repetitions per job (the median is kept). */
@@ -41,23 +43,6 @@ export interface DocWorkerSpec {
 }
 
 const emit = (event: Record<string, unknown>) => process.stdout.write(`@@${JSON.stringify(event)}\n`);
-const procField = (field: "VmRSS" | "VmHWM") => {
-  try {
-    const kb = Number(new RegExp(`${field}:\\s+(\\d+)`).exec(readFileSync("/proc/self/status", "utf8"))?.[1]);
-    return Number.isFinite(kb) ? Math.round(kb / 1024) : undefined;
-  } catch {
-    return undefined;
-  }
-};
-const resetPeak = () => {
-  (globalThis as { gc?: () => void }).gc?.();
-  try {
-    writeFileSync("/proc/self/clear_refs", "5");
-    return true;
-  } catch {
-    return false;
-  }
-};
 const median = (xs: number[]) => {
   const s = [...xs].sort((a, b) => a - b);
   return s.length ? s[Math.floor((s.length - 1) / 2)]! : 0;
@@ -87,20 +72,18 @@ async function documentFor(job: DocJob, seed: number, pools: () => ReturnType<ty
 
 async function main() {
   const spec = JSON.parse(readFileSync(process.argv[2]!, "utf8")) as DocWorkerSpec;
-  const api = await loadDocReader(spec.ref);
+  const module = await loadInsustyModule(spec.ref);
+  const configs: Record<ConfigName, ReturnType<typeof module.defaultConfig>> = { default: module.defaultConfig(), all: allLabelsConfig(module) };
   let poolCache: ReturnType<typeof loadPools> | undefined;
   const pools = () => (poolCache ??= loadPools());
   // Warm up: PDFium's first load and the detector's first call are not part of any document's time.
-  if (api.readDocument) {
+  if (module.capabilities.documents)
     for (const [name, bytes] of [
-      ["warm.pdf", await writePdf({ blocks: [{ type: "p", text: "Warm up page." }] })],
+      ["warm.pdf", await writePdf({ blocks: [{ type: "p", text: "Warm up page. jo@example.org" }] })],
       ["warm.docx", writeDocx({ body: [{ type: "p", text: "Warm up." }] })],
-    ] as const) {
-      const r = await readForCheck(api, name, bytes);
-      if (r.doc && api.redactDocument && name.endsWith(".pdf")) await redactForAttach(api, name, bytes, r, [{ start: 0, end: 4, replacement: "[X]" }]).catch(() => undefined);
-    }
-  }
-  for (const c of spec.configs) api.detect("warm up 06 12 34 56 78 jo@example.org", c);
+    ] as const)
+      await checkDocument(module, configs, spec.configs, name, bytes).catch(() => undefined);
+  for (const c of spec.configs) await module.redact({ kind: "text", text: "warm up 06 12 34 56 78 jo@example.org" }, configs[c]);
   emit({ type: "loaded", rssMb: procField("VmRSS") });
   mkdirSync(dirname(spec.resultFile), { recursive: true });
   let done = 0;
@@ -113,26 +96,23 @@ async function main() {
       const readTimes: number[] = [];
       const detectTimes: Record<string, number[]> = {};
       const redactTimes: number[] = [];
-      let read = await readForCheck(api, doc.name, doc.bytes);
-      readTimes.push(read.readMs);
+      const outputs = await checkDocument(module, configs, spec.configs, doc.name, doc.bytes);
+      const read = readOf(outputs[spec.configs[0]!]!);
       const perConfig: Parameters<typeof scoreDoc>[2] = {};
       for (const config of spec.configs) {
-        const d = detect(api, read.text, config);
-        detectTimes[config] = [d.ms];
-        const redaction = await redactForAttach(api, doc.name, doc.bytes, read, rangesOf(d.detections));
-        if (redaction.mode !== "none") redactTimes.push(redaction.ms);
-        perConfig[config] = { detections: d.detections, ms: d.ms, redaction };
+        const run = runOf(outputs[config]!);
+        readTimes.push(readOf(outputs[config]!).readMs);
+        detectTimes[config] = [run.ms];
+        if (run.redaction.mode !== "none") redactTimes.push(run.redaction.ms);
+        perConfig[config] = run;
       }
       for (let rep = 1; rep < spec.reps; rep++) {
-        read = await readForCheck(api, doc.name, doc.bytes);
-        readTimes.push(read.readMs);
+        const again = await checkDocument(module, configs, spec.configs, doc.name, doc.bytes);
         for (const config of spec.configs) {
-          const d = detect(api, read.text, config);
-          detectTimes[config]!.push(d.ms);
-          if (config === spec.configs[0]) {
-            const r = await redactForAttach(api, doc.name, doc.bytes, read, rangesOf(d.detections));
-            if (r.mode !== "none") redactTimes.push(r.ms);
-          }
+          const run = runOf(again[config]!);
+          readTimes.push(readOf(again[config]!).readMs);
+          detectTimes[config]!.push(run.ms);
+          if (run.redaction.mode !== "none") redactTimes.push(run.redaction.ms);
         }
       }
       const peak = procField("VmHWM");

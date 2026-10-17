@@ -3,6 +3,7 @@
  * Tables are the primary view; single-hue meter bars only show magnitude.
  */
 import { readFileSync } from "node:fs";
+import { CONNECTED_MODELS } from "../hosted/connected.ts";
 import { HOSTED_MODELS } from "../hosted/models.ts";
 import { MODELS_FILE } from "../paths.ts";
 import { DIMENSIONS, summarize, type ConfigSummary, type Metrics } from "../score/aggregate.ts";
@@ -18,6 +19,7 @@ interface ModelMeta {
 }
 export const loadModelsMeta = (): ModelMeta[] => [
   ...(JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelMeta[] }).models,
+  ...CONNECTED_MODELS.map((h) => ({ id: h.id, short: h.short, extensionLabel: "connected", weightsBytes: 0, languages: h.languages })),
   ...HOSTED_MODELS.map((h) => ({ id: h.id, short: h.short, extensionLabel: "hosted", weightsBytes: 0, languages: h.languages })),
 ];
 

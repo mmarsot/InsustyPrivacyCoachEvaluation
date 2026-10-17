@@ -56,13 +56,13 @@ test("locate is whitespace-insensitive and matches repeated values by count", ()
     { source: "u1", lang: "en", text: "", items: [{ key: "e", category: "EMAIL", kind: "email", value: "jo@example.org" }, { key: "i", category: "FINANCIAL", kind: "iban", value: "FR76 3000 6000 0112" }], decoys: [] },
     { source: "u2", lang: "en", text: "", items: [{ key: "e", category: "EMAIL", kind: "email", value: "jo@example.org" }, { key: "x", category: "EMAIL", kind: "email", value: "missing@example.org" }], decoys: [] },
   ];
-  const { items, gold } = locate(text, [{ start: 0, end: text.length, where: "Page 1", source: { type: "page", path: [] } }], units);
+  const { items, gold } = locate(text, [{ start: 0, end: text.length, where: "Page 1" }], units);
   assert.deepEqual(items.map((i) => i.extracted), [true, true, true, false]);
   assert.equal(text.slice(gold[1]!.start, gold[1]!.end), "FR76 3000\r\n6000 0112");
   assert.ok(gold[2]!.start > gold[0]!.start, "the second occurrence goes to the second item");
 });
 
-const read = (text: string, extra: Partial<PipelineRead> = {}): PipelineRead => ({ outcome: "checked", text, segments: [{ start: 0, end: text.length, where: "Body", source: { type: "whole", path: [] } }], gaps: [], signed: false, readMs: 1, ...extra });
+const read = (text: string, extra: Partial<PipelineRead> = {}): PipelineRead => ({ outcome: "checked", text, segments: [{ start: 0, end: text.length, where: "Body" }], gaps: [], signed: false, readMs: 1, ...extra });
 
 test("classify: a failure file read as fully checked is a silent clean", () => {
   assert.deepEqual(classify(read("x"), { outcome: "partial" }).silentClean, true);
@@ -129,13 +129,13 @@ test("plan: stable keys per ref, tiers and filters", () => {
     assert.deepEqual(o.aiModels, []);
     assert.ok(o.tracks.includes("ai"));
   }
-  // Hosted models only by name, next to the default or alone; budget cap 5 USD unless set.
-  const both = parseDocbenchArgs(["--ai", "default,glm47-flash-trusted"]);
+  // Connected models only by name, next to the default or alone; budget cap 5 USD unless set.
+  const both = parseDocbenchArgs(["--ai", "default,glm47-flash-connected"]);
   assert.equal(both.aiDefault, true);
-  assert.deepEqual(both.aiModels.map((m) => [m.short, !!m.hosted]), [["glm47-flash-trusted", true]]);
+  assert.deepEqual(both.aiModels.map((m) => [m.short, !!m.hosted]), [["glm47-flash-connected", true]]);
   assert.equal(both.budgetUsd, 5);
-  assert.equal(parseDocbenchArgs(["--ai", "glm47-flash-trusted", "--budget-usd", "1"]).aiDefault, false);
-  assert.equal(parseDocbenchArgs(["--ai", "glm47-flash-trusted", "--budget-usd", "1"]).budgetUsd, 1);
+  assert.equal(parseDocbenchArgs(["--ai", "glm47-flash-connected", "--budget-usd", "1"]).aiDefault, false);
+  assert.equal(parseDocbenchArgs(["--ai", "glm47-flash-connected", "--budget-usd", "1"]).budgetUsd, 1);
 });
 
 test("dashboard finds docbench runs however they were started", () => {

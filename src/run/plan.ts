@@ -7,7 +7,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import type { CompiledCase, CompiledDataset, Split } from "../dataset/schema.ts";
 import { join } from "node:path";
-import { HOSTED_MODELS } from "../hosted/models.ts";
+import { CONNECTED_MODELS } from "../hosted/connected.ts";
 import { MODELS_FILE, ROOT } from "../paths.ts";
 import { INSTRUCTION_VARIANTS, isLabelVariant, LABEL_VARIANTS, type InstructionVariant, type LabelVariantId } from "../variants.ts";
 import { detDatasetHash, GEN_VERSION, SWEEP_TYPES, SWEEP_UNITS, suiteSpecs, sweepSpecs, type DocSpec, type SweepType } from "../docbench/specs.ts";
@@ -19,7 +19,7 @@ export interface ModelInfo {
   short: string;
   priorSecondsPerCase: number;
   priorLoadSeconds: number;
-  /** Hosted chat model (src/hosted/models.ts): its requests go to an API, not a local worker model. */
+  /** Connected model (src/hosted/connected.ts): its requests go to a paid API through the ref's own client, not a local worker model. */
   hosted?: boolean;
 }
 /**
@@ -40,10 +40,10 @@ export const localModel = (id: string): ModelInfo =>
 export const refBenchModels = (ref: RefModels, which: "shipped" | "all"): ModelInfo[] =>
   (which === "shipped" ? [ref.defaultModelId] : [...ref.modelIds]).map(localModel);
 /**
- * Hosted models the bench can run by name (`--models nova-micro-prefill`).
+ * Connected models the bench can run by name (`--models glm47-flash-connected`).
  * Never part of `--models all`: they send the dataset to an API and cost money.
  */
-export const HOSTED_BENCH_MODELS: ModelInfo[] = HOSTED_MODELS.map((h) => ({ id: h.id, short: h.short, priorSecondsPerCase: h.priorSecondsPerCase, priorLoadSeconds: 0, hosted: true }));
+export const HOSTED_BENCH_MODELS: ModelInfo[] = CONNECTED_MODELS.map((h) => ({ id: h.id, short: h.short, priorSecondsPerCase: h.priorSecondsPerCase, priorLoadSeconds: 0, hosted: true }));
 /** A bundled or hosted model by id or short name. */
 export const findBenchModel = (name: string) => [...MODELS, ...HOSTED_BENCH_MODELS].find((x) => x.short === name || x.id === name);
 
@@ -293,7 +293,7 @@ export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
 }
 
 /** Bump when scoring changes what a cached result holds (results are recomputed). */
-export const DOC_SCORE_VERSION = 2;
+export const DOC_SCORE_VERSION = 3;
 
 export const docJobKey = (extSha: string, o: Pick<DocbenchOptions, "seed" | "configs">, id: string, spec: unknown) =>
   createHash("sha256").update(JSON.stringify([extSha, GEN_VERSION, detDatasetHash(), DOC_SCORE_VERSION, o.seed, [...o.configs].sort(), id, spec])).digest("hex");

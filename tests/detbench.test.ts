@@ -20,7 +20,9 @@ import {
 import { buildCase, caseFromSource, codeRanges, loadDetDataset, parseTemplate, validateSource } from "../src/detbench/dataset.ts";
 import { generateText } from "../src/detbench/generate.ts";
 import { defangHtml, defangJson, hasRawSecretPrefix } from "../src/detbench/defang.ts";
-import { loadDetector, lockSubset, mapCategory, type RefDetection } from "../src/detbench/ext.ts";
+import { detectorApi, mapCategory, type RefDetection } from "../src/detbench/ext.ts";
+import { loadInsustyModule } from "../src/module/insusty.ts";
+import { lockSubset } from "../src/module/materialize.ts";
 import { PERTURBATIONS, perturbCases, valueForms } from "../src/detbench/perturb.ts";
 import type { DetCase, DetCaseSource } from "../src/detbench/schema.ts";
 import { scoreDetCase } from "../src/detbench/score.ts";
@@ -426,10 +428,10 @@ test("defanging keeps values intact after JSON.parse and hides raw prefixes", ()
   assert.ok(!html.includes("sk_live_") && html.includes("&#"));
 });
 
-test("loadDetector reads an upgraded ref's categories, defaults and switched-off categories", async () => {
+test("the module adapter reads an upgraded ref's categories, defaults and switched-off categories", async () => {
   const dir = join(CACHE_DIR, "tmp", `detbench-test-${process.pid}`);
   mkdirSync(dir, { recursive: true });
-  const bundle = join(dir, "bench-detector.mjs");
+  const bundle = join(dir, "module.mjs");
   // A stand-in for an upgraded ref: SECRET instead of API_KEY, FINANCIAL off by default.
   writeFileSync(
     bundle,
@@ -447,12 +449,13 @@ export const config = { CATEGORIES, DEFAULT_CONFIG, SUPPORTED_ADDRESS_COUNTRIES 
 `,
   );
   try {
-    const api = await loadDetector(bundle);
+    const module = await loadInsustyModule({ ref: "test", sha: "0".repeat(40), subject: "", committedAt: "", dir, bundle, modules: {}, packages: {}, runtime: {} });
+    const api = detectorApi(module);
     assert.deepEqual(api.supported, ["SECRET", "PHONE", "FINANCIAL"]);
     assert.match(api.allConfigNote, /turns on FINANCIAL/);
     assert.match(api.allConfigNote, /adds address countries US/);
-    const [off] = api.detect("IBAN FR76 ...", "default");
-    const [on] = api.detect("IBAN FR76 ...", "all");
+    const [off] = (await api.detect("IBAN FR76 ...", "default")).detections;
+    const [on] = (await api.detect("IBAN FR76 ...", "all")).detections;
     assert.equal(off!.selected, false);
     assert.equal(on!.selected, true);
     assert.equal(on!.mapped, "FINANCIAL");

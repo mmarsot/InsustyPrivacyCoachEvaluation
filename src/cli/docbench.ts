@@ -35,15 +35,16 @@ import { docCsv, powerFit, summarizeDocs, type DocSummary } from "../docbench/ag
 import { DOCBENCH_RUNS_DIR, docCacheFile, loadDocCache } from "../docbench/cache.ts";
 import { buildDoc } from "../docbench/cases.ts";
 import { loadPools } from "../docbench/content.ts";
-import { loadDocReader, materializeDocReader } from "../docbench/ext.ts";
 import { renderDocCompare, renderDocReport, docTextSummary, type DocRunMeta } from "../docbench/report.ts";
 import { suiteSpecs } from "../docbench/specs.ts";
 import type { DocJob, DocJobResult } from "../docbench/types.ts";
 import { independentViews, pdftotext } from "../docbench/verify.ts";
 import type { DocWorkerSpec } from "../docbench/worker.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo } from "../ext/ref.ts";
-import { releaseHostedModel } from "../hosted/client.ts";
-import { describeTarget, estimateCost, findHostedModel, hostedSpentUsd } from "../hosted/models.ts";
+import { allLabelsConfig, loadInsustyModule } from "../module/insusty.ts";
+import { materializeModule } from "../module/materialize.ts";
+import { connectedSpentUsd, findConnectedModel } from "../hosted/connected.ts";
+import { hostedSpentUsd } from "../hosted/models.ts";
 import { findLabModel } from "../lab/models.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "../lab/runtime.ts";
 import { ACTIVE_RUNS_DIR, CACHE_DIR } from "../paths.ts";
@@ -64,8 +65,10 @@ interface RunOutput {
 const SUPPORTED = (refCategories: string[]) => [...new Set(refCategories.map(mapCategory).filter((c): c is (typeof DET_CATEGORIES)[number] => c !== null))];
 
 async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: string[]): Promise<RunOutput | undefined> {
-  const ref = await materializeDocReader(repo, refName);
-  const api = await loadDocReader(ref);
+  const ref = await materializeModule(repo, refName);
+  const module = await loadInsustyModule(ref);
+  const moduleConfigs = { default: module.defaultConfig(), all: allLabelsConfig(module) };
+  const limits = module.defaultConfig().limits ?? {};
   const plan = planDocbench(o, ref.sha);
   const cache = loadDocCache(ref.sha);
   const pendingSuite = plan.suite.filter((j) => !cache.has(j.key));
@@ -76,7 +79,7 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
   };
   const estimate = pendingSuite.length * PRIOR_SUITE_S + (pendingSuite.length ? 5 : 0) + pendingSweeps.reduce((n, j) => n + sweepPrior(j), 0);
   console.log(`Extension ${ref.ref} @ ${ref.sha.slice(0, 10)} "${ref.subject}"`);
-  console.log(`  file check modules: ${ref.modules.join(", ")}${ref.pdfiumWasm ? "" : " (no PDFium: PDFs are not read by this ref)"}; packages ${Object.entries(ref.packages).map(([k, v]) => `${k}@${v}`).join(", ")}`);
+  console.log(`  modules: ${Object.keys(ref.modules).join(", ")}${ref.pdfiumWasm ? "" : " (no PDFium: PDFs are not read by this ref)"}; packages ${Object.entries(ref.packages).map(([k, v]) => `${k}@${v}`).join(", ")}`);
   console.log(`  suite: ${plan.suite.length} documents (${pendingSuite.length} to compute); sweeps: ${plan.sweeps.length} points (${pendingSweeps.length} to compute); configs ${o.configs.join(",")}; seed ${o.seed}`);
   console.log(`  estimated runtime without Private AI: ~${fmt(estimate)}`);
 
@@ -95,23 +98,25 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
       const own = localModel(extApi.defaultModelId);
       aiModels = [own, ...aiModels.filter((m) => m.id !== own.id)];
     }
-    const docs = await readAiDocs(aiSpecs(aiCases(dataset, o.aiTier), o.aiSizes), dataset, api, o.seed);
+    const docs = await readAiDocs(aiSpecs(aiCases(dataset, o.aiTier), o.aiSizes), dataset, module, o.seed);
     ai = { ext, extApi, docs, dataset };
     for (const m of aiModels) {
       const jobs = aiJobs(docs, dataset, ext, extApi, m.id);
       const done = loadCache(ext.sha, m.id);
       const pending = jobs.filter((j) => !done.has(j.key));
       console.log(`  Private AI ${m.short}: ${jobs.length} documents (${docs.length / o.aiSizes.length} cases x sizes ${o.aiSizes.join(",")} chars), ${pending.length} to compute`);
-      const h = m.hosted ? findHostedModel(m.id) : undefined;
+      const h = m.hosted ? findConnectedModel(m.id) : undefined;
       if (h) {
-        // Every label of every pending document in one request (no chunking under the context budget), every answer at its cap.
-        const est = estimateCost(h, pending.flatMap((j) => j.rules.map((r) => ({ chars: j.text.length + r.prompt.length + (r.examples ?? []).join(" | ").length + 200 }))), h.maxTokens ?? 48);
-        hostedEstimateUsd += est.usd;
-        console.log(`    ${describeTarget(h)}: ~${est.inputTokens} input + <=${est.outputTokens} output tokens, <=${est.usd.toFixed(4)} USD`);
+        // Every label of every pending document in one request (the ref's 25,000-token connected budget covers these sizes), every answer at a 128-token cap.
+        const requests = pending.flatMap((j) => j.rules.map((r) => Math.ceil((j.text.length + r.prompt.length + (r.examples ?? []).join(" | ").length + 200) / 3) + 20));
+        const inputTokens = requests.reduce((a, b) => a + b, 0);
+        const usd = (inputTokens * h.usdPerMInput + requests.length * 128 * h.usdPerMOutput) / 1e6;
+        hostedEstimateUsd += usd;
+        console.log(`    connected ${h.connection.provider} ${h.connection.model}: ~${inputTokens} input + <=${requests.length * 128} output tokens, <=${usd.toFixed(4)} USD`);
       }
     }
     if (aiModels.some((m) => m.hosted)) {
-      hostedSpent = hostedSpentUsd();
+      hostedSpent = hostedSpentUsd() + connectedSpentUsd();
       console.log(`  Hosted spend so far ${hostedSpent.toFixed(4)} USD + this run <=${hostedEstimateUsd.toFixed(4)} USD; budget ${o.budgetUsd} USD`);
       if (!o.cachedOnly && !o.dryRun && hostedSpent + hostedEstimateUsd > o.budgetUsd) throw new Error("The hosted cost estimate would pass --budget-usd; nothing was sent.");
     }
@@ -132,7 +137,7 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
     });
   const tmp = join(CACHE_DIR, "tmp");
   mkdirSync(tmp, { recursive: true });
-  const supported = SUPPORTED(api.refCategories);
+  const supported = SUPPORTED(module.refCategories);
   const minFree = Number(process.env.BENCH_MIN_FREE_MB ?? 1500);
   const runWorker = async (label: string, jobs: DocJob[], needMb: number) => {
     for (let waited = 0; readMemAvailableMb() < needMb + minFree; waited += 15) {
@@ -178,18 +183,10 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
       const jobs = aiJobs(ai.docs, ai.dataset, ai.ext, ai.extApi, m.id);
       const pending = jobs.filter((j) => !loadCache(ai.ext.sha, m.id).has(j.key));
       if (pending.length && !o.cachedOnly) {
-        const hostedModel = m.hosted ? findHostedModel(m.id) : undefined;
-        // A hosted model holds no weights here; a local server (Ollama) does, so it waits like a bundled model.
-        const labModel = m.hosted && !hostedModel?.localServer ? undefined : findLabModel(m.id);
+        // A connected model holds no weights here.
+        const labModel = m.hosted ? undefined : findLabModel(m.id);
         if (labModel && !(await waitForMemory(labModel, minFree))) continue;
-        const spec: WorkerSpec = {
-          bundle: ai.ext.bundle,
-          extSha: ai.ext.sha,
-          model: m.id,
-          resultFile: cacheFile(ai.ext.sha, m.id),
-          jobs: pending,
-          ...(m.hosted ? { budgetUsd: Math.max(0, o.budgetUsd - hostedSpentUsd()) } : {}),
-        };
+        const spec: WorkerSpec = { ref, model: m.id, resultFile: cacheFile(ai.ext.sha, m.id), jobs: pending, ...(m.hosted ? { budgetUsd: o.budgetUsd } : {}) };
         const specFile = join(tmp, `docbench-ai-${process.pid}-${m.short}.json`);
         writeFileSync(specFile, JSON.stringify(spec));
         console.log(`\n[ai ${m.short}] ${pending.length} documents`);
@@ -199,7 +196,6 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
           else if (event.type === "fatal") console.error(`[ai ${m.short}] worker failed: ${event.error}`);
         }, { startupS: 600, idleS: 3600 });
         rmSync(specFile, { force: true });
-        if (hostedModel) await releaseHostedModel(hostedModel);
       }
       aiPoints = [...aiPoints, ...scoreAi(ai.docs, jobs, loadCache(ai.ext.sha, m.id), ai.dataset, ai.extApi)];
     }
@@ -216,15 +212,15 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
     name: runName,
     argv,
     ext: { ref: refName, sha: ref.sha, subject: ref.subject, committedAt: ref.committedAt },
-    modules: ref.modules,
+    modules: Object.keys(ref.modules),
     packages: ref.packages,
-    limits: api.limits,
-    fileReviewLimit: api.fileReviewLimit ?? null,
-    fileReviewLimits: api.fileReviewLimits ?? null,
+    limits: Object.fromEntries(Object.entries(limits).filter(([k]) => k !== "fileReviewLimit")),
+    fileReviewLimit: limits.fileReviewLimit ?? null,
+    fileReviewLimits: module.fileReviewLimits ?? null,
     tier: o.tier,
     seed: o.seed,
     configs: o.configs,
-    configNote: Object.fromEntries(o.configs.map((c) => [c, Object.entries((api.configs[c].categories ?? {}) as Record<string, boolean>).filter(([, on]) => !on).map(([k]) => k)])),
+    configNote: Object.fromEntries(o.configs.map((c) => [c, Object.entries(moduleConfigs[c].builtins).filter(([, on]) => !on).map(([k]) => k)])),
     reps: o.reps,
     datasetHash: pools.hash,
     suiteCases: plan.suite.length,

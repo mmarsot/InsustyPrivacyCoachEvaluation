@@ -143,6 +143,8 @@ export interface Coverage {
   ocrPages: number;
   /** A digitally signed document (redacting it breaks the signature). */
   signed?: boolean;
+  /** The module's own words on what happened (an error message, a cap), for diagnosis. */
+  detail?: string;
 }
 
 export type Stage = "read" | "ocr" | "rules" | "model" | "redact" | "verify";
@@ -204,6 +206,8 @@ export interface RuntimeReport {
     /** `true` when this call loaded the model (its load time is in the `model` stage). */
     cold: boolean;
     loadMs?: number;
+    /** Time spent preparing reusable prompt prefixes for this configuration (once per configuration, included in the `model` stage when this call did it). */
+    prepareMs?: number;
   };
   /** Set for paths that leave the device; `connected` is always true then. */
   cost?: { usd: number; provider: string; connected: true };
@@ -240,6 +244,10 @@ export interface ModuleCapabilities {
   documents: boolean;
   ocr: boolean;
   privateAi: Array<"device" | "connected">;
+  /** Countries whose postal addresses the module can look for (ISO alpha-2), when it declares them. */
+  addressCountries?: string[];
+  /** The models Private AI can run, and the one a new user gets (`default`). */
+  models?: Array<{ id: string; runsOn: "device" | "connected"; default?: boolean; bytes?: number }>;
 }
 
 /** What a harness drives. One call checks one input with one configuration; calls may be repeated on one instance (warm). */
@@ -250,7 +258,19 @@ export interface RedactionModule {
   /** The configuration a new user gets. */
   defaultConfig(): ModuleConfig;
   redact(input: RedactionInput, config: ModuleConfig): Promise<RedactionOutput>;
+  /**
+   * Optional warm-up for a configuration (load a model, prepare prompt
+   * prefixes), so later `redact` calls measure warm latency. Reports what it
+   * spent.
+   */
+  prepare?(config: ModuleConfig): Promise<PrepareReport>;
   dispose?(): Promise<void>;
+}
+
+export interface PrepareReport {
+  loadMs?: number;
+  prepareMs?: number;
+  backend?: RuntimeReport["backend"];
 }
 
 /** A harness at `harness` accepts a module implementing `module` when the major versions match. */

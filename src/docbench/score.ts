@@ -21,8 +21,7 @@ import { scoreDetCase, isFalsePositive } from "../detbench/score.ts";
 import type { DetCase, DetCategory, GoldSpan, DecoySpan, Zone } from "../detbench/schema.ts";
 import type { Unit } from "./content.ts";
 import type { BuiltDoc, Expectation } from "./specs.ts";
-import type { DocSegmentLike } from "./ext.ts";
-import type { ConfigName, PipelineRead, PipelineRedaction } from "./pipeline.ts";
+import type { ConfigName, DocSegmentLike, PipelineRead, PipelineRedaction } from "./pipeline.ts";
 import { normalizeSpaces, type Views } from "./verify.ts";
 
 export interface ItemConfigResult {

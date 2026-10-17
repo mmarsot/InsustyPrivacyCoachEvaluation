@@ -1,8 +1,8 @@
 /**
  * Private AI redaction on documents: custom-label cases of the review
  * dataset (`dataset/cases/`, dev split only) embedded in Word documents of
- * growing length, read by the ref's own document reader, then reviewed by a
- * bundled model through the existing model runner (`src/run/worker.ts`, one
+ * growing length, read by the module (`redact()` with Private AI off), then
+ * reviewed by a model through the model runner (`src/run/worker.ts`, one
  * model at a time, under the memory guards). Results land in the shared
  * result cache (`cache/results/<sha>/<model>.jsonl`) like any bench job.
  *
@@ -17,8 +17,7 @@ import type { ResultRecord } from "../run/jobs.ts";
 import type { ExtApi } from "../ext/ref.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
 import { fillerParagraphs, rngFor } from "./content.ts";
-import type { DocReaderApi } from "./ext.ts";
-import { readForCheck } from "./pipeline.ts";
+import type { RedactionModule } from "../../contract/types.ts";
 import type { DocTier } from "../run/plan.ts";
 import { writeDocx } from "./writers/ooxml.ts";
 
@@ -68,13 +67,15 @@ export interface AiDoc {
   readMs: number;
 }
 
-/** Builds and reads every AI document with the ref's reader. */
-export async function readAiDocs(specs: AiDocSpec[], dataset: CompiledDataset, reader: DocReaderApi, seed: number): Promise<AiDoc[]> {
+/** Builds and reads every AI document with the module. */
+export async function readAiDocs(specs: AiDocSpec[], dataset: CompiledDataset, module: RedactionModule, seed: number): Promise<AiDoc[]> {
+  const config = { ...module.defaultConfig(), privateAi: { runsOn: "off" as const } };
   const byId = new Map(dataset.cases.map((c) => [c.id, c]));
   const out: AiDoc[] = [];
   for (const spec of specs) {
     const c = byId.get(spec.caseId)!;
-    const read = await readForCheck(reader, "notes.docx", aiDocument(spec, c, seed));
+    const checked = await module.redact({ kind: "document", name: "notes.docx", bytes: aiDocument(spec, c, seed) }, config);
+    const read = { text: checked.text, readMs: checked.runtime.stages.find((s) => s.stage === "read")?.ms ?? 0 };
     const at = read.text.indexOf(c.text);
     if (at < 0) throw new Error(`${spec.id}: the case text is not in the extracted document text`);
     out.push({ spec, case: c, inDoc: { ...c, id: spec.id, text: read.text, spans: c.spans.map((s) => ({ ...s, start: s.start + at, end: s.end + at })) }, chars: read.text.length, readMs: read.readMs });

@@ -21,7 +21,7 @@ const FULL: RedactionOutput = {
     unredactable: [{ start: 5, end: 19 }],
     error: "none",
   },
-  coverage: { checked: "full", reason: "ok", gaps: [], format: "pdf", pages: 1, ocrPages: 0, signed: false },
+  coverage: { checked: "full", reason: "ok", gaps: [], format: "pdf", pages: 1, ocrPages: 0, signed: false, detail: "read" },
   runtime: {
     stages: [{ stage: "rules", ms: 1, pages: 1, requests: 0 }],
     totalMs: 2,
@@ -29,7 +29,7 @@ const FULL: RedactionOutput = {
     charsPerSecond: 1000,
     pagesPerMinute: 30,
     backend: { name: "wasm", threads: 4, dtype: "q8" },
-    model: { id: "m", bytes: 10, cold: true, loadMs: 5 },
+    model: { id: "m", bytes: 10, cold: true, loadMs: 5, prepareMs: 1 },
     cost: { usd: 0.001, provider: "bedrock", connected: true },
     requests: [{ label: "X", ms: 1, promptTokens: 1, outputTokens: 1, finishReason: "stop", output: "NONE", confidence: 0.5, cached: false }],
     machine: { id: "adhoc", cpu: "cpu", cores: 8, ramMb: 7000, os: "linux", node: "24", python: "3.14", chrome: "140", powerMode: "balanced" },
@@ -43,7 +43,7 @@ const CONFIG: ModuleConfig = {
   ocr: { enabled: false, languages: ["eng"] },
   limits: { characters: 10 },
 };
-const caps = { capabilities: { builtins: ["EMAIL" as const], customLabels: true, documents: true, ocr: false, privateAi: ["connected" as const] } };
+const caps = { capabilities: { builtins: ["EMAIL" as const], customLabels: true, documents: true, ocr: false, privateAi: ["connected" as const], addressCountries: ["FR"], models: [{ id: "m", runsOn: "connected" as const, default: true, bytes: 1 }] } };
 
 test("the schema and the types carry the same version", () => {
   const schema = JSON.parse(readFileSync(SCHEMA_FILE, "utf8")) as { version: string; $id: string };
@@ -65,6 +65,7 @@ test("a fully populated output and configuration match the schema, which has no 
   walk(CONFIG);
   walk({ kind: "text", text: "", language: "en", name: "x", bytes: 0 });
   walk(caps.capabilities);
+  assert.deepEqual(schemaErrors("ModuleCapabilities", caps.capabilities), []);
   for (const [def, s] of Object.entries(schema.$defs)) for (const key of Object.keys(s.properties ?? {})) assert.ok(used.has(key), `${def}.${key} is in the schema but not in the types' example`);
 });
 
@@ -114,4 +115,18 @@ test("a module that leaks a redacted value fails conformance", async () => {
   } };
   const failed = (await checkConformance(leaky)).filter((r) => r.problems.length);
   assert.ok(failed.some((r) => r.problems.some((p) => /still in redaction.text/.test(p))));
+});
+
+test("the extension's module at the configured ref conforms (skipped without a clone)", async (t) => {
+  const { resolveExtRepo } = await import("../src/ext/ref.ts");
+  try {
+    resolveExtRepo();
+  } catch {
+    t.skip("no extension clone configured");
+    return;
+  }
+  const { loadExtensionModule } = await import("../src/systems/index.ts");
+  const module = await loadExtensionModule({ log: () => undefined });
+  const results = await checkConformance(module);
+  assert.deepEqual(results.filter((r) => r.problems.length), []);
 });
