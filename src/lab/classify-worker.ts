@@ -7,7 +7,7 @@
  * Usage (spawned by src/lab/classify-cli.ts): node --import tsx src/lab/classify-worker.ts <spec.json>
  */
 import { appendFileSync, readFileSync } from "node:fs";
-import type { PreTrainedModel, Tensor } from "@huggingface/transformers";
+import type { Tensor } from "@huggingface/transformers";
 
 const { ones, Tensor: TensorClass } = await import("@huggingface/transformers");
 const { idsTensor, loadPretrained } =

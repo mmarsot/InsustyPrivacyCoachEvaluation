@@ -34,7 +34,7 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { compileDataset } from "../dataset/load.ts";
 import { defangJson } from "../detbench/defang.ts";
-import { DET_CATEGORIES } from "../detbench/schema.ts";
+import type { DET_CATEGORIES } from "../detbench/schema.ts";
 import { mapCategory } from "../detbench/ext.ts";
 import {
   aiCases,

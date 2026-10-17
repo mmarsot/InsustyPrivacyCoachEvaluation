@@ -34,7 +34,7 @@ import {
   type Cell,
 } from "./writers/ooxml.ts";
 import { scanPng, writeEncryptedPdf, writePdf } from "./writers/pdf.ts";
-import type { BuiltDoc, DocSpec, Expectation } from "./specs.ts";
+import type { BuiltDoc, DocSpec } from "./specs.ts";
 import { writeZip, zeroBomb, type ZipInput } from "./writers/zip.ts";
 
 // ------------------------------------------------------------ helpers

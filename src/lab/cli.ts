@@ -16,13 +16,7 @@
  * Summaries go to experiments/runs/<name>.json.
  */
 import { createHash } from "node:crypto";
-import {
-  appendFileSync,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { AutoTokenizer, env } from "@huggingface/transformers";
 import { compileDataset } from "../dataset/load.ts";

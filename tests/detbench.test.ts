@@ -18,11 +18,9 @@ import {
   nirKey,
 } from "../src/detbench/checksums.ts";
 import {
-  buildCase,
   caseFromSource,
   codeRanges,
   loadDetDataset,
-  parseTemplate,
   validateSource,
 } from "../src/detbench/dataset.ts";
 import { generateText } from "../src/detbench/generate.ts";

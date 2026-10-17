@@ -21,7 +21,7 @@ import {
 } from "../src/docbench/specs.ts";
 import { independentViews } from "../src/docbench/verify.ts";
 import { writeCfb } from "../src/docbench/writers/cfb.ts";
-import { writeDocx, writeXlsx } from "../src/docbench/writers/ooxml.ts";
+import { writeDocx } from "../src/docbench/writers/ooxml.ts";
 import { writePdf } from "../src/docbench/writers/pdf.ts";
 import { crc32, writeZip } from "../src/docbench/writers/zip.ts";
 import { parseDocbenchArgs, planDocbench } from "../src/run/plan.ts";
