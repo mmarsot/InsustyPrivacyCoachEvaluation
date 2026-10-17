@@ -68,12 +68,12 @@ weights (133 to 512 MB each) are downloaded from Hugging Face on first use into
 `git diff --name-only <base>...<ref>` in the clone (read-only;
 `src/tracks/select.ts`):
 
-| Change in the extension | Tracks |
-| --- | --- |
-| deterministic rules (`src/detection/`) | deterministic only |
-| document reading or OCR (`src/files/readers/`, `src/files/ocr/`, the file check, the document worker), configuration, `package-lock.json` | both |
-| Private AI (`src/private-ai/`, the model worker, review and label learning) | Private AI only |
-| anything else (UI, capture, sync, docs, tests) | none |
+| Change in the extension                                                                                                                   | Tracks             |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| deterministic rules (`src/detection/`)                                                                                                    | deterministic only |
+| document reading or OCR (`src/files/readers/`, `src/files/ocr/`, the file check, the document worker), configuration, `package-lock.json` | both               |
+| Private AI (`src/private-ai/`, the model worker, review and label learning)                                                               | Private AI only    |
+| anything else (UI, capture, sync, docs, tests)                                                                                            | none               |
 
 `--full` runs every track (release runs); `--tracks` picks them by hand.
 
@@ -86,7 +86,7 @@ weights (133 to 512 MB each) are downloaded from Hugging Face on first use into
 - **CI** (`--ci --since <base>`): the gates compare the head ref with the
   base on the same dataset and fail on a deterministic or document
   regression (`detbench --compare <base> --gate`, `docbench --tier smoke
-  --compare <base> --gate`: half a point of F1, recall or precision, a new
+--compare <base> --gate`: half a point of F1, recall or precision, a new
   leak, a failure file no longer reported, more flagged hard negatives) and
   on contract conformance and request parity. The Private AI smoke tier runs
   on Private AI changes and never fails on score deltas.
@@ -99,12 +99,12 @@ weights (133 to 512 MB each) are downloaded from Hugging Face on first use into
 
 Each job runs one configuration on one case. A configuration has four parts:
 
-| Axis | Values |
-| --- | --- |
-| Model | the ref's shipped model (`DEFAULT_SLM_MODEL_ID`), or every model it ships (`--models all`, `SLM_MODELS`), q8 on WASM; `models/models.json` only describes them |
-| System instruction | `current` (the ref's `DEFAULT_SLM_PROMPT`), `strict` ("privacy scanner, not an assistant"), `short` (`src/variants.ts`) |
-| Label description | `desc`, `desc_ex1`, `desc_ex3`, `ex3` (examples only), `ex_counter` (examples and counter-examples), all built from `dataset/profiles/*.json` |
-| Cases | profile, language, type, difficulty, length, writing style |
+| Axis               | Values                                                                                                                                                         |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Model              | the ref's shipped model (`DEFAULT_SLM_MODEL_ID`), or every model it ships (`--models all`, `SLM_MODELS`), q8 on WASM; `models/models.json` only describes them |
+| System instruction | `current` (the ref's `DEFAULT_SLM_PROMPT`), `strict` ("privacy scanner, not an assistant"), `short` (`src/variants.ts`)                                        |
+| Label description  | `desc`, `desc_ex1`, `desc_ex3`, `ex3` (examples only), `ex_counter` (examples and counter-examples), all built from `dataset/profiles/*.json`                  |
+| Cases              | profile, language, type, difficulty, length, writing style                                                                                                     |
 
 Every case runs with its profile's custom labels, using the chosen description
 variant. Decoding is deterministic (greedy).
@@ -136,11 +136,11 @@ next to each model's advertised language support (SmolLM2 is English-first).
 
 ## Tiers and runtime
 
-| Tier | Cases | Use |
-| --- | --- | --- |
-| `smoke` | 16 (one positive and one look-alike negative per profile) | Check that the pipeline works |
+| Tier              | Cases                                                                                                 | Use                                        |
+| ----------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `smoke`           | 16 (one positive and one look-alike negative per profile)                                             | Check that the pipeline works              |
 | `quick` (default) | 32: 2 dev cases per profile and language, stratified by type across the run (`--cases-per-profile N`) | Fast iteration on prompts and descriptions |
-| `full` | all 809 (both splits) | Overnight runs |
+| `full`            | all 809 (both splits)                                                                                 | Overnight runs                             |
 
 The defaults are the `quick` tier, the ref's shipped model, the `current` instruction and
 one label-description variant (`desc`). Other axes are opt-in:
@@ -194,13 +194,13 @@ were deleted on 2026-10-17 to start fresh. Committed SmolLM2-360M runs
 (passage-level overlap F1 / precision / recall, share of negatives with a
 false finding):
 
-| Run | Ref | Cases | F1 | P | R | FP rate |
-| --- | --- | --- | --- | --- | --- | --- |
-| `runs/ext-ebf077f-tune96-smol360` | `ebf077f` (PR #32) | tune96 | 38.2% | 55.6% | 29.1% | 21.4% |
-| `runs/ext-ebf077f-test-smol360` | `ebf077f` (PR #32) | held-out test, 242 | 33.2% | 43.3% | 27.0% | 35.6% |
-| `runs/ext-d42c466-tune96-smol360` | `d42c466` (PR #26) | tune96 | 32.1% | 41.5% | 26.2% | 35.7% |
-| `runs/test-d42c466-smol360` | `d42c466` (PR #26) | held-out test, 242 | 27.4% | 32.2% | 23.9% | 44.6% |
-| `runs/test-dc91f36-smol360` | `dc91f36` (chat design) | held-out test, 242 | 12.0% | 44.2% | 6.9% | 10.9% |
+| Run                               | Ref                     | Cases              | F1    | P     | R     | FP rate |
+| --------------------------------- | ----------------------- | ------------------ | ----- | ----- | ----- | ------- |
+| `runs/ext-ebf077f-tune96-smol360` | `ebf077f` (PR #32)      | tune96             | 38.2% | 55.6% | 29.1% | 21.4%   |
+| `runs/ext-ebf077f-test-smol360`   | `ebf077f` (PR #32)      | held-out test, 242 | 33.2% | 43.3% | 27.0% | 35.6%   |
+| `runs/ext-d42c466-tune96-smol360` | `d42c466` (PR #26)      | tune96             | 32.1% | 41.5% | 26.2% | 35.7%   |
+| `runs/test-d42c466-smol360`       | `d42c466` (PR #26)      | held-out test, 242 | 27.4% | 32.2% | 23.9% | 44.6%   |
+| `runs/test-dc91f36-smol360`       | `dc91f36` (chat design) | held-out test, 242 | 12.0% | 44.2% | 6.9%  | 10.9%   |
 
 The smoke tier on `main` and the connected model are in
 [Connected model in the bench](#connected-model-in-the-bench).
@@ -261,14 +261,14 @@ and `all` (every category; the ref does not export its address-country list,
 so FR addresses only too). The four large generated cases are scored apart
 (below):
 
-| | `default` | `all` |
-| --- | --- | --- |
-| F1 / precision / recall (overlap) | 81% / 85% / 78% | 90% / 87% / 93% |
-| F1, exact span | 80% | 89% |
-| Items redacted, all categories | 78% | 93% |
-| Items redacted in prose (376) / inside code blocks (136) | 77% / 81% | 91% / 97% |
-| Negative prompts with a false positive | 17% (14 / 82) | 18% (15 / 82) |
-| Hard negatives flagged | 69 / 496 | 70 / 496 |
+|                                                          | `default`       | `all`           |
+| -------------------------------------------------------- | --------------- | --------------- |
+| F1 / precision / recall (overlap)                        | 81% / 85% / 78% | 90% / 87% / 93% |
+| F1, exact span                                           | 80%             | 89%             |
+| Items redacted, all categories                           | 78%             | 93%             |
+| Items redacted in prose (376) / inside code blocks (136) | 77% / 81%       | 91% / 97%       |
+| Negative prompts with a false positive                   | 17% (14 / 82)   | 18% (15 / 82)   |
+| Hard negatives flagged                                   | 69 / 496        | 70 / 496        |
 
 - Every category is supported. In `default`, `IP` and `COMPANY_ID` are
   opt-in, so their 79 items count as misses: most of the recall gap to `all`.
@@ -390,13 +390,13 @@ Baseline on `main` @ `2aece81` (PR #76; tier `full`, seed 1, detbench
 dataset as of `c1c7a64`;
 [`runs/docbench/main-2aece81/report.html`](runs/docbench/main-2aece81/report.html)):
 
-| | `default` | `all` |
-| --- | --- | --- |
-| Values placed / extracted by the ref | 719 / 98% | 719 / 98% |
-| Recall / precision / F1 | 67% / 94% / 78% | 83% / 95% / 88% |
-| Redacted values gone from the redacted file | 486 / 486 | 594 / 594 |
-| Hard-negative documents with a false alarm | 6 / 15 (83) | 6 / 15 (83) |
-| Failure files reported correctly / silent cleans | 23 / 23, 0 | 23 / 23, 0 |
+|                                                  | `default`       | `all`           |
+| ------------------------------------------------ | --------------- | --------------- |
+| Values placed / extracted by the ref             | 719 / 98%       | 719 / 98%       |
+| Recall / precision / F1                          | 67% / 94% / 78% | 83% / 95% / 88% |
+| Redacted values gone from the redacted file      | 486 / 486       | 594 / 594       |
+| Hard-negative documents with a false alarm       | 6 / 15 (83)     | 6 / 15 (83)     |
+| Failure files reported correctly / silent cleans | 23 / 23, 0      | 23 / 23, 0      |
 
 - **Extraction** is complete in every Office, OpenDocument, text and zip
   zone: hidden and very hidden sheets, tracked deletions, speaker notes,
@@ -439,15 +439,15 @@ dataset as of `c1c7a64`;
   documents of 1,000 to 50,000 characters; 18 passage instances).
   SmolLM2-360M, the ref's default on-device model:
 
-  | | SmolLM2-360M (on device) |
-  | --- | --- |
-  | Passages found | 2 / 18 (both at 20,000 chars) |
-  | False positives | 1 |
-  | Review time, 1,000 chars | 5-10 s |
-  | Review time, 20,000 chars | 89-141 s |
-  | Review time, 50,000 chars | 229-367 s |
-  | Time fit | `5.78 · chars^0.98` ms (linear) |
-  | Within 30 s | ~6,300 chars |
+  |                           | SmolLM2-360M (on device)        |
+  | ------------------------- | ------------------------------- |
+  | Passages found            | 2 / 18 (both at 20,000 chars)   |
+  | False positives           | 1                               |
+  | Review time, 1,000 chars  | 5-10 s                          |
+  | Review time, 20,000 chars | 89-141 s                        |
+  | Review time, 50,000 chars | 229-367 s                       |
+  | Time fit                  | `5.78 · chars^0.98` ms (linear) |
+  | Within 30 s               | ~6,300 chars                    |
 
   The 360M answers are mostly dropped by the ref's own checks
   (`hallucinated`, `echo_instructions`). Three passages are too few for a
@@ -474,11 +474,11 @@ against pinned SHA-256s; nothing is committed. Only datasets whose licence
 allows a commercial project to publish results are wired, each confirmed on
 its card at the pinned revision:
 
-| Dataset | Licence | Revision | What is scored |
-| --- | --- | --- | --- |
-| [TAB](https://github.com/NorskRegnesentral/text-anonymization-benchmark) (ECHR judgements, EN) | MIT | `558e09e` | test split, 127 documents; TAB's ER_di / ER_qi as native metrics |
-| [Gretel synthetic PII finance multilingual](https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual) | Apache-2.0 | `7b844d1` | EN and FR test files, 3,334 documents (the French source) |
-| [Nemotron-PII](https://huggingface.co/datasets/nvidia/Nemotron-PII) (EN, US and international) | CC BY 4.0 (NVIDIA) | `b70ffaf` | seeded sample of 3,000 of the 100,000 test records (`--limit 0`: all) |
+| Dataset                                                                                                                  | Licence            | Revision  | What is scored                                                        |
+| ------------------------------------------------------------------------------------------------------------------------ | ------------------ | --------- | --------------------------------------------------------------------- |
+| [TAB](https://github.com/NorskRegnesentral/text-anonymization-benchmark) (ECHR judgements, EN)                           | MIT                | `558e09e` | test split, 127 documents; TAB's ER_di / ER_qi as native metrics      |
+| [Gretel synthetic PII finance multilingual](https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual) | Apache-2.0         | `7b844d1` | EN and FR test files, 3,334 documents (the French source)             |
+| [Nemotron-PII](https://huggingface.co/datasets/nvidia/Nemotron-PII) (EN, US and international)                           | CC BY 4.0 (NVIDIA) | `b70ffaf` | seeded sample of 3,000 of the 100,000 test records (`--limit 0`: all) |
 
 **Not wired: ai4privacy open-pii-masking-500k.** Its card metadata says
 `license: other` (named cc-by-4.0), but its body puts use and redistribution
@@ -517,12 +517,12 @@ ORGANIZATION dropped); it has no secret recognizer.
 First scores, `main` @ `95454ec` (2026-10-17, machine profile `adhoc`: the
 8-thread, 7 GB bench laptop), in-scope recall / precision / F1:
 
-| Dataset | Extension `default` | Extension `all` | Presidio |
-| --- | --- | --- | --- |
-| TAB test (1,612 in-scope `CODE` mentions) | 0.0% / – / 0.0% (3 spans in 648k chars) | same | 3.3% / 74.7% / 6.4% |
-| Gretel EN+FR test (4,670 in-scope spans) | 23.2% / 48.4% / 31.4% | 26.3% / 50.9% / 34.7% | 60.5% / 22.2% / 32.5% |
-| Nemotron-PII sample (6,063 in-scope spans) | 48.9% / 99.4% / 65.5% | 54.0% / 99.3% / 70.0% | 74.2% / 95.6% / 83.5% |
-| Our detbench prompts (all categories, share of items redacted) | 78.5% (F1 87.0%) | 93.1% (F1 95.3%) | 66.7% (F1 62.8%, 0/117 secrets) |
+| Dataset                                                        | Extension `default`                     | Extension `all`       | Presidio                        |
+| -------------------------------------------------------------- | --------------------------------------- | --------------------- | ------------------------------- |
+| TAB test (1,612 in-scope `CODE` mentions)                      | 0.0% / – / 0.0% (3 spans in 648k chars) | same                  | 3.3% / 74.7% / 6.4%             |
+| Gretel EN+FR test (4,670 in-scope spans)                       | 23.2% / 48.4% / 31.4%                   | 26.3% / 50.9% / 34.7% | 60.5% / 22.2% / 32.5%           |
+| Nemotron-PII sample (6,063 in-scope spans)                     | 48.9% / 99.4% / 65.5%                   | 54.0% / 99.3% / 70.0% | 74.2% / 95.6% / 83.5%           |
+| Our detbench prompts (all categories, share of items redacted) | 78.5% (F1 87.0%)                        | 93.1% (F1 95.3%)      | 66.7% (F1 62.8%, 0/117 secrets) |
 
 - **TAB is out of the product's scope by construction**: its in-scope
   `CODE` mentions are ECHR application numbers (`36110/97`), which no rule
@@ -602,7 +602,7 @@ It has eight views:
 
 The Playground view (`#playground`) loads **one** bundled model at a time,
 q8 on WASM like the bench, in its own child process (`src/playground/host.ts`).
-Loading another model or pressing *Unload* kills that process, so the
+Loading another model or pressing _Unload_ kills that process, so the
 operating system gets all of its memory back. The header shows load time,
 current and peak RSS (from `/proc`), context length and WASM threads. It
 handles one request at a time; a second one gets HTTP 409 while it is busy.
@@ -810,6 +810,7 @@ What still needs an extension-side change before a bench-side copy can go:
   French files also include mixed-language cases. Every case records its
   register (email, chat, notes, log, code...) and its error level (none, light,
   heavy).
+
 - **`dataset/style-guides/`** has, for each profile, notes on how people in
   that job really write, with the public sources consulted. Only the style was
   imitated; nothing was copied.

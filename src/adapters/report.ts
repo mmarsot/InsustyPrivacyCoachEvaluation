@@ -30,7 +30,15 @@ export interface LiteratureRun {
     config: string;
     scores: AdapterScores;
     native?: Record<string, number | null>;
-    efficiency: { cases: number; computed: number; totalMs: number; p50Ms: number | null; p95Ms: number | null; charsPerSecond: number | null; rulesMs: number };
+    efficiency: {
+      cases: number;
+      computed: number;
+      totalMs: number;
+      p50Ms: number | null;
+      p95Ms: number | null;
+      charsPerSecond: number | null;
+      rulesMs: number;
+    };
   }>;
   machine: MachineProfile;
   peakRssMb: number;
@@ -38,8 +46,14 @@ export interface LiteratureRun {
   finishedAt: string;
 }
 
-const p1 = (v: number | null | undefined) => (v === null || v === undefined ? "–" : `${(100 * v).toFixed(1)}%`);
-const target = (t: LabelTarget | undefined) => (!t || t === "out_of_scope" ? "out of scope" : "builtin" in t ? t.builtin.join(" | ") : `custom: ${t.custom}`);
+const p1 = (v: number | null | undefined) =>
+  v === null || v === undefined ? "–" : `${(100 * v).toFixed(1)}%`;
+const target = (t: LabelTarget | undefined) =>
+  !t || t === "out_of_scope"
+    ? "out of scope"
+    : "builtin" in t
+      ? t.builtin.join(" | ")
+      : `custom: ${t.custom}`;
 
 export function renderLiteratureReport(run: LiteratureRun): string {
   const sections = run.datasets
@@ -48,24 +62,56 @@ export function renderLiteratureReport(run: LiteratureRun): string {
       const head = rows
         .map((r) => {
           const h = r.scores.headline;
-          return `<tr><td>${esc(r.system.name)} <code>${esc(r.system.version)}</code></td><td>${esc(r.config)}</td><td class="num">${h.gold}</td><td class="num">${p1(h.recall)}</td><td class="num">${p1(h.recallTyped)}</td><td class="num">${p1(h.recallExact)}</td><td class="num">${p1(h.precision)}</td><td class="num"><b>${p1(h.f1)}</b></td><td class="num">${h.overRedactionPer1k?.toFixed(2) ?? "–"}</td>${r.native ? `<td>${Object.entries(r.native).map(([k, v]) => `${esc(k)} ${p1(v)}`).join("<br>")}</td>` : "<td>–</td>"}</tr>`;
+          return `<tr><td>${esc(r.system.name)} <code>${esc(r.system.version)}</code></td><td>${esc(r.config)}</td><td class="num">${h.gold}</td><td class="num">${p1(h.recall)}</td><td class="num">${p1(h.recallTyped)}</td><td class="num">${p1(h.recallExact)}</td><td class="num">${p1(h.precision)}</td><td class="num"><b>${p1(h.f1)}</b></td><td class="num">${h.overRedactionPer1k?.toFixed(2) ?? "–"}</td>${
+            r.native
+              ? `<td>${Object.entries(r.native)
+                  .map(([k, v]) => `${esc(k)} ${p1(v)}`)
+                  .join("<br>")}</td>`
+              : "<td>–</td>"
+          }</tr>`;
         })
         .join("");
       const scope = rows
-        .map((r) => `<tr><td>${esc(r.system.name)}</td><td>${esc(r.config)}</td><td class="num">${pct(r.scores.custom.recall)} of ${r.scores.custom.gold}</td><td class="num">${pct(r.scores.outOfScope.recall)} of ${r.scores.outOfScope.gold}</td><td class="num">${pct(r.scores.nativeTotal.recall)} of ${r.scores.nativeTotal.gold}</td></tr>`)
+        .map(
+          (r) =>
+            `<tr><td>${esc(r.system.name)}</td><td>${esc(r.config)}</td><td class="num">${pct(r.scores.custom.recall)} of ${r.scores.custom.gold}</td><td class="num">${pct(r.scores.outOfScope.recall)} of ${r.scores.outOfScope.gold}</td><td class="num">${pct(r.scores.nativeTotal.recall)} of ${r.scores.nativeTotal.gold}</td></tr>`,
+        )
         .join("");
-      const builtins = [...new Set(rows.flatMap((r) => Object.keys(r.scores.byBuiltin)))].sort();
+      const builtins = [
+        ...new Set(rows.flatMap((r) => Object.keys(r.scores.byBuiltin))),
+      ].sort();
       const per = builtins
-        .map((b) => `<tr><td><code>${esc(b)}</code></td>${rows.map((r) => { const x = r.scores.byBuiltin[b]; return `<td class="num">${x ? `${pct(x.recall)} / ${pct(x.recallTyped)} (${x.gold})` : "–"}</td>`; }).join("")}</tr>`)
+        .map(
+          (b) =>
+            `<tr><td><code>${esc(b)}</code></td>${rows
+              .map((r) => {
+                const x = r.scores.byBuiltin[b];
+                return `<td class="num">${x ? `${pct(x.recall)} / ${pct(x.recallTyped)} (${x.gold})` : "–"}</td>`;
+              })
+              .join("")}</tr>`,
+        )
         .join("");
       const labels = Object.keys(rows[0]?.scores.byGoldLabel ?? {});
       const native = labels
-        .map((l) => `<tr><td><code>${esc(l)}</code></td><td>${esc(target(d.labelMap[l]))}</td>${rows.map((r) => { const x = r.scores.byGoldLabel[l]; return `<td class="num">${x ? `${pct(x.recall)} (${x.gold})` : "–"}</td>`; }).join("")}</tr>`)
+        .map(
+          (l) =>
+            `<tr><td><code>${esc(l)}</code></td><td>${esc(target(d.labelMap[l]))}</td>${rows
+              .map((r) => {
+                const x = r.scores.byGoldLabel[l];
+                return `<td class="num">${x ? `${pct(x.recall)} (${x.gold})` : "–"}</td>`;
+              })
+              .join("")}</tr>`,
+        )
         .join("");
       const eff = rows
-        .map((r) => `<tr><td>${esc(r.system.name)}</td><td>${esc(r.config)}</td><td class="num">${r.efficiency.cases}</td><td class="num">${(r.efficiency.totalMs / 1000).toFixed(2)} s</td><td class="num">${r.efficiency.p50Ms?.toFixed(2) ?? "–"} / ${r.efficiency.p95Ms?.toFixed(2) ?? "–"} ms</td><td class="num">${r.efficiency.charsPerSecond ? Math.round(r.efficiency.charsPerSecond).toLocaleString("en") : "–"}</td></tr>`)
+        .map(
+          (r) =>
+            `<tr><td>${esc(r.system.name)}</td><td>${esc(r.config)}</td><td class="num">${r.efficiency.cases}</td><td class="num">${(r.efficiency.totalMs / 1000).toFixed(2)} s</td><td class="num">${r.efficiency.p50Ms?.toFixed(2) ?? "–"} / ${r.efficiency.p95Ms?.toFixed(2) ?? "–"} ms</td><td class="num">${r.efficiency.charsPerSecond ? Math.round(r.efficiency.charsPerSecond).toLocaleString("en") : "–"}</td></tr>`,
+        )
         .join("");
-      const cols = rows.map((r) => `<th>${esc(r.system.name)} · ${esc(r.config)}</th>`).join("");
+      const cols = rows
+        .map((r) => `<th>${esc(r.system.name)} · ${esc(r.config)}</th>`)
+        .join("");
       const unmapped = [...new Set(rows.flatMap((r) => r.scores.unmapped))];
       return `<h2 id="${esc(d.id)}">${esc(d.title)}</h2>
 <p class="muted">${esc(d.split)} split, ${d.cases.toLocaleString("en")} cases${d.sample ? ` (seeded sample of ${d.total.toLocaleString("en")}; seed <code>${esc(d.sample.seed)}</code>)` : ""} · revision <code>${esc(d.revision.slice(0, 12))}</code> · licence <b>${esc(d.license.spdx)}</b>: ${esc(d.license.note)} · <a href="${esc(d.homepage)}">source</a> · files ${d.files.map((f) => `<code>${esc(f.name)}</code> sha256 <code>${esc(f.sha256.slice(0, 16))}…</code>`).join(", ")}</p>

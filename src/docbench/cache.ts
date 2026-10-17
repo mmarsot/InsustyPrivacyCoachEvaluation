@@ -6,7 +6,8 @@ import type { DocJobResult } from "./types.ts";
 
 export const DOCBENCH_RUNS_DIR = join(RUNS_DIR, "docbench");
 export const DOC_RESULTS_DIR = join(CACHE_DIR, "docbench", "results");
-export const docCacheFile = (sha: string) => join(DOC_RESULTS_DIR, `${sha}.jsonl`);
+export const docCacheFile = (sha: string) =>
+  join(DOC_RESULTS_DIR, `${sha}.jsonl`);
 
 /** Cached results of one ref, by job key (the last line for a key wins). */
 export function loadDocCache(sha: string): Map<string, DocJobResult> {

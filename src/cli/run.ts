@@ -35,7 +35,15 @@ import { ACTIVE_RUNS_DIR, CACHE_DIR, ROOT, RUNS_DIR } from "../paths.ts";
 import { cacheFile, loadCache, type Job } from "../run/jobs.ts";
 import type { RunMeta, RunModelMeta } from "../run/meta.ts";
 import { writeRun } from "../run/outputs.ts";
-import { benchRefArgs, estimateSeconds, formatDuration as fmt, parseBenchArgs, planJobs, secondsPerCase, splitLabel } from "../run/plan.ts";
+import {
+  benchRefArgs,
+  estimateSeconds,
+  formatDuration as fmt,
+  parseBenchArgs,
+  planJobs,
+  secondsPerCase,
+  splitLabel,
+} from "../run/plan.ts";
 import type { WorkerEvent, WorkerSpec } from "../run/worker.ts";
 import { connectedSpentUsd, findConnectedModel } from "../hosted/connected.ts";
 import { findLabModel } from "../lab/models.ts";
@@ -52,10 +60,13 @@ const argv = process.argv.slice(2);
 const trackAt = argv.indexOf("--track");
 if (trackAt >= 0) {
   const track = argv[trackAt + 1];
-  if (track !== "docbench" && track !== "review") fail("--track must be review (default) or docbench");
+  if (track !== "docbench" && track !== "review")
+    fail("--track must be review (default) or docbench");
   if (track === "docbench") {
     const { main } = await import("./docbench.ts");
-    process.exit(await main(argv.filter((_, i) => i !== trackAt && i !== trackAt + 1)));
+    process.exit(
+      await main(argv.filter((_, i) => i !== trackAt && i !== trackAt + 1)),
+    );
   }
   argv.splice(trackAt, 2);
 }
@@ -72,21 +83,36 @@ try {
 const { tier, models, instructions, labelVariants, maxRssMb } = options;
 
 // ------------------------------------------------------------------ plan
-const { dataset, issues } = compileDataset({ requireSplit: !options.allowMissingSplit, profiles: options.profiles });
+const { dataset, issues } = compileDataset({
+  requireSplit: !options.allowMissingSplit,
+  profiles: options.profiles,
+});
 if (!dataset) {
-  for (const i of issues.filter((x) => x.level === "error").slice(0, 20)) console.error(`ERROR ${i.where}: ${i.message}`);
+  for (const i of issues.filter((x) => x.level === "error").slice(0, 20))
+    console.error(`ERROR ${i.where}: ${i.message}`);
   fail("dataset is invalid: run `npm run validate`");
 }
-for (const m of models) if (!m.hosted && !api.modelIds.includes(m.id)) console.warn(`warning: ${m.id} is not bundled by ${ext.ref}`);
-for (const mismatch of runtimeMismatches(ext)) console.warn(`warning: ${mismatch}`);
+for (const m of models)
+  if (!m.hosted && !api.modelIds.includes(m.id))
+    console.warn(`warning: ${m.id} is not bundled by ${ext.ref}`);
+for (const mismatch of runtimeMismatches(ext))
+  console.warn(`warning: ${mismatch}`);
 
-const { cases, jobsByModel } = planJobs(dataset, options, ext.sha, api.defaultPrompt, api.kind === "completion");
+const { cases, jobsByModel } = planJobs(
+  dataset,
+  options,
+  ext.sha,
+  api.defaultPrompt,
+  api.kind === "completion",
+);
 if (!cases.length) fail("no case selected");
 const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
 
 console.log(`Extension ${ext.ref} @ ${ext.sha.slice(0, 10)} "${ext.subject}"`);
 console.log(`Extension review design: ${api.kind}`);
-console.log(`${options.set ? `Set ${options.set}, ` : ""}Tier ${tier}${tier === "quick" ? ` (${options.casesPerProfile} per profile and language)` : ""}, split ${splitLabel(options)}: ${cases.length} cases x ${instructions.length} instruction(s) [${instructions.map((i) => i.id).join(",")}] x ${labelVariants.length} label variant(s) [${labelVariants.join(",")}]`);
+console.log(
+  `${options.set ? `Set ${options.set}, ` : ""}Tier ${tier}${tier === "quick" ? ` (${options.casesPerProfile} per profile and language)` : ""}, split ${splitLabel(options)}: ${cases.length} cases x ${instructions.length} instruction(s) [${instructions.map((i) => i.id).join(",")}] x ${labelVariants.length} label variant(s) [${labelVariants.join(",")}]`,
+);
 let totalEstimate = 0;
 const pendingByModel = new Map<string, Job[]>();
 for (const m of models) {
@@ -96,7 +122,9 @@ for (const m of models) {
   pendingByModel.set(m.id, pending);
   const est = estimateSeconds(m, pending.length);
   totalEstimate += est;
-  console.log(`  ${m.short.padEnd(14)} ${String(jobs.length).padStart(6)} jobs, ${String(pending.length).padStart(6)} to compute, ~${secondsPerCase(m).toFixed(1)} s/case -> ~${fmt(est)}`);
+  console.log(
+    `  ${m.short.padEnd(14)} ${String(jobs.length).padStart(6)} jobs, ${String(pending.length).padStart(6)} to compute, ~${secondsPerCase(m).toFixed(1)} s/case -> ~${fmt(est)}`,
+  );
 }
 // Connected models: cost estimate (characters / 3 per input token, every answer at a 128-token cap).
 let hostedEstimateUsd = 0;
@@ -106,21 +134,36 @@ for (const m of models.filter((x) => x.hosted)) {
   let requests = 0;
   for (const job of pendingByModel.get(m.id)!) {
     const prefixes = api.preparedInstructions(job.systemInstruction, job.rules);
-    const perLabel = prefixes.reduce((a, p) => a + p.length, 0) / Math.max(1, prefixes.length);
+    const perLabel =
+      prefixes.reduce((a, p) => a + p.length, 0) / Math.max(1, prefixes.length);
     requests += job.rules.length;
-    inputTokens += job.rules.length * Math.ceil((perLabel + job.text.length + 40) / 3);
+    inputTokens +=
+      job.rules.length * Math.ceil((perLabel + job.text.length + 40) / 3);
   }
   const cap = 128;
-  const usd = (inputTokens * h.usdPerMInput + requests * cap * h.usdPerMOutput) / 1e6;
+  const usd =
+    (inputTokens * h.usdPerMInput + requests * cap * h.usdPerMOutput) / 1e6;
   hostedEstimateUsd += usd;
-  console.log(`  ${m.short.padEnd(14)} ~${requests} requests, ~${inputTokens} input + <=${requests * cap} output tokens: <=${usd.toFixed(4)} USD (connected: ${h.connection.provider} ${h.connection.model}; cached replies cost nothing)`);
+  console.log(
+    `  ${m.short.padEnd(14)} ~${requests} requests, ~${inputTokens} input + <=${requests * cap} output tokens: <=${usd.toFixed(4)} USD (connected: ${h.connection.provider} ${h.connection.model}; cached replies cost nothing)`,
+  );
 }
 const hostedSpent = models.some((m) => m.hosted) ? connectedSpentUsd() : 0;
 if (models.some((m) => m.hosted)) {
-  console.log(`Connected spend so far ${hostedSpent.toFixed(4)} USD + this run <=${hostedEstimateUsd.toFixed(4)} USD; budget ${options.budgetUsd} USD`);
-  if (!options.cachedOnly && hostedSpent + hostedEstimateUsd > options.budgetUsd) fail("The connected cost estimate would pass --budget-usd; nothing was sent.");
+  console.log(
+    `Connected spend so far ${hostedSpent.toFixed(4)} USD + this run <=${hostedEstimateUsd.toFixed(4)} USD; budget ${options.budgetUsd} USD`,
+  );
+  if (
+    !options.cachedOnly &&
+    hostedSpent + hostedEstimateUsd > options.budgetUsd
+  )
+    fail(
+      "The connected cost estimate would pass --budget-usd; nothing was sent.",
+    );
 }
-console.log(`Estimated runtime: ~${fmt(totalEstimate)} (sequential, one model at a time)`);
+console.log(
+  `Estimated runtime: ~${fmt(totalEstimate)} (sequential, one model at a time)`,
+);
 if (options.dryRun) process.exit(0);
 if (options.cachedOnly) {
   for (const m of models) pendingByModel.set(m.id, []);
@@ -130,13 +173,23 @@ if (options.cachedOnly) {
 
 // ------------------------------------------------------------------ run
 const startedAt = new Date();
-const runName = options.name ?? `${startedAt.toISOString().slice(0, 10)}-${tier}-${ext.sha.slice(0, 7)}`;
+const runName =
+  options.name ??
+  `${startedAt.toISOString().slice(0, 10)}-${tier}-${ext.sha.slice(0, 7)}`;
 const tmpDir = join(CACHE_DIR, "tmp");
 mkdirSync(tmpDir, { recursive: true });
 // Lets `npm run dashboard` find this run and recompute its plan.
 mkdirSync(ACTIVE_RUNS_DIR, { recursive: true });
 const activeFile = join(ACTIVE_RUNS_DIR, `${process.pid}.json`);
-writeFileSync(activeFile, JSON.stringify({ pid: process.pid, name: runName, argv, startedAt: startedAt.toISOString() }));
+writeFileSync(
+  activeFile,
+  JSON.stringify({
+    pid: process.pid,
+    name: runName,
+    argv,
+    startedAt: startedAt.toISOString(),
+  }),
+);
 process.on("exit", () => rmSync(activeFile, { force: true }));
 const modelMeta: RunModelMeta[] = [];
 /** Hosted spend of this run so far (all models). */
@@ -161,17 +214,40 @@ for (const m of models) {
   // Same memory rule as the lab: wait (with a heartbeat) until the model's
   // peak plus a 1.5 GB margin is available, else skip it explicitly.
   const labModel = m.hosted ? undefined : findLabModel(m.id);
-  if (labModel && !(await waitForMemory(labModel, Number(process.env.BENCH_MIN_FREE_MB ?? 1500)))) continue;
-  const spec: WorkerSpec = { ref: ext, model: m.id, resultFile: cacheFile(ext.sha, m.id), jobs: pending, ...(m.hosted ? { budgetUsd: options.budgetUsd } : {}) };
+  if (
+    labModel &&
+    !(await waitForMemory(
+      labModel,
+      Number(process.env.BENCH_MIN_FREE_MB ?? 1500),
+    ))
+  )
+    continue;
+  const spec: WorkerSpec = {
+    ref: ext,
+    model: m.id,
+    resultFile: cacheFile(ext.sha, m.id),
+    jobs: pending,
+    ...(m.hosted ? { budgetUsd: options.budgetUsd } : {}),
+  };
   const specFile = join(tmpDir, `jobs-${process.pid}-${m.short}.json`);
   writeFileSync(specFile, JSON.stringify(spec));
   console.log(`\n[${m.short}] ${pending.length} jobs`);
   const t0 = performance.now();
   await new Promise<void>((resolveRun) => {
-    const child = spawn(process.execPath, ["--expose-gc", "--import", "tsx", join(ROOT, "src/run/worker.ts"), specFile], {
-      cwd: ROOT,
-      stdio: ["ignore", "pipe", "inherit"],
-    });
+    const child = spawn(
+      process.execPath,
+      [
+        "--expose-gc",
+        "--import",
+        "tsx",
+        join(ROOT, "src/run/worker.ts"),
+        specFile,
+      ],
+      {
+        cwd: ROOT,
+        stdio: ["ignore", "pipe", "inherit"],
+      },
+    );
     let peak = 0;
     const timer = setInterval(() => {
       const rss = readRssMb(child.pid!, "VmRSS") ?? 0;
@@ -179,10 +255,14 @@ for (const m of models) {
       // A hosted worker holds no model (~100 MB): the memory guards are for local models.
       if (m.hosted) return;
       if (rss > maxRssMb) {
-        console.error(`[${m.short}] RSS ${rss} MB exceeds --max-rss-mb ${maxRssMb}; stopping this model.`);
+        console.error(
+          `[${m.short}] RSS ${rss} MB exceeds --max-rss-mb ${maxRssMb}; stopping this model.`,
+        );
         child.kill("SIGKILL");
       } else if (readMemAvailableMb() < 600) {
-        console.error(`[${m.short}] system MemAvailable below 600 MB; stopping this model.`);
+        console.error(
+          `[${m.short}] system MemAvailable below 600 MB; stopping this model.`,
+        );
         child.kill("SIGKILL");
       }
     }, 500);
@@ -200,19 +280,31 @@ for (const m of models) {
         if (event.type === "loaded") {
           meta.loadMs = event.loadMs;
           meta.threads = event.threads;
-          console.log(`[${m.short}] loaded in ${(event.loadMs / 1000).toFixed(1)} s (${event.threads} WASM threads, transformers ${event.transformers})`);
+          console.log(
+            `[${m.short}] loaded in ${(event.loadMs / 1000).toFixed(1)} s (${event.threads} WASM threads, transformers ${event.transformers})`,
+          );
         } else if (event.type === "prepared") {
-          console.log(`[${m.short}] prepared ${event.instruction}/${event.labelVariant} prefix in ${event.ms} ms`);
+          console.log(
+            `[${m.short}] prepared ${event.instruction}/${event.labelVariant} prefix in ${event.ms} ms`,
+          );
         } else if (event.type === "result") {
           meta.computed = event.done;
           runUsd += event.costUsd ?? 0;
           const now = performance.now();
-          if (event.error || event.done === event.total || now - lastLog > 15_000) {
+          if (
+            event.error ||
+            event.done === event.total ||
+            now - lastLog > 15_000
+          ) {
             lastLog = now;
             const elapsed = (now - t0) / 1000;
             const eta = (elapsed / event.done) * (event.total - event.done);
-            const cost = m.hosted ? `, ${(runUsd - usdBefore).toFixed(4)} USD for this model (${(hostedSpent + runUsd).toFixed(4)} USD in all)` : `, rss ${readRssMb(child.pid!, "VmRSS") ?? "?"} MB`;
-            console.log(`[${m.short}] ${event.done}/${event.total} ${event.caseId} ${event.reviewMs} ms${event.error ? ` (${event.error})` : ""} · elapsed ${fmt(elapsed)}, eta ${fmt(eta)}${cost}`);
+            const cost = m.hosted
+              ? `, ${(runUsd - usdBefore).toFixed(4)} USD for this model (${(hostedSpent + runUsd).toFixed(4)} USD in all)`
+              : `, rss ${readRssMb(child.pid!, "VmRSS") ?? "?"} MB`;
+            console.log(
+              `[${m.short}] ${event.done}/${event.total} ${event.caseId} ${event.reviewMs} ms${event.error ? ` (${event.error})` : ""} · elapsed ${fmt(elapsed)}, eta ${fmt(eta)}${cost}`,
+            );
           }
         } else if (event.type === "done") {
           meta.wallMs = event.wallMs;
@@ -226,7 +318,9 @@ for (const m of models) {
       clearInterval(timer);
       meta.peakRssMb = peak || undefined;
       if (code) console.error(`[${m.short}] worker exited with code ${code}`);
-      console.log(`[${m.short}] done: ${meta.computed}/${pending.length} computed, peak RSS ${peak} MB, ${fmt((performance.now() - t0) / 1000)}`);
+      console.log(
+        `[${m.short}] done: ${meta.computed}/${pending.length} computed, peak RSS ${peak} MB, ${fmt((performance.now() - t0) / 1000)}`,
+      );
       resolveRun();
     });
   });
@@ -239,7 +333,13 @@ const rows: Scored[] = [];
 let missing = 0;
 for (const m of models) {
   const cache = loadCache(ext.sha, m.id);
-  const usage = { requests: 0, inputTokens: 0, outputTokens: 0, usd: 0, prompts: 0 };
+  const usage = {
+    requests: 0,
+    inputTokens: 0,
+    outputTokens: 0,
+    usd: 0,
+    prompts: 0,
+  };
   for (const job of jobsByModel.get(m.id)!) {
     const record = cache.get(job.key);
     if (!record) {
@@ -256,11 +356,27 @@ for (const m of models) {
       }
 
     const c = byId.get(job.caseId)!;
-    rows.push(scoreResult(c, profiles.get(c.profile)!, record, builtin, api.composeReviewInstructions(job.systemInstruction, job.rules), api.kind === "completion"));
+    rows.push(
+      scoreResult(
+        c,
+        profiles.get(c.profile)!,
+        record,
+        builtin,
+        api.composeReviewInstructions(job.systemInstruction, job.rules),
+        api.kind === "completion",
+      ),
+    );
   }
   const mm = modelMeta.find((x) => x.id === m.id);
   if (m.hosted && mm && usage.prompts)
-    mm.hosted = { requests: usage.requests, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, usd: Math.round(usage.usd * 1e6) / 1e6, usdPer1000Prompts: Math.round((usage.usd / usage.prompts) * 1000 * 1e4) / 1e4 };
+    mm.hosted = {
+      requests: usage.requests,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      usd: Math.round(usage.usd * 1e6) / 1e6,
+      usdPer1000Prompts:
+        Math.round((usage.usd / usage.prompts) * 1000 * 1e4) / 1e4,
+    };
 }
 const finishedAt = new Date();
 const meta: RunMeta = {
@@ -271,7 +387,13 @@ const meta: RunMeta = {
   instructions: instructions.map((i) => i.id),
   labelVariants,
   models: modelMeta,
-  ext: { ref: ext.ref, sha: ext.sha, subject: ext.subject, committedAt: ext.committedAt, runtime: ext.runtime },
+  ext: {
+    ref: ext.ref,
+    sha: ext.sha,
+    subject: ext.subject,
+    committedAt: ext.committedAt,
+    runtime: ext.runtime,
+  },
   contract: CONTRACT_VERSION,
   datasetHash: dataset.hash,
   runtime: `onnxruntime-web WASM (q8) in Node ${process.versions.node} via @huggingface/transformers; deterministic greedy decoding; generation budget ${api.generationBudgetMs / 1000} s per request (from the ref)${models.some((m) => m.hosted) ? `; connected models: the ref's own connected-model client (requests, pacing, retries, parsing, time limit), latency per prompt network included` : ""}`,
@@ -286,4 +408,6 @@ const meta: RunMeta = {
 };
 const runDir = join(RUNS_DIR, runName);
 writeRun(runDir, meta, rows);
-console.log(`\nWrote ${runDir}/ (report.html, results.jsonl, metrics.csv, metrics.json)${missing ? ` - ${missing} job(s) missing` : ""}`);
+console.log(
+  `\nWrote ${runDir}/ (report.html, results.jsonl, metrics.csv, metrics.json)${missing ? ` - ${missing} job(s) missing` : ""}`,
+);

@@ -5,7 +5,11 @@
  * the user: `checked`, `partial` (gaps, or text past a cap), or `unchecked`
  * with its reason (`error` when reading threw).
  */
-import type { ModuleConfig, RedactionModule, RedactionOutput } from "../../contract/types.ts";
+import type {
+  ModuleConfig,
+  RedactionModule,
+  RedactionOutput,
+} from "../../contract/types.ts";
 
 export type ConfigName = "default" | "all";
 
@@ -46,29 +50,58 @@ export interface PipelineRedaction {
 }
 
 export interface ConfigRun {
-  detections: Array<{ category: string; start: number; end: number; value: string; selected: boolean }>;
+  detections: Array<{
+    category: string;
+    start: number;
+    end: number;
+    value: string;
+    selected: boolean;
+  }>;
   /** The module's rules time. */
   ms: number;
   redaction: PipelineRedaction;
 }
 
-const METHOD: Record<string, PipelineRead["redaction"]> = { text: "text", pdf: "pdf", archive: "archive", office: "text-copy", image: "image" };
+const METHOD: Record<string, PipelineRead["redaction"]> = {
+  text: "text",
+  pdf: "pdf",
+  archive: "archive",
+  office: "text-copy",
+  image: "image",
+};
 
 /** The read half of an output. */
 export function readOf(out: RedactionOutput): PipelineRead {
   const c = out.coverage;
-  const outcome = c.checked === "full" ? "checked" : c.checked === "partial" ? "partial" : c.reason === "failed" && c.detail ? "error" : "unchecked";
+  const outcome =
+    c.checked === "full"
+      ? "checked"
+      : c.checked === "partial"
+        ? "partial"
+        : c.reason === "failed" && c.detail
+          ? "error"
+          : "unchecked";
   return {
     outcome,
     ...(c.reason && c.reason !== "text_cap" ? { reason: c.reason } : {}),
     ...(c.format ? { readAs: c.format } : {}),
     text: out.text,
-    segments: (out.parts ?? []).map((p) => ({ start: p.start, end: p.end, where: p.where, ...(p.page !== undefined ? { page: p.page } : {}) })),
+    segments: (out.parts ?? []).map((p) => ({
+      start: p.start,
+      end: p.end,
+      where: p.where,
+      ...(p.page !== undefined ? { page: p.page } : {}),
+    })),
     gaps: c.gaps,
     signed: c.signed ?? false,
     ...(c.pages !== undefined ? { pages: c.pages } : {}),
     ...(c.reason === "text_cap" ? { partialText: true } : {}),
-    ...(outcome !== "unchecked" && outcome !== "error" && c.format && METHOD[c.format] ? { redaction: METHOD[c.format] } : {}),
+    ...(outcome !== "unchecked" &&
+    outcome !== "error" &&
+    c.format &&
+    METHOD[c.format]
+      ? { redaction: METHOD[c.format] }
+      : {}),
     readMs: out.runtime.stages.find((s) => s.stage === "read")?.ms ?? 0,
     ...(outcome === "error" && c.detail ? { error: c.detail } : {}),
   };
@@ -80,21 +113,44 @@ export function runOf(out: RedactionOutput): ConfigRun {
   const r = out.redaction;
   const label = new Map(spans.map((s) => [`${s.start}:${s.end}`, s.label]));
   return {
-    detections: spans.map((s) => ({ category: s.label, start: s.start, end: s.end, value: out.text.slice(s.start, s.end), selected: s.redacted })),
+    detections: spans.map((s) => ({
+      category: s.label,
+      start: s.start,
+      end: s.end,
+      value: out.text.slice(s.start, s.end),
+      selected: s.redacted,
+    })),
     ms: out.runtime.stages.find((s) => s.stage === "rules")?.ms ?? 0,
     redaction: {
       mode: r.mode,
       ...(r.file ? { name: r.file.name, bytes: r.file.bytes } : {}),
       ms: out.runtime.stages.find((s) => s.stage === "redact")?.ms ?? 0,
       ...(r.error ? { error: r.error } : {}),
-      ...(r.unredactable ? { failing: r.unredactable.map((u) => ({ ...u, replacement: `[${label.get(`${u.start}:${u.end}`) ?? "?"}]` })) } : {}),
+      ...(r.unredactable
+        ? {
+            failing: r.unredactable.map((u) => ({
+              ...u,
+              replacement: `[${label.get(`${u.start}:${u.end}`) ?? "?"}]`,
+            })),
+          }
+        : {}),
     },
   };
 }
 
 /** Checks a file with each configuration (Private AI off). */
-export async function checkDocument(module: RedactionModule, configs: Record<ConfigName, ModuleConfig>, names: ConfigName[], name: string, bytes: Uint8Array) {
+export async function checkDocument(
+  module: RedactionModule,
+  configs: Record<ConfigName, ModuleConfig>,
+  names: ConfigName[],
+  name: string,
+  bytes: Uint8Array,
+) {
   const outputs: Partial<Record<ConfigName, RedactionOutput>> = {};
-  for (const c of names) outputs[c] = await module.redact({ kind: "document", name, bytes }, { ...configs[c], privateAi: { runsOn: "off" } });
+  for (const c of names)
+    outputs[c] = await module.redact(
+      { kind: "document", name, bytes },
+      { ...configs[c], privateAi: { runsOn: "off" } },
+    );
   return outputs;
 }

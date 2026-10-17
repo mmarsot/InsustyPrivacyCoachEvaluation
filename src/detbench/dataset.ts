@@ -25,12 +25,15 @@ export const DETBENCH_LANGS = ["en", "fr"] as const;
 const PLACEHOLDER = /\{\{([a-z0-9_]+)\}\}/g;
 
 /** Splits a template into literal text and placeholder parts; a generated placeholder becomes literal text. */
-export function parseTemplate(source: Pick<DetCaseSource, "template" | "items" | "decoys" | "generated">): Part[] {
+export function parseTemplate(
+  source: Pick<DetCaseSource, "template" | "items" | "decoys" | "generated">,
+): Part[] {
   const parts: Part[] = [];
   let last = 0;
   for (const m of source.template.matchAll(PLACEHOLDER)) {
     const index = m.index ?? 0;
-    if (index > last) parts.push({ t: "text", s: source.template.slice(last, index) });
+    if (index > last)
+      parts.push({ t: "text", s: source.template.slice(last, index) });
     const key = m[1]!;
     const item = source.items?.[key];
     const decoy = source.decoys?.[key];
@@ -41,7 +44,8 @@ export function parseTemplate(source: Pick<DetCaseSource, "template" | "items" |
     else throw new Error(`unknown placeholder {{${key}}}`);
     last = index + m[0].length;
   }
-  if (last < source.template.length) parts.push({ t: "text", s: source.template.slice(last) });
+  if (last < source.template.length)
+    parts.push({ t: "text", s: source.template.slice(last) });
   return parts;
 }
 
@@ -60,12 +64,21 @@ export function codeRanges(text: string): Array<[number, number]> {
     const end = offset + line.length;
     const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line);
     if (fence) {
-      if (marker && marker[1]![0] === fence.char && marker[1]!.length >= fence.length && !line.slice(marker[0].length).trim()) {
+      if (
+        marker &&
+        marker[1]![0] === fence.char &&
+        marker[1]!.length >= fence.length &&
+        !line.slice(marker[0].length).trim()
+      ) {
         ranges.push([fence.start, end]);
         fence = null;
       }
     } else if (marker) {
-      fence = { char: marker[1]![0]!, length: marker[1]!.length, start: offset };
+      fence = {
+        char: marker[1]![0]!,
+        length: marker[1]!.length,
+        start: offset,
+      };
     } else if (!line.trim()) {
       previous = previous === "indented" ? "indented" : "blank";
     } else if (/^(?: {4}|\t)/.test(line) && previous !== "text") {
@@ -82,7 +95,8 @@ export function codeRanges(text: string): Array<[number, number]> {
 }
 
 /** The zone of a text position, given the text's `codeRanges`. */
-export const zoneAt = (ranges: Array<[number, number]>, at: number): Zone => (ranges.some(([s, e]) => s <= at && at < e) ? "code" : "prose");
+export const zoneAt = (ranges: Array<[number, number]>, at: number): Zone =>
+  ranges.some(([s, e]) => s <= at && at < e) ? "code" : "prose";
 
 /** Concatenates parts into the prompt text and the exact item and decoy spans. */
 export function renderParts(
@@ -98,19 +112,39 @@ export function renderParts(
     text += part.s;
     if (part.t === "item") {
       const item = items[part.key]!;
-      gold.push({ key: part.key, category: item.category, kind: item.kind, start, end: text.length, value: part.s, zone: "prose" });
+      gold.push({
+        key: part.key,
+        category: item.category,
+        kind: item.kind,
+        start,
+        end: text.length,
+        value: part.s,
+        zone: "prose",
+      });
     } else if (part.t === "decoy") {
-      decoySpans.push({ key: part.key, kind: decoys[part.key]!.kind, start, end: text.length, value: part.s, zone: "prose" });
+      decoySpans.push({
+        key: part.key,
+        kind: decoys[part.key]!.kind,
+        start,
+        end: text.length,
+        value: part.s,
+        zone: "prose",
+      });
     }
   }
   const code = codeRanges(text);
-  for (const span of [...gold, ...decoySpans]) span.zone = zoneAt(code, span.start);
+  for (const span of [...gold, ...decoySpans])
+    span.zone = zoneAt(code, span.start);
   return { text, gold, decoySpans };
 }
 
 export function caseType(items: DetCase["items"]): DetCaseType {
   const categories = new Set(Object.values(items).map((i) => i.category));
-  return categories.size === 0 ? "negative" : categories.size === 1 ? "single" : "multi";
+  return categories.size === 0
+    ? "negative"
+    : categories.size === 1
+      ? "single"
+      : "multi";
 }
 
 /** Builds a rendered case from parts (used for base cases and perturbed variants). */
@@ -118,55 +152,97 @@ export function buildCase(
   base: Omit<DetCase, "parts" | "text" | "gold" | "decoySpans" | "type">,
   parts: Part[],
 ): DetCase {
-  return { ...base, type: caseType(base.items), parts, ...renderParts(parts, base.items, base.decoys) };
+  return {
+    ...base,
+    type: caseType(base.items),
+    parts,
+    ...renderParts(parts, base.items, base.decoys),
+  };
 }
 
 /** Schema and ground-truth checks for one source line. */
 export function validateSource(source: DetCaseSource, lang: string): string[] {
   const issues: string[] = [];
   const where = source.id ?? "(no id)";
-  if (!/^(en|fr)-\d{3}$/.test(source.id ?? "")) issues.push(`${where}: id must be <lang>-<nnn>`);
-  if (source.lang !== lang) issues.push(`${where}: lang ${source.lang} in the ${lang} file`);
-  if (!(REGISTERS as readonly string[]).includes(source.register)) issues.push(`${where}: unknown register ${source.register}`);
-  if (typeof source.template !== "string" || !source.template.trim()) issues.push(`${where}: empty template`);
-  const used = new Set([...String(source.template).matchAll(PLACEHOLDER)].map((m) => m[1]!));
+  if (!/^(en|fr)-\d{3}$/.test(source.id ?? ""))
+    issues.push(`${where}: id must be <lang>-<nnn>`);
+  if (source.lang !== lang)
+    issues.push(`${where}: lang ${source.lang} in the ${lang} file`);
+  if (!(REGISTERS as readonly string[]).includes(source.register))
+    issues.push(`${where}: unknown register ${source.register}`);
+  if (typeof source.template !== "string" || !source.template.trim())
+    issues.push(`${where}: empty template`);
+  const used = new Set(
+    [...String(source.template).matchAll(PLACEHOLDER)].map((m) => m[1]!),
+  );
   const itemKeys = Object.keys(source.items ?? {});
   const decoyKeys = Object.keys(source.decoys ?? {});
   const generatedKeys = Object.keys(source.generated ?? {});
   const defined = [...itemKeys, ...decoyKeys, ...generatedKeys];
-  for (const key of used) if (!defined.includes(key)) issues.push(`${where}: {{${key}}} is not defined`);
-  for (const key of defined) if (!used.has(key)) issues.push(`${where}: ${key} is defined but unused`);
-  if (new Set(defined).size < defined.length) issues.push(`${where}: a key is defined twice (item, decoy or generated)`);
+  for (const key of used)
+    if (!defined.includes(key))
+      issues.push(`${where}: {{${key}}} is not defined`);
+  for (const key of defined)
+    if (!used.has(key)) issues.push(`${where}: ${key} is defined but unused`);
+  if (new Set(defined).size < defined.length)
+    issues.push(`${where}: a key is defined twice (item, decoy or generated)`);
   for (const [key, spec] of Object.entries(source.generated ?? {})) {
-    if (!GENERATORS[spec.generator]) issues.push(`${where}: generated ${key} has unknown generator ${spec.generator} (known: ${Object.keys(GENERATORS).join(", ")})`);
-    if (!Number.isInteger(spec.from) || spec.from < 0) issues.push(`${where}: generated ${key} needs an integer from >= 0`);
-    if (!Number.isInteger(spec.count) || spec.count < 1 || spec.count > MAX_GENERATED_ROWS)
-      issues.push(`${where}: generated ${key} needs an integer count from 1 to ${MAX_GENERATED_ROWS}`);
+    if (!GENERATORS[spec.generator])
+      issues.push(
+        `${where}: generated ${key} has unknown generator ${spec.generator} (known: ${Object.keys(GENERATORS).join(", ")})`,
+      );
+    if (!Number.isInteger(spec.from) || spec.from < 0)
+      issues.push(`${where}: generated ${key} needs an integer from >= 0`);
+    if (
+      !Number.isInteger(spec.count) ||
+      spec.count < 1 ||
+      spec.count > MAX_GENERATED_ROWS
+    )
+      issues.push(
+        `${where}: generated ${key} needs an integer count from 1 to ${MAX_GENERATED_ROWS}`,
+      );
   }
-  if (/\{\{|\}\}/.test(String(source.template).replace(PLACEHOLDER, ""))) issues.push(`${where}: malformed placeholder`);
+  if (/\{\{|\}\}/.test(String(source.template).replace(PLACEHOLDER, "")))
+    issues.push(`${where}: malformed placeholder`);
   for (const [key, item] of Object.entries(source.items ?? {})) {
     if (!(DET_CATEGORIES as readonly string[]).includes(item.category)) {
       issues.push(`${where}: ${key} has unknown category ${item.category}`);
       continue;
     }
-    if (!ITEM_KINDS[item.category].includes(item.kind)) issues.push(`${where}: ${key} kind ${item.kind} is not a ${item.category} kind`);
-    if (!item.value || item.value !== item.value.trim()) issues.push(`${where}: ${key} value is empty or padded`);
+    if (!ITEM_KINDS[item.category].includes(item.kind))
+      issues.push(
+        `${where}: ${key} kind ${item.kind} is not a ${item.category} kind`,
+      );
+    if (!item.value || item.value !== item.value.trim())
+      issues.push(`${where}: ${key} value is empty or padded`);
     const validate = KIND_VALIDATORS[item.kind];
-    if (validate && !validate(item.value)) issues.push(`${where}: ${key} ${item.kind} "${item.value}" fails its checksum`);
+    if (validate && !validate(item.value))
+      issues.push(
+        `${where}: ${key} ${item.kind} "${item.value}" fails its checksum`,
+      );
     if (item.kind === "dob") {
       const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(item.iso ?? "");
       if (!m) issues.push(`${where}: ${key} dob needs iso YYYY-MM-DD`);
-      else if (!item.value.includes(m[1]!)) issues.push(`${where}: ${key} dob value does not contain the iso year`);
+      else if (!item.value.includes(m[1]!))
+        issues.push(`${where}: ${key} dob value does not contain the iso year`);
     }
   }
   for (const [key, decoy] of Object.entries(source.decoys ?? {})) {
-    if (!(DECOY_KINDS as readonly string[]).includes(decoy.kind)) issues.push(`${where}: decoy ${key} has unknown kind ${decoy.kind}`);
+    if (!(DECOY_KINDS as readonly string[]).includes(decoy.kind))
+      issues.push(`${where}: decoy ${key} has unknown kind ${decoy.kind}`);
     if (!decoy.value) issues.push(`${where}: decoy ${key} is empty`);
     if (decoy.kind === "invalid_checksum") {
       const validate = KIND_VALIDATORS[decoy.of ?? ""];
-      if (!validate) issues.push(`${where}: decoy ${key} needs "of", one of ${Object.keys(KIND_VALIDATORS).join(", ")}`);
-      else if (validate(decoy.value)) issues.push(`${where}: decoy ${key} "${decoy.value}" passes the ${decoy.of} checksum`);
-    } else if (decoy.of !== undefined) issues.push(`${where}: decoy ${key}: "of" is only for invalid_checksum`);
+      if (!validate)
+        issues.push(
+          `${where}: decoy ${key} needs "of", one of ${Object.keys(KIND_VALIDATORS).join(", ")}`,
+        );
+      else if (validate(decoy.value))
+        issues.push(
+          `${where}: decoy ${key} "${decoy.value}" passes the ${decoy.of} checksum`,
+        );
+    } else if (decoy.of !== undefined)
+      issues.push(`${where}: decoy ${key}: "of" is only for invalid_checksum`);
   }
   return issues;
 }
@@ -196,7 +272,10 @@ export interface DetDataset {
 }
 
 /** Reads and validates every `dataset/detbench/<lang>.jsonl` file. */
-export function loadDetDataset(dir = DETBENCH_DIR): { dataset?: DetDataset; issues: string[] } {
+export function loadDetDataset(dir = DETBENCH_DIR): {
+  dataset?: DetDataset;
+  issues: string[];
+} {
   const issues: string[] = [];
   const cases: DetCase[] = [];
   const hash = createHash("sha256");
@@ -231,5 +310,8 @@ export function loadDetDataset(dir = DETBENCH_DIR): { dataset?: DetDataset; issu
       cases.push(built);
     });
   }
-  return { dataset: issues.length ? undefined : { cases, hash: hash.digest("hex") }, issues };
+  return {
+    dataset: issues.length ? undefined : { cases, hash: hash.digest("hex") },
+    issues,
+  };
 }

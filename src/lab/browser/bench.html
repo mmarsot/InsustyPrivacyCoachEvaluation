@@ -1,91 +1,156 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Lab browser bench</title></head>
-<body>
-<pre id="out">pending</pre>
-<script type="module">
-// Runs exported lab requests (src/lab/cli.ts --export-jobs) with the
-// Transformers.js 3.8.1 web bundle (onnxruntime-web JSEP inside) on WebGPU or
-// WASM, greedy, stopping at the first line break like the lab worker.
-// Query: ?jobs=<file>&device=webgpu|wasm&dtype=q4|q8&limit=N
-import { AutoModelForCausalLM, AutoTokenizer, env, ones, StoppingCriteria, StoppingCriteriaList, Tensor } from "/tf/transformers.js";
-const q = new URLSearchParams(location.search);
-const out = document.getElementById("out");
-const log = (m) => (out.textContent = m);
-env.allowRemoteModels = false;
-env.allowLocalModels = true;
-env.localModelPath = "/models/";
-env.backends.onnx.wasm.wasmPaths = "/tf/";
-env.backends.onnx.wasm.numThreads = 4;
-try {
-  const spec = await (await fetch(`/jobs/${q.get("jobs")}`)).json();
-  const device = q.get("device") ?? "webgpu";
-  const dtype = q.get("dtype") ?? spec.dtype;
-  let adapter = null;
-  if (device === "webgpu") {
-    const a = await navigator.gpu?.requestAdapter({ powerPreference: "high-performance" });
-    adapter = a ? `${a.info.vendor} ${a.info.architecture}` : "none";
-  }
-  const t0 = performance.now();
-  const tokenizer = await AutoTokenizer.from_pretrained(spec.model);
-  const model = await AutoModelForCausalLM.from_pretrained(spec.model, { device, dtype });
-  const loadMs = Math.round(performance.now() - t0);
-  // Exports made for Transformers.js v4 take num_logits_to_keep, which 3.8.1 never feeds.
-  const needsKeep = model.sessions?.model?.inputNames?.includes("num_logits_to_keep");
-  if (needsKeep) {
-    const forward = model.forward.bind(model);
-    model.forward = (inputs) => forward({ ...inputs, num_logits_to_keep: new Tensor("int64", BigInt64Array.from([1n]), []) });
-  }
-  const results = [];
-  const jobs = spec.jobs.slice(0, Number(q.get("limit") ?? spec.jobs.length));
-  for (const job of jobs) {
-    const ids = tokenizer.encode(job.prompt, { add_special_tokens: false });
-    let text = "";
-    let checked = 0;
-    let lineDone = false;
-    const started = performance.now();
-    class Stop extends StoppingCriteria {
-      _call(inputIds) {
-        return inputIds.map((seq) => {
-          const gen = seq.slice(ids.length).map(Number);
-          if (performance.now() - started > job.gen.deadlineMs) return true;
-          if (gen.length > checked) {
-            text += tokenizer.decode(gen.slice(checked), { skip_special_tokens: true });
-            checked = gen.length;
-            if (job.gen.stopAtNewline && /\S[^\n]*\n/.test(text)) return (lineDone = true);
-          }
-          return false;
+  <head>
+    <meta charset="utf-8" />
+    <title>Lab browser bench</title>
+  </head>
+  <body>
+    <pre id="out">pending</pre>
+    <script type="module">
+      // Runs exported lab requests (src/lab/cli.ts --export-jobs) with the
+      // Transformers.js 3.8.1 web bundle (onnxruntime-web JSEP inside) on WebGPU or
+      // WASM, greedy, stopping at the first line break like the lab worker.
+      // Query: ?jobs=<file>&device=webgpu|wasm&dtype=q4|q8&limit=N
+      import {
+        AutoModelForCausalLM,
+        AutoTokenizer,
+        env,
+        ones,
+        StoppingCriteria,
+        StoppingCriteriaList,
+        Tensor,
+      } from "/tf/transformers.js";
+      const q = new URLSearchParams(location.search);
+      const out = document.getElementById("out");
+      const log = (m) => (out.textContent = m);
+      env.allowRemoteModels = false;
+      env.allowLocalModels = true;
+      env.localModelPath = "/models/";
+      env.backends.onnx.wasm.wasmPaths = "/tf/";
+      env.backends.onnx.wasm.numThreads = 4;
+      try {
+        const spec = await (await fetch(`/jobs/${q.get("jobs")}`)).json();
+        const device = q.get("device") ?? "webgpu";
+        const dtype = q.get("dtype") ?? spec.dtype;
+        let adapter = null;
+        if (device === "webgpu") {
+          const a = await navigator.gpu?.requestAdapter({
+            powerPreference: "high-performance",
+          });
+          adapter = a ? `${a.info.vendor} ${a.info.architecture}` : "none";
+        }
+        const t0 = performance.now();
+        const tokenizer = await AutoTokenizer.from_pretrained(spec.model);
+        const model = await AutoModelForCausalLM.from_pretrained(spec.model, {
+          device,
+          dtype,
         });
+        const loadMs = Math.round(performance.now() - t0);
+        // Exports made for Transformers.js v4 take num_logits_to_keep, which 3.8.1 never feeds.
+        const needsKeep =
+          model.sessions?.model?.inputNames?.includes("num_logits_to_keep");
+        if (needsKeep) {
+          const forward = model.forward.bind(model);
+          model.forward = (inputs) =>
+            forward({
+              ...inputs,
+              num_logits_to_keep: new Tensor(
+                "int64",
+                BigInt64Array.from([1n]),
+                [],
+              ),
+            });
+        }
+        const results = [];
+        const jobs = spec.jobs.slice(
+          0,
+          Number(q.get("limit") ?? spec.jobs.length),
+        );
+        for (const job of jobs) {
+          const ids = tokenizer.encode(job.prompt, {
+            add_special_tokens: false,
+          });
+          let text = "";
+          let checked = 0;
+          let lineDone = false;
+          const started = performance.now();
+          class Stop extends StoppingCriteria {
+            _call(inputIds) {
+              return inputIds.map((seq) => {
+                const gen = seq.slice(ids.length).map(Number);
+                if (performance.now() - started > job.gen.deadlineMs)
+                  return true;
+                if (gen.length > checked) {
+                  text += tokenizer.decode(gen.slice(checked), {
+                    skip_special_tokens: true,
+                  });
+                  checked = gen.length;
+                  if (job.gen.stopAtNewline && /\S[^\n]*\n/.test(text))
+                    return (lineDone = true);
+                }
+                return false;
+              });
+            }
+          }
+          const criteria = new StoppingCriteriaList();
+          criteria.push(new Stop());
+          const input_ids = new Tensor(
+            "int64",
+            BigInt64Array.from(ids.map(BigInt)),
+            [1, ids.length],
+          );
+          const output = await model.generate({
+            input_ids,
+            attention_mask: ones([1, ids.length]),
+            max_new_tokens: job.gen.maxNewTokens || 256,
+            do_sample: false,
+            ...(job.gen.repetitionPenalty === null
+              ? {}
+              : { repetition_penalty: job.gen.repetitionPenalty }),
+            ...(job.gen.minNewTokens
+              ? { min_new_tokens: job.gen.minNewTokens }
+              : {}),
+            stopping_criteria: criteria,
+          });
+          const generated = output.tolist()[0].slice(ids.length).map(Number);
+          const ms = Math.round(performance.now() - started);
+          const eos = [
+            model.generation_config?.eos_token_id ?? model.config.eos_token_id,
+          ].flat();
+          results.push({
+            key: job.key,
+            model: spec.model,
+            dtype,
+            caseId: job.caseId,
+            output: tokenizer.decode(generated, { skip_special_tokens: true }),
+            promptTokens: ids.length,
+            generatedTokens: generated.length,
+            finishReason: eos.includes(generated.at(-1))
+              ? "eos"
+              : lineDone
+                ? "line"
+                : ms >= job.gen.deadlineMs
+                  ? "deadline"
+                  : "length",
+            ms,
+            at: new Date().toISOString(),
+          });
+          log(`progress ${results.length}/${jobs.length}`);
+        }
+        log(
+          "RESULT " +
+            JSON.stringify({
+              device,
+              dtype,
+              adapter,
+              loadMs,
+              needsKeep,
+              results,
+            }),
+        );
+      } catch (e) {
+        log("RESULT " + JSON.stringify({ error: String(e?.stack ?? e) }));
       }
-    }
-    const criteria = new StoppingCriteriaList();
-    criteria.push(new Stop());
-    const input_ids = new Tensor("int64", BigInt64Array.from(ids.map(BigInt)), [1, ids.length]);
-    const output = await model.generate({
-      input_ids,
-      attention_mask: ones([1, ids.length]),
-      max_new_tokens: job.gen.maxNewTokens || 256,
-      do_sample: false,
-      ...(job.gen.repetitionPenalty === null ? {} : { repetition_penalty: job.gen.repetitionPenalty }),
-      ...(job.gen.minNewTokens ? { min_new_tokens: job.gen.minNewTokens } : {}),
-      stopping_criteria: criteria,
-    });
-    const generated = output.tolist()[0].slice(ids.length).map(Number);
-    const ms = Math.round(performance.now() - started);
-    const eos = [model.generation_config?.eos_token_id ?? model.config.eos_token_id].flat();
-    results.push({
-      key: job.key, model: spec.model, dtype, caseId: job.caseId,
-      output: tokenizer.decode(generated, { skip_special_tokens: true }),
-      promptTokens: ids.length, generatedTokens: generated.length,
-      finishReason: eos.includes(generated.at(-1)) ? "eos" : lineDone ? "line" : ms >= job.gen.deadlineMs ? "deadline" : "length",
-      ms, at: new Date().toISOString(),
-    });
-    log(`progress ${results.length}/${jobs.length}`);
-  }
-  log("RESULT " + JSON.stringify({ device, dtype, adapter, loadMs, needsKeep, results }));
-} catch (e) {
-  log("RESULT " + JSON.stringify({ error: String(e?.stack ?? e) }));
-}
-</script>
-</body>
+    </script>
+  </body>
 </html>

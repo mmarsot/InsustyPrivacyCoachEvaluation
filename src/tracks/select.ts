@@ -27,16 +27,31 @@ export interface ChangeRule {
 
 /** First match wins. Paths no rule matches (UI, capture, sync...) need no benchmark. */
 export const CHANGE_RULES: ChangeRule[] = [
-  { pattern: /^package(-lock)?\.json$/, tracks: ["deterministic", "private-ai"], why: "dependencies (validators, PDFium, OCR or the inference runtime)" },
   {
-    pattern: /^src\/files\/(readers|ocr)\/|^src\/files\/(file-check|document-model)\.ts$|^src\/(document-worker|offscreen)\.ts$|^src\/(file-check|document-reader|document-model|ocr[^/]*)\.ts$/,
+    pattern: /^package(-lock)?\.json$/,
+    tracks: ["deterministic", "private-ai"],
+    why: "dependencies (validators, PDFium, OCR or the inference runtime)",
+  },
+  {
+    pattern:
+      /^src\/files\/(readers|ocr)\/|^src\/files\/(file-check|document-model)\.ts$|^src\/(document-worker|offscreen)\.ts$|^src\/(file-check|document-reader|document-model|ocr[^/]*)\.ts$/,
     tracks: ["deterministic", "private-ai"],
     why: "document reading or OCR",
   },
-  { pattern: /^src\/config\/|^src\/config\.ts$/, tracks: ["deterministic", "private-ai"], why: "configuration (categories, address countries, Private AI settings)" },
-  { pattern: /^src\/detection\/|^src\/(detector|detector-rules|secret-rules[^/]*|redaction)\.ts$/, tracks: ["deterministic"], why: "deterministic rules" },
   {
-    pattern: /^src\/private-ai\/|^src\/model-worker\.ts$|^src\/background\/(review|connected-model|local-model|label-learning)\.ts$|^src\/labels\/|^src\/(slm-[^/]*|hosted-[^/]*|model-client)\.ts$/,
+    pattern: /^src\/config\/|^src\/config\.ts$/,
+    tracks: ["deterministic", "private-ai"],
+    why: "configuration (categories, address countries, Private AI settings)",
+  },
+  {
+    pattern:
+      /^src\/detection\/|^src\/(detector|detector-rules|secret-rules[^/]*|redaction)\.ts$/,
+    tracks: ["deterministic"],
+    why: "deterministic rules",
+  },
+  {
+    pattern:
+      /^src\/private-ai\/|^src\/model-worker\.ts$|^src\/background\/(review|connected-model|local-model|label-learning)\.ts$|^src\/labels\/|^src\/(slm-[^/]*|hosted-[^/]*|model-client)\.ts$/,
     tracks: ["private-ai"],
     why: "Private AI (prompting, engine, models, connected client, label learning)",
   },
@@ -61,8 +76,14 @@ export function selectTracks(paths: string[]): Selection {
   const tracks = new Set<Track>();
   for (const rule of reasons.keys()) for (const t of rule.tracks) tracks.add(t);
   return {
-    tracks: (["deterministic", "private-ai"] as const).filter((t) => tracks.has(t)),
-    reasons: [...reasons].map(([rule, p]) => ({ why: rule.why, tracks: rule.tracks, paths: p })),
+    tracks: (["deterministic", "private-ai"] as const).filter((t) =>
+      tracks.has(t),
+    ),
+    reasons: [...reasons].map(([rule, p]) => ({
+      why: rule.why,
+      tracks: rule.tracks,
+      paths: p,
+    })),
     ignored,
   };
 }
@@ -93,31 +114,113 @@ export interface SuiteOptions {
 /** The commands of the selected tracks, in order. */
 export function planSuite(o: SuiteOptions): Step[] {
   const common = [...(o.extRepo ? ["--ext-repo", o.extRepo] : [])];
-  const name = (n: string) => (o.namePrefix ? ["--name", `${o.namePrefix}-${n}`] : []);
+  const name = (n: string) =>
+    o.namePrefix ? ["--name", `${o.namePrefix}-${n}`] : [];
   const steps: Step[] = [];
   if (o.tracks.includes("deterministic")) {
-    steps.push({ track: "deterministic", name: "conformance", script: "conformance", args: ["--ref", o.ref, ...common], gate: true });
-    steps.push({ track: "deterministic", name: "detbench", script: "detbench", args: ["--ref", o.ref, ...(o.base ? ["--compare", o.base, "--gate"] : name("detbench")), ...common], gate: true });
+    steps.push({
+      track: "deterministic",
+      name: "conformance",
+      script: "conformance",
+      args: ["--ref", o.ref, ...common],
+      gate: true,
+    });
+    steps.push({
+      track: "deterministic",
+      name: "detbench",
+      script: "detbench",
+      args: [
+        "--ref",
+        o.ref,
+        ...(o.base ? ["--compare", o.base, "--gate"] : name("detbench")),
+        ...common,
+      ],
+      gate: true,
+    });
     steps.push({
       track: "deterministic",
       name: "docbench",
       script: "docbench",
-      args: ["--ref", o.ref, "--tier", o.ci ? "smoke" : o.full ? "full" : "quick", ...(o.base ? ["--compare", o.base, "--gate"] : name("docbench")), ...common],
+      args: [
+        "--ref",
+        o.ref,
+        "--tier",
+        o.ci ? "smoke" : o.full ? "full" : "quick",
+        ...(o.base ? ["--compare", o.base, "--gate"] : name("docbench")),
+        ...common,
+      ],
       gate: true,
     });
     if (!o.ci)
-      steps.push({ track: "deterministic", name: "literature", script: "literature", args: ["--ref", o.ref, "--systems", o.full ? "insusty,presidio" : "insusty", ...name("literature"), ...common], gate: false });
+      steps.push({
+        track: "deterministic",
+        name: "literature",
+        script: "literature",
+        args: [
+          "--ref",
+          o.ref,
+          "--systems",
+          o.full ? "insusty,presidio" : "insusty",
+          ...name("literature"),
+          ...common,
+        ],
+        gate: false,
+      });
   }
   if (o.tracks.includes("private-ai")) {
-    steps.push({ track: "private-ai", name: "parity", script: "parity", args: ["--ref", o.ref, ...common], gate: true });
-    steps.push({ track: "private-ai", name: "review (on device)", script: "bench", args: ["--ref", o.ref, "--tier", o.ci ? "smoke" : o.full ? "full" : "quick", ...name("review"), ...common], gate: false });
-    if (o.connected) steps.push({ track: "private-ai", name: "review (connected)", script: "bench", args: ["--ref", o.ref, "--tier", o.ci ? "smoke" : "quick", "--models", "glm47-flash-connected", ...name("review-connected"), ...common], gate: false });
+    steps.push({
+      track: "private-ai",
+      name: "parity",
+      script: "parity",
+      args: ["--ref", o.ref, ...common],
+      gate: true,
+    });
+    steps.push({
+      track: "private-ai",
+      name: "review (on device)",
+      script: "bench",
+      args: [
+        "--ref",
+        o.ref,
+        "--tier",
+        o.ci ? "smoke" : o.full ? "full" : "quick",
+        ...name("review"),
+        ...common,
+      ],
+      gate: false,
+    });
+    if (o.connected)
+      steps.push({
+        track: "private-ai",
+        name: "review (connected)",
+        script: "bench",
+        args: [
+          "--ref",
+          o.ref,
+          "--tier",
+          o.ci ? "smoke" : "quick",
+          "--models",
+          "glm47-flash-connected",
+          ...name("review-connected"),
+          ...common,
+        ],
+        gate: false,
+      });
     if (!o.ci)
       steps.push({
         track: "private-ai",
         name: "documents (Private AI)",
         script: "docbench",
-        args: ["--ref", o.ref, "--tracks", "ai", "--ai", o.connected ? "default,glm47-flash-connected" : "default", ...name("docbench-ai"), ...common],
+        args: [
+          "--ref",
+          o.ref,
+          "--tracks",
+          "ai",
+          "--ai",
+          o.connected ? "default,glm47-flash-connected" : "default",
+          ...name("docbench-ai"),
+          ...common,
+        ],
         gate: false,
       });
   }

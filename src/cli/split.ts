@@ -13,11 +13,18 @@ import type { Case } from "../dataset/schema.ts";
 
 const TEST_SHARE = 0.3;
 const hash = (id: string) => createHash("sha256").update(id).digest("hex");
-const only = process.argv.includes("--profile") ? process.argv[process.argv.indexOf("--profile") + 1] : undefined;
+const only = process.argv.includes("--profile")
+  ? process.argv[process.argv.indexOf("--profile") + 1]
+  : undefined;
 let assigned = 0;
-for (const file of readdirSync(CASES_DIR).filter((f) => f.endsWith(".jsonl") && (!only || f.startsWith(`${only}.`))).sort()) {
+for (const file of readdirSync(CASES_DIR)
+  .filter((f) => f.endsWith(".jsonl") && (!only || f.startsWith(`${only}.`)))
+  .sort()) {
   const path = join(CASES_DIR, file);
-  const cases = readFileSync(path, "utf8").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l) as Case);
+  const cases = readFileSync(path, "utf8")
+    .split("\n")
+    .filter((l) => l.trim())
+    .map((l) => JSON.parse(l) as Case);
   const groups = new Map<string, Case[]>();
   for (const c of cases) {
     const key = `${c.profile}/${c.lang}/${c.type}`;
@@ -26,7 +33,9 @@ for (const file of readdirSync(CASES_DIR).filter((f) => f.endsWith(".jsonl") && 
   for (const group of groups.values()) {
     const target = Math.round(group.length * TEST_SHARE);
     let test = group.filter((c) => c.split === "test").length;
-    for (const c of [...group].filter((c) => !c.split).sort((a, b) => hash(a.id).localeCompare(hash(b.id)))) {
+    for (const c of [...group]
+      .filter((c) => !c.split)
+      .sort((a, b) => hash(a.id).localeCompare(hash(b.id)))) {
       c.split = test < target ? "test" : "dev";
       if (c.split === "test") test++;
       assigned++;

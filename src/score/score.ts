@@ -82,11 +82,16 @@ export interface Scored {
   error?: string;
 }
 
-export const configKey = (model: string, instruction: string, labelVariant: string) =>
-  `${model.replace(/^.*\//, "")} | ${instruction} | ${labelVariant}`;
+export const configKey = (
+  model: string,
+  instruction: string,
+  labelVariant: string,
+) => `${model.replace(/^.*\//, "")} | ${instruction} | ${labelVariant}`;
 
-const isWordChar = (c: string | undefined) => c !== undefined && /[\p{L}\p{N}_]/u.test(c);
-const normalizeLabel = (label: string) => label.toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+const isWordChar = (c: string | undefined) =>
+  c !== undefined && /[\p{L}\p{N}_]/u.test(c);
+const normalizeLabel = (label: string) =>
+  label.toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
 
 /** Case-insensitive, word-bounded occurrence test, like the ref's anchoring. */
 const anchors = (text: string, passage: string): boolean => {
@@ -102,14 +107,22 @@ const anchors = (text: string, passage: string): boolean => {
     if (!v) continue;
     const needle = v.toLocaleLowerCase();
     for (let i = hay.indexOf(needle); i >= 0; i = hay.indexOf(needle, i + 1))
-      if (!(isWordChar(needle[0]) && isWordChar(hay[i - 1])) && !(isWordChar(needle.at(-1)) && isWordChar(hay[i + needle.length])))
+      if (
+        !(isWordChar(needle[0]) && isWordChar(hay[i - 1])) &&
+        !(isWordChar(needle.at(-1)) && isWordChar(hay[i + needle.length]))
+      )
         return true;
   }
   return false;
 };
 
-const words = (s: string) => s.toLocaleLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
-const grams = (w: string[]) => new Set(w.slice(0, -3).map((_, i) => w.slice(i, i + 4).join(" ")));
+const words = (s: string) =>
+  s
+    .toLocaleLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean);
+const grams = (w: string[]) =>
+  new Set(w.slice(0, -3).map((_, i) => w.slice(i, i + 4).join(" ")));
 
 /**
  * Echo test: most of the output's word 4-grams come from the text (partial
@@ -117,7 +130,12 @@ const grams = (w: string[]) => new Set(w.slice(0, -3).map((_, i) => w.slice(i, i
  */
 const isEcho = (text: string, output: string): boolean => {
   const ow = words(output);
-  if (ow.length < 8) return ow.length > 0 && words(text).length > 0 && output.toLocaleLowerCase().includes(text.trim().toLocaleLowerCase());
+  if (ow.length < 8)
+    return (
+      ow.length > 0 &&
+      words(text).length > 0 &&
+      output.toLocaleLowerCase().includes(text.trim().toLocaleLowerCase())
+    );
   const tg = grams(words(text));
   const og = grams(ow);
   let hit = 0;
@@ -138,24 +156,46 @@ interface LineAnalysis {
 }
 
 /** Reads raw output with the line protocol. `categories` are every label the model was given. */
-export function analyzeLines(output: string, text: string, categories: readonly string[], instructions = ""): LineAnalysis {
+export function analyzeLines(
+  output: string,
+  text: string,
+  categories: readonly string[],
+  instructions = "",
+): LineAnalysis {
   const instructionsLower = instructions.toLocaleLowerCase();
   const known = new Set(categories.map(normalizeLabel));
   const meaningful = output
     .split(/\r?\n/u)
     .map((l) => l.trim())
     .filter((l) => l && !l.startsWith("```"));
-  const result: LineAnalysis = { format: "empty", validLines: 0, invalidLines: 0, unknownLabelLines: 0, droppedLines: 0, proseChars: 0, meaningfulLines: meaningful.length, instructionEchoLines: 0 };
+  const result: LineAnalysis = {
+    format: "empty",
+    validLines: 0,
+    invalidLines: 0,
+    unknownLabelLines: 0,
+    droppedLines: 0,
+    proseChars: 0,
+    meaningfulLines: meaningful.length,
+    instructionEchoLines: 0,
+  };
   if (!meaningful.length) return result;
   const bare = (l: string) => l.replace(/^(?:(?:[-*•]+|\d+[.)])\s*)+/u, "");
-  if (meaningful.every((l) => /^NONE\.?$/iu.test(bare(l)))) return { ...result, format: "none" };
+  if (meaningful.every((l) => /^NONE\.?$/iu.test(bare(l))))
+    return { ...result, format: "none" };
   for (const raw of meaningful) {
     const line = raw.replace(/^(?:(?:[-*•]+|\d+[.)])\s*)+/u, "");
     const match = /^(?<label>[^:\n]+?)\s*:\s*(?<passage>.+)$/u.exec(line);
     const label = match?.groups?.label ?? "";
     const passage = match?.groups?.passage ?? "";
-    const content = (passage || line).replace(/[.\s]+$/u, "").toLocaleLowerCase();
-    if (instructionsLower && content.length >= 12 && instructionsLower.includes(content) && !text.toLocaleLowerCase().includes(content))
+    const content = (passage || line)
+      .replace(/[.\s]+$/u, "")
+      .toLocaleLowerCase();
+    if (
+      instructionsLower &&
+      content.length >= 12 &&
+      instructionsLower.includes(content) &&
+      !text.toLocaleLowerCase().includes(content)
+    )
       result.instructionEchoLines++;
     if (match && label.length <= 40 && known.has(normalizeLabel(label))) {
       result.validLines++;
@@ -170,17 +210,32 @@ export function analyzeLines(output: string, text: string, categories: readonly 
       result.proseChars += line.length;
     }
   }
-  result.format = result.invalidLines === 0 ? "lines" : result.validLines > 0 ? "partial" : "invalid";
+  result.format =
+    result.invalidLines === 0
+      ? "lines"
+      : result.validLines > 0
+        ? "partial"
+        : "invalid";
   return result;
 }
 
-export function scoreResult(c: CompiledCase, profile: Profile, record: ResultRecord, builtinLabels: readonly string[], instructions = "", completionRef = false): Scored {
+export function scoreResult(
+  c: CompiledCase,
+  profile: Profile,
+  record: ResultRecord,
+  builtinLabels: readonly string[],
+  instructions = "",
+  completionRef = false,
+): Scored {
   const custom = new Set(profile.labels.map((l) => l.label));
   const customFindings = record.findings.filter((f) => custom.has(f.category));
   const builtinPredicted = record.findings.length - customFindings.length;
 
   // Collapse accepted findings into passage-level predictions.
-  const byPassage = new Map<string, { label: string; value: string; spans: { start: number; end: number }[] }>();
+  const byPassage = new Map<
+    string,
+    { label: string; value: string; spans: { start: number; end: number }[] }
+  >();
   for (const f of customFindings) {
     const value = f.value ?? c.text.slice(f.start, f.end);
     const key = `${f.category}\u0000${value.toLocaleLowerCase()}`;
@@ -188,21 +243,32 @@ export function scoreResult(c: CompiledCase, profile: Profile, record: ResultRec
     entry.spans.push({ start: f.start, end: f.end });
     byPassage.set(key, entry);
   }
-  const overlaps = (a: { start: number; end: number }, b: { start: number; end: number }) => a.start < b.end && b.start < a.end;
+  const overlaps = (
+    a: { start: number; end: number },
+    b: { start: number; end: number },
+  ) => a.start < b.end && b.start < a.end;
 
   const predicted: ScoredPrediction[] = [...byPassage.values()].map((p) => ({
     label: p.label,
     value: p.value,
     exact: c.expected.some((e) => e.label === p.label && e.passage === p.value),
-    overlap: c.spans.some((s) => s.label === p.label && p.spans.some((ps) => overlaps(ps, s))),
+    overlap: c.spans.some(
+      (s) => s.label === p.label && p.spans.some((ps) => overlaps(ps, s)),
+    ),
   }));
   const expected: ScoredExpected[] = c.expected.map((e) => {
-    const spans = c.spans.filter((s) => s.label === e.label && s.passage === e.passage);
+    const spans = c.spans.filter(
+      (s) => s.label === e.label && s.passage === e.passage,
+    );
     return {
       label: e.label,
       passage: e.passage,
-      exact: [...byPassage.values()].some((p) => p.label === e.label && p.value === e.passage),
-      overlap: customFindings.some((f) => f.category === e.label && spans.some((s) => overlaps(f, s))),
+      exact: [...byPassage.values()].some(
+        (p) => p.label === e.label && p.value === e.passage,
+      ),
+      overlap: customFindings.some(
+        (f) => f.category === e.label && spans.some((s) => overlaps(f, s)),
+      ),
       anyLabel: record.findings.some((f) => spans.some((s) => overlaps(f, s))),
     };
   });
@@ -212,7 +278,10 @@ export function scoreResult(c: CompiledCase, profile: Profile, record: ResultRec
   // Completion refs answer one line after a `LABEL:` cue: analyze `LABEL: answer`.
   // Older records lack the cue; their chunks follow the profile's label order.
   const cueFor = (i: number, ch: ResultRecord["chunks"][number]) =>
-    ch.prefill ?? (completionRef && record.chunks.length === profile.labels.length ? `${profile.labels[i]!.label}:` : undefined);
+    ch.prefill ??
+    (completionRef && record.chunks.length === profile.labels.length
+      ? `${profile.labels[i]!.label}:`
+      : undefined);
   const analyzed = record.chunks.map((ch, i) => {
     const cue = cueFor(i, ch);
     if (!cue || cue.includes("\n")) return ch.output;
@@ -221,10 +290,15 @@ export function scoreResult(c: CompiledCase, profile: Profile, record: ResultRec
       .split(" | ")
       .map((part) => part.trim())
       .filter((part) => part && !/^NONE\.?$/iu.test(part));
-    return parts.length ? parts.map((part) => `${cue} ${part}`).join("\n") : "NONE";
+    return parts.length
+      ? parts.map((part) => `${cue} ${part}`).join("\n")
+      : "NONE";
   });
-  const analyses = analyzed.map((out) => analyzeLines(out, c.text, categories, instructions));
-  const sum = (k: Exclude<keyof LineAnalysis, "format">) => analyses.reduce((a, x) => a + x[k], 0);
+  const analyses = analyzed.map((out) =>
+    analyzeLines(out, c.text, categories, instructions),
+  );
+  const sum = (k: Exclude<keyof LineAnalysis, "format">) =>
+    analyses.reduce((a, x) => a + x[k], 0);
   const formats = analyses.map((a) => a.format);
   const format: FormatClass = !formats.length
     ? "empty"
@@ -240,8 +314,12 @@ export function scoreResult(c: CompiledCase, profile: Profile, record: ResultRec
               ? "none"
               : "empty";
   const timeout = record.errorKind === "deadline";
-  const echo = format !== "lines" && format !== "none" && record.chunks.some((ch) => isEcho(c.text, ch.output));
-  const instructionEcho = sum("instructionEchoLines") * 2 >= Math.max(1, sum("meaningfulLines"));
+  const echo =
+    format !== "lines" &&
+    format !== "none" &&
+    record.chunks.some((ch) => isEcho(c.text, ch.output));
+  const instructionEcho =
+    sum("instructionEchoLines") * 2 >= Math.max(1, sum("meaningfulLines"));
   const dropped = sum("droppedLines");
   const unknown = sum("unknownLabelLines");
 
@@ -278,15 +356,21 @@ export function scoreResult(c: CompiledCase, profile: Profile, record: ResultRec
     detected: c.positive && expected.some((e) => e.overlap),
     falsePositiveCase: !c.positive && predicted.length > 0,
     format,
-    compliant: !timeout && !record.error && (format === "lines" || format === "none"),
+    compliant:
+      !timeout && !record.error && (format === "lines" || format === "none"),
     failure,
     droppedLines: dropped,
     unknownLabelLines: unknown,
     echo,
     timeout,
     reviewMs: record.reviewMs,
-    generatedTokens: record.chunks.reduce((a, ch) => a + (ch.runtime?.generatedTokens ?? 0), 0),
-    finishReasons: record.chunks.map((ch) => ch.runtime?.finishReason ?? "error"),
+    generatedTokens: record.chunks.reduce(
+      (a, ch) => a + (ch.runtime?.generatedTokens ?? 0),
+      0,
+    ),
+    finishReasons: record.chunks.map(
+      (ch) => ch.runtime?.finishReason ?? "error",
+    ),
     raw,
     ...(record.error ? { error: record.error } : {}),
   };

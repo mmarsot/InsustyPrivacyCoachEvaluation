@@ -5,11 +5,25 @@
  * is not a baseline worth scoring.
  */
 import { performance } from "node:perf_hooks";
-import { CONTRACT_VERSION, type ModuleConfig, type RedactionModule, type RedactionOutput, type Span } from "./types.ts";
+import {
+  CONTRACT_VERSION,
+  type ModuleConfig,
+  type RedactionModule,
+  type RedactionOutput,
+  type Span,
+} from "./types.ts";
 
-const RULES: Array<{ label: "EMAIL" | "FINANCIAL"; subtype: string; re: RegExp }> = [
+const RULES: Array<{
+  label: "EMAIL" | "FINANCIAL";
+  subtype: string;
+  re: RegExp;
+}> = [
   { label: "EMAIL", subtype: "email", re: /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g },
-  { label: "FINANCIAL", subtype: "iban", re: /\b[A-Z]{2}\d{2}(?: ?[A-Z0-9]{4}){3,7}(?: ?[A-Z0-9]{1,3})?\b/g },
+  {
+    label: "FINANCIAL",
+    subtype: "iban",
+    re: /\b[A-Z]{2}\d{2}(?: ?[A-Z0-9]{4}){3,7}(?: ?[A-Z0-9]{1,3})?\b/g,
+  },
 ];
 
 export function referenceModule(): RedactionModule {
@@ -17,8 +31,20 @@ export function referenceModule(): RedactionModule {
   return {
     contract: CONTRACT_VERSION,
     info,
-    capabilities: { builtins: ["EMAIL", "FINANCIAL"], customLabels: false, documents: false, ocr: false, privateAi: [] },
-    defaultConfig: (): ModuleConfig => ({ builtins: { EMAIL: true, FINANCIAL: true }, addressCountries: [], customLabels: [], privateAi: { runsOn: "off" }, ocr: { enabled: false, languages: [] } }),
+    capabilities: {
+      builtins: ["EMAIL", "FINANCIAL"],
+      customLabels: false,
+      documents: false,
+      ocr: false,
+      privateAi: [],
+    },
+    defaultConfig: (): ModuleConfig => ({
+      builtins: { EMAIL: true, FINANCIAL: true },
+      addressCountries: [],
+      customLabels: [],
+      privateAi: { runsOn: "off" },
+      ocr: { enabled: false, languages: [] },
+    }),
     async redact(input, config): Promise<RedactionOutput> {
       const t0 = performance.now();
       if (input.kind === "document")
@@ -28,14 +54,27 @@ export function referenceModule(): RedactionModule {
           text: "",
           spans: [],
           redaction: { mode: "none", leakChecked: false },
-          coverage: { checked: "none", reason: "unsupported", gaps: [], ocrPages: 0 },
+          coverage: {
+            checked: "none",
+            reason: "unsupported",
+            gaps: [],
+            ocrPages: 0,
+          },
           runtime: { stages: [], totalMs: performance.now() - t0 },
         };
       const text = input.text;
       const spans: Span[] = [];
       for (const rule of RULES)
         for (const m of text.matchAll(rule.re))
-          spans.push({ start: m.index, end: m.index + m[0].length, label: rule.label, kind: "builtin", subtype: rule.subtype, source: "rules", redacted: config.builtins[rule.label] !== false });
+          spans.push({
+            start: m.index,
+            end: m.index + m[0].length,
+            label: rule.label,
+            kind: "builtin",
+            subtype: rule.subtype,
+            source: "rules",
+            redacted: config.builtins[rule.label] !== false,
+          });
       spans.sort((a, b) => a.start - b.start);
       const rulesMs = performance.now() - t0;
       let redacted = "";
@@ -52,9 +91,15 @@ export function referenceModule(): RedactionModule {
         module: info,
         text,
         spans,
-        redaction: any ? { text: redacted, mode: "in_place", leakChecked: false } : { mode: "none", leakChecked: false },
+        redaction: any
+          ? { text: redacted, mode: "in_place", leakChecked: false }
+          : { mode: "none", leakChecked: false },
         coverage: { checked: "full", gaps: [], format: "text", ocrPages: 0 },
-        runtime: { stages: [{ stage: "rules", ms: rulesMs }], totalMs, backend: { name: "native" } },
+        runtime: {
+          stages: [{ stage: "rules", ms: rulesMs }],
+          totalMs,
+          backend: { name: "native" },
+        },
       };
     },
   };

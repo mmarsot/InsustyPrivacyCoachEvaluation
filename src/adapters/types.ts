@@ -9,7 +9,11 @@
  * a type the module has no rule for. Out-of-scope gold is reported in its
  * own row and in the benchmark-native total, never in the headline.
  */
-import type { BuiltinLabel, ModuleConfig, RedactionModule } from "../../contract/types.ts";
+import type {
+  BuiltinLabel,
+  ModuleConfig,
+  RedactionModule,
+} from "../../contract/types.ts";
 
 /**
  * Where a gold label lands. `builtin` lists the contract labels a correct
@@ -17,7 +21,10 @@ import type { BuiltinLabel, ModuleConfig, RedactionModule } from "../../contract
  * (Gretel `iban` → FINANCIAL), several for a coarser one mapped up (TAB
  * `CODE` ← PHONE, NATIONAL_ID, FINANCIAL...).
  */
-export type LabelTarget = { builtin: BuiltinLabel[]; subtype?: string } | { custom: string } | "out_of_scope";
+export type LabelTarget =
+  | { builtin: BuiltinLabel[]; subtype?: string }
+  | { custom: string }
+  | "out_of_scope";
 
 export interface GoldSpan {
   start: number;
@@ -70,7 +77,11 @@ export interface BenchmarkAdapter {
   /** The module configurations the benchmark is scored with, by name; `default` is the module's own. */
   configs(module: RedactionModule): Record<string, ModuleConfig>;
   /** Extra benchmark-native metrics (TAB's entity-level recall), next to the common ones. */
-  native?(cases: GoldCase[], masked: Map<string, Array<{ start: number; end: number }>>, labelMap: Record<string, LabelTarget>): Record<string, number | null>;
+  native?(
+    cases: GoldCase[],
+    masked: Map<string, Array<{ start: number; end: number }>>,
+    labelMap: Record<string, LabelTarget>,
+  ): Record<string, number | null>;
   /** How many cases a default run scores (a pinned, seeded sample of a large split); 0 = all. */
   defaultLimit?: number;
 }

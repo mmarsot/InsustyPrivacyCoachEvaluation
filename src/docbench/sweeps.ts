@@ -10,7 +10,13 @@
  * then matched by count.
  */
 import { GENERATORS } from "../detbench/generate.ts";
-import { fillerParagraphs, rngFor, shuffled, type ContentPools, type Unit } from "./content.ts";
+import {
+  fillerParagraphs,
+  rngFor,
+  shuffled,
+  type ContentPools,
+  type Unit,
+} from "./content.ts";
 import { SWEEP_UNITS, type BuiltDoc, type SweepSpec } from "./specs.ts";
 import { writeOds, writeOdt } from "./writers/odf.ts";
 import { writeDocx, writePptx, writeXlsx, type Cell } from "./writers/ooxml.ts";
@@ -30,13 +36,25 @@ function supply(pool: Unit[], seed: string): () => Unit {
   };
 }
 
-export async function buildSweepDoc(spec: SweepSpec, pools: ContentPools, seed: number): Promise<BuiltDoc> {
+export async function buildSweepDoc(
+  spec: SweepSpec,
+  pools: ContentPools,
+  seed: number,
+): Promise<BuiltDoc> {
   const rng = rngFor(`docbench:${seed}:${spec.id}`);
   const nextProse = supply(pools.prose.en, `${seed}:${spec.id}:prose`);
   const nextField = supply(pools.fields.en, `${seed}:${spec.id}:fields`);
   const units: Unit[] = [];
   const name = `${spec.type === "csv" ? "export" : "document"}.${SWEEP_UNITS[spec.type].ext}`;
-  const spec2 = { id: spec.id, family: SWEEP_UNITS[spec.type].family, ext: SWEEP_UNITS[spec.type].ext, zone: `sweep_${spec.unit}`, lang: "en" as const, kind: "positive" as const, expect: { outcome: "checked" as const } };
+  const spec2 = {
+    id: spec.id,
+    family: SWEEP_UNITS[spec.type].family,
+    ext: SWEEP_UNITS[spec.type].ext,
+    zone: `sweep_${spec.unit}`,
+    lang: "en" as const,
+    kind: "positive" as const,
+    expect: { outcome: "checked" as const },
+  };
   /** Filler of `n` words with one prose unit per ~1,000 words. */
   const proseOf = (n: number) => {
     const paras = fillerParagraphs("en", n, rng);
@@ -64,7 +82,12 @@ export async function buildSweepDoc(spec: SweepSpec, pools: ContentPools, seed: 
         const u = nextField();
         units.push(u);
         rows.push([u.field!.label, u.field!.value]);
-      } else rows.push(gen(10_000 + i).split("\t").map((c) => (/^\d+(\.\d+)?$/.test(c) ? Number(c) : c)));
+      } else
+        rows.push(
+          gen(10_000 + i)
+            .split("\t")
+            .map((c) => (/^\d+(\.\d+)?$/.test(c) ? Number(c) : c)),
+        );
     }
     return rows;
   };
@@ -79,25 +102,44 @@ export async function buildSweepDoc(spec: SweepSpec, pools: ContentPools, seed: 
       break;
     }
     case "docx": {
-      bytes = writeDocx({ title: "Annual report", body: proseOf(spec.size).map((text) => ({ type: "p", text })) });
+      bytes = writeDocx({
+        title: "Annual report",
+        body: proseOf(spec.size).map((text) => ({ type: "p", text })),
+      });
       size.words = spec.size;
       break;
     }
     case "odt": {
-      bytes = writeOdt({ body: proseOf(spec.size).map((text) => ({ type: "p", text })) });
+      bytes = writeOdt({
+        body: proseOf(spec.size).map((text) => ({ type: "p", text })),
+      });
       size.words = spec.size;
       break;
     }
     case "pdf": {
       const paras = proseOf(spec.size * PDF_WORDS_PER_PAGE);
-      bytes = await writePdf({ blocks: paras.map((text) => ({ type: "p", text })) });
+      bytes = await writePdf({
+        blocks: paras.map((text) => ({ type: "p", text })),
+      });
       size.words = spec.size * PDF_WORDS_PER_PAGE;
       size.pages = spec.size;
       break;
     }
     case "csv": {
       const rows = rowsOf(spec.size);
-      bytes = new TextEncoder().encode(rows.map((r) => r.map((x) => (typeof x === "string" && /[",\n]/.test(x) ? `"${x.replace(/"/g, '""')}"` : String(x ?? ""))).join(",")).join("\n") + "\n");
+      bytes = new TextEncoder().encode(
+        rows
+          .map((r) =>
+            r
+              .map((x) =>
+                typeof x === "string" && /[",\n]/.test(x)
+                  ? `"${x.replace(/"/g, '""')}"`
+                  : String(x ?? ""),
+              )
+              .join(","),
+          )
+          .join("\n") + "\n",
+      );
       size.rows = spec.size;
       size.cells = cellCount(rows);
       break;
@@ -111,7 +153,18 @@ export async function buildSweepDoc(spec: SweepSpec, pools: ContentPools, seed: 
     }
     case "ods": {
       const rows = rowsOf(spec.size);
-      bytes = writeOds({ sheets: [{ name: "Orders", rows: rows.map((r) => r.map((x) => (typeof x === "object" && x !== null ? x.result : x))) }] });
+      bytes = writeOds({
+        sheets: [
+          {
+            name: "Orders",
+            rows: rows.map((r) =>
+              r.map((x) =>
+                typeof x === "object" && x !== null ? x.result : x,
+              ),
+            ),
+          },
+        ],
+      });
       size.rows = spec.size;
       size.cells = cellCount(rows);
       break;
@@ -126,7 +179,11 @@ export async function buildSweepDoc(spec: SweepSpec, pools: ContentPools, seed: 
           units.push(u);
           notes = u.text.split("\n");
         }
-        slides.push({ title: `Slide ${i + 1}`, body, ...(notes ? { notes } : {}) });
+        slides.push({
+          title: `Slide ${i + 1}`,
+          body,
+          ...(notes ? { notes } : {}),
+        });
       }
       bytes = writePptx({ slides });
       size.slides = spec.size;
@@ -142,7 +199,10 @@ export async function buildSweepDoc(spec: SweepSpec, pools: ContentPools, seed: 
           units.push(u);
           text.push(`${u.field!.label}: ${u.field!.value}`);
         }
-        entries.push({ name: `notes/note-${String(i).padStart(5, "0")}.txt`, data: text.join("\n\n") + "\n" });
+        entries.push({
+          name: `notes/note-${String(i).padStart(5, "0")}.txt`,
+          data: text.join("\n\n") + "\n",
+        });
       }
       bytes = writeZip(entries);
       size.entries = spec.size;

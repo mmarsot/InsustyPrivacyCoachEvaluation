@@ -29,9 +29,19 @@ export interface DetRunMeta {
     maxMs: number | null;
     totalMs: number;
     /** The ten slowest base-case calls. */
-    slowest?: Array<{ config: string; caseId: string; chars: number; ms: number }>;
+    slowest?: Array<{
+      config: string;
+      caseId: string;
+      chars: number;
+      ms: number;
+    }>;
     /** Every call on a large generated case. */
-    large?: Array<{ config: string; caseId: string; chars: number; ms: number }>;
+    large?: Array<{
+      config: string;
+      caseId: string;
+      chars: number;
+      ms: number;
+    }>;
   };
   node: string;
   machine: string;
@@ -45,7 +55,8 @@ export interface DetRunMeta {
   finishedAt: string;
 }
 
-const num = (v: number | null | undefined, digits = 0) => (v === null || v === undefined ? "–" : v.toFixed(digits));
+const num = (v: number | null | undefined, digits = 0) =>
+  v === null || v === undefined ? "–" : v.toFixed(digits);
 /** A change in percentage points, rounded before its sign is chosen (no "-0"). */
 const pp = (d: number | null) => {
   if (d === null) return "";
@@ -57,12 +68,16 @@ const points = (d: number | null) => {
   const n = Math.round(100 * d);
   return `${n > 0 ? "+" : n < 0 ? "−" : "±"}${Math.abs(n)} pts`;
 };
-const delta = (a: number | null, b: number | null) => (a === null || b === null ? null : b - a);
-const arrowCell = (a: number | null, b: number | null) => `<td class="num">${pct(a)} → ${pct(b)}${pp(delta(a, b))}</td>`;
+const delta = (a: number | null, b: number | null) =>
+  a === null || b === null ? null : b - a;
+const arrowCell = (a: number | null, b: number | null) =>
+  `<td class="num">${pct(a)} → ${pct(b)}${pp(delta(a, b))}</td>`;
 const EXTRA_STYLE = `b.down{color:var(--bad)}b.up{color:var(--bar)}td.ns{color:var(--muted);font-style:italic}mark{background:var(--bar-bg);color:inherit;border-radius:3px;padding:0 1px}mark.miss{background:var(--bad-bg)}.kv div{min-width:0;overflow-wrap:anywhere}h1{overflow-wrap:anywhere}`;
 
 const supportCell = (category: string, meta: DetRunMeta) =>
-  meta.supported.includes(category) ? `<td>yes</td>` : `<td class="ns">not supported by this ref</td>`;
+  meta.supported.includes(category)
+    ? `<td>yes</td>`
+    : `<td class="ns">not supported by this ref</td>`;
 
 function metricCells(m: DetMetrics, supported: boolean): string {
   if (!supported)
@@ -85,7 +100,8 @@ function categorySection(summaries: DetSummary[], meta: DetRunMeta): string {
   const rows = summaries
     .flatMap((s) =>
       DET_CATEGORIES.filter((c) => s.byCategory[c]).map(
-        (c) => `<tr><td>${esc(s.config)}</td><td><code>${c}</code></td>${supportCell(c, meta)}${metricCells(s.byCategory[c]!, meta.supported.includes(c))}</tr>`,
+        (c) =>
+          `<tr><td>${esc(s.config)}</td><td><code>${c}</code></td>${supportCell(c, meta)}${metricCells(s.byCategory[c]!, meta.supported.includes(c))}</tr>`,
       ),
     )
     .join("");
@@ -93,7 +109,8 @@ function categorySection(summaries: DetSummary[], meta: DetRunMeta): string {
     .flatMap((s) =>
       DET_CATEGORIES.filter((c) => s.byCategoryLang[c]).flatMap((c) =>
         Object.entries(s.byCategoryLang[c]!).map(
-          ([lang, m]) => `<tr><td>${esc(s.config)}</td><td><code>${c}</code></td><td>${lang}</td>${metricCells(m, meta.supported.includes(c))}</tr>`,
+          ([lang, m]) =>
+            `<tr><td>${esc(s.config)}</td><td><code>${c}</code></td><td>${lang}</td>${metricCells(m, meta.supported.includes(c))}</tr>`,
         ),
       ),
     )
@@ -115,7 +132,10 @@ function categorySection(summaries: DetSummary[], meta: DetRunMeta): string {
 }
 
 function sliceSection(summaries: DetSummary[]): string {
-  const table = (title: string, pickSlice: (s: DetSummary) => Record<string, DetMetrics>) => {
+  const table = (
+    title: string,
+    pickSlice: (s: DetSummary) => Record<string, DetMetrics>,
+  ) => {
     const rows = summaries
       .flatMap((s) =>
         Object.entries(pickSlice(s)).map(
@@ -146,7 +166,10 @@ function robustnessSection(summaries: DetSummary[]): string {
   const parts = summaries.map((s) => {
     const rows = Object.entries(s.perturbations)
       .map(([type, p]) => {
-        const info = type === "all" ? "All perturbation types together." : PERTURBATION_INFO[type as Perturbation];
+        const info =
+          type === "all"
+            ? "All perturbation types together."
+            : PERTURBATION_INFO[type as Perturbation];
         return `<tr><td><b>${esc(type)}</b></td><td class="wrap">${esc(info)}</td><td class="num">${p.baseCases}</td><td class="num">${p.variants}</td>${arrowCell(p.base.overlap.f1, p.perturbed.overlap.f1)}${arrowCell(p.base.overlap.recall, p.perturbed.overlap.recall)}${arrowCell(p.base.overlap.precision, p.perturbed.overlap.precision)}${arrowCell(p.base.exact.f1, p.perturbed.exact.f1)}${arrowCell(p.base.redactedRecall, p.perturbed.redactedRecall)}${arrowCell(p.base.leakFreeRate, p.perturbed.leakFreeRate)}${arrowCell(p.base.negativeFpRate, p.perturbed.negativeFpRate)}</tr>`;
       })
       .join("");
@@ -174,7 +197,11 @@ function negativesSection(summaries: DetSummary[]): string {
     .flatMap((s) =>
       Object.entries(s.decoys).map(
         ([kind, d]) =>
-          `<tr><td>${esc(s.config)}</td><td><code>${esc(kind)}</code></td><td class="num">${d.total}</td><td class="num">${d.flagged}</td>${meter(d.total ? d.flagged / d.total : null, true)}<td>${esc(Object.entries(d.flaggedAs).map(([c, n]) => `${c} ×${n}`).join(", "))}</td></tr>`,
+          `<tr><td>${esc(s.config)}</td><td><code>${esc(kind)}</code></td><td class="num">${d.total}</td><td class="num">${d.flagged}</td>${meter(d.total ? d.flagged / d.total : null, true)}<td>${esc(
+            Object.entries(d.flaggedAs)
+              .map(([c, n]) => `${c} ×${n}`)
+              .join(", "),
+          )}</td></tr>`,
       ),
     )
     .join("");
@@ -185,9 +212,16 @@ function negativesSection(summaries: DetSummary[]): string {
 
 function confusionSection(summaries: DetSummary[]): string {
   const parts = summaries.map((s) => {
-    const cols = [...new Set(Object.values(s.confusion).flatMap((r) => Object.keys(r)))].sort((a, b) => (a === "(missed)" ? 1 : b === "(missed)" ? -1 : a.localeCompare(b)));
+    const cols = [
+      ...new Set(Object.values(s.confusion).flatMap((r) => Object.keys(r))),
+    ].sort((a, b) =>
+      a === "(missed)" ? 1 : b === "(missed)" ? -1 : a.localeCompare(b),
+    );
     const rows = DET_CATEGORIES.filter((c) => s.confusion[c])
-      .map((c) => `<tr><td><code>${c}</code></td>${cols.map((col) => `<td class="num">${s.confusion[c]![col] ?? ""}</td>`).join("")}</tr>`)
+      .map(
+        (c) =>
+          `<tr><td><code>${c}</code></td>${cols.map((col) => `<td class="num">${s.confusion[c]![col] ?? ""}</td>`).join("")}</tr>`,
+      )
       .join("");
     return `<h3>${esc(s.config)}</h3><div class="scroll"><table><thead><tr><th>Item category ↓ / detected as →</th>${cols.map((c) => `<th class="num">${esc(c)}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>`;
   });
@@ -200,10 +234,16 @@ const LONG_TEXT = 6000;
 const MAX_LISTED_DETECTIONS = 60;
 
 /** Escaped plain text, with the middle of long stretches replaced by a count of omitted characters. */
-function clipped(text: string, from: number, to: number, long: boolean): string {
+function clipped(
+  text: string,
+  from: number,
+  to: number,
+  long: boolean,
+): string {
   const keepStart = from === 0 ? 1500 : 200;
   const keepEnd = to === text.length ? 500 : 200;
-  if (!long || to - from <= keepStart + keepEnd + 200) return esc(text.slice(from, to));
+  if (!long || to - from <= keepStart + keepEnd + 200)
+    return esc(text.slice(from, to));
   return `${esc(text.slice(from, from + keepStart))}<span class="muted">\n… ${(to - from - keepStart - keepEnd).toLocaleString("en")} characters omitted …\n</span>${esc(text.slice(to - keepEnd, to))}`;
 }
 
@@ -230,19 +270,46 @@ export function caseDetails(r: DetScored): string {
     )
     .join("\n");
   // A long list shows the detections on items first, then the first false positives.
-  const onItems = (d: DetScored["detections"][number]) => d.verdict === "tp" || d.verdict === "unsupported_item";
-  const ordered = r.detections.length > MAX_LISTED_DETECTIONS ? [...r.detections.filter(onItems), ...r.detections.filter((d) => !onItems(d))] : r.detections;
+  const onItems = (d: DetScored["detections"][number]) =>
+    d.verdict === "tp" || d.verdict === "unsupported_item";
+  const ordered =
+    r.detections.length > MAX_LISTED_DETECTIONS
+      ? [
+          ...r.detections.filter(onItems),
+          ...r.detections.filter((d) => !onItems(d)),
+        ]
+      : r.detections;
   const listed = ordered.slice(0, MAX_LISTED_DETECTIONS);
   const rest = new Map<string, number>();
-  for (const d of ordered.slice(listed.length)) rest.set(`${d.verdict} ${d.category}`, (rest.get(`${d.verdict} ${d.category}`) ?? 0) + 1);
+  for (const d of ordered.slice(listed.length))
+    rest.set(
+      `${d.verdict} ${d.category}`,
+      (rest.get(`${d.verdict} ${d.category}`) ?? 0) + 1,
+    );
   const dets = [
-    ...listed.map((d) => `${d.verdict.padEnd(16)} ${d.category}: ${JSON.stringify(d.value)} (${d.source})${d.decoyKinds.length ? ` on ${d.decoyKinds.join(", ")}` : ""}`),
-    ...(rest.size ? [`… and ${r.detections.length - listed.length} more: ${[...rest].map(([k, n]) => `${n} ${k}`).join(", ")}`] : []),
+    ...listed.map(
+      (d) =>
+        `${d.verdict.padEnd(16)} ${d.category}: ${JSON.stringify(d.value)} (${d.source})${d.decoyKinds.length ? ` on ${d.decoyKinds.join(", ")}` : ""}`,
+    ),
+    ...(rest.size
+      ? [
+          `… and ${r.detections.length - listed.length} more: ${[...rest].map(([k, n]) => `${n} ${k}`).join(", ")}`,
+        ]
+      : []),
   ].join("\n");
   const flags = [
     r.items.some((i) => i.supported && !i.overlap) ? "miss" : "",
-    r.items.some((i) => i.supported && i.overlap && !i.exact) ? "partial span" : "",
-    r.detections.some((d) => d.verdict === "fp" || d.verdict === "decoy" || d.verdict === "wrong_category") ? "false positive" : "",
+    r.items.some((i) => i.supported && i.overlap && !i.exact)
+      ? "partial span"
+      : "",
+    r.detections.some(
+      (d) =>
+        d.verdict === "fp" ||
+        d.verdict === "decoy" ||
+        d.verdict === "wrong_category",
+    )
+      ? "false positive"
+      : "",
     r.items.some((i) => i.merged) ? "merged" : "",
   ].filter(Boolean);
   return `<details><summary><code>${esc(r.caseId)}</code> <span class="tag">${esc(r.type)}</span><span class="tag">${esc(r.register)}</span>${flags.map((f) => `<span class="tag bad">${f}</span>`).join("")}${r.perturbationNote ? ` <span class="muted">${esc(r.perturbationNote)}</span>` : ""}</summary><pre>${highlighted(r)}</pre><h3>Items</h3><pre>${esc(items || "(none)")}</pre><h3>Selected detections</h3><pre>${esc(dets || "(none)")}</pre></details>`;
@@ -253,7 +320,9 @@ const fpCategories = (l: LargeCaseSummary) =>
     .sort(([, a], [, b]) => b - a)
     .map(([c, n]) => `${c} ${n.toLocaleString("en")}`)
     .join(", ") || "none";
-const largeMs = (meta: DetRunMeta, config: string, caseId: string) => meta.timing.large?.find((t) => t.config === config && t.caseId === caseId)?.ms;
+const largeMs = (meta: DetRunMeta, config: string, caseId: string) =>
+  meta.timing.large?.find((t) => t.config === config && t.caseId === caseId)
+    ?.ms;
 
 /** Large generated cases: false-positive floods and runtime, apart from the other metrics. */
 function largeSection(meta: DetRunMeta, summaries: DetSummary[]): string {
@@ -269,7 +338,10 @@ function largeSection(meta: DetRunMeta, summaries: DetSummary[]): string {
 }
 
 const hasProblem = (r: DetScored) =>
-  r.items.some((i) => (i.supported && (!i.exact || !i.leakFree)) || i.merged) || r.detections.some((d) => d.verdict !== "tp" && d.verdict !== "unsupported_item");
+  r.items.some((i) => (i.supported && (!i.exact || !i.leakFree)) || i.merged) ||
+  r.detections.some(
+    (d) => d.verdict !== "tp" && d.verdict !== "unsupported_item",
+  );
 
 function casesSection(rows: DetScored[], summaries: DetSummary[]): string {
   const parts = summaries.map((s) => {
@@ -277,34 +349,57 @@ function casesSection(rows: DetScored[], summaries: DetSummary[]): string {
     const base = mine.filter((r) => r.perturbation === "none");
     const problems = base.filter(hasProblem);
     // Variants that lost an item the base case found.
-    const baseFound = new Map(base.map((r) => [r.caseId, new Set(r.items.filter((i) => i.overlap).map((i) => i.key))]));
+    const baseFound = new Map(
+      base.map((r) => [
+        r.caseId,
+        new Set(r.items.filter((i) => i.overlap).map((i) => i.key)),
+      ]),
+    );
     const regressions = mine.filter(
-      (r) => r.perturbation !== "none" && r.items.some((i) => !i.overlap && baseFound.get(r.baseId)?.has(i.key)),
+      (r) =>
+        r.perturbation !== "none" &&
+        r.items.some((i) => !i.overlap && baseFound.get(r.baseId)?.has(i.key)),
     );
     const byType = new Map<string, DetScored[]>();
-    for (const r of regressions) byType.set(r.perturbation, [...(byType.get(r.perturbation) ?? []), r]);
+    for (const r of regressions)
+      byType.set(r.perturbation, [...(byType.get(r.perturbation) ?? []), r]);
     const regressionHtml = [...byType]
-      .map(([type, list]) => `<h3>${esc(type)}: ${list.length} variant(s) lost an item the base case found</h3>${list.slice(0, 8).map(caseDetails).join("")}`)
+      .map(
+        ([type, list]) =>
+          `<h3>${esc(type)}: ${list.length} variant(s) lost an item the base case found</h3>${list.slice(0, 8).map(caseDetails).join("")}`,
+      )
       .join("");
     return `<h3>${esc(s.config)}: ${problems.length} of ${base.length} base cases with a miss, partial span, merge or false positive (supported categories)</h3>${problems.map(caseDetails).join("")}${regressionHtml}`;
   });
   return `<h2 id="cases">Cases</h2><p>Highlighted: ground-truth items (red when nothing redacts them). Every result is in <code>results.jsonl</code>.</p>${parts.join("")}`;
 }
 
-export function renderDetReport(meta: DetRunMeta, rows: DetScored[], summaries: DetSummary[]): string {
+export function renderDetReport(
+  meta: DetRunMeta,
+  rows: DetScored[],
+  summaries: DetSummary[],
+): string {
   const cfg = (name: string) => {
     const c = meta.configs[name];
-    return c ? `${esc(JSON.stringify(c.categories))}, address countries ${esc(JSON.stringify(c.addressCountries))}` : "–";
+    return c
+      ? `${esc(JSON.stringify(c.categories))}, address countries ${esc(JSON.stringify(c.addressCountries))}`
+      : "–";
   };
   return defangHtml(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Detector Bench ${esc(meta.name)}</title><style>${STYLE}${EXTRA_STYLE}td.wrap{white-space:normal;min-width:260px}</style></head><body><main>
 <h1>Deterministic redaction bench: ${esc(meta.name)}</h1>
 <p class="muted">Rule-based detector (<code>detectSensitiveData</code>) · ${meta.baseCases} base cases (EN + FR) · ${meta.variants} perturbed variants (seed ${meta.seed}, up to ${meta.variantsPerType} per type) · generated ${esc(meta.finishedAt)}</p>
 <div class="kv">
 <div>Extension ref</div><div><code>${esc(meta.ext.ref)}</code> @ <code>${esc(meta.ext.sha.slice(0, 10))}</code> “${esc(meta.ext.subject)}” (${esc(meta.ext.committedAt)})</div>
-<div>Ref categories</div><div>${meta.refCategories.map((c) => `<code>${esc(c)}</code>`).join(" ")} → scored as ${meta.supported.map((c) => `<code>${esc(c)}</code>`).join(" ")}; not supported by this ref: ${DET_CATEGORIES.filter((c) => !meta.supported.includes(c)).map((c) => `<code>${c}</code>`).join(" ") || "none"}</div>
+<div>Ref categories</div><div>${meta.refCategories.map((c) => `<code>${esc(c)}</code>`).join(" ")} → scored as ${meta.supported.map((c) => `<code>${esc(c)}</code>`).join(" ")}; not supported by this ref: ${
+    DET_CATEGORIES.filter((c) => !meta.supported.includes(c))
+      .map((c) => `<code>${c}</code>`)
+      .join(" ") || "none"
+  }</div>
 <div>Config <b>default</b></div><div>the ref's <code>DEFAULT_CONFIG</code>: ${cfg("default")}</div>
 <div>Config <b>all</b></div><div>every category on and every address country: ${esc(meta.allConfigNote)}</div>
-<div>Packages</div><div>${Object.entries(meta.packages).map(([n, v]) => `<code>${esc(n)}@${esc(v)}</code>`).join(" ")} (the ref's package-lock)</div>
+<div>Packages</div><div>${Object.entries(meta.packages)
+    .map(([n, v]) => `<code>${esc(n)}@${esc(v)}</code>`)
+    .join(" ")} (the ref's package-lock)</div>
 <div>Dataset</div><div><code>${esc(meta.datasetHash.slice(0, 12))}</code> (<code>dataset/detbench/</code>)</div>
 <div>Speed</div><div>${meta.timing.calls} calls, p50 ${num(meta.timing.p50Ms, 2)} ms, p95 ${num(meta.timing.p95Ms, 2)} ms, max ${num(meta.timing.maxMs, 1)} ms per prompt (${esc(meta.machine)}${meta.machineProfile ? ` (profile ${esc(meta.machineProfile.id)})` : ""}, Node ${esc(meta.node)})${meta.timing.slowest?.length ? `<br>Slowest: ${meta.timing.slowest.map((t) => `<code>${esc(t.caseId)}</code> [${esc(t.config)}] ${num(t.ms, 0)} ms for ${t.chars.toLocaleString("en")} chars`).join(", ")}` : ""}</div>
 </div>
@@ -324,7 +419,9 @@ ${casesSection(rows, summaries)}
 
 /** Plain-text summary for the terminal. */
 export function textSummary(meta: DetRunMeta, summaries: DetSummary[]): string {
-  const lines = [`${meta.name}: ${meta.ext.ref} @ ${meta.ext.sha.slice(0, 7)} · ${meta.baseCases} base cases, ${meta.variants} variants · p50 ${num(meta.timing.p50Ms, 2)} ms/prompt`];
+  const lines = [
+    `${meta.name}: ${meta.ext.ref} @ ${meta.ext.sha.slice(0, 7)} · ${meta.baseCases} base cases, ${meta.variants} variants · p50 ${num(meta.timing.p50Ms, 2)} ms/prompt`,
+  ];
   for (const s of summaries) {
     const m = s.overall;
     lines.push(
@@ -334,7 +431,10 @@ export function textSummary(meta: DetRunMeta, summaries: DetSummary[]): string {
       const cm = s.byCategory[c];
       if (!cm) continue;
       const langs = Object.entries(s.byCategoryLang[c] ?? {})
-        .map(([l, lm]) => `${l} R ${pct(meta.supported.includes(c) ? lm.overlap.recall : lm.redactedRecall)}`)
+        .map(
+          ([l, lm]) =>
+            `${l} R ${pct(meta.supported.includes(c) ? lm.overlap.recall : lm.redactedRecall)}`,
+        )
         .join(", ");
       lines.push(
         meta.supported.includes(c)
@@ -343,12 +443,18 @@ export function textSummary(meta: DetRunMeta, summaries: DetSummary[]): string {
       );
     }
     const zones = Object.entries(s.byZone ?? {})
-      .map(([z, zm]) => `${z}: F1 ${pct(zm.overlap.f1)}, redacted ${pct(zm.redactedRecall)} of ${zm.items} items, decoys flagged ${zm.decoysFlagged}/${zm.decoys}`)
+      .map(
+        ([z, zm]) =>
+          `${z}: F1 ${pct(zm.overlap.f1)}, redacted ${pct(zm.redactedRecall)} of ${zm.items} items, decoys flagged ${zm.decoysFlagged}/${zm.decoys}`,
+      )
       .join(" · ");
     if (zones) lines.push(`  ${zones}`);
     const drops = Object.entries(s.perturbations)
       .filter(([t]) => t !== "all")
-      .map(([t, p]) => `${t} ${pct(p.base.overlap.f1)}→${pct(p.perturbed.overlap.f1)}`)
+      .map(
+        ([t, p]) =>
+          `${t} ${pct(p.base.overlap.f1)}→${pct(p.perturbed.overlap.f1)}`,
+      )
       .join(", ");
     if (drops) lines.push(`  perturbations (F1 base→perturbed): ${drops}`);
     for (const l of s.large ?? []) {
@@ -363,7 +469,10 @@ export function textSummary(meta: DetRunMeta, summaries: DetSummary[]): string {
 
 // ------------------------------------------------------------ comparison
 
-export function renderDetCompare(a: { meta: DetRunMeta; summaries: DetSummary[] }, b: { meta: DetRunMeta; summaries: DetSummary[] }): string {
+export function renderDetCompare(
+  a: { meta: DetRunMeta; summaries: DetSummary[] },
+  b: { meta: DetRunMeta; summaries: DetSummary[] },
+): string {
   const sections = a.summaries
     .map((sa) => {
       const sb = b.summaries.find((s) => s.config === sa.config);
@@ -377,14 +486,21 @@ export function renderDetCompare(a: { meta: DetRunMeta; summaries: DetSummary[] 
           return `<tr><td><i>in ${z}</i></td><td></td><td></td>${arrowCell(za.overlap.f1, zb.overlap.f1)}${arrowCell(za.overlap.precision, zb.overlap.precision)}${arrowCell(za.overlap.recall, zb.overlap.recall)}${arrowCell(za.exact.f1, zb.exact.f1)}${arrowCell(za.redactedRecall, zb.redactedRecall)}${arrowCell(za.leakFreeRate, zb.leakFreeRate)}<td></td></tr>`;
         })
         .join("");
-      const cats = DET_CATEGORIES.filter((c) => sa.byCategory[c] || sb.byCategory[c])
+      const cats = DET_CATEGORIES.filter(
+        (c) => sa.byCategory[c] || sb.byCategory[c],
+      )
         .map((c) => {
           const ma = sa.byCategory[c];
           const mb = sb.byCategory[c];
           const supA = a.meta.supported.includes(c);
           const supB = b.meta.supported.includes(c);
-          const cell = (va: number | null | undefined, vb: number | null | undefined) =>
-            !supA && !supB ? `<td class="ns">n/s → n/s</td>` : `<td class="num">${supA ? pct(va ?? null) : "n/s"} → ${supB ? pct(vb ?? null) : "n/s"}${supA && supB ? pp(delta(va ?? null, vb ?? null)) : ""}</td>`;
+          const cell = (
+            va: number | null | undefined,
+            vb: number | null | undefined,
+          ) =>
+            !supA && !supB
+              ? `<td class="ns">n/s → n/s</td>`
+              : `<td class="num">${supA ? pct(va ?? null) : "n/s"} → ${supB ? pct(vb ?? null) : "n/s"}${supA && supB ? pp(delta(va ?? null, vb ?? null)) : ""}</td>`;
           return `<tr><td><code>${c}</code></td><td>${supA ? "yes" : "no"}</td><td>${supB ? "yes" : "no"}</td>${cell(ma?.overlap.f1, mb?.overlap.f1)}${cell(ma?.overlap.precision, mb?.overlap.precision)}${cell(ma?.overlap.recall, mb?.overlap.recall)}${cell(ma?.exact.f1, mb?.exact.f1)}${arrowCell(ma?.redactedRecall ?? null, mb?.redactedRecall ?? null)}${arrowCell(ma?.leakFreeRate ?? null, mb?.leakFreeRate ?? null)}<td></td></tr>`;
         })
         .join("");
@@ -396,9 +512,16 @@ export function renderDetCompare(a: { meta: DetRunMeta; summaries: DetSummary[] 
         })
         .join("");
       const decoys = Object.keys({ ...sa.decoys, ...sb.decoys })
-        .map((k) => `<tr><td><code>${esc(k)}</code></td><td class="num">${sa.decoys[k]?.flagged ?? "–"}/${sa.decoys[k]?.total ?? "–"} → ${sb.decoys[k]?.flagged ?? "–"}/${sb.decoys[k]?.total ?? "–"}</td></tr>`)
+        .map(
+          (k) =>
+            `<tr><td><code>${esc(k)}</code></td><td class="num">${sa.decoys[k]?.flagged ?? "–"}/${sa.decoys[k]?.total ?? "–"} → ${sb.decoys[k]?.flagged ?? "–"}/${sb.decoys[k]?.total ?? "–"}</td></tr>`,
+        )
         .join("");
-      const large = [...new Set([...(sa.large ?? []), ...(sb.large ?? [])].map((l) => l.caseId))]
+      const large = [
+        ...new Set(
+          [...(sa.large ?? []), ...(sb.large ?? [])].map((l) => l.caseId),
+        ),
+      ]
         .map((id) => {
           const la = sa.large?.find((l) => l.caseId === id);
           const lb = sb.large?.find((l) => l.caseId === id);

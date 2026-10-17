@@ -18,7 +18,9 @@ let pdftotextPath: string | null | undefined;
 export function pdftotext(): string | null {
   if (pdftotextPath === undefined) {
     try {
-      pdftotextPath = execFileSync("which", ["pdftotext"], { encoding: "utf8" }).trim() || null;
+      pdftotextPath =
+        execFileSync("which", ["pdftotext"], { encoding: "utf8" }).trim() ||
+        null;
     } catch {
       pdftotextPath = null;
     }
@@ -31,11 +33,21 @@ const latin1 = (b: Uint8Array) => Buffer.from(b).toString("latin1");
 /** Literal `( … )` and hex `< … >` strings of a PDF content or object stream, decoded as Latin-1 / UTF-16BE. */
 function pdfStrings(src: string): string {
   const out: string[] = [];
-  for (const m of src.matchAll(/\((?:\\.|[^\\()])*\)/g)) out.push(m[0].slice(1, -1).replace(/\\([()\\])/g, "$1").replace(/\\n/g, "\n"));
+  for (const m of src.matchAll(/\((?:\\.|[^\\()])*\)/g))
+    out.push(
+      m[0]
+        .slice(1, -1)
+        .replace(/\\([()\\])/g, "$1")
+        .replace(/\\n/g, "\n"),
+    );
   for (const m of src.matchAll(/<([0-9A-Fa-f\s]{4,})>/g)) {
     const hex = m[1]!.replace(/\s+/g, "");
     const bytes = Buffer.from(hex.length % 2 ? `${hex}0` : hex, "hex");
-    out.push(bytes[0] === 0xfe && bytes[1] === 0xff ? Buffer.from(bytes.subarray(2)).swap16().toString("utf16le") : bytes.toString("latin1"));
+    out.push(
+      bytes[0] === 0xfe && bytes[1] === 0xff
+        ? Buffer.from(bytes.subarray(2)).swap16().toString("utf16le")
+        : bytes.toString("latin1"),
+    );
   }
   return out.join("\n");
 }
@@ -67,18 +79,28 @@ function pdfViews(bytes: Uint8Array): Views {
     try {
       const file = join(dir, "out.pdf");
       writeFileSync(file, bytes);
-      poppler = execFileSync(tool, ["-q", "-enc", "UTF-8", file, "-"], { encoding: "utf8", maxBuffer: 256 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] });
+      poppler = execFileSync(tool, ["-q", "-enc", "UTF-8", file, "-"], {
+        encoding: "utf8",
+        maxBuffer: 256 * 1024 * 1024,
+        stdio: ["ignore", "pipe", "ignore"],
+      });
     } catch {
       /* unreadable by Poppler: the other views still count */
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
   }
-  return { text: [raw, ...inflated].join("\n"), strings: strings.join("\n"), pdftotext: poppler };
+  return {
+    text: [raw, ...inflated].join("\n"),
+    strings: strings.join("\n"),
+    pdftotext: poppler,
+  };
 }
 
 /** Entries of a zip, from its local headers (data descriptors not needed: our writer and the ref's never use them). */
-function zipEntries(bytes: Uint8Array): Array<{ name: string; data: Uint8Array }> {
+function zipEntries(
+  bytes: Uint8Array,
+): Array<{ name: string; data: Uint8Array }> {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const out: Array<{ name: string; data: Uint8Array }> = [];
   let at = 0;
@@ -88,11 +110,19 @@ function zipEntries(bytes: Uint8Array): Array<{ name: string; data: Uint8Array }
     const csize = view.getUint32(at + 18, true);
     const nlen = view.getUint16(at + 26, true);
     const xlen = view.getUint16(at + 28, true);
-    const name = new TextDecoder().decode(bytes.subarray(at + 30, at + 30 + nlen));
-    const data = bytes.subarray(at + 30 + nlen + xlen, at + 30 + nlen + xlen + csize);
+    const name = new TextDecoder().decode(
+      bytes.subarray(at + 30, at + 30 + nlen),
+    );
+    const data = bytes.subarray(
+      at + 30 + nlen + xlen,
+      at + 30 + nlen + xlen + csize,
+    );
     if (!(flags & 1)) {
       try {
-        out.push({ name, data: method === 8 ? new Uint8Array(inflateRawSync(data)) : data });
+        out.push({
+          name,
+          data: method === 8 ? new Uint8Array(inflateRawSync(data)) : data,
+        });
       } catch {
         out.push({ name, data });
       }
@@ -103,8 +133,10 @@ function zipEntries(bytes: Uint8Array): Array<{ name: string; data: Uint8Array }
 }
 
 function decodeText(bytes: Uint8Array): string {
-  if (bytes[0] === 0xff && bytes[1] === 0xfe) return Buffer.from(bytes.subarray(2)).toString("utf16le");
-  if (bytes[0] === 0xfe && bytes[1] === 0xff) return Buffer.from(bytes.subarray(2)).swap16().toString("utf16le");
+  if (bytes[0] === 0xff && bytes[1] === 0xfe)
+    return Buffer.from(bytes.subarray(2)).toString("utf16le");
+  if (bytes[0] === 0xfe && bytes[1] === 0xff)
+    return Buffer.from(bytes.subarray(2)).swap16().toString("utf16le");
   return new TextDecoder("utf-8").decode(bytes);
 }
 
@@ -114,7 +146,8 @@ export function independentViews(bytes: Uint8Array, depth = 0): Views {
     const views: Views = { text: "", strings: "", pdftotext: "" };
     for (const e of zipEntries(bytes)) {
       const inner = independentViews(e.data, depth + 1);
-      for (const k of Object.keys(views) as View[]) views[k] += `\n${e.name}\n${inner[k] || inner.text}`;
+      for (const k of Object.keys(views) as View[])
+        views[k] += `\n${e.name}\n${inner[k] || inner.text}`;
     }
     return views;
   }
@@ -125,4 +158,5 @@ export function independentViews(bytes: Uint8Array, depth = 0): Views {
 
 /** Whitespace-insensitive "is this value still in the text". */
 export const normalizeSpaces = (s: string) => s.replace(/\s+/g, " ").trim();
-export const stillContains = (haystack: string, value: string) => normalizeSpaces(haystack).includes(normalizeSpaces(value));
+export const stillContains = (haystack: string, value: string) =>
+  normalizeSpaces(haystack).includes(normalizeSpaces(value));

@@ -23,4 +23,5 @@ export const LAB_MODELS: LabModel[] = MODELS.map((m) => ({
   secondsPerCase: Math.min(10, m.priorSecondsPerCase),
 }));
 
-export const findLabModel = (name: string) => LAB_MODELS.find((m) => m.short === name || m.id === name);
+export const findLabModel = (name: string) =>
+  LAB_MODELS.find((m) => m.short === name || m.id === name);

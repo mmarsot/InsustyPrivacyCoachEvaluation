@@ -3,18 +3,46 @@
  * page (src/dashboard/page.ts). Read-only: it never writes to the cache or
  * the runs, so it can watch a bench run without affecting it.
  */
-import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import {
+  createServer,
+  type IncomingMessage,
+  type ServerResponse,
+} from "node:http";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { compileDataset } from "../dataset/load.ts";
 import type { CompiledCase, CompiledDataset } from "../dataset/schema.ts";
-import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo, type ExtApi, type ExtRef } from "../ext/ref.ts";
+import {
+  loadExtApi,
+  materializeExtRef,
+  resolveExtRefName,
+  resolveExtRepo,
+  type ExtApi,
+  type ExtRef,
+} from "../ext/ref.ts";
 import { CONNECTED_MODELS } from "../hosted/connected.ts";
 import type { LiteratureRun } from "../adapters/report.ts";
 import { MODELS_FILE, ROOT, RUNS_DIR } from "../paths.ts";
 import { MODULE_CACHE_DIR } from "../module/materialize.ts";
-import { DEFAULT_QUICK_CASES_PER_PROFILE, rulesFor, selectCases, type Job, type ResultRecord } from "../run/jobs.ts";
-import { benchRefArgs, findBenchModel, localModel, MODELS, parseBenchArgs, planJobs, refBenchModels, secondsPerCase, splitLabel, type Plan } from "../run/plan.ts";
+import {
+  DEFAULT_QUICK_CASES_PER_PROFILE,
+  rulesFor,
+  selectCases,
+  type Job,
+  type ResultRecord,
+} from "../run/jobs.ts";
+import {
+  benchRefArgs,
+  findBenchModel,
+  localModel,
+  MODELS,
+  parseBenchArgs,
+  planJobs,
+  refBenchModels,
+  secondsPerCase,
+  splitLabel,
+  type Plan,
+} from "../run/plan.ts";
 import { compareRows, COMPARE_METRICS } from "../report/compare-data.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
 import { INSTRUCTION_VARIANTS, LABEL_VARIANTS } from "../variants.ts";
@@ -71,16 +99,24 @@ export class Dashboard {
   /** The Documents view (npm run docbench runs). */
   readonly docs: DocDashboard;
 
-  constructor(private readonly options: { extRepo?: string; ref?: string } = {}) {
+  constructor(
+    private readonly options: { extRepo?: string; ref?: string } = {},
+  ) {
     const { dataset, issues } = compileDataset({ requireSplit: false });
-    if (!dataset) throw new Error(`dataset invalid: ${issues.find((i) => i.level === "error")?.message}`);
+    if (!dataset)
+      throw new Error(
+        `dataset invalid: ${issues.find((i) => i.level === "error")?.message}`,
+      );
     this.dataset = dataset;
     this.cases = new Map(dataset.cases.map((c) => [c.id, c]));
     this.docs = new DocDashboard(options);
   }
 
   /** Loads (and caches) an extension ref; undefined when no clone is configured. */
-  async ext(ref = resolveExtRefName(this.options.ref), extRepo = this.options.extRepo): Promise<LoadedExt | undefined> {
+  async ext(
+    ref = resolveExtRefName(this.options.ref),
+    extRepo = this.options.extRepo,
+  ): Promise<LoadedExt | undefined> {
     const id = `${extRepo ?? ""}\u0000${ref}`;
     if (!this.exts.has(id))
       this.exts.set(
@@ -102,7 +138,10 @@ export class Dashboard {
   private async defaultPromptFor(sha: string): Promise<string> {
     const bundle = join(MODULE_CACHE_DIR, sha, "module.mjs");
     if (existsSync(bundle)) return (await loadExtApi(bundle)).defaultPrompt;
-    return (await this.ext())?.api.defaultPrompt ?? "(the extension's default prompt)";
+    return (
+      (await this.ext())?.api.defaultPrompt ??
+      "(the extension's default prompt)"
+    );
   }
 
   private instructionsFor(api: ExtApi, job: Job): string {
@@ -121,7 +160,14 @@ export class Dashboard {
     if (!row) {
       const c = this.cases.get(job.caseId)!;
       const profile = this.dataset.profiles.find((p) => p.id === c.profile)!;
-      row = scoreResult(c, profile, record, api.reviewCategories([]), this.instructionsFor(api, job), api.kind === "completion");
+      row = scoreResult(
+        c,
+        profile,
+        record,
+        api.reviewCategories([]),
+        this.instructionsFor(api, job),
+        api.kind === "completion",
+      );
       this.scored.set(id, row);
     }
     return row;
@@ -142,14 +188,26 @@ export class Dashboard {
       const live: LiveRun = { id, run };
       try {
         const refArgs = benchRefArgs(run.argv);
-        live.ext = await this.ext(refArgs.ref ?? resolveExtRefName(this.options.ref), refArgs.extRepo ?? this.options.extRepo);
+        live.ext = await this.ext(
+          refArgs.ref ?? resolveExtRefName(this.options.ref),
+          refArgs.extRepo ?? this.options.extRepo,
+        );
         if (!live.ext) throw new Error("extension clone not available");
         const o = parseBenchArgs(run.argv, live.ext.api);
         live.tier = o.tier;
         live.split = splitLabel(o);
-        const { dataset } = compileDataset({ requireSplit: !o.allowMissingSplit, profiles: o.profiles });
+        const { dataset } = compileDataset({
+          requireSplit: !o.allowMissingSplit,
+          profiles: o.profiles,
+        });
         if (!dataset) throw new Error("dataset invalid for this run's options");
-        live.plan = planJobs(dataset, o, live.ext.ext.sha, live.ext.api.defaultPrompt, live.ext.api.kind === "completion");
+        live.plan = planJobs(
+          dataset,
+          o,
+          live.ext.ext.sha,
+          live.ext.api.defaultPrompt,
+          live.ext.api.kind === "completion",
+        );
       } catch (error) {
         live.error = (error as Error).message;
       }
@@ -162,18 +220,34 @@ export class Dashboard {
   async progress() {
     const runs = await this.liveRuns();
     return runs.map((live) => {
-      const base = { id: live.id, pid: live.run.pid, name: live.run.name, argv: live.run.argv, startedAt: live.run.startedAt, tier: live.tier, split: live.split };
-      if (!live.plan || !live.ext) return { ...base, error: live.error ?? "no plan" };
+      const base = {
+        id: live.id,
+        pid: live.run.pid,
+        name: live.run.name,
+        argv: live.run.argv,
+        startedAt: live.run.startedAt,
+        tier: live.tier,
+        split: live.split,
+      };
+      if (!live.plan || !live.ext)
+        return { ...base, error: live.error ?? "no plan" };
       const { ext, api } = live.ext;
       const jobs = new Map<string, Job>();
-      for (const list of live.plan.jobsByModel.values()) for (const j of list) jobs.set(j.key, j);
+      for (const list of live.plan.jobsByModel.values())
+        for (const j of list) jobs.set(j.key, j);
       const progress = computeProgress(
         live.plan.jobsByModel,
         (model) => readModelCache(ext.sha, model),
         (job, record) => this.score(api, job, record).failure,
         (model) => secondsPerCase(findBenchModel(model) ?? localModel(model)),
       );
-      return { ...base, ref: ext.ref, sha: ext.sha, cases: live.plan.cases.length, ...progress };
+      return {
+        ...base,
+        ref: ext.ref,
+        sha: ext.sha,
+        cases: live.plan.cases.length,
+        ...progress,
+      };
     });
   }
 
@@ -197,10 +271,34 @@ export class Dashboard {
   private plansFor(loaded: LoadedExt) {
     let plans = this.plansMemo.get(loaded.ext.sha);
     if (!plans) {
-      const all = { casesPerProfile: DEFAULT_QUICK_CASES_PER_PROFILE, cachedOnly: false, models: refBenchModels(loaded.api, "all"), instructions: [...INSTRUCTION_VARIANTS], labelVariants: LABEL_VARIANTS.map((v) => v.id), profiles: [], langs: [], maxRssMb: 0, dryRun: false, allowMissingSplit: false, budgetUsd: 0 };
+      const all = {
+        casesPerProfile: DEFAULT_QUICK_CASES_PER_PROFILE,
+        cachedOnly: false,
+        models: refBenchModels(loaded.api, "all"),
+        instructions: [...INSTRUCTION_VARIANTS],
+        labelVariants: LABEL_VARIANTS.map((v) => v.id),
+        profiles: [],
+        langs: [],
+        maxRssMb: 0,
+        dryRun: false,
+        allowMissingSplit: false,
+        budgetUsd: 0,
+      };
       plans = {
-        quick: planJobs(this.dataset, { ...all, tier: "quick" }, loaded.ext.sha, loaded.api.defaultPrompt, loaded.api.kind === "completion"),
-        full: planJobs(this.dataset, { ...all, tier: "full" }, loaded.ext.sha, loaded.api.defaultPrompt, loaded.api.kind === "completion"),
+        quick: planJobs(
+          this.dataset,
+          { ...all, tier: "quick" },
+          loaded.ext.sha,
+          loaded.api.defaultPrompt,
+          loaded.api.kind === "completion",
+        ),
+        full: planJobs(
+          this.dataset,
+          { ...all, tier: "full" },
+          loaded.ext.sha,
+          loaded.api.defaultPrompt,
+          loaded.api.kind === "completion",
+        ),
       };
       this.plansMemo.set(loaded.ext.sha, plans);
     }
@@ -209,32 +307,71 @@ export class Dashboard {
 
   async matrix() {
     const loaded = await this.ext();
-    if (!loaded) return { error: "Extension clone not configured: set bench.local.json, INSUSTY_EXT_REPO or --ext-repo." };
+    if (!loaded)
+      return {
+        error:
+          "Extension clone not configured: set bench.local.json, INSUSTY_EXT_REPO or --ext-repo.",
+      };
     if (!this.matrixMemo || Date.now() - this.matrixMemo.at > 5_000) {
       const plans = this.plansFor(loaded);
       const live = await this.liveRuns();
       const activeKeys = new Set<string>();
-      for (const l of live) if (l.plan) for (const jobs of l.plan.jobsByModel.values()) for (const j of jobs) activeKeys.add(j.key);
+      for (const l of live)
+        if (l.plan)
+          for (const jobs of l.plan.jobsByModel.values())
+            for (const j of jobs) activeKeys.add(j.key);
       const refModels = refBenchModels(loaded.api, "all");
       const perCase = new Map(refModels.map((m) => [m.id, secondsPerCase(m)]));
-      const caches = new Map(refModels.map((m) => [m.id, readModelCache(loaded.ext.sha, m.id)]));
-      const isDone = (model: string, key: string) => caches.get(model)?.has(key) ?? false;
+      const caches = new Map(
+        refModels.map((m) => [m.id, readModelCache(loaded.ext.sha, m.id)]),
+      );
+      const isDone = (model: string, key: string) =>
+        caches.get(model)?.has(key) ?? false;
       const isActive = (_model: string, key: string) => activeKeys.has(key);
       this.matrixMemo = {
         at: Date.now(),
         rows: [
-          ...matrixStatus("quick", plans.quick.jobsByModel, isDone, isActive, (m) => perCase.get(m) ?? 20),
-          ...matrixStatus("full", plans.full.jobsByModel, isDone, isActive, (m) => perCase.get(m) ?? 20),
+          ...matrixStatus(
+            "quick",
+            plans.quick.jobsByModel,
+            isDone,
+            isActive,
+            (m) => perCase.get(m) ?? 20,
+          ),
+          ...matrixStatus(
+            "full",
+            plans.full.jobsByModel,
+            isDone,
+            isActive,
+            (m) => perCase.get(m) ?? 20,
+          ),
         ],
       };
     }
-    return { ref: loaded.ext.ref, sha: loaded.ext.sha, subject: loaded.ext.subject, rows: this.matrixMemo.rows, secondsPerCase: Object.fromEntries(refBenchModels(loaded.api, "all").map((m) => [m.id, secondsPerCase(m)])) };
+    return {
+      ref: loaded.ext.ref,
+      sha: loaded.ext.sha,
+      subject: loaded.ext.subject,
+      rows: this.matrixMemo.rows,
+      secondsPerCase: Object.fromEntries(
+        refBenchModels(loaded.api, "all").map((m) => [m.id, secondsPerCase(m)]),
+      ),
+    };
   }
 
   // ---------------------------------------------------------- results
 
   async runs(): Promise<RunListing[]> {
-    const live = (await this.liveRuns()).filter((l) => l.plan).map((l) => ({ id: l.id, name: `LIVE ${l.run.name ?? l.run.argv.join(" ")}`, kind: "live" as const, tier: l.tier, ref: l.ext?.ext.ref, sha: l.ext?.ext.sha }));
+    const live = (await this.liveRuns())
+      .filter((l) => l.plan)
+      .map((l) => ({
+        id: l.id,
+        name: `LIVE ${l.run.name ?? l.run.argv.join(" ")}`,
+        kind: "live" as const,
+        tier: l.tier,
+        ref: l.ext?.ext.ref,
+        sha: l.ext?.ext.sha,
+      }));
     return [...live, ...listCommittedRuns()];
   }
 
@@ -245,14 +382,25 @@ export class Dashboard {
   }
 
   async caseDetail(runId: string, config: string, caseId: string) {
-    const row = (await this.rows(runId)).find((r) => r.config === config && r.caseId === caseId);
+    const row = (await this.rows(runId)).find(
+      (r) => r.config === config && r.caseId === caseId,
+    );
     const c = this.cases.get(caseId);
-    if (!row || !c) return { notFound: `No result for ${caseId} with ${config} in this run.` };
+    if (!row || !c)
+      return {
+        notFound: `No result for ${caseId} with ${config} in this run.`,
+      };
     const profile = this.dataset.profiles.find((p) => p.id === c.profile)!;
     const variant = INSTRUCTION_VARIANTS.find((v) => v.id === row.instruction);
-    const sha = runId.startsWith("run:") ? listCommittedRuns().find((r) => r.id === runId)?.sha : (await this.liveRuns()).find((l) => l.id === runId)?.ext?.ext.sha;
-    const systemInstruction = variant?.text ?? (sha ? await this.defaultPromptFor(sha) : "(default prompt)");
-    const rules = LABEL_VARIANTS.some((v) => v.id === row.labelVariant) ? rulesFor(profile, row.labelVariant as never) : [];
+    const sha = runId.startsWith("run:")
+      ? listCommittedRuns().find((r) => r.id === runId)?.sha
+      : (await this.liveRuns()).find((l) => l.id === runId)?.ext?.ext.sha;
+    const systemInstruction =
+      variant?.text ??
+      (sha ? await this.defaultPromptFor(sha) : "(default prompt)");
+    const rules = LABEL_VARIANTS.some((v) => v.id === row.labelVariant)
+      ? rulesFor(profile, row.labelVariant as never)
+      : [];
     return caseDetail(row, c, rules, systemInstruction);
   }
 }
@@ -263,7 +411,13 @@ async function playgroundPresets(dash: Dashboard) {
   const loaded = await dash.ext();
   const api = loaded?.api;
   return {
-    ext: loaded ? { ref: loaded.ext.ref, sha: loaded.ext.sha, subject: loaded.ext.subject } : null,
+    ext: loaded
+      ? {
+          ref: loaded.ext.ref,
+          sha: loaded.ext.sha,
+          subject: loaded.ext.subject,
+        }
+      : null,
     models: MODELS.map((m) => ({ id: m.id, short: m.short })),
     settings: DEFAULT_SETTINGS,
     defaultPrompt: api?.defaultPrompt ?? null,
@@ -277,11 +431,25 @@ async function playgroundPresets(dash: Dashboard) {
       id: p.id,
       name: p.name,
       rules: Object.fromEntries(
-        LABEL_VARIANTS.map((v) => [v.id, p.labels.map((l) => ({ label: l.label, prompt: composeLabelDescription(l, v.id), examples: l.examples.slice(0, 3) }))]),
+        LABEL_VARIANTS.map((v) => [
+          v.id,
+          p.labels.map((l) => ({
+            label: l.label,
+            prompt: composeLabelDescription(l, v.id),
+            examples: l.examples.slice(0, 3),
+          })),
+        ]),
       ),
     })),
     // Dev-split cases only: the test split stays held out.
-    examples: selectCases(dash.dataset, "quick", "dev", 2).map((c) => ({ id: c.id, profile: c.profile, lang: c.lang, type: c.type, text: c.text, expected: c.expected })),
+    examples: selectCases(dash.dataset, "quick", "dev", 2).map((c) => ({
+      id: c.id,
+      profile: c.profile,
+      lang: c.lang,
+      type: c.type,
+      text: c.text,
+      expected: c.expected,
+    })),
   };
 }
 
@@ -302,33 +470,56 @@ const readBody = (req: IncomingMessage): Promise<Record<string, unknown>> =>
     req.on("error", reject);
   });
 
-async function handlePlayground(dash: Dashboard, path: string, req: IncomingMessage, res: ServerResponse): Promise<void> {
+async function handlePlayground(
+  dash: Dashboard,
+  path: string,
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> {
   const host = dash.playground;
-  if (path === "/api/playground/status") return send(res, 200, host.getStatus());
-  if (path === "/api/playground/presets") return send(res, 200, await playgroundPresets(dash));
+  if (path === "/api/playground/status")
+    return send(res, 200, host.getStatus());
+  if (path === "/api/playground/presets")
+    return send(res, 200, await playgroundPresets(dash));
   if (req.method !== "POST") return send(res, 405, { error: "POST required" });
   const body = await readBody(req);
   try {
     switch (path) {
       case "/api/playground/load": {
-        const model = MODELS.find((m) => m.id === body.model || m.short === body.model);
+        const model = MODELS.find(
+          (m) => m.id === body.model || m.short === body.model,
+        );
         if (!model) return send(res, 400, { error: "unknown model" });
         const loaded = await dash.ext();
-        if (!loaded) return send(res, 400, { error: "extension clone not configured (needed for the review preset and engine)" });
+        if (!loaded)
+          return send(res, 400, {
+            error:
+              "extension clone not configured (needed for the review preset and engine)",
+          });
         return send(res, 200, await host.load(model.id, loaded.ext.bundle));
       }
       case "/api/playground/unload":
         await host.unload();
         return send(res, 200, host.getStatus());
       case "/api/playground/chat":
-        return send(res, 200, await host.request("chat", { messages: body.messages, prefill: body.prefill, settings: body.settings }));
+        return send(
+          res,
+          200,
+          await host.request("chat", {
+            messages: body.messages,
+            prefill: body.prefill,
+            settings: body.settings,
+          }),
+        );
       case "/api/playground/review":
         return send(res, 200, await host.request("review", { request: body }));
       default:
         return send(res, 404, { error: "not found" });
     }
   } catch (error) {
-    return send(res, error instanceof BusyError ? 409 : 400, { error: (error as Error).message });
+    return send(res, error instanceof BusyError ? 409 : 400, {
+      error: (error as Error).message,
+    });
   }
 }
 
@@ -336,8 +527,14 @@ async function handlePlayground(dash: Dashboard, path: string, req: IncomingMess
 
 /** Local models (models/models.json) and connected ones (src/hosted/connected.ts), for language support next to results. */
 const MODEL_META = [
-  ...(JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: unknown[] }).models,
-  ...CONNECTED_MODELS.map((h) => ({ id: h.id, short: h.short, hosted: true, languages: h.languages })),
+  ...(JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: unknown[] })
+    .models,
+  ...CONNECTED_MODELS.map((h) => ({
+    id: h.id,
+    short: h.short,
+    hosted: true,
+    languages: h.languages,
+  })),
 ];
 
 const parseFilters = (params: URLSearchParams): Filters => {
@@ -357,8 +554,12 @@ function literatureRuns() {
   return readdirSync(dir)
     .filter((name) => existsSync(join(dir, name, "metrics.json")))
     .map((name) => {
-      const run = JSON.parse(readFileSync(join(dir, name, "run.json"), "utf8")) as { contract: string; machine?: { id: string }; finishedAt: string };
-      const results = JSON.parse(readFileSync(join(dir, name, "metrics.json"), "utf8")) as LiteratureRun["results"];
+      const run = JSON.parse(
+        readFileSync(join(dir, name, "run.json"), "utf8"),
+      ) as { contract: string; machine?: { id: string }; finishedAt: string };
+      const results = JSON.parse(
+        readFileSync(join(dir, name, "metrics.json"), "utf8"),
+      ) as LiteratureRun["results"];
       return {
         name,
         contract: run.contract,
@@ -388,34 +589,77 @@ const labRuns = () =>
     ? readdirSync(LAB_RUNS_DIR)
         .filter((f) => f.endsWith(".json"))
         .map((f) => {
-          const run = JSON.parse(readFileSync(join(LAB_RUNS_DIR, f), "utf8")) as { name: string; at: string; set: unknown; summary: unknown[]; inProgress?: string };
-          return { name: run.name, at: run.at, set: run.set, summary: run.summary, ...(run.inProgress ? { inProgress: run.inProgress } : {}) };
+          const run = JSON.parse(
+            readFileSync(join(LAB_RUNS_DIR, f), "utf8"),
+          ) as {
+            name: string;
+            at: string;
+            set: unknown;
+            summary: unknown[];
+            inProgress?: string;
+          };
+          return {
+            name: run.name,
+            at: run.at,
+            set: run.set,
+            summary: run.summary,
+            ...(run.inProgress ? { inProgress: run.inProgress } : {}),
+          };
         })
         .sort((a, b) => a.at.localeCompare(b.at))
     : [];
 const labRun = (name: string) => {
   if (!/^[\w.-]+$/.test(name)) throw new Error("bad run name");
-  return JSON.parse(readFileSync(join(LAB_RUNS_DIR, `${name}.json`), "utf8")) as unknown;
+  return JSON.parse(
+    readFileSync(join(LAB_RUNS_DIR, `${name}.json`), "utf8"),
+  ) as unknown;
 };
 
-const send = (res: ServerResponse, status: number, body: unknown, type = "application/json") => {
-  res.writeHead(status, { "content-type": `${type}; charset=utf-8`, "cache-control": "no-store" });
+const send = (
+  res: ServerResponse,
+  status: number,
+  body: unknown,
+  type = "application/json",
+) => {
+  res.writeHead(status, {
+    "content-type": `${type}; charset=utf-8`,
+    "cache-control": "no-store",
+  });
   res.end(typeof body === "string" ? body : JSON.stringify(body));
 };
 
-export async function handle(dash: Dashboard, req: IncomingMessage, res: ServerResponse): Promise<void> {
+export async function handle(
+  dash: Dashboard,
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> {
   const url = new URL(req.url ?? "/", "http://localhost");
   const p = url.searchParams;
   try {
-    if (url.pathname.startsWith("/api/playground/")) return await handlePlayground(dash, url.pathname, req, res);
+    if (url.pathname.startsWith("/api/playground/"))
+      return await handlePlayground(dash, url.pathname, req, res);
     switch (url.pathname) {
       case "/":
         return send(res, 200, PAGE_HTML, "text/html");
       case "/api/overview": {
         const loaded = await dash.ext();
         return send(res, 200, {
-          ext: loaded ? { ref: loaded.ext.ref, sha: loaded.ext.sha, subject: loaded.ext.subject } : null,
-          dataset: { hash: dash.dataset.hash, cases: dash.dataset.cases.length, profiles: dash.dataset.profiles.map((pr) => ({ id: pr.id, name: pr.name, labels: pr.labels.map((l) => l.label) })) },
+          ext: loaded
+            ? {
+                ref: loaded.ext.ref,
+                sha: loaded.ext.sha,
+                subject: loaded.ext.subject,
+              }
+            : null,
+          dataset: {
+            hash: dash.dataset.hash,
+            cases: dash.dataset.cases.length,
+            profiles: dash.dataset.profiles.map((pr) => ({
+              id: pr.id,
+              name: pr.name,
+              labels: pr.labels.map((l) => l.label),
+            })),
+          },
           models: MODEL_META,
           instructions: INSTRUCTION_VARIANTS,
           labelVariants: LABEL_VARIANTS,
@@ -424,19 +668,50 @@ export async function handle(dash: Dashboard, req: IncomingMessage, res: ServerR
         });
       }
       case "/api/progress":
-        return send(res, 200, { runs: await dash.progress(), docRuns: dash.docs.progress(findActiveRuns()) });
+        return send(res, 200, {
+          runs: await dash.progress(),
+          docRuns: dash.docs.progress(findActiveRuns()),
+        });
       case "/api/docbench/runs":
         return send(res, 200, { runs: dash.docs.runs(findActiveRuns()) });
       case "/api/docbench/run":
-        return send(res, 200, dash.docs.run(p.get("id") ?? "", findActiveRuns()));
+        return send(
+          res,
+          200,
+          dash.docs.run(p.get("id") ?? "", findActiveRuns()),
+        );
       case "/api/docbench/cases":
-        return send(res, 200, { cases: dash.docs.cases(p.get("id") ?? "", findActiveRuns()) });
+        return send(res, 200, {
+          cases: dash.docs.cases(p.get("id") ?? "", findActiveRuns()),
+        });
       case "/api/docbench/case":
-        return send(res, 200, dash.docs.caseDetail(p.get("id") ?? "", p.get("case") ?? "", findActiveRuns()));
+        return send(
+          res,
+          200,
+          dash.docs.caseDetail(
+            p.get("id") ?? "",
+            p.get("case") ?? "",
+            findActiveRuns(),
+          ),
+        );
       case "/docbench/report":
-        return send(res, 200, dash.docs.reportHtml(p.get("id") ?? "", findActiveRuns()), "text/html");
+        return send(
+          res,
+          200,
+          dash.docs.reportHtml(p.get("id") ?? "", findActiveRuns()),
+          "text/html",
+        );
       case "/docbench/compare":
-        return send(res, 200, dash.docs.compareHtml(p.get("a") ?? "", p.get("b") ?? "", findActiveRuns()), "text/html");
+        return send(
+          res,
+          200,
+          dash.docs.compareHtml(
+            p.get("a") ?? "",
+            p.get("b") ?? "",
+            findActiveRuns(),
+          ),
+          "text/html",
+        );
       case "/api/matrix":
         return send(res, 200, await dash.matrix());
       case "/api/runs":
@@ -444,27 +719,65 @@ export async function handle(dash: Dashboard, req: IncomingMessage, res: ServerR
       case "/api/results": {
         const all = await dash.rows(p.get("run") ?? "");
         const rows = filterRows(all, parseFilters(p));
-        const dims = (p.get("groupBy") ?? "model").split(",").filter(Boolean).slice(0, 2);
-        return send(res, 200, { total: all.length, filtered: rows.length, options: filterOptions(all), dims, groups: groupMetrics(rows, dims) });
+        const dims = (p.get("groupBy") ?? "model")
+          .split(",")
+          .filter(Boolean)
+          .slice(0, 2);
+        return send(res, 200, {
+          total: all.length,
+          filtered: rows.length,
+          options: filterOptions(all),
+          dims,
+          groups: groupMetrics(rows, dims),
+        });
       }
       case "/api/cases": {
-        const rows = filterRows(await dash.rows(p.get("run") ?? ""), parseFilters(p));
-        return send(res, 200, listCases(rows, p.get("verdict") ?? undefined, Number(p.get("limit") ?? 200)));
+        const rows = filterRows(
+          await dash.rows(p.get("run") ?? ""),
+          parseFilters(p),
+        );
+        return send(
+          res,
+          200,
+          listCases(
+            rows,
+            p.get("verdict") ?? undefined,
+            Number(p.get("limit") ?? 200),
+          ),
+        );
       }
       case "/api/case":
-        return send(res, 200, await dash.caseDetail(p.get("run") ?? "", p.get("config") ?? "", p.get("case") ?? ""));
+        return send(
+          res,
+          200,
+          await dash.caseDetail(
+            p.get("run") ?? "",
+            p.get("config") ?? "",
+            p.get("case") ?? "",
+          ),
+        );
       case "/api/literature/runs":
         return send(res, 200, { runs: literatureRuns() });
       case "/literature/report": {
-        const file = join(RUNS_DIR, "literature", basename(p.get("id") ?? ""), "report.html");
-        return existsSync(file) ? send(res, 200, readFileSync(file, "utf8"), "text/html") : send(res, 404, { error: "no such run" });
+        const file = join(
+          RUNS_DIR,
+          "literature",
+          basename(p.get("id") ?? ""),
+          "report.html",
+        );
+        return existsSync(file)
+          ? send(res, 200, readFileSync(file, "utf8"), "text/html")
+          : send(res, 404, { error: "no such run" });
       }
       case "/api/lab/runs":
         return send(res, 200, { runs: labRuns() });
       case "/api/lab/run":
         return send(res, 200, labRun(p.get("name") ?? ""));
       case "/api/compare": {
-        const [a, b] = await Promise.all([dash.rows(p.get("a") ?? ""), dash.rows(p.get("b") ?? "")]);
+        const [a, b] = await Promise.all([
+          dash.rows(p.get("a") ?? ""),
+          dash.rows(p.get("b") ?? ""),
+        ]);
         return send(res, 200, compareRows(a, b));
       }
       default:
@@ -477,5 +790,7 @@ export async function handle(dash: Dashboard, req: IncomingMessage, res: ServerR
 
 export function startServer(dash: Dashboard, port: number, host = "127.0.0.1") {
   const server = createServer((req, res) => void handle(dash, req, res));
-  return new Promise<typeof server>((resolve) => server.listen(port, host, () => resolve(server)));
+  return new Promise<typeof server>((resolve) =>
+    server.listen(port, host, () => resolve(server)),
+  );
 }

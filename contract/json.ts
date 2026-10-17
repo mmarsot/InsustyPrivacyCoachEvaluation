@@ -19,13 +19,33 @@ export const jsonBytes = (bytes: Uint8Array, withBytes = false): JsonBytes => ({
 });
 
 export function inputToJson(input: RedactionInput, withBytes = false): unknown {
-  return input.kind === "text" ? input : { kind: "document", name: input.name, bytes: jsonBytes(input.bytes, withBytes) };
+  return input.kind === "text"
+    ? input
+    : {
+        kind: "document",
+        name: input.name,
+        bytes: jsonBytes(input.bytes, withBytes),
+      };
 }
 
-export function outputToJson(output: RedactionOutput, withBytes = false): unknown {
+export function outputToJson(
+  output: RedactionOutput,
+  withBytes = false,
+): unknown {
   const { file, ...redaction } = output.redaction;
   return {
     ...output,
-    redaction: { ...redaction, ...(file ? { file: { name: file.name, type: file.type, bytes: jsonBytes(file.bytes, withBytes) } } : {}) },
+    redaction: {
+      ...redaction,
+      ...(file
+        ? {
+            file: {
+              name: file.name,
+              type: file.type,
+              bytes: jsonBytes(file.bytes, withBytes),
+            },
+          }
+        : {}),
+    },
   };
 }

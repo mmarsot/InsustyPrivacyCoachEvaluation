@@ -33,48 +33,101 @@ export interface Metrics {
 }
 
 const ratio = (n: number, d: number) => (d ? n / d : null);
-const prf = (tp: number, predicted: number, found: number, expected: number): Prf => {
+const prf = (
+  tp: number,
+  predicted: number,
+  found: number,
+  expected: number,
+): Prf => {
   const precision = ratio(tp, predicted);
   const recall = ratio(found, expected);
-  const f1 = precision !== null && recall !== null && precision + recall > 0 ? (2 * precision * recall) / (precision + recall) : precision !== null && recall !== null ? 0 : null;
+  const f1 =
+    precision !== null && recall !== null && precision + recall > 0
+      ? (2 * precision * recall) / (precision + recall)
+      : precision !== null && recall !== null
+        ? 0
+        : null;
   return { tp, predicted, expected, found, precision, recall, f1 };
 };
 export const percentile = (values: number[], p: number): number | null => {
   if (!values.length) return null;
   const sorted = [...values].sort((a, b) => a - b);
-  return sorted[Math.min(sorted.length - 1, Math.max(0, Math.ceil((p / 100) * sorted.length) - 1))]!;
+  return sorted[
+    Math.min(
+      sorted.length - 1,
+      Math.max(0, Math.ceil((p / 100) * sorted.length) - 1),
+    )
+  ]!;
 };
 
 export function metrics(rows: Scored[], label?: string): Metrics {
-  const preds = rows.flatMap((r) => r.predicted).filter((p) => !label || p.label === label);
-  const exps = rows.flatMap((r) => r.expected).filter((e) => !label || e.label === label);
+  const preds = rows
+    .flatMap((r) => r.predicted)
+    .filter((p) => !label || p.label === label);
+  const exps = rows
+    .flatMap((r) => r.expected)
+    .filter((e) => !label || e.label === label);
   const positives = rows.filter((r) => r.positive);
   const negatives = rows.filter((r) => !r.positive);
-  const failures = Object.fromEntries(FAILURE_MODES.map((m) => [m, 0])) as Record<FailureMode, number>;
+  const failures = Object.fromEntries(
+    FAILURE_MODES.map((m) => [m, 0]),
+  ) as Record<FailureMode, number>;
   for (const r of rows) failures[r.failure]++;
   return {
     cases: rows.length,
     positives: positives.length,
     negatives: negatives.length,
-    exact: prf(preds.filter((p) => p.exact).length, preds.length, exps.filter((e) => e.exact).length, exps.length),
-    overlap: prf(preds.filter((p) => p.overlap).length, preds.length, exps.filter((e) => e.overlap).length, exps.length),
+    exact: prf(
+      preds.filter((p) => p.exact).length,
+      preds.length,
+      exps.filter((e) => e.exact).length,
+      exps.length,
+    ),
+    overlap: prf(
+      preds.filter((p) => p.overlap).length,
+      preds.length,
+      exps.filter((e) => e.overlap).length,
+      exps.length,
+    ),
     anyLabelRecall: ratio(exps.filter((e) => e.anyLabel).length, exps.length),
-    caseDetection: ratio(positives.filter((r) => r.detected).length, positives.length),
-    falsePositiveRate: ratio(negatives.filter((r) => r.falsePositiveCase).length, negatives.length),
+    caseDetection: ratio(
+      positives.filter((r) => r.detected).length,
+      positives.length,
+    ),
+    falsePositiveRate: ratio(
+      negatives.filter((r) => r.falsePositiveCase).length,
+      negatives.length,
+    ),
     compliance: ratio(rows.filter((r) => r.compliant).length, rows.length),
     failures,
     timeouts: rows.filter((r) => r.timeout).length,
     builtinFindings: rows.reduce((a, r) => a + r.builtinPredicted, 0),
-    latencyP50: percentile(rows.map((r) => r.reviewMs), 50),
-    latencyP95: percentile(rows.map((r) => r.reviewMs), 95),
-    meanGeneratedTokens: rows.length ? rows.reduce((a, r) => a + r.generatedTokens, 0) / rows.length : null,
+    latencyP50: percentile(
+      rows.map((r) => r.reviewMs),
+      50,
+    ),
+    latencyP95: percentile(
+      rows.map((r) => r.reviewMs),
+      95,
+    ),
+    meanGeneratedTokens: rows.length
+      ? rows.reduce((a, r) => a + r.generatedTokens, 0) / rows.length
+      : null,
   };
 }
 
 /** Dimensions every report breaks results down by. */
-export const DIMENSIONS: ReadonlyArray<{ id: string; title: string; get(r: Scored): string }> = [
+export const DIMENSIONS: ReadonlyArray<{
+  id: string;
+  title: string;
+  get(r: Scored): string;
+}> = [
   { id: "lang", title: "Language", get: (r) => r.lang },
-  { id: "langMixed", title: "Language (mixed-language cases separated)", get: (r) => (r.mixed ? `${r.lang}+mixed` : r.lang) },
+  {
+    id: "langMixed",
+    title: "Language (mixed-language cases separated)",
+    get: (r) => (r.mixed ? `${r.lang}+mixed` : r.lang),
+  },
   { id: "profile", title: "Profile", get: (r) => r.profile },
   { id: "type", title: "Case type", get: (r) => r.type },
   { id: "difficulty", title: "Difficulty", get: (r) => r.difficulty },
@@ -98,11 +151,20 @@ export function summarize(rows: Scored[]): ConfigSummary[] {
   return configs.map((config) => {
     const mine = rows.filter((r) => r.config === config);
     const first = mine[0]!;
-    const labels = [...new Set(mine.flatMap((r) => [...r.expected.map((e) => e.label), ...r.predicted.map((p) => p.label)]))].sort();
+    const labels = [
+      ...new Set(
+        mine.flatMap((r) => [
+          ...r.expected.map((e) => e.label),
+          ...r.predicted.map((p) => p.label),
+        ]),
+      ),
+    ].sort();
     const breakdowns: ConfigSummary["breakdowns"] = {};
     for (const dim of DIMENSIONS) {
       const values = [...new Set(mine.map(dim.get))].sort();
-      breakdowns[dim.id] = Object.fromEntries(values.map((v) => [v, metrics(mine.filter((r) => dim.get(r) === v))]));
+      breakdowns[dim.id] = Object.fromEntries(
+        values.map((v) => [v, metrics(mine.filter((r) => dim.get(r) === v))]),
+      );
     }
     return {
       config,
@@ -118,7 +180,9 @@ export function summarize(rows: Scored[]): ConfigSummary[] {
 
 /** Long-format CSV: config, dimension, value, metric, number. */
 export function toCsv(summaries: ConfigSummary[]): string {
-  const lines = ["config,model,instruction,label_variant,dimension,value,metric,number"];
+  const lines = [
+    "config,model,instruction,label_variant,dimension,value,metric,number",
+  ];
   const flat = (m: Metrics): Array<[string, number | null]> => [
     ["cases", m.cases],
     ["exact_precision", m.exact.precision],
@@ -134,17 +198,35 @@ export function toCsv(summaries: ConfigSummary[]): string {
     ["latency_p50_ms", m.latencyP50],
     ["latency_p95_ms", m.latencyP95],
     ["mean_generated_tokens", m.meanGeneratedTokens],
-    ...FAILURE_MODES.map((f) => [`failure_${f}`, m.failures[f]] as [string, number]),
+    ...FAILURE_MODES.map(
+      (f) => [`failure_${f}`, m.failures[f]] as [string, number],
+    ),
   ];
-  const esc = (s: string) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+  const esc = (s: string) =>
+    /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   const push = (s: ConfigSummary, dim: string, value: string, m: Metrics) => {
     for (const [metric, n] of flat(m))
-      lines.push([s.config, s.model, s.instruction, s.labelVariant, dim, value, metric, n === null ? "" : String(Number(n.toFixed(4)))].map(esc).join(","));
+      lines.push(
+        [
+          s.config,
+          s.model,
+          s.instruction,
+          s.labelVariant,
+          dim,
+          value,
+          metric,
+          n === null ? "" : String(Number(n.toFixed(4))),
+        ]
+          .map(esc)
+          .join(","),
+      );
   };
   for (const s of summaries) {
     push(s, "overall", "all", s.overall);
-    for (const [label, m] of Object.entries(s.byLabel)) push(s, "label", label, m);
-    for (const [dim, values] of Object.entries(s.breakdowns)) for (const [value, m] of Object.entries(values)) push(s, dim, value, m);
+    for (const [label, m] of Object.entries(s.byLabel))
+      push(s, "label", label, m);
+    for (const [dim, values] of Object.entries(s.breakdowns))
+      for (const [value, m] of Object.entries(values)) push(s, dim, value, m);
   }
   return lines.join("\n") + "\n";
 }

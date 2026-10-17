@@ -45,7 +45,12 @@ export interface ConnectedModel {
   usdPerMOutput: number;
   /** Bench estimate (s per case). */
   priorSecondsPerCase: number;
-  languages: { advertised: string[]; fr: string; summary: string; source: string };
+  languages: {
+    advertised: string[];
+    fr: string;
+    summary: string;
+    source: string;
+  };
 }
 
 /**
@@ -58,7 +63,15 @@ export const CONNECTED_MODELS: ConnectedModel[] = [
   {
     id: "connected/bedrock/zai.glm-4.7-flash#auto-15s",
     short: "glm47-flash-connected",
-    connection: { provider: "bedrock", region: "eu-north-1", model: "zai.glm-4.7-flash", displayName: "GLM-4.7 Flash", format: "auto", timeLimitMs: 15_000, maxRequestsPerMinute: 90 },
+    connection: {
+      provider: "bedrock",
+      region: "eu-north-1",
+      model: "zai.glm-4.7-flash",
+      displayName: "GLM-4.7 Flash",
+      format: "auto",
+      timeLimitMs: 15_000,
+      maxRequestsPerMinute: 90,
+    },
     apiKeyEnv: "AWS_BEARER_TOKEN_BEDROCK",
     usdPerMInput: 0.08,
     usdPerMOutput: 0.48,
@@ -66,19 +79,23 @@ export const CONNECTED_MODELS: ConnectedModel[] = [
     languages: {
       advertised: ["en", "zh"],
       fr: "not advertised",
-      summary: "Z.ai GLM-4.7 Flash, a lightweight general model; its card highlights English and Chinese.",
-      source: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-zai-glm-4-7-flash.html",
+      summary:
+        "Z.ai GLM-4.7 Flash, a lightweight general model; its card highlights English and Chinese.",
+      source:
+        "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-zai-glm-4-7-flash.html",
     },
   },
 ];
 
-export const findConnectedModel = (name: string) => CONNECTED_MODELS.find((m) => m.id === name || m.short === name);
+export const findConnectedModel = (name: string) =>
+  CONNECTED_MODELS.find((m) => m.id === name || m.short === name);
 
 export const CONNECTED_CACHE_DIR = join(CACHE_DIR, "hosted");
 /** Set on replies served from the cache (they cost nothing now). */
 const CACHE_HEADER = "x-bench-cache";
 const slug = (id: string) => id.replace(/[^\w.-]+/g, "_");
-export const connectedCacheFile = (m: Pick<ConnectedModel, "id">) => join(CONNECTED_CACHE_DIR, `${slug(m.id)}.jsonl`);
+export const connectedCacheFile = (m: Pick<ConnectedModel, "id">) =>
+  join(CONNECTED_CACHE_DIR, `${slug(m.id)}.jsonl`);
 
 interface CachedReply {
   key: string;
@@ -107,15 +124,21 @@ const readCache = (file: string): Map<string, CachedReply> => {
 /** USD of every reply cached for the connected models (each paid request counts once). */
 export function connectedSpentUsd(): number {
   let usd = 0;
-  for (const m of CONNECTED_MODELS) for (const r of readCache(connectedCacheFile(m)).values()) usd += r.costUsd;
+  for (const m of CONNECTED_MODELS)
+    for (const r of readCache(connectedCacheFile(m)).values()) usd += r.costUsd;
   return usd;
 }
 
 /** Token usage of a provider reply (Bedrock Converse `usage`, OpenAI `usage`). */
-function tokensOf(json: unknown): { inputTokens: number; outputTokens: number } | undefined {
+function tokensOf(
+  json: unknown,
+): { inputTokens: number; outputTokens: number } | undefined {
   const u = (json as { usage?: Record<string, number> } | undefined)?.usage;
   if (!u) return undefined;
-  return { inputTokens: u.inputTokens ?? u.prompt_tokens ?? 0, outputTokens: u.outputTokens ?? u.completion_tokens ?? 0 };
+  return {
+    inputTokens: u.inputTokens ?? u.prompt_tokens ?? 0,
+    outputTokens: u.outputTokens ?? u.completion_tokens ?? 0,
+  };
 }
 
 /**
@@ -123,26 +146,58 @@ function tokensOf(json: unknown): { inputTokens: number; outputTokens: number } 
  * so far (cached included); an uncached request is refused once it reaches
  * `budgetUsd`.
  */
-export function connectedTarget(m: ConnectedModel, budget: { budgetUsd: number; spentUsd: () => number }): ConnectedTarget {
+export function connectedTarget(
+  m: ConnectedModel,
+  budget: { budgetUsd: number; spentUsd: () => number },
+): ConnectedTarget {
   const file = connectedCacheFile(m);
   const cache = readCache(file);
-  const costOf = (t: { inputTokens: number; outputTokens: number }) => (t.inputTokens * m.usdPerMInput + t.outputTokens * m.usdPerMOutput) / 1e6;
+  const costOf = (t: { inputTokens: number; outputTokens: number }) =>
+    (t.inputTokens * m.usdPerMInput + t.outputTokens * m.usdPerMOutput) / 1e6;
   const transport: typeof fetch = async (input, init) => {
-    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-    const key = createHash("sha256").update(JSON.stringify([m.id, url, init?.body ?? ""])).digest("hex");
+    const url =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.href
+          : input.url;
+    const key = createHash("sha256")
+      .update(JSON.stringify([m.id, url, init?.body ?? ""]))
+      .digest("hex");
     const hit = cache.get(key);
-    if (hit) return new Response(hit.body, { status: hit.status, headers: { "content-type": "application/json", [CACHE_HEADER]: "hit" } });
-    if (budget.spentUsd() >= budget.budgetUsd) throw new Error(`connected budget of ${budget.budgetUsd} USD reached; nothing was sent`);
+    if (hit)
+      return new Response(hit.body, {
+        status: hit.status,
+        headers: { "content-type": "application/json", [CACHE_HEADER]: "hit" },
+      });
+    if (budget.spentUsd() >= budget.budgetUsd)
+      throw new Error(
+        `connected budget of ${budget.budgetUsd} USD reached; nothing was sent`,
+      );
     const response = await fetch(input, init);
     const body = await response.text();
     if (response.ok) {
-      const tokens = tokensOf(JSON.parse(body) as unknown) ?? { inputTokens: 0, outputTokens: 0 };
-      const record: CachedReply = { key, status: response.status, body, ...tokens, costUsd: costOf(tokens), at: new Date().toISOString() };
+      const tokens = tokensOf(JSON.parse(body) as unknown) ?? {
+        inputTokens: 0,
+        outputTokens: 0,
+      };
+      const record: CachedReply = {
+        key,
+        status: response.status,
+        body,
+        ...tokens,
+        costUsd: costOf(tokens),
+        at: new Date().toISOString(),
+      };
       cache.set(key, record);
       mkdirSync(CONNECTED_CACHE_DIR, { recursive: true });
       appendFileSync(file, JSON.stringify(record) + "\n");
     }
-    return new Response(body, { status: response.status, statusText: response.statusText, headers: response.headers });
+    return new Response(body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    });
   };
   const apiKey = process.env[m.apiKeyEnv];
   return {
@@ -154,7 +209,11 @@ export function connectedTarget(m: ConnectedModel, budget: { budgetUsd: number; 
       const tokens = tokensOf(json);
       if (!tokens) return undefined;
       const cached = response.headers.get(CACHE_HEADER) === "hit";
-      return { ...tokens, usd: cached ? 0 : costOf(tokens), ...(cached ? { cached: true } : {}) };
+      return {
+        ...tokens,
+        usd: cached ? 0 : costOf(tokens),
+        ...(cached ? { cached: true } : {}),
+      };
     },
   };
 }

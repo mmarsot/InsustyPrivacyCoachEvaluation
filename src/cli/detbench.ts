@@ -21,18 +21,39 @@ import { join, resolve } from "node:path";
 import { resolveExtRefName, resolveExtRepo } from "../ext/ref.ts";
 import { RUNS_DIR } from "../paths.ts";
 import { percentile } from "../score/aggregate.ts";
-import { detCsv, summarizeDet, type DetSummary } from "../detbench/aggregate.ts";
-import { DETBENCH_DIR, DETBENCH_LANGS, loadDetDataset } from "../detbench/dataset.ts";
+import {
+  detCsv,
+  summarizeDet,
+  type DetSummary,
+} from "../detbench/aggregate.ts";
+import {
+  DETBENCH_DIR,
+  DETBENCH_LANGS,
+  loadDetDataset,
+} from "../detbench/dataset.ts";
 import { defangJson, hasRawSecretPrefix } from "../detbench/defang.ts";
 import { detectorApi, type DetConfigName } from "../detbench/ext.ts";
 import { loadInsustyModule } from "../module/insusty.ts";
 import { presidioModule } from "../systems/presidio.ts";
 import { machineProfile, peakRssMb } from "../module/machine.ts";
 import { materializeModule } from "../module/materialize.ts";
-import { PERTURBATIONS, perturbCases, type Perturbation } from "../detbench/perturb.ts";
+import {
+  PERTURBATIONS,
+  perturbCases,
+  type Perturbation,
+} from "../detbench/perturb.ts";
 import { detRegressions } from "../tracks/regressions.ts";
-import { renderDetCompare, renderDetReport, textSummary, type DetRunMeta } from "../detbench/report.ts";
-import { isFalsePositive, scoreDetCase, type DetScored } from "../detbench/score.ts";
+import {
+  renderDetCompare,
+  renderDetReport,
+  textSummary,
+  type DetRunMeta,
+} from "../detbench/report.ts";
+import {
+  isFalsePositive,
+  scoreDetCase,
+  type DetScored,
+} from "../detbench/score.ts";
 
 export const DETBENCH_RUNS_DIR = join(RUNS_DIR, "detbench");
 
@@ -47,7 +68,8 @@ const option = (name: string): string | undefined => {
   const i = argv.indexOf(`--${name}`);
   if (i < 0) return undefined;
   const value = argv[i + 1];
-  if (value === undefined || value.startsWith("--")) fail(`--${name} needs a value`);
+  if (value === undefined || value.startsWith("--"))
+    fail(`--${name} needs a value`);
   return value;
 };
 
@@ -56,8 +78,14 @@ const option = (name: string): string | undefined => {
 if (flag("defang-dataset")) {
   for (const lang of DETBENCH_LANGS) {
     const file = join(DETBENCH_DIR, `${lang}.jsonl`);
-    const lines = readFileSync(file, "utf8").split("\n").filter((l) => l.trim());
-    writeFileSync(file, lines.map((l) => defangJson(JSON.stringify(JSON.parse(l)))).join("\n") + "\n");
+    const lines = readFileSync(file, "utf8")
+      .split("\n")
+      .filter((l) => l.trim());
+    writeFileSync(
+      file,
+      lines.map((l) => defangJson(JSON.stringify(JSON.parse(l)))).join("\n") +
+        "\n",
+    );
     console.log(`rewrote ${file}`);
   }
   process.exit(0);
@@ -66,16 +94,25 @@ if (flag("defang-dataset")) {
 const { dataset, issues } = loadDetDataset();
 for (const lang of DETBENCH_LANGS) {
   try {
-    if (hasRawSecretPrefix(readFileSync(join(DETBENCH_DIR, `${lang}.jsonl`), "utf8")))
-      issues.push(`${lang}.jsonl has a raw secret prefix (it would trip secret scanners): run npm run detbench -- --defang-dataset`);
+    if (
+      hasRawSecretPrefix(
+        readFileSync(join(DETBENCH_DIR, `${lang}.jsonl`), "utf8"),
+      )
+    )
+      issues.push(
+        `${lang}.jsonl has a raw secret prefix (it would trip secret scanners): run npm run detbench -- --defang-dataset`,
+      );
   } catch {
     /* missing files are already reported */
   }
 }
-if (!dataset || issues.length) fail(`dataset/detbench is invalid:\n  ${issues.join("\n  ")}`);
+if (!dataset || issues.length)
+  fail(`dataset/detbench is invalid:\n  ${issues.join("\n  ")}`);
 if (flag("validate")) {
   const items = dataset.cases.reduce((n, c) => n + c.gold.length, 0);
-  console.log(`dataset/detbench OK: ${dataset.cases.length} cases, ${items} items`);
+  console.log(
+    `dataset/detbench OK: ${dataset.cases.length} cases, ${items} items`,
+  );
   process.exit(0);
 }
 
@@ -86,11 +123,15 @@ interface RunOutput {
 
 const readRunDir = (dir: string): RunOutput => ({
   meta: JSON.parse(readFileSync(join(dir, "run.json"), "utf8")) as DetRunMeta,
-  summaries: JSON.parse(readFileSync(join(dir, "metrics.json"), "utf8")) as DetSummary[],
+  summaries: JSON.parse(
+    readFileSync(join(dir, "metrics.json"), "utf8"),
+  ) as DetSummary[],
 });
 
 function writeCompare(a: RunOutput, b: RunOutput, out?: string): void {
-  const file = out ? resolve(out) : join(DETBENCH_RUNS_DIR, `compare-${a.meta.name}-vs-${b.meta.name}.html`);
+  const file = out
+    ? resolve(out)
+    : join(DETBENCH_RUNS_DIR, `compare-${a.meta.name}-vs-${b.meta.name}.html`);
   mkdirSync(DETBENCH_RUNS_DIR, { recursive: true });
   writeFileSync(file, renderDetCompare(a, b));
   for (const sa of a.summaries) {
@@ -101,17 +142,24 @@ function writeCompare(a: RunOutput, b: RunOutput, out?: string): void {
     );
     for (const la of sa.large ?? []) {
       const lb = sb.large?.find((l) => l.caseId === la.caseId);
-      if (lb) console.log(`  large ${la.caseId}: found ${la.found}/${la.items} → ${lb.found}/${lb.items} · false positives ${la.falsePositives} → ${lb.falsePositives}`);
+      if (lb)
+        console.log(
+          `  large ${la.caseId}: found ${la.found}/${la.items} → ${lb.found}/${lb.items} · false positives ${la.falsePositives} → ${lb.falsePositives}`,
+        );
     }
   }
   console.log(`wrote ${file}`);
 }
-const fmt = (v: number | null) => (v === null ? "–" : `${(100 * v).toFixed(0)}%`);
+const fmt = (v: number | null) =>
+  v === null ? "–" : `${(100 * v).toFixed(0)}%`;
 
 const compareRuns = argv.indexOf("--compare-runs");
 if (compareRuns >= 0) {
   const [a, b] = argv.slice(compareRuns + 1, compareRuns + 3);
-  if (!a || !b) fail("usage: npm run detbench -- --compare-runs runs/detbench/<A> runs/detbench/<B> [--out file.html]");
+  if (!a || !b)
+    fail(
+      "usage: npm run detbench -- --compare-runs runs/detbench/<A> runs/detbench/<B> [--out file.html]",
+    );
   writeCompare(readRunDir(resolve(a)), readRunDir(resolve(b)), option("out"));
   process.exit(0);
 }
@@ -120,53 +168,109 @@ if (compareRuns >= 0) {
 
 const seed = Number(option("seed") ?? 1);
 const variants = Number(option("variants") ?? 2);
-if (!Number.isInteger(seed) || !Number.isInteger(variants) || variants < 0) fail("--seed and --variants take integers");
+if (!Number.isInteger(seed) || !Number.isInteger(variants) || variants < 0)
+  fail("--seed and --variants take integers");
 const perturbationArg = option("perturbations") ?? "all";
 const perturbations: Perturbation[] =
-  perturbationArg === "all" ? [...PERTURBATIONS] : perturbationArg === "none" ? [] : (perturbationArg.split(",") as Perturbation[]);
-for (const p of perturbations) if (!(PERTURBATIONS as readonly string[]).includes(p)) fail(`unknown perturbation ${p} (known: ${PERTURBATIONS.join(", ")})`);
-const configs = (option("configs") ?? "default,all").split(",") as DetConfigName[];
-for (const c of configs) if (c !== "default" && c !== "all") fail(`unknown config ${c} (default, all)`);
+  perturbationArg === "all"
+    ? [...PERTURBATIONS]
+    : perturbationArg === "none"
+      ? []
+      : (perturbationArg.split(",") as Perturbation[]);
+for (const p of perturbations)
+  if (!(PERTURBATIONS as readonly string[]).includes(p))
+    fail(`unknown perturbation ${p} (known: ${PERTURBATIONS.join(", ")})`);
+const configs = (option("configs") ?? "default,all").split(
+  ",",
+) as DetConfigName[];
+for (const c of configs)
+  if (c !== "default" && c !== "all")
+    fail(`unknown config ${c} (default, all)`);
 
 const repo = resolveExtRepo(option("ext-repo"));
-const cases = [...dataset.cases, ...perturbCases(dataset.cases, { seed, variants: perturbations.length ? variants : 0, types: perturbations })];
+const cases = [
+  ...dataset.cases,
+  ...perturbCases(dataset.cases, {
+    seed,
+    variants: perturbations.length ? variants : 0,
+    types: perturbations,
+  }),
+];
 
 /** `--system presidio`: the Presidio baseline on the same dataset, in place of the extension at a ref. */
 const system = option("system") ?? "insusty";
-if (system !== "insusty" && system !== "presidio") fail("--system must be insusty or presidio");
+if (system !== "insusty" && system !== "presidio")
+  fail("--system must be insusty or presidio");
 
 async function runRef(ref: string, name?: string): Promise<RunOutput> {
   const baseline = system === "presidio" ? await presidioModule() : undefined;
   const ext = baseline
-    ? { ref: "presidio", sha: baseline.info.version, subject: "Presidio baseline (not the extension)", committedAt: "", packages: {} as Record<string, string> }
+    ? {
+        ref: "presidio",
+        sha: baseline.info.version,
+        subject: "Presidio baseline (not the extension)",
+        committedAt: "",
+        packages: {} as Record<string, string>,
+      }
     : await materializeModule(repo, ref);
-  const module = baseline ?? (await loadInsustyModule(ext as Awaited<ReturnType<typeof materializeModule>>));
+  const module =
+    baseline ??
+    (await loadInsustyModule(
+      ext as Awaited<ReturnType<typeof materializeModule>>,
+    ));
   const api = detectorApi(module);
   const startedAt = new Date().toISOString();
   const rows: DetScored[] = [];
   const timings: number[] = [];
-  const perCase: Array<{ config: string; caseId: string; chars: number; ms: number; large: boolean }> = [];
+  const perCase: Array<{
+    config: string;
+    caseId: string;
+    chars: number;
+    ms: number;
+    large: boolean;
+  }> = [];
   for (const config of configs) {
     await api.detect("warm up 06 12 34 56 78", config);
     for (const c of cases) {
       const { detections, ms } = await api.detect(c.text, config);
       if (c.perturbation === "none") {
         timings.push(ms);
-        perCase.push({ config, caseId: c.id, chars: c.text.length, ms: Math.round(ms * 10) / 10, large: !!c.large });
+        perCase.push({
+          config,
+          caseId: c.id,
+          chars: c.text.length,
+          ms: Math.round(ms * 10) / 10,
+          large: !!c.large,
+        });
       }
       rows.push(scoreDetCase(c, detections, api.supported, config));
     }
   }
   const summaries = summarizeDet(rows);
-  const runName = name ?? (baseline ? `presidio-${baseline.info.version.split("+")[0]}` : `${ref.replace(/[^\w.-]+/g, "-")}-${ext.sha.slice(0, 7)}`);
+  const runName =
+    name ??
+    (baseline
+      ? `presidio-${baseline.info.version.split("+")[0]}`
+      : `${ref.replace(/[^\w.-]+/g, "-")}-${ext.sha.slice(0, 7)}`);
   const meta: DetRunMeta = {
     name: runName,
-    ext: { ref, sha: ext.sha, subject: ext.subject, committedAt: ext.committedAt },
+    ext: {
+      ref,
+      sha: ext.sha,
+      subject: ext.subject,
+      committedAt: ext.committedAt,
+    },
     packages: ext.packages,
     refCategories: api.refCategories,
     supported: api.supported,
     configs: Object.fromEntries(
-      configs.map((c) => [c, { categories: api.configs[c].builtins, addressCountries: api.configs[c].addressCountries }]),
+      configs.map((c) => [
+        c,
+        {
+          categories: api.configs[c].builtins,
+          addressCountries: api.configs[c].addressCountries,
+        },
+      ]),
     ),
     allConfigNote: api.allConfigNote,
     datasetHash: dataset!.hash,
@@ -181,7 +285,10 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
       p95Ms: percentile(timings, 95),
       maxMs: timings.length ? Math.max(...timings) : null,
       totalMs: timings.reduce((a, b) => a + b, 0),
-      slowest: [...perCase].sort((x, y) => y.ms - x.ms).slice(0, 10).map(({ large: _, ...t }) => t),
+      slowest: [...perCase]
+        .sort((x, y) => y.ms - x.ms)
+        .slice(0, 10)
+        .map(({ large: _, ...t }) => t),
       large: perCase.filter((t) => t.large).map(({ large: _, ...t }) => t),
     },
     node: process.versions.node,
@@ -199,16 +306,38 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
   // (regenerated from the dataset).
   const compact = (r: DetScored) => {
     if (!r.large) return r;
-    const kept = [...r.detections.filter((d) => !isFalsePositive(d)), ...r.detections.filter(isFalsePositive).slice(0, 50)];
-    return { ...r, text: undefined, textOmitted: true, detections: kept, detectionsOmitted: r.detections.length - kept.length };
+    const kept = [
+      ...r.detections.filter((d) => !isFalsePositive(d)),
+      ...r.detections.filter(isFalsePositive).slice(0, 50),
+    ];
+    return {
+      ...r,
+      text: undefined,
+      textOmitted: true,
+      detections: kept,
+      detectionsOmitted: r.detections.length - kept.length,
+    };
   };
-  const jsonl = (list: DetScored[]) => list.map((r) => defangJson(JSON.stringify(compact(r)))).join("\n") + "\n";
-  writeFileSync(join(dir, "results.jsonl"), jsonl(rows.filter((r) => r.perturbation === "none")));
+  const jsonl = (list: DetScored[]) =>
+    list.map((r) => defangJson(JSON.stringify(compact(r)))).join("\n") + "\n";
+  writeFileSync(
+    join(dir, "results.jsonl"),
+    jsonl(rows.filter((r) => r.perturbation === "none")),
+  );
   // Perturbed variants are regenerated identically from the dataset and seed, so they are not committed (.gitignore).
-  writeFileSync(join(dir, "variants.jsonl"), jsonl(rows.filter((r) => r.perturbation !== "none")));
-  writeFileSync(join(dir, "metrics.json"), JSON.stringify(summaries, null, 1) + "\n");
+  writeFileSync(
+    join(dir, "variants.jsonl"),
+    jsonl(rows.filter((r) => r.perturbation !== "none")),
+  );
+  writeFileSync(
+    join(dir, "metrics.json"),
+    JSON.stringify(summaries, null, 1) + "\n",
+  );
   writeFileSync(join(dir, "metrics.csv"), detCsv(summaries));
-  writeFileSync(join(dir, "report.html"), renderDetReport(meta, rows, summaries));
+  writeFileSync(
+    join(dir, "report.html"),
+    renderDetReport(meta, rows, summaries),
+  );
   await module.dispose?.();
   console.log(textSummary(meta, summaries));
   console.log(`wrote ${join(dir, "report.html")}\n`);
@@ -217,7 +346,8 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
 
 const refA = resolveExtRefName(option("ref"));
 const refB = option("compare");
-if (refB && option("name")) fail("--name names a single run; leave it out with --compare");
+if (refB && option("name"))
+  fail("--name names a single run; leave it out with --compare");
 const a = await runRef(refA, option("name"));
 if (refB) {
   const b = await runRef(refB);
@@ -225,7 +355,11 @@ if (refB) {
   if (flag("gate")) {
     const regressions = detRegressions(a.summaries, b.summaries);
     for (const r of regressions) console.error(`REGRESSION ${r}`);
-    console.log(regressions.length ? `detbench gate: ${regressions.length} regression(s) against ${refB}` : `detbench gate: no regression against ${refB}`);
+    console.log(
+      regressions.length
+        ? `detbench gate: ${regressions.length} regression(s) against ${refB}`
+        : `detbench gate: no regression against ${refB}`,
+    );
     process.exitCode = regressions.length ? 1 : 0;
   }
 }

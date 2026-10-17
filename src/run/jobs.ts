@@ -5,9 +5,20 @@
  * case or a label description re-runs only what changed.
  */
 import { createHash } from "node:crypto";
-import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
-import type { CompiledCase, CompiledDataset, Profile, Split } from "../dataset/schema.ts";
+import type {
+  CompiledCase,
+  CompiledDataset,
+  Profile,
+  Split,
+} from "../dataset/schema.ts";
 import type { FindingLike, Rule, RuntimeReportLike } from "../ext/ref.ts";
 import { RESULT_CACHE_DIR } from "../paths.ts";
 import { composeLabelDescription, type LabelVariantId } from "../variants.ts";
@@ -35,7 +46,14 @@ export interface ChunkRecord {
   /** The assistant prefill of the request (completion refs: the `LABEL:` answer cue). */
   prefill?: string;
   /** Connected models: token usage and cost (`ms` is the request's wall time). */
-  usage?: { inputTokens: number; outputTokens: number; costUsd: number; serverMs: number; totalMs: number; attempts: number };
+  usage?: {
+    inputTokens: number;
+    outputTokens: number;
+    costUsd: number;
+    serverMs: number;
+    totalMs: number;
+    attempts: number;
+  };
 }
 
 export interface ResultRecord {
@@ -60,7 +78,11 @@ export interface ResultRecord {
  * profile's example passages (the `examples` field of completion refs); chat
  * refs never receive it, so their job keys are unchanged.
  */
-export const rulesFor = (profile: Profile, variant: LabelVariantId, withExamples = false): Rule[] =>
+export const rulesFor = (
+  profile: Profile,
+  variant: LabelVariantId,
+  withExamples = false,
+): Rule[] =>
   profile.labels.map((spec) => ({
     label: spec.label,
     prompt: composeLabelDescription(spec, variant),
@@ -76,14 +98,30 @@ export function jobKey(parts: {
   text: string;
 }): string {
   return createHash("sha256")
-    .update(JSON.stringify([parts.extSha, parts.model, DEVICE, DTYPE, parts.systemInstruction, parts.rules, parts.caseId, parts.text]))
+    .update(
+      JSON.stringify([
+        parts.extSha,
+        parts.model,
+        DEVICE,
+        DTYPE,
+        parts.systemInstruction,
+        parts.rules,
+        parts.caseId,
+        parts.text,
+      ]),
+    )
     .digest("hex");
 }
 
-export const modelSlug = (model: string) => model.replace(/^.*\//, "").replace(/[^A-Za-z0-9.-]+/g, "_");
-export const cacheFile = (extSha: string, model: string) => join(RESULT_CACHE_DIR, extSha, `${modelSlug(model)}.jsonl`);
+export const modelSlug = (model: string) =>
+  model.replace(/^.*\//, "").replace(/[^A-Za-z0-9.-]+/g, "_");
+export const cacheFile = (extSha: string, model: string) =>
+  join(RESULT_CACHE_DIR, extSha, `${modelSlug(model)}.jsonl`);
 
-export function loadCache(extSha: string, model: string): Map<string, ResultRecord> {
+export function loadCache(
+  extSha: string,
+  model: string,
+): Map<string, ResultRecord> {
   const file = cacheFile(extSha, model);
   const map = new Map<string, ResultRecord>();
   if (!existsSync(file)) return map;
@@ -135,7 +173,8 @@ const readdirSafe = (dir: string) => {
 export const TIERS = ["smoke", "quick", "full"] as const;
 export type Tier = (typeof TIERS)[number];
 
-const stableHash = (text: string) => createHash("sha256").update(text).digest("hex");
+const stableHash = (text: string) =>
+  createHash("sha256").update(text).digest("hex");
 
 /**
  * Type order the quick tier walks through. One pass of 10 slots reproduces the
@@ -163,16 +202,26 @@ export const DEFAULT_QUICK_CASES_PER_PROFILE = 2;
  * quick: N dev cases per profile and language (default 2), stratified by type.
  * full:  every case, both splits (unless --split narrows it).
  */
-export function selectCases(dataset: CompiledDataset, tier: Tier, split?: Split | "all", casesPerProfile = DEFAULT_QUICK_CASES_PER_PROFILE): CompiledCase[] {
+export function selectCases(
+  dataset: CompiledDataset,
+  tier: Tier,
+  split?: Split | "all",
+  casesPerProfile = DEFAULT_QUICK_CASES_PER_PROFILE,
+): CompiledCase[] {
   const effectiveSplit = split ?? (tier === "full" ? "all" : "dev");
-  const pool = dataset.cases.filter((c) => effectiveSplit === "all" || c.split === effectiveSplit);
-  const ordered = (cases: CompiledCase[]) => [...cases].sort((a, b) => stableHash(a.id).localeCompare(stableHash(b.id)));
+  const pool = dataset.cases.filter(
+    (c) => effectiveSplit === "all" || c.split === effectiveSplit,
+  );
+  const ordered = (cases: CompiledCase[]) =>
+    [...cases].sort((a, b) => stableHash(a.id).localeCompare(stableHash(b.id)));
   if (tier === "full") return pool;
   const picked: CompiledCase[] = [];
   let slot = 0;
   dataset.profiles.forEach((profile, index) => {
     for (const lang of ["en", "fr"] as const) {
-      const group = pool.filter((c) => c.profile === profile.id && c.lang === lang);
+      const group = pool.filter(
+        (c) => c.profile === profile.id && c.lang === lang,
+      );
       if (tier === "smoke") {
         if (lang !== (index % 2 ? "fr" : "en")) continue;
         for (const type of ["clear_positive", "lookalike_negative"] as const) {
@@ -187,8 +236,13 @@ export function selectCases(dataset: CompiledDataset, tier: Tier, split?: Split 
         quota.set(type, (quota.get(type) ?? 0) + 1);
       }
       const chosen: CompiledCase[] = [];
-      for (const [type, n] of quota) chosen.push(...ordered(group.filter((c) => c.type === type)).slice(0, n));
-      for (const c of ordered(group)) if (chosen.length < casesPerProfile && !chosen.includes(c)) chosen.push(c);
+      for (const [type, n] of quota)
+        chosen.push(
+          ...ordered(group.filter((c) => c.type === type)).slice(0, n),
+        );
+      for (const c of ordered(group))
+        if (chosen.length < casesPerProfile && !chosen.includes(c))
+          chosen.push(c);
       picked.push(...chosen);
     }
   });

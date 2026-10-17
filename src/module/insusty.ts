@@ -39,7 +39,11 @@ import {
   type Span,
   type StageTiming,
 } from "../../contract/types.ts";
-import { documentPath, type DocumentBundle, type RangeLike } from "./documents.ts";
+import {
+  documentPath,
+  type DocumentBundle,
+  type RangeLike,
+} from "./documents.ts";
 import { toBuiltin } from "./labels.ts";
 import { machineProfile, peakRssMb } from "./machine.ts";
 import type { ModuleRef } from "./materialize.ts";
@@ -79,32 +83,82 @@ export interface EngineRuntime {
   answerProbability?: number;
 }
 interface Engine {
-  prepare(model: string, selection: Selection, instructions: readonly string[]): Promise<unknown>;
-  review(model: string, selection: Selection, request: unknown, budgetMs: number): Promise<{ output: string; runtime: EngineRuntime }>;
+  prepare(
+    model: string,
+    selection: Selection,
+    instructions: readonly string[],
+  ): Promise<unknown>;
+  review(
+    model: string,
+    selection: Selection,
+    request: unknown,
+    budgetMs: number,
+  ): Promise<{ output: string; runtime: EngineRuntime }>;
 }
 type Selection = { backend: "wasm"; quantization: "auto" };
-type Client = { review(request: { instructions: string; input: string; responsePrefill?: string; subject?: { rule: RuleLike } }, model?: string, selection?: Selection): Promise<{ output: unknown; runtime?: EngineRuntime; confidence?: number }> };
+type Client = {
+  review(
+    request: {
+      instructions: string;
+      input: string;
+      responsePrefill?: string;
+      subject?: { rule: RuleLike };
+    },
+    model?: string,
+    selection?: Selection,
+  ): Promise<{ output: unknown; runtime?: EngineRuntime; confidence?: number }>;
+};
 
 export type InsustyBundle = DocumentBundle & {
-  detector: { detectSensitiveData: (text: string, config: unknown) => Detection[] };
+  detector: {
+    detectSensitiveData: (text: string, config: unknown) => Detection[];
+  };
   config: {
-    DEFAULT_CONFIG: Record<string, unknown> & { categories?: Record<string, boolean>; addressCountries?: string[]; localAi?: { fileReviewLimit?: number }; ocr?: { enabled: boolean; languages: string[] } };
+    DEFAULT_CONFIG: Record<string, unknown> & {
+      categories?: Record<string, boolean>;
+      addressCountries?: string[];
+      localAi?: { fileReviewLimit?: number };
+      ocr?: { enabled: boolean; languages: string[] };
+    };
     CATEGORIES?: string[];
     FILE_REVIEW_LIMITS?: readonly number[];
     SUPPORTED_ADDRESS_COUNTRIES?: readonly string[];
     DEFAULT_TRUSTED_TIME_LIMIT_MS?: number;
     trustedConnectionOrigin?: (connection: unknown) => string;
   };
-  redaction?: DocumentBundle["redaction"] & { redactReviewFindings?: (text: string, findings: ReviewSpan[]) => { redactedText: string; replaced: ReviewSpan[] } };
+  redaction?: DocumentBundle["redaction"] & {
+    redactReviewFindings?: (
+      text: string,
+      findings: ReviewSpan[],
+    ) => { redactedText: string; replaced: ReviewSpan[] };
+  };
   review?: {
-    reviewPrompt: (text: string, client: Client, rules: RuleLike[], model?: string, selection?: Selection, contextBudget?: number, overlap?: number, learnedLimits?: unknown) => Promise<{ findings: ReviewSpan[] }>;
+    reviewPrompt: (
+      text: string,
+      client: Client,
+      rules: RuleLike[],
+      model?: string,
+      selection?: Selection,
+      contextBudget?: number,
+      overlap?: number,
+      learnedLimits?: unknown,
+    ) => Promise<{ findings: ReviewSpan[] }>;
     reviewInstructionSets?: (rules: RuleLike[]) => string[];
     composeLabelPrefix?: unknown;
     SLM_GENERATION_BUDGET_MS?: number;
   };
   engine?: { SlmEngine: new (loader: unknown) => Engine };
-  models?: { SLM_MODELS: ReadonlyArray<{ id: string; downloadBytes?: Record<string, number> }>; DEFAULT_SLM_MODEL_ID?: string };
-  hostedFraming?: { HOSTED_CONTEXT_BUDGET?: number; HOSTED_LEARNED_LIMITS?: unknown };
+  models?: {
+    SLM_MODELS: ReadonlyArray<{
+      id: string;
+      downloadBytes?: Record<string, number>;
+    }>;
+    DEFAULT_SLM_MODEL_ID?: string;
+  };
+  hostedFraming?: {
+    HOSTED_CONTEXT_BUDGET?: number;
+    HOSTED_LEARNED_LIMITS?: unknown;
+  };
   hostedClient?: {
     createHostedModelClient: (options: Record<string, unknown>) => Client;
     RequestPacer: new (now?: () => number) => unknown;
@@ -125,12 +179,26 @@ export interface ConnectedTarget {
   /** The id `ModuleConfig.privateAi.model` selects it by. */
   id: string;
   /** The ref's `TrustedConnection` (provider, region or baseUrl, model, displayName, format, timeLimitMs, maxRequestsPerMinute). */
-  connection: { provider: string; model: string; timeLimitMs?: number } & Record<string, unknown>;
+  connection: {
+    provider: string;
+    model: string;
+    timeLimitMs?: number;
+  } & Record<string, unknown>;
   apiKey?: string;
   /** The transport: the harness adds caching and its budget; pacing and retries stay the ref's. */
   fetch: typeof fetch;
   /** Tokens and USD of one reply, read from the provider's JSON (and the transport's response, which may mark a cached reply). */
-  usage(json: unknown, response: Response): { inputTokens?: number; outputTokens?: number; usd: number; cached?: boolean } | undefined;
+  usage(
+    json: unknown,
+    response: Response,
+  ):
+    | {
+        inputTokens?: number;
+        outputTokens?: number;
+        usd: number;
+        cached?: boolean;
+      }
+    | undefined;
 }
 
 export interface InsustyOptions {
@@ -151,38 +219,81 @@ const LEARNED_REASON = "Matches a learned example.";
 const SELECTION: Selection = { backend: "wasm", quantization: "auto" };
 
 /** Imports a materialized ref and adapts it to the contract. */
-export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions = {}): Promise<InsustyModule> {
+export async function loadInsustyModule(
+  ref: ModuleRef,
+  options: InsustyOptions = {},
+): Promise<InsustyModule> {
   const mod = (await import(pathToFileURL(ref.bundle).href)) as InsustyBundle;
   const base = mod.config.DEFAULT_CONFIG;
-  if (typeof mod.detector?.detectSensitiveData !== "function" || !base) throw new Error(`${ref.ref} does not export detectSensitiveData and DEFAULT_CONFIG.`);
-  const refCategories = mod.config.CATEGORIES ?? Object.keys(base.categories ?? {});
-  const builtins = [...new Set(refCategories.map(toBuiltin).filter((b): b is BuiltinLabel => b !== null))];
+  if (typeof mod.detector?.detectSensitiveData !== "function" || !base)
+    throw new Error(
+      `${ref.ref} does not export detectSensitiveData and DEFAULT_CONFIG.`,
+    );
+  const refCategories =
+    mod.config.CATEGORIES ?? Object.keys(base.categories ?? {});
+  const builtins = [
+    ...new Set(
+      refCategories.map(toBuiltin).filter((b): b is BuiltinLabel => b !== null),
+    ),
+  ];
   const docs = documentPath(ref, mod);
-  const completion = !!mod.review && typeof mod.review.composeLabelPrefix === "function";
-  const deviceModels = completion && mod.engine && mod.models ? mod.models.SLM_MODELS : [];
+  const completion =
+    !!mod.review && typeof mod.review.composeLabelPrefix === "function";
+  const deviceModels =
+    completion && mod.engine && mod.models ? mod.models.SLM_MODELS : [];
   const defaultDevice = mod.models?.DEFAULT_SLM_MODEL_ID ?? deviceModels[0]?.id;
-  const connected = completion && mod.hostedClient ? (options.connected ?? []) : [];
+  const connected =
+    completion && mod.hostedClient ? (options.connected ?? []) : [];
   const capabilities: ModuleCapabilities = {
     builtins,
     customLabels: completion,
     documents: docs.readsDocuments,
     ocr: false,
-    ...(mod.config.SUPPORTED_ADDRESS_COUNTRIES ? { addressCountries: [...mod.config.SUPPORTED_ADDRESS_COUNTRIES] } : {}),
-    privateAi: [...(deviceModels.length && options.device ? ["device" as const] : []), ...(connected.length ? ["connected" as const] : [])],
+    ...(mod.config.SUPPORTED_ADDRESS_COUNTRIES
+      ? { addressCountries: [...mod.config.SUPPORTED_ADDRESS_COUNTRIES] }
+      : {}),
+    privateAi: [
+      ...(deviceModels.length && options.device ? ["device" as const] : []),
+      ...(connected.length ? ["connected" as const] : []),
+    ],
     models: [
-      ...deviceModels.map((m) => ({ id: m.id, runsOn: "device" as const, ...(m.id === defaultDevice ? { default: true } : {}), ...(m.downloadBytes?.q8 ? { bytes: m.downloadBytes.q8 } : {}) })),
-      ...connected.map((c, i) => ({ id: c.id, runsOn: "connected" as const, ...(i === 0 ? { default: true } : {}) })),
+      ...deviceModels.map((m) => ({
+        id: m.id,
+        runsOn: "device" as const,
+        ...(m.id === defaultDevice ? { default: true } : {}),
+        ...(m.downloadBytes?.q8 ? { bytes: m.downloadBytes.q8 } : {}),
+      })),
+      ...connected.map((c, i) => ({
+        id: c.id,
+        runsOn: "connected" as const,
+        ...(i === 0 ? { default: true } : {}),
+      })),
     ],
   };
-  const info = { name: "insusty-prompt-coach", version: ref.sha.slice(0, 12), sha: ref.sha };
+  const info = {
+    name: "insusty-prompt-coach",
+    version: ref.sha.slice(0, 12),
+    sha: ref.sha,
+  };
 
   const defaultConfig = (): ModuleConfig => ({
-    builtins: Object.fromEntries(refCategories.flatMap((c) => (toBuiltin(c) ? [[toBuiltin(c)!, base.categories?.[c] !== false]] : []))),
+    builtins: Object.fromEntries(
+      refCategories.flatMap((c) =>
+        toBuiltin(c) ? [[toBuiltin(c)!, base.categories?.[c] !== false]] : [],
+      ),
+    ),
     addressCountries: [...(base.addressCountries ?? [])],
     customLabels: [],
     privateAi: { runsOn: "off" },
-    ocr: base.ocr ? { enabled: base.ocr.enabled, languages: [...base.ocr.languages] } : { enabled: false, languages: [] },
-    limits: { ...docs.limits, ...(typeof base.localAi?.fileReviewLimit === "number" ? { fileReviewLimit: base.localAi.fileReviewLimit } : {}) },
+    ocr: base.ocr
+      ? { enabled: base.ocr.enabled, languages: [...base.ocr.languages] }
+      : { enabled: false, languages: [] },
+    limits: {
+      ...docs.limits,
+      ...(typeof base.localAi?.fileReviewLimit === "number"
+        ? { fileReviewLimit: base.localAi.fileReviewLimit }
+        : {}),
+    },
   });
 
   /** The ref's configuration object for a contract configuration. */
@@ -195,12 +306,20 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
       if (on !== undefined) categories[cat] = on;
     }
     c.categories = categories;
-    if (config.addressCountries.length) c.addressCountries = [...config.addressCountries];
-    if (c.ocr) c.ocr = { enabled: config.ocr.enabled, languages: [...config.ocr.languages] };
+    if (config.addressCountries.length)
+      c.addressCountries = [...config.addressCountries];
+    if (c.ocr)
+      c.ocr = {
+        enabled: config.ocr.enabled,
+        languages: [...config.ocr.languages],
+      };
     return c;
   };
 
-  const ruleSpans = (text: string, config: ModuleConfig): { spans: Span[]; raw: Detection[]; ms: number } => {
+  const ruleSpans = (
+    text: string,
+    config: ModuleConfig,
+  ): { spans: Span[]; raw: Detection[]; ms: number } => {
     const c = refConfig(config);
     const t0 = performance.now();
     const raw = text ? mod.detector.detectSensitiveData(text, c) : [];
@@ -229,7 +348,13 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
   let preparedKey: string | undefined;
   const pacers = new Map<string, unknown>();
   const rulesOf = (config: ModuleConfig): RuleLike[] =>
-    config.customLabels.map((l) => ({ name: l.label, label: l.label, prompt: l.description, examples: [...l.examples], learned: { examples: [], falseAlarms: [] } }));
+    config.customLabels.map((l) => ({
+      name: l.label,
+      label: l.label,
+      prompt: l.description,
+      examples: [...l.examples],
+      learned: { examples: [], falseAlarms: [] },
+    }));
 
   interface Reviewed {
     spans: Span[];
@@ -245,7 +370,8 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
   /** Loads the configuration's on-device model and prepares its label prefixes, once per model and label set. */
   const prepareDevice = async (config: ModuleConfig) => {
     const model = config.privateAi.model ?? defaultDevice;
-    if (!model || !deviceModels.some((m) => m.id === model)) throw new Error(`${ref.ref} ships no on-device model ${model ?? ""}`);
+    if (!model || !deviceModels.some((m) => m.id === model))
+      throw new Error(`${ref.ref} ships no on-device model ${model ?? ""}`);
     if (!options.device) throw new Error("No on-device runtime was supplied.");
     device ??= await options.device();
     engine ??= new mod.engine!.SlmEngine(device.loader);
@@ -263,16 +389,24 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
     const key = JSON.stringify(rules);
     if (preparedKey !== key && mod.review!.reviewInstructionSets) {
       const t = performance.now();
-      await engine.prepare(model, SELECTION, mod.review!.reviewInstructionSets(rules));
+      await engine.prepare(
+        model,
+        SELECTION,
+        mod.review!.reviewInstructionSets(rules),
+      );
       prepareMs = performance.now() - t;
       preparedKey = key;
     }
     return { model, rules, cold, loadMs, prepareMs };
   };
 
-  const reviewDevice = async (text: string, config: ModuleConfig): Promise<Reviewed> => {
+  const reviewDevice = async (
+    text: string,
+    config: ModuleConfig,
+  ): Promise<Reviewed> => {
     const t0 = performance.now();
-    const { model, rules, cold, loadMs, prepareMs } = await prepareDevice(config);
+    const { model, rules, cold, loadMs, prepareMs } =
+      await prepareDevice(config);
     const setupMs = performance.now() - t0;
     const traces: ModelRequestTrace[] = [];
     const budget = mod.review!.SLM_GENERATION_BUDGET_MS ?? 30_000;
@@ -282,13 +416,17 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
         const t = performance.now();
         const r = await engine!.review(model, SELECTION, request, budget);
         traces.push({
-          ...(request.responsePrefill ? { label: request.responsePrefill.replace(/:$/, "") } : {}),
+          ...(request.responsePrefill
+            ? { label: request.responsePrefill.replace(/:$/, "") }
+            : {}),
           ms: performance.now() - t,
           promptTokens: r.runtime.promptTokens,
           outputTokens: r.runtime.generatedTokens,
           finishReason: r.runtime.finishReason,
           output: r.output,
-          ...(r.runtime.answerProbability !== undefined ? { confidence: r.runtime.answerProbability } : {}),
+          ...(r.runtime.answerProbability !== undefined
+            ? { confidence: r.runtime.answerProbability }
+            : {}),
         });
         return { output: r.output, runtime: r.runtime };
       },
@@ -297,7 +435,9 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
     let found: ReviewSpan[] = [];
     let error: string | undefined;
     try {
-      found = (await mod.review!.reviewPrompt(text, client, rules, model, SELECTION)).findings;
+      found = (
+        await mod.review!.reviewPrompt(text, client, rules, model, SELECTION)
+      ).findings;
     } catch (e) {
       error = (e as Error).message;
     }
@@ -307,24 +447,45 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
       traces,
       ms: performance.now() - t1 + setupMs,
       requests: traces.length,
-      model: { id: model, ...(bytes ? { bytes } : {}), cold, ...(loadMs !== undefined ? { loadMs } : {}), ...(prepareMs !== undefined ? { prepareMs } : {}) },
+      model: {
+        id: model,
+        ...(bytes ? { bytes } : {}),
+        cold,
+        ...(loadMs !== undefined ? { loadMs } : {}),
+        ...(prepareMs !== undefined ? { prepareMs } : {}),
+      },
       backend: { name: "wasm", threads: runtime.threads, dtype: "q8" },
       ...(error ? { error } : {}),
     };
   };
 
-  const reviewConnected = async (text: string, config: ModuleConfig): Promise<Reviewed> => {
-    const target = connected.find((c) => c.id === (config.privateAi.model ?? connected[0]?.id));
-    if (!target) throw new Error(`No connected model ${config.privateAi.model ?? ""} was supplied.`);
+  const reviewConnected = async (
+    text: string,
+    config: ModuleConfig,
+  ): Promise<Reviewed> => {
+    const target = connected.find(
+      (c) => c.id === (config.privateAi.model ?? connected[0]?.id),
+    );
+    if (!target)
+      throw new Error(
+        `No connected model ${config.privateAi.model ?? ""} was supplied.`,
+      );
     const rules = rulesOf(config);
     const traces: ModelRequestTrace[] = [];
     let usd = 0;
     /** The usage of the reply the transport saw last (one request at a time). */
-    type Usage = { inputTokens?: number; outputTokens?: number; cached?: boolean };
+    type Usage = {
+      inputTokens?: number;
+      outputTokens?: number;
+      cached?: boolean;
+    };
     const last: { usage?: Usage } = {};
     const transport: typeof fetch = async (url, init) => {
       const response = await target.fetch(url, init);
-      const json = await response.clone().json().catch(() => undefined);
+      const json = await response
+        .clone()
+        .json()
+        .catch(() => undefined);
       const usage = target.usage(json, response);
       if (usage) {
         usd += usage.usd;
@@ -333,14 +494,28 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
       return response;
     };
     const signature = JSON.stringify(target.connection);
-    if (!pacers.has(signature)) pacers.set(signature, new mod.hostedClient!.RequestPacer());
-    const limitMs = target.connection.timeLimitMs ?? mod.config.DEFAULT_TRUSTED_TIME_LIMIT_MS ?? 15_000;
+    if (!pacers.has(signature))
+      pacers.set(signature, new mod.hostedClient!.RequestPacer());
+    const limitMs =
+      target.connection.timeLimitMs ??
+      mod.config.DEFAULT_TRUSTED_TIME_LIMIT_MS ??
+      15_000;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(new Error(`The connected model ran past its ${limitMs / 1000} s time limit.`)), limitMs);
+    const timer = setTimeout(
+      () =>
+        controller.abort(
+          new Error(
+            `The connected model ran past its ${limitMs / 1000} s time limit.`,
+          ),
+        ),
+      limitMs,
+    );
     const origin = mod.config.trustedConnectionOrigin?.(target.connection);
     const inner = mod.hostedClient!.createHostedModelClient({
       connection: target.connection,
-      ...(target.apiKey && origin ? { apiKey: { origin, key: target.apiKey } } : {}),
+      ...(target.apiKey && origin
+        ? { apiKey: { origin, key: target.apiKey } }
+        : {}),
       fetch: transport,
       pacer: pacers.get(signature),
       signal: controller.signal,
@@ -353,10 +528,17 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
         const r = await inner.review(request, model, selection);
         const pending = last.usage as Usage | undefined; // set by the transport during the request
         traces.push({
-          label: request.subject?.rule.label ?? request.responsePrefill?.replace(/:$/, "") ?? "",
+          label:
+            request.subject?.rule.label ??
+            request.responsePrefill?.replace(/:$/, "") ??
+            "",
           ms: performance.now() - t,
-          ...(pending?.inputTokens !== undefined ? { promptTokens: pending.inputTokens } : {}),
-          ...(pending?.outputTokens !== undefined ? { outputTokens: pending.outputTokens } : {}),
+          ...(pending?.inputTokens !== undefined
+            ? { promptTokens: pending.inputTokens }
+            : {}),
+          ...(pending?.outputTokens !== undefined
+            ? { outputTokens: pending.outputTokens }
+            : {}),
           finishReason: "stop",
           output: String(r.output ?? ""),
           ...(r.confidence !== undefined ? { confidence: r.confidence } : {}),
@@ -370,7 +552,16 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
     let error: string | undefined;
     try {
       found = (
-        await mod.review!.reviewPrompt(text, client, rules, undefined, undefined, mod.hostedFraming?.HOSTED_CONTEXT_BUDGET, undefined, mod.hostedFraming?.HOSTED_LEARNED_LIMITS)
+        await mod.review!.reviewPrompt(
+          text,
+          client,
+          rules,
+          undefined,
+          undefined,
+          mod.hostedFraming?.HOSTED_CONTEXT_BUDGET,
+          undefined,
+          mod.hostedFraming?.HOSTED_LEARNED_LIMITS,
+        )
       ).findings;
     } catch (e) {
       error = (e as Error).message;
@@ -395,25 +586,58 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
       end: f.end,
       label: f.category,
       kind: "custom",
-      source: f.reason === PATTERN_REASON ? "pattern" : f.reason === LEARNED_REASON ? "learned" : "model",
+      source:
+        f.reason === PATTERN_REASON
+          ? "pattern"
+          : f.reason === LEARNED_REASON
+            ? "learned"
+            : "model",
       redacted: true,
     }));
 
   /** Rule spans that a custom-label span overlaps give way to it, as `reviewForRedaction` merges them. */
   const merge = (rules: Span[], custom: Span[]): Span[] => [
     ...custom,
-    ...rules.map((r) => (r.redacted && custom.some((c) => r.start < c.end && c.start < r.end) ? { ...r, redacted: false } : r)),
+    ...rules.map((r) =>
+      r.redacted && custom.some((c) => r.start < c.end && c.start < r.end)
+        ? { ...r, redacted: false }
+        : r,
+    ),
   ];
 
-  const redactText = (text: string, spans: Span[], raw: Detection[], privateAi: boolean): string => {
+  const redactText = (
+    text: string,
+    spans: Span[],
+    raw: Detection[],
+    privateAi: boolean,
+  ): string => {
     const redacted = spans.filter((s) => s.redacted);
     if (privateAi && mod.redaction?.redactReviewFindings)
-      return mod.redaction.redactReviewFindings(text, redacted.map((s) => ({ category: s.label, start: s.start, end: s.end }))).redactedText;
+      return mod.redaction.redactReviewFindings(
+        text,
+        redacted.map((s) => ({
+          category: s.label,
+          start: s.start,
+          end: s.end,
+        })),
+      ).redactedText;
     if (mod.redaction && !privateAi)
-      return mod.redaction.redactPrompt(text, raw.map((d) => ({ start: d.start, end: d.end, replacement: d.replacement ?? `[${d.category}]`, selected: spans.some((s) => s.start === d.start && s.end === d.end && s.redacted) })));
+      return mod.redaction.redactPrompt(
+        text,
+        raw.map((d) => ({
+          start: d.start,
+          end: d.end,
+          replacement: d.replacement ?? `[${d.category}]`,
+          selected: spans.some(
+            (s) => s.start === d.start && s.end === d.end && s.redacted,
+          ),
+        })),
+      );
     let out = "";
     let cursor = 0;
-    for (const s of [...redacted].sort((a, b) => a.start - b.start || b.end - a.end)) {
+    for (const s of [...redacted].sort(
+      (a, b) => a.start - b.start || b.end - a.end,
+    )) {
       if (s.start < cursor) continue;
       out += `${text.slice(cursor, s.start)}[${s.label}]`;
       cursor = s.end;
@@ -421,14 +645,22 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
     return out + text.slice(cursor);
   };
 
-  const runtimeOf = (t0: number, stages: StageTiming[], chars: number, reviewed?: Reviewed, pages?: number): RuntimeReport => {
+  const runtimeOf = (
+    t0: number,
+    stages: StageTiming[],
+    chars: number,
+    reviewed?: Reviewed,
+    pages?: number,
+  ): RuntimeReport => {
     const totalMs = performance.now() - t0;
     return {
       stages,
       totalMs,
       peakRssMb: peakRssMb(),
       ...(totalMs > 0 ? { charsPerSecond: (chars / totalMs) * 1000 } : {}),
-      ...(pages && totalMs > 0 ? { pagesPerMinute: (pages / totalMs) * 60_000 } : {}),
+      ...(pages && totalMs > 0
+        ? { pagesPerMinute: (pages / totalMs) * 60_000 }
+        : {}),
       backend: reviewed?.backend ?? { name: "native" },
       ...(reviewed?.model ? { model: reviewed.model } : {}),
       ...(reviewed?.cost ? { cost: reviewed.cost } : {}),
@@ -444,69 +676,161 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
     const runsOn = config.privateAi.runsOn;
     let reviewed: Reviewed | undefined;
     if (runsOn !== "off" && config.customLabels.length) {
-      if (!capabilities.privateAi.includes(runsOn)) throw new Error(`Private AI on ${runsOn} is not available for ${ref.ref}.`);
-      reviewed = runsOn === "device" ? await reviewDevice(text, config) : await reviewConnected(text, config);
-      stages.push({ stage: "model", ms: reviewed.ms, requests: reviewed.requests });
+      if (!capabilities.privateAi.includes(runsOn))
+        throw new Error(
+          `Private AI on ${runsOn} is not available for ${ref.ref}.`,
+        );
+      reviewed =
+        runsOn === "device"
+          ? await reviewDevice(text, config)
+          : await reviewConnected(text, config);
+      stages.push({
+        stage: "model",
+        ms: reviewed.ms,
+        requests: reviewed.requests,
+      });
     }
-    return { rules, stages, reviewed, spans: reviewed ? merge(rules.spans, reviewed.spans) : rules.spans };
+    return {
+      rules,
+      stages,
+      reviewed,
+      spans: reviewed ? merge(rules.spans, reviewed.spans) : rules.spans,
+    };
   };
 
-  const redact = async (input: RedactionInput, config: ModuleConfig): Promise<RedactionOutput> => {
+  const redact = async (
+    input: RedactionInput,
+    config: ModuleConfig,
+  ): Promise<RedactionOutput> => {
     const t0 = performance.now();
     if (input.kind === "text") {
-      const { rules, stages, reviewed, spans } = await checkText(input.text, config);
+      const { rules, stages, reviewed, spans } = await checkText(
+        input.text,
+        config,
+      );
       const any = spans.some((s) => s.redacted);
       const r0 = performance.now();
-      const redactedText = any ? redactText(input.text, spans, rules.raw, !!reviewed) : undefined;
+      const redactedText = any
+        ? redactText(input.text, spans, rules.raw, !!reviewed)
+        : undefined;
       if (any) stages.push({ stage: "redact", ms: performance.now() - r0 });
       return {
         contract: CONTRACT_VERSION,
         module: info,
         text: input.text,
         spans,
-        redaction: any ? { text: redactedText, mode: "in_place", leakChecked: false } : { mode: "none", leakChecked: false },
+        redaction: any
+          ? { text: redactedText, mode: "in_place", leakChecked: false }
+          : { mode: "none", leakChecked: false },
         coverage: reviewed?.error
-          ? { checked: "partial", reason: "private_ai_unavailable", gaps: ["Private AI review"], format: "text", ocrPages: 0, detail: reviewed.error }
+          ? {
+              checked: "partial",
+              reason: "private_ai_unavailable",
+              gaps: ["Private AI review"],
+              format: "text",
+              ocrPages: 0,
+              detail: reviewed.error,
+            }
           : { checked: "full", gaps: [], format: "text", ocrPages: 0 },
         runtime: runtimeOf(t0, stages, input.text.length, reviewed),
       };
     }
     const read = await docs.read(input.name, input.bytes);
-    const stages: StageTiming[] = [{ stage: "read", ms: read.readMs, ...(read.pages !== undefined ? { pages: read.pages } : {}) }];
+    const stages: StageTiming[] = [
+      {
+        stage: "read",
+        ms: read.readMs,
+        ...(read.pages !== undefined ? { pages: read.pages } : {}),
+      },
+    ];
     const unread = read.outcome === "unchecked" || read.outcome === "error";
-    const checked = unread ? { rules: { spans: [], raw: [], ms: 0 }, stages: [], reviewed: undefined, spans: [] as Span[] } : await checkText(read.text, config);
+    const checked = unread
+      ? {
+          rules: { spans: [], raw: [], ms: 0 },
+          stages: [],
+          reviewed: undefined,
+          spans: [] as Span[],
+        }
+      : await checkText(read.text, config);
     stages.push(...checked.stages);
     const ranges: RangeLike[] = checked.spans
       .filter((s) => s.redacted)
       .sort((a, b) => a.start - b.start)
-      .map((s) => ({ start: s.start, end: s.end, replacement: `[${s.label}]` }));
+      .map((s) => ({
+        start: s.start,
+        end: s.end,
+        replacement: `[${s.label}]`,
+      }));
     const red = await docs.redact(input.name, input.bytes, read, ranges);
     if (red.mode !== "none") stages.push({ stage: "redact", ms: red.ms });
-    const gaps = [...read.gaps, ...(checked.reviewed?.error ? ["Private AI review"] : [])];
+    const gaps = [
+      ...read.gaps,
+      ...(checked.reviewed?.error ? ["Private AI review"] : []),
+    ];
     return {
       contract: CONTRACT_VERSION,
       module: info,
       text: read.text,
-      parts: read.segments.map((s) => ({ start: s.start, end: s.end, where: s.where, ...(s.source.page !== undefined ? { page: s.source.page } : {}) })),
+      parts: read.segments.map((s) => ({
+        start: s.start,
+        end: s.end,
+        where: s.where,
+        ...(s.source.page !== undefined ? { page: s.source.page } : {}),
+      })),
       spans: checked.spans,
       redaction: {
         mode: red.mode,
         leakChecked: false,
-        ...(red.bytes ? { file: { name: red.name!, type: red.type ?? "application/octet-stream", bytes: red.bytes } } : {}),
-        ...(red.failing ? { unredactable: red.failing.map((r) => ({ start: r.start, end: r.end })) } : {}),
+        ...(red.bytes
+          ? {
+              file: {
+                name: red.name!,
+                type: red.type ?? "application/octet-stream",
+                bytes: red.bytes,
+              },
+            }
+          : {}),
+        ...(red.failing
+          ? {
+              unredactable: red.failing.map((r) => ({
+                start: r.start,
+                end: r.end,
+              })),
+            }
+          : {}),
         ...(red.error ? { error: red.error } : {}),
       },
       coverage: {
-        checked: unread ? "none" : read.outcome === "partial" || gaps.length ? "partial" : "full",
-        ...(read.reason ? { reason: read.reason } : read.partialText ? { reason: "text_cap" } : checked.reviewed?.error ? { reason: "private_ai_unavailable" } : {}),
+        checked: unread
+          ? "none"
+          : read.outcome === "partial" || gaps.length
+            ? "partial"
+            : "full",
+        ...(read.reason
+          ? { reason: read.reason }
+          : read.partialText
+            ? { reason: "text_cap" }
+            : checked.reviewed?.error
+              ? { reason: "private_ai_unavailable" }
+              : {}),
         gaps,
         ...(read.readAs ? { format: read.readAs } : {}),
         ...(read.pages !== undefined ? { pages: read.pages } : {}),
         ocrPages: 0,
         signed: read.signed,
-        ...(read.error ? { detail: read.error } : checked.reviewed?.error ? { detail: checked.reviewed.error } : {}),
+        ...(read.error
+          ? { detail: read.error }
+          : checked.reviewed?.error
+            ? { detail: checked.reviewed.error }
+            : {}),
       },
-      runtime: runtimeOf(t0, stages, read.text.length, checked.reviewed, read.pages),
+      runtime: runtimeOf(
+        t0,
+        stages,
+        read.text.length,
+        checked.reviewed,
+        read.pages,
+      ),
     };
   };
 
@@ -516,13 +840,20 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
     capabilities,
     ref,
     refCategories,
-    ...(mod.config.FILE_REVIEW_LIMITS ? { fileReviewLimits: [...mod.config.FILE_REVIEW_LIMITS] } : {}),
+    ...(mod.config.FILE_REVIEW_LIMITS
+      ? { fileReviewLimits: [...mod.config.FILE_REVIEW_LIMITS] }
+      : {}),
     defaultConfig,
     redact,
     async prepare(config) {
-      if (config.privateAi.runsOn !== "device" || !config.customLabels.length) return {};
+      if (config.privateAi.runsOn !== "device" || !config.customLabels.length)
+        return {};
       const p = await prepareDevice(config);
-      return { ...(p.loadMs !== undefined ? { loadMs: p.loadMs } : {}), ...(p.prepareMs !== undefined ? { prepareMs: p.prepareMs } : {}), backend: { name: "wasm", threads: device!.threads, dtype: "q8" } };
+      return {
+        ...(p.loadMs !== undefined ? { loadMs: p.loadMs } : {}),
+        ...(p.prepareMs !== undefined ? { prepareMs: p.prepareMs } : {}),
+        backend: { name: "wasm", threads: device!.threads, dtype: "q8" },
+      };
     },
     async dispose() {
       await device?.dispose();
@@ -534,11 +865,17 @@ export async function loadInsustyModule(ref: ModuleRef, options: InsustyOptions 
 }
 
 /** Every built-in label on, and every address country the module declares (the extension's `SUPPORTED_ADDRESS_COUNTRIES`; until a ref exports it, its default ones). */
-export function allLabelsConfig(module: Pick<RedactionModule, "defaultConfig" | "capabilities">): ModuleConfig {
+export function allLabelsConfig(
+  module: Pick<RedactionModule, "defaultConfig" | "capabilities">,
+): ModuleConfig {
   const d = module.defaultConfig();
   return {
     ...d,
-    builtins: Object.fromEntries(module.capabilities.builtins.map((b) => [b, true])),
-    addressCountries: module.capabilities.addressCountries ? [...module.capabilities.addressCountries] : d.addressCountries,
+    builtins: Object.fromEntries(
+      module.capabilities.builtins.map((b) => [b, true]),
+    ),
+    addressCountries: module.capabilities.addressCountries
+      ? [...module.capabilities.addressCountries]
+      : d.addressCountries,
   };
 }

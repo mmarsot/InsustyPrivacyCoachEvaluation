@@ -9,10 +9,24 @@ import { join } from "node:path";
 import { summarizeDocs, type DocSummary } from "../docbench/aggregate.ts";
 import type { AiSummary } from "../docbench/ai.ts";
 import { DOCBENCH_RUNS_DIR, loadDocCache } from "../docbench/cache.ts";
-import { logChart, renderDocCompare, renderDocReport, type DocRunMeta } from "../docbench/report.ts";
+import {
+  logChart,
+  renderDocCompare,
+  renderDocReport,
+  type DocRunMeta,
+} from "../docbench/report.ts";
 import type { DocJobResult } from "../docbench/types.ts";
-import { resolveCommit, resolveExtRefName, resolveExtRepo } from "../ext/ref.ts";
-import { parseDocbenchArgs, planDocbench, type DocbenchOptions, type DocPlan } from "../run/plan.ts";
+import {
+  resolveCommit,
+  resolveExtRefName,
+  resolveExtRepo,
+} from "../ext/ref.ts";
+import {
+  parseDocbenchArgs,
+  planDocbench,
+  type DocbenchOptions,
+  type DocPlan,
+} from "../run/plan.ts";
 import type { ActiveRun } from "./data.ts";
 
 export const isDocbenchArgv = (argv: readonly string[]) => {
@@ -43,12 +57,15 @@ export interface DocRunListing {
   at?: string;
 }
 
-const readJson = <T>(file: string): T => JSON.parse(readFileSync(file, "utf8")) as T;
+const readJson = <T>(file: string): T =>
+  JSON.parse(readFileSync(file, "utf8")) as T;
 
 export class DocDashboard {
   private live = new Map<string, LiveDoc>();
 
-  constructor(private readonly options: { extRepo?: string; ref?: string } = {}) {}
+  constructor(
+    private readonly options: { extRepo?: string; ref?: string } = {},
+  ) {}
 
   liveRuns(active: ActiveRun[]): LiveDoc[] {
     return active
@@ -60,8 +77,13 @@ export class DocDashboard {
         const live: LiveDoc = { id, run };
         try {
           live.options = parseDocbenchArgs(docbenchArgs(run.argv));
-          const repo = resolveExtRepo(live.options.extRepo ?? this.options.extRepo);
-          live.sha = resolveCommit(repo, live.options.ref ?? resolveExtRefName(this.options.ref)).sha;
+          const repo = resolveExtRepo(
+            live.options.extRepo ?? this.options.extRepo,
+          );
+          live.sha = resolveCommit(
+            repo,
+            live.options.ref ?? resolveExtRefName(this.options.ref),
+          ).sha;
           live.plan = planDocbench(live.options, live.sha);
         } catch (error) {
           live.error = (error as Error).message;
@@ -73,15 +95,45 @@ export class DocDashboard {
 
   progress(active: ActiveRun[]) {
     return this.liveRuns(active).map((l) => {
-      const base = { id: l.id, pid: l.run.pid, name: l.run.name, argv: l.run.argv, startedAt: l.run.startedAt };
+      const base = {
+        id: l.id,
+        pid: l.run.pid,
+        name: l.run.name,
+        argv: l.run.argv,
+        startedAt: l.run.startedAt,
+      };
       if (!l.plan || !l.sha) return { ...base, error: l.error ?? "no plan" };
       const cache = loadDocCache(l.sha);
       const part = (jobs: DocPlan["suite"]) => {
         const done = jobs.filter((j) => cache.has(j.key));
-        const recent = done.map((j) => cache.get(j.key)!).sort((a, b) => b.at.localeCompare(a.at));
-        return { total: jobs.length, done: done.length, last: recent[0] ? { id: recent[0].jobId, at: recent[0].at, outcome: recent[0].read.outcome, ms: recent[0].timing.readMs } : null };
+        const recent = done
+          .map((j) => cache.get(j.key)!)
+          .sort((a, b) => b.at.localeCompare(a.at));
+        return {
+          total: jobs.length,
+          done: done.length,
+          last: recent[0]
+            ? {
+                id: recent[0].jobId,
+                at: recent[0].at,
+                outcome: recent[0].read.outcome,
+                ms: recent[0].timing.readMs,
+              }
+            : null,
+        };
       };
-      return { ...base, sha: l.sha, tier: l.options!.tier, suite: part(l.plan.suite), sweeps: part(l.plan.sweeps), ai: l.options!.tracks.includes("ai") ? (l.options!.aiModels.length ? l.options!.aiModels.map((m) => m.short) : ["the ref's default model"]) : [] };
+      return {
+        ...base,
+        sha: l.sha,
+        tier: l.options!.tier,
+        suite: part(l.plan.suite),
+        sweeps: part(l.plan.sweeps),
+        ai: l.options!.tracks.includes("ai")
+          ? l.options!.aiModels.length
+            ? l.options!.aiModels.map((m) => m.short)
+            : ["the ref's default model"]
+          : [],
+      };
     });
   }
 
@@ -90,41 +142,115 @@ export class DocDashboard {
       ? readdirSync(DOCBENCH_RUNS_DIR)
           .filter((d) => existsSync(join(DOCBENCH_RUNS_DIR, d, "run.json")))
           .map((d) => {
-            const meta = readJson<DocRunMeta>(join(DOCBENCH_RUNS_DIR, d, "run.json"));
-            return { id: `run:${d}`, name: d, kind: "committed" as const, ref: meta.ext.ref, sha: meta.ext.sha, at: meta.finishedAt };
+            const meta = readJson<DocRunMeta>(
+              join(DOCBENCH_RUNS_DIR, d, "run.json"),
+            );
+            return {
+              id: `run:${d}`,
+              name: d,
+              kind: "committed" as const,
+              ref: meta.ext.ref,
+              sha: meta.ext.sha,
+              at: meta.finishedAt,
+            };
           })
           .sort((a, b) => (b.at ?? "").localeCompare(a.at ?? ""))
       : [];
     const live = this.liveRuns(active)
       .filter((l) => l.plan)
-      .map((l) => ({ id: l.id, name: `LIVE ${l.run.name ?? docbenchArgs(l.run.argv).join(" ")}`, kind: "live" as const, ref: l.options?.ref, sha: l.sha }));
+      .map((l) => ({
+        id: l.id,
+        name: `LIVE ${l.run.name ?? docbenchArgs(l.run.argv).join(" ")}`,
+        kind: "live" as const,
+        ref: l.options?.ref,
+        sha: l.sha,
+      }));
     return [...live, ...committed];
   }
 
-  private rowsOf(id: string, active: ActiveRun[]): { meta?: DocRunMeta; rows: DocJobResult[]; summary: DocSummary; ai?: AiSummary[] } {
+  private rowsOf(
+    id: string,
+    active: ActiveRun[],
+  ): {
+    meta?: DocRunMeta;
+    rows: DocJobResult[];
+    summary: DocSummary;
+    ai?: AiSummary[];
+  } {
     if (id.startsWith("run:")) {
       const dir = join(DOCBENCH_RUNS_DIR, id.slice(4).replace(/[^\w.-]/g, ""));
       const meta = readJson<DocRunMeta>(join(dir, "run.json"));
-      const rows = readFileSync(join(dir, "results.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l) as DocJobResult);
+      const rows = readFileSync(join(dir, "results.jsonl"), "utf8")
+        .split("\n")
+        .filter(Boolean)
+        .map((l) => JSON.parse(l) as DocJobResult);
       const aiFile = join(dir, "ai.json");
-      return { meta, rows, summary: readJson<DocSummary>(join(dir, "metrics.json")), ...(existsSync(aiFile) ? { ai: readJson<{ summary: AiSummary[] }>(aiFile).summary } : {}) };
+      return {
+        meta,
+        rows,
+        summary: readJson<DocSummary>(join(dir, "metrics.json")),
+        ...(existsSync(aiFile)
+          ? { ai: readJson<{ summary: AiSummary[] }>(aiFile).summary }
+          : {}),
+      };
     }
     const live = this.liveRuns(active).find((l) => l.id === id);
     if (!live?.plan || !live.sha) throw new Error("run not found");
     const cache = loadDocCache(live.sha);
-    const rows = [...live.plan.suite, ...live.plan.sweeps].map((j) => cache.get(j.key)).filter((r): r is DocJobResult => !!r);
-    return { rows: rows.filter((r) => r.track === "suite"), summary: summarizeDocs(rows, live.options!.configs, { ref: live.options!.ref ?? "main", sha: live.sha }) };
+    const rows = [...live.plan.suite, ...live.plan.sweeps]
+      .map((j) => cache.get(j.key))
+      .filter((r): r is DocJobResult => !!r);
+    return {
+      rows: rows.filter((r) => r.track === "suite"),
+      summary: summarizeDocs(rows, live.options!.configs, {
+        ref: live.options!.ref ?? "main",
+        sha: live.sha,
+      }),
+    };
   }
 
   run(id: string, active: ActiveRun[]) {
     const { meta, summary, ai } = this.rowsOf(id, active);
-    const configs = meta?.configs ?? (Object.keys(summary.overall.configs) as Array<"default" | "all">);
+    const configs =
+      meta?.configs ??
+      (Object.keys(summary.overall.configs) as Array<"default" | "all">);
     const types = [...new Set(summary.sweeps.map((p) => p.type))];
     const ms = (v: number) => (v >= 1000 ? `${v / 1000}s` : `${v}ms`);
     const charts = summary.sweeps.length
       ? {
-          time: logChart(types.map((t) => ({ name: t, points: summary.sweeps.filter((p) => p.type === t && p.outcome === "checked").map((p) => [p.chars, p.totalMs] as [number, number]) })), { xLabel: "characters of extracted text", yLabel: "check time", yFormat: ms, hLines: [{ y: 1000, label: "1 s" }, { y: 5000, label: "5 s" }] }),
-          memory: logChart(types.map((t) => ({ name: t, points: summary.sweeps.filter((p) => p.type === t && p.outcome === "checked" && p.deltaMb).map((p) => [p.chars, Math.max(1, p.deltaMb!)] as [number, number]) })), { xLabel: "characters of extracted text", yLabel: "peak MB over baseline" }),
+          time: logChart(
+            types.map((t) => ({
+              name: t,
+              points: summary.sweeps
+                .filter((p) => p.type === t && p.outcome === "checked")
+                .map((p) => [p.chars, p.totalMs] as [number, number]),
+            })),
+            {
+              xLabel: "characters of extracted text",
+              yLabel: "check time",
+              yFormat: ms,
+              hLines: [
+                { y: 1000, label: "1 s" },
+                { y: 5000, label: "5 s" },
+              ],
+            },
+          ),
+          memory: logChart(
+            types.map((t) => ({
+              name: t,
+              points: summary.sweeps
+                .filter(
+                  (p) => p.type === t && p.outcome === "checked" && p.deltaMb,
+                )
+                .map(
+                  (p) => [p.chars, Math.max(1, p.deltaMb!)] as [number, number],
+                ),
+            })),
+            {
+              xLabel: "characters of extracted text",
+              yLabel: "peak MB over baseline",
+            },
+          ),
           perType: Object.fromEntries(
             types.map((t) => {
               const pts = summary.sweeps.filter((p) => p.type === t);
@@ -133,12 +259,43 @@ export class DocDashboard {
                 t,
                 logChart(
                   [
-                    { name: "total", points: pts.map((p) => [p.size, p.totalMs] as [number, number]), fit: fit?.total },
-                    { name: "read", points: pts.map((p) => [p.size, p.readMs] as [number, number]) },
-                    { name: `detect (${configs[0]})`, points: pts.map((p) => [p.size, p.detectMs[configs[0]!] ?? 0] as [number, number]) },
-                    { name: "redact", points: pts.filter((p) => p.redactMs).map((p) => [p.size, p.redactMs!] as [number, number]) },
+                    {
+                      name: "total",
+                      points: pts.map(
+                        (p) => [p.size, p.totalMs] as [number, number],
+                      ),
+                      fit: fit?.total,
+                    },
+                    {
+                      name: "read",
+                      points: pts.map(
+                        (p) => [p.size, p.readMs] as [number, number],
+                      ),
+                    },
+                    {
+                      name: `detect (${configs[0]})`,
+                      points: pts.map(
+                        (p) =>
+                          [p.size, p.detectMs[configs[0]!] ?? 0] as [
+                            number,
+                            number,
+                          ],
+                      ),
+                    },
+                    {
+                      name: "redact",
+                      points: pts
+                        .filter((p) => p.redactMs)
+                        .map((p) => [p.size, p.redactMs!] as [number, number]),
+                    },
                   ],
-                  { xLabel: pts[0]!.unit, yLabel: "ms", yFormat: ms, width: 380, height: 220 },
+                  {
+                    xLabel: pts[0]!.unit,
+                    yLabel: "ms",
+                    yFormat: ms,
+                    width: 380,
+                    height: 220,
+                  },
                 ),
               ];
             }),
@@ -147,14 +304,35 @@ export class DocDashboard {
       : null;
     const aiCharts = (ai ?? []).map((m) => ({
       model: m.model,
-      chart: logChart([{ name: "review p50", points: m.bySize.map((b) => [b.chars, b.reviewMsP50] as [number, number]), fit: m.fit ? { ...m.fit, points: m.bySize.length } : null }], {
-        xLabel: "characters of document text",
-        yLabel: "review time",
-        yFormat: ms,
-        vLines: (meta?.fileReviewLimits ?? []).map((l) => ({ x: l, label: `${l / 1000}k` })),
-      }),
+      chart: logChart(
+        [
+          {
+            name: "review p50",
+            points: m.bySize.map(
+              (b) => [b.chars, b.reviewMsP50] as [number, number],
+            ),
+            fit: m.fit ? { ...m.fit, points: m.bySize.length } : null,
+          },
+        ],
+        {
+          xLabel: "characters of document text",
+          yLabel: "review time",
+          yFormat: ms,
+          vLines: (meta?.fileReviewLimits ?? []).map((l) => ({
+            x: l,
+            label: `${l / 1000}k`,
+          })),
+        },
+      ),
     }));
-    return { meta: meta ?? null, configs, summary, ai: ai ?? null, charts, aiCharts };
+    return {
+      meta: meta ?? null,
+      configs,
+      summary,
+      ai: ai ?? null,
+      charts,
+      aiCharts,
+    };
   }
 
   cases(id: string, active: ActiveRun[]) {
@@ -170,9 +348,18 @@ export class DocDashboard {
       silentClean: r.classification.silentClean,
       items: r.items.length,
       extracted: r.items.filter((i) => i.extracted).length,
-      found: Object.fromEntries(Object.keys(r.configs).map((c) => [c, r.items.filter((i) => i.cfg[c as "default" | "all"]?.found).length])),
-      falseAlarms: Object.fromEntries(Object.entries(r.configs).map(([c, v]) => [c, v.falseAlarms])),
-      redaction: Object.fromEntries(Object.entries(r.configs).map(([c, v]) => [c, v.redaction.mode])),
+      found: Object.fromEntries(
+        Object.keys(r.configs).map((c) => [
+          c,
+          r.items.filter((i) => i.cfg[c as "default" | "all"]?.found).length,
+        ]),
+      ),
+      falseAlarms: Object.fromEntries(
+        Object.entries(r.configs).map(([c, v]) => [c, v.falseAlarms]),
+      ),
+      redaction: Object.fromEntries(
+        Object.entries(r.configs).map(([c, v]) => [c, v.redaction.mode]),
+      ),
       readMs: r.timing.readMs,
     }));
   }
@@ -186,14 +373,23 @@ export class DocDashboard {
   /** The full static report of a committed run, or of a live run's results so far. */
   reportHtml(id: string, active: ActiveRun[]): string {
     if (id.startsWith("run:")) {
-      const file = join(DOCBENCH_RUNS_DIR, id.slice(4).replace(/[^\w.-]/g, ""), "report.html");
+      const file = join(
+        DOCBENCH_RUNS_DIR,
+        id.slice(4).replace(/[^\w.-]/g, ""),
+        "report.html",
+      );
       if (existsSync(file)) return readFileSync(file, "utf8");
     }
     const { meta, rows, summary, ai } = this.rowsOf(id, active);
     const m: DocRunMeta = meta ?? {
       name: id,
       argv: [],
-      ext: { ref: summary.ref, sha: summary.sha, subject: "(run in progress)", committedAt: "" },
+      ext: {
+        ref: summary.ref,
+        sha: summary.sha,
+        subject: "(run in progress)",
+        committedAt: "",
+      },
       modules: [],
       packages: {},
       limits: {},
@@ -221,7 +417,11 @@ export class DocDashboard {
     const side = (id: string) => {
       const r = this.rowsOf(id, active);
       if (!r.meta) throw new Error("compare needs committed runs");
-      return { meta: r.meta, summary: r.summary, ...(r.ai ? { ai: r.ai } : {}) };
+      return {
+        meta: r.meta,
+        summary: r.summary,
+        ...(r.ai ? { ai: r.ai } : {}),
+      };
     };
     return renderDocCompare(side(a), side(b));
   }

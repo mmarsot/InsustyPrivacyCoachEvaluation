@@ -25,7 +25,8 @@ import { codeRanges, zoneAt } from "./dataset.ts";
 import type { RefDetection } from "./ext.ts";
 import type { DetCase, DetCategory, Zone } from "./schema.ts";
 
-export type Verdict = "tp" | "wrong_category" | "unsupported_item" | "decoy" | "fp";
+export type Verdict =
+  "tp" | "wrong_category" | "unsupported_item" | "decoy" | "fp";
 
 export interface ScoredItem {
   key: string;
@@ -86,15 +87,25 @@ export interface DetScored {
   unselected: number;
 }
 
-const overlaps = (a: { start: number; end: number }, b: { start: number; end: number }) => a.start < b.end && b.start < a.end;
+const overlaps = (
+  a: { start: number; end: number },
+  b: { start: number; end: number },
+) => a.start < b.end && b.start < a.end;
 
-export function scoreDetCase(c: DetCase, detections: RefDetection[], supported: readonly DetCategory[], config: string): DetScored {
+export function scoreDetCase(
+  c: DetCase,
+  detections: RefDetection[],
+  supported: readonly DetCategory[],
+  config: string,
+): DetScored {
   const selected = detections.filter((d) => d.selected);
   const supportedSet = new Set(supported);
   const code = codeRanges(c.text);
   const scoredDetections: ScoredDetection[] = selected.map((d) => {
     const hits = c.gold.filter((g) => overlaps(g, d));
-    const decoyKinds = [...new Set(c.decoySpans.filter((s) => overlaps(s, d)).map((s) => s.kind))];
+    const decoyKinds = [
+      ...new Set(c.decoySpans.filter((s) => overlaps(s, d)).map((s) => s.kind)),
+    ];
     const own = hits.filter((g) => g.category === d.mapped);
     const verdict: Verdict = own.length
       ? "tp"
@@ -124,7 +135,11 @@ export function scoreDetCase(c: DetCase, detections: RefDetection[], supported: 
     const same = touching.filter((d) => d.mapped === g.category);
     let leakFree = true;
     for (let i = g.start; i < g.end && leakFree; i++)
-      if (!/\s/u.test(c.text[i]!) && !touching.some((d) => d.start <= i && i < d.end)) leakFree = false;
+      if (
+        !/\s/u.test(c.text[i]!) &&
+        !touching.some((d) => d.start <= i && i < d.end)
+      )
+        leakFree = false;
     return {
       key: g.key,
       category: g.category,
@@ -143,8 +158,17 @@ export function scoreDetCase(c: DetCase, detections: RefDetection[], supported: 
     };
   });
   const decoys: ScoredDecoy[] = c.decoySpans.map((s) => {
-    const touching = scoredDetections.filter((d) => overlaps(s, d) && d.verdict === "decoy");
-    return { key: s.key, kind: s.kind, value: s.value, flagged: touching.length > 0, flaggedAs: [...new Set(touching.map((d) => d.category))], zone: s.zone };
+    const touching = scoredDetections.filter(
+      (d) => overlaps(s, d) && d.verdict === "decoy",
+    );
+    return {
+      key: s.key,
+      kind: s.kind,
+      value: s.value,
+      flagged: touching.length > 0,
+      flaggedAs: [...new Set(touching.map((d) => d.category))],
+      zone: s.zone,
+    };
   });
   return {
     config,
@@ -166,4 +190,5 @@ export function scoreDetCase(c: DetCase, detections: RefDetection[], supported: 
 }
 
 /** Detections that count against precision. */
-export const isFalsePositive = (d: ScoredDetection) => d.verdict === "wrong_category" || d.verdict === "decoy" || d.verdict === "fp";
+export const isFalsePositive = (d: ScoredDetection) =>
+  d.verdict === "wrong_category" || d.verdict === "decoy" || d.verdict === "fp";

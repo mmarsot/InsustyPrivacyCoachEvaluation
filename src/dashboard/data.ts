@@ -7,16 +7,27 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import type { CompiledCase, CompiledDataset, Profile } from "../dataset/schema.ts";
+import type {
+  CompiledCase,
+  CompiledDataset,
+  Profile,
+} from "../dataset/schema.ts";
 import { ACTIVE_RUNS_DIR, RUNS_DIR } from "../paths.ts";
 import { cacheFile, type Job, type ResultRecord } from "../run/jobs.ts";
 import type { RunMeta } from "../run/meta.ts";
 import { percentile, metrics, type Metrics } from "../score/aggregate.ts";
-import { FAILURE_MODES, type FailureMode, type Scored } from "../score/score.ts";
+import {
+  FAILURE_MODES,
+  type FailureMode,
+  type Scored,
+} from "../score/score.ts";
 
 // ------------------------------------------------------------ cache reading
 
-const fileCache = new Map<string, { size: number; mtimeMs: number; records: Map<string, ResultRecord> }>();
+const fileCache = new Map<
+  string,
+  { size: number; mtimeMs: number; records: Map<string, ResultRecord> }
+>();
 
 /** Reads one result-cache file, re-parsing only when it changed. Tolerates a torn last line. */
 export function readCacheFile(file: string): Map<string, ResultRecord> {
@@ -37,7 +48,8 @@ export function readCacheFile(file: string): Map<string, ResultRecord> {
   fileCache.set(file, { size, mtimeMs, records });
   return records;
 }
-export const readModelCache = (extSha: string, model: string) => readCacheFile(cacheFile(extSha, model));
+export const readModelCache = (extSha: string, model: string) =>
+  readCacheFile(cacheFile(extSha, model));
 
 // ------------------------------------------------------------ active runs
 
@@ -63,9 +75,14 @@ const alive = (pid: number) => {
  * arguments always start with `--track docbench` (as its marker file writes
  * them), so both ways of starting it give the same argv.
  */
-export function benchArgsFromCmdline(cmdline: readonly string[]): string[] | undefined {
-  const doc = cmdline.findIndex((part) => /(^|\/)src\/cli\/docbench\.ts$/.test(part));
-  if (doc >= 0) return normalizeTrack(["--track", "docbench", ...cmdline.slice(doc + 1)]);
+export function benchArgsFromCmdline(
+  cmdline: readonly string[],
+): string[] | undefined {
+  const doc = cmdline.findIndex((part) =>
+    /(^|\/)src\/cli\/docbench\.ts$/.test(part),
+  );
+  if (doc >= 0)
+    return normalizeTrack(["--track", "docbench", ...cmdline.slice(doc + 1)]);
   const at = cmdline.findIndex((part) => /(^|\/)src\/cli\/run\.ts$/.test(part));
   return at >= 0 ? normalizeTrack(cmdline.slice(at + 1)) : undefined;
 }
@@ -91,10 +108,15 @@ export function normalizeTrack(argv: readonly string[]): string[] {
 export function findActiveRuns(): ActiveRun[] {
   const runs: ActiveRun[] = [];
   if (existsSync(ACTIVE_RUNS_DIR))
-    for (const file of readdirSync(ACTIVE_RUNS_DIR).filter((f) => f.endsWith(".json")))
+    for (const file of readdirSync(ACTIVE_RUNS_DIR).filter((f) =>
+      f.endsWith(".json"),
+    ))
       try {
-        const run = JSON.parse(readFileSync(join(ACTIVE_RUNS_DIR, file), "utf8")) as ActiveRun;
-        if (alive(run.pid)) runs.push({ ...run, argv: normalizeTrack(run.argv) });
+        const run = JSON.parse(
+          readFileSync(join(ACTIVE_RUNS_DIR, file), "utf8"),
+        ) as ActiveRun;
+        if (alive(run.pid))
+          runs.push({ ...run, argv: normalizeTrack(run.argv) });
       } catch {
         /* ignore */
       }
@@ -102,11 +124,15 @@ export function findActiveRuns(): ActiveRun[] {
     for (const entry of readdirSync("/proc")) {
       if (!/^\d+$/.test(entry)) continue;
       try {
-        const cmdline = readFileSync(`/proc/${entry}/cmdline`, "utf8").split("\0").filter(Boolean);
+        const cmdline = readFileSync(`/proc/${entry}/cmdline`, "utf8")
+          .split("\0")
+          .filter(Boolean);
         if (!/node$/.test(cmdline[0] ?? "")) continue;
         const argv = benchArgsFromCmdline(cmdline);
         if (!argv || argv.includes("--dry-run")) continue;
-        const startedAt = new Date(statSync(`/proc/${entry}`).mtimeMs).toISOString();
+        const startedAt = new Date(
+          statSync(`/proc/${entry}`).mtimeMs,
+        ).toISOString();
         runs.push({ pid: Number(entry), argv, startedAt });
       } catch {
         /* process vanished */
@@ -116,7 +142,16 @@ export function findActiveRuns(): ActiveRun[] {
   for (const run of runs) {
     const key = run.argv.join("\u0000");
     const existing = byArgv.get(key);
-    byArgv.set(key, existing ? { ...existing, name: existing.name ?? run.name, startedAt: existing.startedAt ?? run.startedAt } : run);
+    byArgv.set(
+      key,
+      existing
+        ? {
+            ...existing,
+            name: existing.name ?? run.name,
+            startedAt: existing.startedAt ?? run.startedAt,
+          }
+        : run,
+    );
   }
   return [...byArgv.values()];
 }
@@ -150,7 +185,15 @@ export interface Progress {
   total: number;
   done: number;
   etaSeconds: number;
-  recent: Array<{ at: string; model: string; caseId: string; instruction: string; labelVariant: string; reviewMs: number; failure: FailureMode }>;
+  recent: Array<{
+    at: string;
+    model: string;
+    caseId: string;
+    instruction: string;
+    labelVariant: string;
+    reviewMs: number;
+    failure: FailureMode;
+  }>;
 }
 
 /**
@@ -174,7 +217,16 @@ export function computeProgress(
     const done: ResultRecord[] = [];
     for (const job of jobs) {
       const key = `${model}\u0000${job.instruction}\u0000${job.labelVariant}`;
-      const cell = cells.get(key) ?? { model, instruction: job.instruction, labelVariant: job.labelVariant, total: 0, done: 0, timeouts: 0, errors: 0, failures: {} };
+      const cell = cells.get(key) ?? {
+        model,
+        instruction: job.instruction,
+        labelVariant: job.labelVariant,
+        total: 0,
+        done: 0,
+        timeouts: 0,
+        errors: 0,
+        failures: {},
+      };
       cells.set(key, cell);
       cell.total++;
       const record = cache.get(job.key);
@@ -185,21 +237,45 @@ export function computeProgress(
       cell.failures[failure] = (cell.failures[failure] ?? 0) + 1;
       if (record.errorKind === "deadline") cell.timeouts++;
       else if (record.error) cell.errors++;
-      recent.push({ at: record.at, model, caseId: job.caseId, instruction: job.instruction, labelVariant: job.labelVariant, reviewMs: record.reviewMs, failure });
+      recent.push({
+        at: record.at,
+        model,
+        caseId: job.caseId,
+        instruction: job.instruction,
+        labelVariant: job.labelVariant,
+        reviewMs: record.reviewMs,
+        failure,
+      });
     }
-    const times = done.map((r) => Date.parse(r.at)).filter(Number.isFinite).sort((a, b) => a - b);
+    const times = done
+      .map((r) => Date.parse(r.at))
+      .filter(Number.isFinite)
+      .sort((a, b) => a - b);
     const lastAt = times.at(-1);
-    const windowStart = Math.max((lastAt ?? now) - 10 * 60_000, times[0] ?? now);
+    const windowStart = Math.max(
+      (lastAt ?? now) - 10 * 60_000,
+      times[0] ?? now,
+    );
     const inWindow = times.filter((t) => t >= windowStart).length;
     const spanMin = ((lastAt ?? now) - windowStart) / 60_000;
-    const throughputPerMin = inWindow >= 2 && spanMin > 0 ? (inWindow - 1) / spanMin : null;
+    const throughputPerMin =
+      inWindow >= 2 && spanMin > 0 ? (inWindow - 1) / spanMin : null;
     const recentMs = done.slice(-30).map((r) => r.reviewMs);
     const medianMs = percentile(recentMs, 50);
     const remaining = jobs.length - done.length;
     const status: ModelProgress["status"] =
-      remaining === 0 ? "done" : !seenRunning && (done.length > 0 || models.every((m) => m.status === "done")) ? "running" : "pending";
+      remaining === 0
+        ? "done"
+        : !seenRunning &&
+            (done.length > 0 || models.every((m) => m.status === "done"))
+          ? "running"
+          : "pending";
     if (status === "running") seenRunning = true;
-    const perCase = throughputPerMin ? 60 / throughputPerMin : medianMs !== null ? medianMs / 1000 : fallbackSeconds(model);
+    const perCase = throughputPerMin
+      ? 60 / throughputPerMin
+      : medianMs !== null
+        ? medianMs / 1000
+        : fallbackSeconds(model);
     models.push({
       model,
       total: jobs.length,
@@ -247,7 +323,17 @@ export function matrixStatus(
   for (const [model, jobs] of jobsByModel)
     for (const job of jobs) {
       const id = `${model}\u0000${job.instruction}\u0000${job.labelVariant}`;
-      const row = rows.get(id) ?? { tier, model, instruction: job.instruction, labelVariant: job.labelVariant, total: 0, done: 0, status: "pending" as const, estimateSeconds: 0, active: false };
+      const row = rows.get(id) ?? {
+        tier,
+        model,
+        instruction: job.instruction,
+        labelVariant: job.labelVariant,
+        total: 0,
+        done: 0,
+        status: "pending" as const,
+        estimateSeconds: 0,
+        active: false,
+      };
       rows.set(id, row);
       row.total++;
       if (isDone(model, job.key)) row.done++;
@@ -255,8 +341,17 @@ export function matrixStatus(
     }
   return [...rows.values()].map(({ active, ...row }) => ({
     ...row,
-    status: row.done === row.total ? "done" : active ? "running" : row.done > 0 ? "partial" : "pending",
-    estimateSeconds: Math.round((row.total - row.done) * secondsPerCase(row.model) * 1.1),
+    status:
+      row.done === row.total
+        ? "done"
+        : active
+          ? "running"
+          : row.done > 0
+            ? "partial"
+            : "pending",
+    estimateSeconds: Math.round(
+      (row.total - row.done) * secondsPerCase(row.model) * 1.1,
+    ),
   }));
 }
 
@@ -276,10 +371,24 @@ export interface RunListing {
 export function listCommittedRuns(): RunListing[] {
   if (!existsSync(RUNS_DIR)) return [];
   return readdirSync(RUNS_DIR)
-    .filter((d) => existsSync(join(RUNS_DIR, d, "run.json")) && existsSync(join(RUNS_DIR, d, "results.jsonl")))
+    .filter(
+      (d) =>
+        existsSync(join(RUNS_DIR, d, "run.json")) &&
+        existsSync(join(RUNS_DIR, d, "results.jsonl")),
+    )
     .map((d) => {
-      const meta = JSON.parse(readFileSync(join(RUNS_DIR, d, "run.json"), "utf8")) as RunMeta;
-      return { id: `run:${d}`, name: meta.name, kind: "committed" as const, tier: meta.tier, ref: meta.ext.ref, sha: meta.ext.sha, finishedAt: meta.finishedAt };
+      const meta = JSON.parse(
+        readFileSync(join(RUNS_DIR, d, "run.json"), "utf8"),
+      ) as RunMeta;
+      return {
+        id: `run:${d}`,
+        name: meta.name,
+        kind: "committed" as const,
+        tier: meta.tier,
+        ref: meta.ext.ref,
+        sha: meta.ext.sha,
+        finishedAt: meta.finishedAt,
+      };
     })
     .sort((a, b) => (b.finishedAt ?? "").localeCompare(a.finishedAt ?? ""));
 }
@@ -321,13 +430,24 @@ export const RESULT_DIMENSIONS: Record<string, (r: Scored) => string> = {
 export type Filters = Record<string, string[]>;
 
 export function filterRows(rows: Scored[], filters: Filters): Scored[] {
-  const active = Object.entries(filters).filter(([dim, values]) => RESULT_DIMENSIONS[dim] && values.length);
-  return rows.filter((r) => active.every(([dim, values]) => values.includes(RESULT_DIMENSIONS[dim]!(r))));
+  const active = Object.entries(filters).filter(
+    ([dim, values]) => RESULT_DIMENSIONS[dim] && values.length,
+  );
+  return rows.filter((r) =>
+    active.every(([dim, values]) =>
+      values.includes(RESULT_DIMENSIONS[dim]!(r)),
+    ),
+  );
 }
 
 /** Distinct values per dimension, for filter controls. */
 export function filterOptions(rows: Scored[]): Record<string, string[]> {
-  return Object.fromEntries(Object.entries(RESULT_DIMENSIONS).map(([dim, get]) => [dim, [...new Set(rows.map(get))].sort()]));
+  return Object.fromEntries(
+    Object.entries(RESULT_DIMENSIONS).map(([dim, get]) => [
+      dim,
+      [...new Set(rows.map(get))].sort(),
+    ]),
+  );
 }
 
 export interface Group {
@@ -337,7 +457,9 @@ export interface Group {
 
 /** Metrics per combination of up to two dimensions. */
 export function groupMetrics(rows: Scored[], dims: string[]): Group[] {
-  const getters = dims.filter((d) => RESULT_DIMENSIONS[d]).map((d) => RESULT_DIMENSIONS[d]!);
+  const getters = dims
+    .filter((d) => RESULT_DIMENSIONS[d])
+    .map((d) => RESULT_DIMENSIONS[d]!);
   const groups = new Map<string, Scored[]>();
   for (const r of rows) {
     const key = getters.map((g) => g(r)).join("\u0000");
@@ -345,7 +467,10 @@ export function groupMetrics(rows: Scored[], dims: string[]): Group[] {
   }
   return [...groups.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, members]) => ({ keys: getters.length ? key.split("\u0000") : ["all"], metrics: metrics(members) }));
+    .map(([key, members]) => ({
+      keys: getters.length ? key.split("\u0000") : ["all"],
+      metrics: metrics(members),
+    }));
 }
 
 export type Verdict = "TP" | "FP" | "FN" | "TN";
@@ -367,7 +492,11 @@ export interface CaseListItem {
   reviewMs: number;
 }
 
-export function listCases(rows: Scored[], verdict?: string, limit = 200): { total: number; items: CaseListItem[] } {
+export function listCases(
+  rows: Scored[],
+  verdict?: string,
+  limit = 200,
+): { total: number; items: CaseListItem[] } {
   const items = rows
     .map((r) => ({
       caseId: r.caseId,
@@ -401,9 +530,31 @@ export interface CaseDetail {
   systemInstruction: string;
   rules: Array<{ label: string; prompt: string }>;
   text: string;
-  meta: Pick<CompiledCase, "profile" | "lang" | "mixed" | "type" | "difficulty" | "style" | "tags" | "note" | "split" | "lengthBucket">;
-  expected: Array<{ label: string; passage: string; verdict: "TP" | "FN"; exact: boolean }>;
-  predicted: Array<{ label: string; value: string; verdict: "TP" | "FP"; exact: boolean }>;
+  meta: Pick<
+    CompiledCase,
+    | "profile"
+    | "lang"
+    | "mixed"
+    | "type"
+    | "difficulty"
+    | "style"
+    | "tags"
+    | "note"
+    | "split"
+    | "lengthBucket"
+  >;
+  expected: Array<{
+    label: string;
+    passage: string;
+    verdict: "TP" | "FN";
+    exact: boolean;
+  }>;
+  predicted: Array<{
+    label: string;
+    value: string;
+    verdict: "TP" | "FP";
+    exact: boolean;
+  }>;
   highlights: Highlight[];
   verdict: Verdict;
   failure: FailureMode;
@@ -420,7 +571,8 @@ const occurrencesCi = (text: string, needle: string) => {
   if (!needle) return out;
   const hay = text.toLocaleLowerCase();
   const n = needle.toLocaleLowerCase();
-  for (let i = hay.indexOf(n); i >= 0; i = hay.indexOf(n, i + n.length)) out.push(i);
+  for (let i = hay.indexOf(n); i >= 0; i = hay.indexOf(n, i + n.length))
+    out.push(i);
   return out;
 };
 
@@ -433,10 +585,23 @@ export function caseDetail(
 ): CaseDetail {
   const highlights: Highlight[] = [];
   for (const e of row.expected)
-    for (const s of c.spans.filter((s) => s.label === e.label && s.passage === e.passage))
-      highlights.push({ start: s.start, end: s.end, kind: e.overlap ? "expected-hit" : "expected-miss", label: e.label });
+    for (const s of c.spans.filter(
+      (s) => s.label === e.label && s.passage === e.passage,
+    ))
+      highlights.push({
+        start: s.start,
+        end: s.end,
+        kind: e.overlap ? "expected-hit" : "expected-miss",
+        label: e.label,
+      });
   for (const p of row.predicted.filter((p) => !p.overlap))
-    for (const start of occurrencesCi(c.text, p.value)) highlights.push({ start, end: start + p.value.length, kind: "predicted-fp", label: p.label });
+    for (const start of occurrencesCi(c.text, p.value))
+      highlights.push({
+        start,
+        end: start + p.value.length,
+        kind: "predicted-fp",
+        label: p.label,
+      });
   highlights.sort((a, b) => a.start - b.start || b.end - a.end);
   return {
     caseId: row.caseId,
@@ -447,9 +612,30 @@ export function caseDetail(
     systemInstruction,
     rules,
     text: c.text,
-    meta: { profile: c.profile, lang: c.lang, mixed: c.mixed, type: c.type, difficulty: c.difficulty, style: c.style, tags: c.tags, note: c.note, split: c.split, lengthBucket: c.lengthBucket },
-    expected: row.expected.map((e) => ({ label: e.label, passage: e.passage, verdict: e.overlap ? "TP" : "FN", exact: e.exact })),
-    predicted: row.predicted.map((p) => ({ label: p.label, value: p.value, verdict: p.overlap ? "TP" : "FP", exact: p.exact })),
+    meta: {
+      profile: c.profile,
+      lang: c.lang,
+      mixed: c.mixed,
+      type: c.type,
+      difficulty: c.difficulty,
+      style: c.style,
+      tags: c.tags,
+      note: c.note,
+      split: c.split,
+      lengthBucket: c.lengthBucket,
+    },
+    expected: row.expected.map((e) => ({
+      label: e.label,
+      passage: e.passage,
+      verdict: e.overlap ? "TP" : "FN",
+      exact: e.exact,
+    })),
+    predicted: row.predicted.map((p) => ({
+      label: p.label,
+      value: p.value,
+      verdict: p.overlap ? "TP" : "FP",
+      exact: p.exact,
+    })),
     highlights,
     verdict: caseVerdict(row),
     failure: row.failure,
@@ -462,5 +648,6 @@ export function caseDetail(
   };
 }
 
-export const profileMap = (dataset: CompiledDataset) => new Map<string, Profile>(dataset.profiles.map((p) => [p.id, p]));
+export const profileMap = (dataset: CompiledDataset) =>
+  new Map<string, Profile>(dataset.profiles.map((p) => [p.id, p]));
 export { FAILURE_MODES };

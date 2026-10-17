@@ -6,7 +6,8 @@
  */
 
 /** The value without spaces (incl. no-break spaces), dots, dashes and slashes. */
-export const compact = (value: string): string => value.replace(/[\s.\-/]/gu, "");
+export const compact = (value: string): string =>
+  value.replace(/[\s.\-/]/gu, "");
 
 const digitsOnly = (value: string) => /^\d+$/.test(value);
 
@@ -17,7 +18,8 @@ const lettersToDigits = (value: string): string =>
 /** Remainder of a long decimal string mod 97, in chunks. */
 export function mod97(digits: string): number {
   let rest = 0;
-  for (let i = 0; i < digits.length; i += 7) rest = Number(`${rest}${digits.slice(i, i + 7)}`) % 97;
+  for (let i = 0; i < digits.length; i += 7)
+    rest = Number(`${rest}${digits.slice(i, i + 7)}`) % 97;
   return rest;
 }
 
@@ -37,7 +39,12 @@ export function ibanCheckDigits(country: string, bban: string): string {
 /** French RIB key over bank (5), branch (5) and account (11) codes. */
 export function ribKey(bank: string, branch: string, account: string): string {
   // Letters map to digits per the RIB table (A/J -> 1, B/K/S -> 2, ...).
-  const ribDigits = (s: string) => s.toUpperCase().replace(/[A-Z]/g, (c) => "12345678912345678923456789".charAt(c.charCodeAt(0) - 65));
+  const ribDigits = (s: string) =>
+    s
+      .toUpperCase()
+      .replace(/[A-Z]/g, (c) =>
+        "12345678912345678923456789".charAt(c.charCodeAt(0) - 65),
+      );
   const b = Number(ribDigits(bank));
   const g = Number(ribDigits(branch));
   const a = mod97(ribDigits(account));
@@ -45,7 +52,11 @@ export function ribKey(bank: string, branch: string, account: string): string {
 }
 
 /** A French IBAN whose RIB key and IBAN check digits are both valid. */
-export function frenchIban(bank: string, branch: string, account: string): string {
+export function frenchIban(
+  bank: string,
+  branch: string,
+  account: string,
+): string {
   const bban = `${bank}${branch}${account}${ribKey(bank, branch, account)}`;
   return `FR${ibanCheckDigits("FR", bban)}${bban}`;
 }
@@ -78,10 +89,12 @@ export const isValidCard = (value: string): boolean => {
 };
 
 /** French SIREN: 9 digits, Luhn. */
-export const isValidSiren = (value: string): boolean => /^\d{9}$/.test(compact(value)) && luhn(value);
+export const isValidSiren = (value: string): boolean =>
+  /^\d{9}$/.test(compact(value)) && luhn(value);
 
 /** French SIRET: SIREN + 5-digit establishment number, Luhn over all 14 digits. */
-export const isValidSiret = (value: string): boolean => /^\d{14}$/.test(compact(value)) && luhn(value);
+export const isValidSiret = (value: string): boolean =>
+  /^\d{14}$/.test(compact(value)) && luhn(value);
 
 /** French intra-EU VAT number: FR + key + SIREN, key = (12 + 3 * (SIREN mod 97)) mod 97. */
 export function frenchVatKey(siren: string): string {
@@ -96,7 +109,7 @@ export function isValidFrenchVat(value: string): boolean {
 /** French NIR (social security number): 13 characters + key = 97 - (number mod 97); Corsica 2A/2B count as 19/18. */
 export function nirKey(first13: string): string {
   const n = first13.toUpperCase().replace("2A", "19").replace("2B", "18");
-  return String(97 - (Number(BigInt(n) % 97n))).padStart(2, "0");
+  return String(97 - Number(BigInt(n) % 97n)).padStart(2, "0");
 }
 export function isValidNir(value: string): boolean {
   const v = compact(value).toUpperCase();
@@ -120,7 +133,13 @@ export function isValidSsn(value: string): boolean {
   const digits = compact(value);
   const m = /^(\d{3})(\d{2})(\d{4})$/.exec(digits);
   if (!m) return false;
-  return m[1] !== "000" && m[1] !== "666" && !m[1]!.startsWith("9") && m[2] !== "00" && m[3] !== "0000";
+  return (
+    m[1] !== "000" &&
+    m[1] !== "666" &&
+    !m[1]!.startsWith("9") &&
+    m[2] !== "00" &&
+    m[3] !== "0000"
+  );
 }
 
 /**
@@ -131,11 +150,16 @@ export function isValidNino(value: string): boolean {
   const m = /^([A-Z]{2})\d{6}[A-D]$/.exec(compact(value).toUpperCase());
   if (!m) return false;
   const [a, b] = m[1]!;
-  return !/[DFIQUV]/.test(a!) && !/[DFIOQUV]/.test(b!) && !["BG", "GB", "KN", "NK", "NT", "TN", "ZZ"].includes(m[1]!);
+  return (
+    !/[DFIQUV]/.test(a!) &&
+    !/[DFIOQUV]/.test(b!) &&
+    !["BG", "GB", "KN", "NK", "NT", "TN", "ZZ"].includes(m[1]!)
+  );
 }
 
 /** SWIFT/BIC shape: bank (4 letters), country (2 letters), location (2), optional branch (3). */
-export const isValidBic = (value: string): boolean => /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}(?:[A-Z0-9]{3})?$/.test(value.toUpperCase());
+export const isValidBic = (value: string): boolean =>
+  /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}(?:[A-Z0-9]{3})?$/.test(value.toUpperCase());
 
 /** Validators by item kind; kinds without a checksum are not listed. */
 export const KIND_VALIDATORS: Record<string, (value: string) => boolean> = {

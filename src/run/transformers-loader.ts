@@ -16,7 +16,13 @@
 import { availableParallelism } from "node:os";
 import { pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
-import { createWriteStream, existsSync, mkdirSync, readFileSync, renameSync } from "node:fs";
+import {
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+} from "node:fs";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import {
@@ -40,7 +46,9 @@ export const WASM_THREADS = Math.min(4, Math.max(1, availableParallelism()));
 env.cacheDir = MODEL_CACHE_DIR;
 env.allowLocalModels = false;
 if (env.backends.onnx.wasm) {
-  env.backends.onnx.wasm.wasmPaths = pathToFileURL(join(ROOT, "node_modules", "onnxruntime-web", "dist") + "/").href;
+  env.backends.onnx.wasm.wasmPaths = pathToFileURL(
+    join(ROOT, "node_modules", "onnxruntime-web", "dist") + "/",
+  ).href;
   env.backends.onnx.wasm.numThreads = WASM_THREADS;
 }
 
@@ -60,7 +68,11 @@ interface GenerateOptions {
 }
 
 export const idsTensor = (ids: readonly number[]): Tensor =>
-  new Tensor("int64", BigInt64Array.from(ids, (id) => BigInt(id)), [1, ids.length]);
+  new Tensor(
+    "int64",
+    BigInt64Array.from(ids, (id) => BigInt(id)),
+    [1, ids.length],
+  );
 
 class CallbackStoppingCriteria extends StoppingCriteria {
   constructor(
@@ -71,7 +83,9 @@ class CallbackStoppingCriteria extends StoppingCriteria {
   }
   override _call(input_ids: number[][]): boolean[] {
     return input_ids.map((sequence) =>
-      this.shouldStop((sequence as (number | bigint)[]).slice(this.promptLength).map(Number)),
+      this.shouldStop(
+        (sequence as (number | bigint)[]).slice(this.promptLength).map(Number),
+      ),
     );
   }
 }
@@ -79,9 +93,11 @@ class CallbackStoppingCriteria extends StoppingCriteria {
 /** Softmax probability of the largest logit (the ref's `greedyTokenProbability`). */
 function greedyTokenProbability(logits: ArrayLike<number>): number {
   let max = Number.NEGATIVE_INFINITY;
-  for (let index = 0; index < logits.length; index++) max = Math.max(max, logits[index] ?? Number.NEGATIVE_INFINITY);
+  for (let index = 0; index < logits.length; index++)
+    max = Math.max(max, logits[index] ?? Number.NEGATIVE_INFINITY);
   let total = 0;
-  for (let index = 0; index < logits.length; index++) total += Math.exp((logits[index] ?? Number.NEGATIVE_INFINITY) - max);
+  for (let index = 0; index < logits.length; index++)
+    total += Math.exp((logits[index] ?? Number.NEGATIVE_INFINITY) - max);
   return 1 / total;
 }
 
@@ -98,7 +114,9 @@ class TokenProbabilityRecorder extends LogitsProcessor {
     if (logits.type === "float32") {
       const data = logits.data as Float32Array;
       const vocabulary = logits.dims.at(-1) ?? data.length;
-      this.record(greedyTokenProbability(data.subarray(data.length - vocabulary)));
+      this.record(
+        greedyTokenProbability(data.subarray(data.length - vocabulary)),
+      );
     }
     return logits;
   }
@@ -106,56 +124,91 @@ class TokenProbabilityRecorder extends LogitsProcessor {
 
 export const eosIds = (model: PreTrainedModel): number[] => {
   const config = model.config as { eos_token_id?: unknown };
-  const raw = (model as unknown as { generation_config?: { eos_token_id?: unknown } }).generation_config?.eos_token_id ?? config.eos_token_id;
-  const list = Array.isArray(raw) ? raw : raw === null || raw === undefined ? [] : [raw];
+  const raw =
+    (model as unknown as { generation_config?: { eos_token_id?: unknown } })
+      .generation_config?.eos_token_id ?? config.eos_token_id;
+  const list = Array.isArray(raw)
+    ? raw
+    : raw === null || raw === undefined
+      ? []
+      : [raw];
   return list.filter((id): id is number => typeof id === "number");
 };
 
 export function adaptTokenizer(tokenizer: PreTrainedTokenizer) {
   return {
     hasChatTemplate: Boolean(tokenizer.chat_template),
-    applyChatTemplate: (messages: ReadonlyArray<{ role: string; content: string }>) =>
-      String(tokenizer.apply_chat_template([...messages] as never, { tokenize: false, add_generation_prompt: true })),
-    encode: (text: string) => tokenizer.encode(text, { add_special_tokens: false }),
-    decode: (ids: readonly number[]) => tokenizer.decode([...ids], { skip_special_tokens: true }),
+    applyChatTemplate: (
+      messages: ReadonlyArray<{ role: string; content: string }>,
+    ) =>
+      String(
+        tokenizer.apply_chat_template([...messages] as never, {
+          tokenize: false,
+          add_generation_prompt: true,
+        }),
+      ),
+    encode: (text: string) =>
+      tokenizer.encode(text, { add_special_tokens: false }),
+    decode: (ids: readonly number[]) =>
+      tokenizer.decode([...ids], { skip_special_tokens: true }),
   };
 }
 
 export function adaptModel(model: PreTrainedModel) {
-  const contextLength = (model.config as { max_position_embeddings?: unknown }).max_position_embeddings;
+  const contextLength = (model.config as { max_position_embeddings?: unknown })
+    .max_position_embeddings;
   if (typeof contextLength !== "number" || !(contextLength > 0))
     throw new Error("The selected model does not declare a context length.");
   return {
     contextLength,
     eosTokenIds: eosIds(model),
     async prefill(ids: readonly number[]) {
-      const outputs = await model.forward({ input_ids: idsTensor(ids), attention_mask: ones([1, ids.length]) });
-      return (model as unknown as { getPastKeyValues(o: unknown, p: null): unknown }).getPastKeyValues(outputs, null);
+      const outputs = await model.forward({
+        input_ids: idsTensor(ids),
+        attention_mask: ones([1, ids.length]),
+      });
+      return (
+        model as unknown as { getPastKeyValues(o: unknown, p: null): unknown }
+      ).getPastKeyValues(outputs, null);
     },
     async generate(options: GenerateOptions) {
       const criteria = new StoppingCriteriaList();
-      criteria.push(new CallbackStoppingCriteria(options.ids.length, options.shouldStop));
+      criteria.push(
+        new CallbackStoppingCriteria(options.ids.length, options.shouldStop),
+      );
       let processors: LogitsProcessorList | undefined;
       if (options.onTokenProbability) {
         processors = new LogitsProcessorList();
-        processors.push(new TokenProbabilityRecorder(options.onTokenProbability));
+        processors.push(
+          new TokenProbabilityRecorder(options.onTokenProbability),
+        );
       }
       const parameters = {
         input_ids: idsTensor(options.ids),
         attention_mask: ones([1, options.ids.length]),
-        ...(options.pastKeyValues === undefined ? {} : { past_key_values: options.pastKeyValues }),
+        ...(options.pastKeyValues === undefined
+          ? {}
+          : { past_key_values: options.pastKeyValues }),
         max_length: options.maxLength,
         max_new_tokens:
           options.maxNewTokens === undefined
             ? null
-            : Math.max(1, Math.min(options.maxNewTokens, options.maxLength - options.ids.length)),
+            : Math.max(
+                1,
+                Math.min(
+                  options.maxNewTokens,
+                  options.maxLength - options.ids.length,
+                ),
+              ),
         do_sample: false,
         // Like model-worker.ts: the engine's pinned settings override the model's generation_config.
         ...(options.settings ?? {}),
         stopping_criteria: criteria,
         ...(processors ? { logits_processor: processors } : {}),
       };
-      const output = (await model.generate(parameters as unknown as Parameters<PreTrainedModel["generate"]>[0])) as Tensor;
+      const output = (await model.generate(
+        parameters as unknown as Parameters<PreTrainedModel["generate"]>[0],
+      )) as Tensor;
       const sequence = (output.tolist() as (number | bigint)[][])[0] ?? [];
       return sequence.slice(options.ids.length).map(Number);
     },
@@ -165,7 +218,13 @@ export function adaptModel(model: PreTrainedModel) {
 /** Loaded models, so the worker can dispose them explicitly. */
 const loaded: PreTrainedModel[] = [];
 
-const DTYPE_SUFFIX: Record<string, string> = { q8: "_quantized", q4: "_q4", q4f16: "_q4f16", fp16: "_fp16", fp32: "" };
+const DTYPE_SUFFIX: Record<string, string> = {
+  q8: "_quantized",
+  q4: "_q4",
+  q4f16: "_q4f16",
+  fp16: "_fp16",
+  fp32: "",
+};
 
 /**
  * Weights stored as an external `.onnx_data` file (newer onnx-community
@@ -176,16 +235,25 @@ const DTYPE_SUFFIX: Record<string, string> = { q8: "_quantized", q4: "_q4", q4f1
  * optimization option: inference stays on the default session options.
  */
 async function externalDataOptions(model: string, dtype: string) {
-  const config = (await AutoConfig.from_pretrained(model)) as unknown as { "transformers.js_config"?: { use_external_data_format?: unknown } };
+  const config = (await AutoConfig.from_pretrained(model)) as unknown as {
+    "transformers.js_config"?: { use_external_data_format?: unknown };
+  };
   const flag = config["transformers.js_config"]?.use_external_data_format;
   const base = `model${DTYPE_SUFFIX[dtype] ?? ""}.onnx`;
-  const chunks = typeof flag === "object" && flag !== null ? Number((flag as Record<string, unknown>)[base] ?? 0) : Number(Boolean(flag));
+  const chunks =
+    typeof flag === "object" && flag !== null
+      ? Number((flag as Record<string, unknown>)[base] ?? 0)
+      : Number(Boolean(flag));
   if (!chunks) return {};
   const externalData = [];
   for (let i = 0; i < chunks; i++) {
     const path = `${base}_data${i === 0 ? "" : `_${i}`}`;
     const file = join(MODEL_CACHE_DIR, model, "onnx", path);
-    if (!existsSync(file)) await download(`${env.remoteHost}${model}/resolve/main/onnx/${path}`, file);
+    if (!existsSync(file))
+      await download(
+        `${env.remoteHost}${model}/resolve/main/onnx/${path}`,
+        file,
+      );
     externalData.push({ path, data: new Uint8Array(readFileSync(file)) });
   }
   return { use_external_data_format: false, session_options: { externalData } };
@@ -194,9 +262,13 @@ async function externalDataOptions(model: string, dtype: string) {
 /** Streams a file to disk (weights can be several hundred MB; never buffered whole). */
 async function download(url: string, file: string) {
   const response = await fetch(url);
-  if (!response.ok || !response.body) throw new Error(`download failed (${response.status}): ${url}`);
+  if (!response.ok || !response.body)
+    throw new Error(`download failed (${response.status}): ${url}`);
   mkdirSync(dirname(file), { recursive: true });
-  await pipeline(Readable.fromWeb(response.body as never), createWriteStream(`${file}.part`));
+  await pipeline(
+    Readable.fromWeb(response.body as never),
+    createWriteStream(`${file}.part`),
+  );
   renameSync(`${file}.part`, file);
 }
 
@@ -206,7 +278,11 @@ export async function loadPretrained(model: string, dtype: "q8" | "q4" = "q8") {
   const [tokenizer, instance] = await Promise.all([
     AutoTokenizer.from_pretrained(model),
     // "cpu" is how Transformers.js names the (aliased) onnxruntime-web WASM backend in Node.
-    AutoModelForCausalLM.from_pretrained(model, { device: "cpu", dtype, ...external } as never),
+    AutoModelForCausalLM.from_pretrained(model, {
+      device: "cpu",
+      dtype,
+      ...external,
+    } as never),
   ]);
   loaded.push(instance);
   // The weights were read into JS buffers and copied into the WASM heap; those
@@ -228,14 +304,19 @@ export interface FreeGenerationOptions {
  * Free-form generation for the chat playground: optional sampling, a token
  * cap and a wall-clock deadline. Returns the new token ids and timing.
  */
-export async function generateFree(model: PreTrainedModel, ids: readonly number[], options: FreeGenerationOptions) {
+export async function generateFree(
+  model: PreTrainedModel,
+  ids: readonly number[],
+  options: FreeGenerationOptions,
+) {
   const started = performance.now();
   let firstTokenMs: number | undefined;
   let deadlineHit = false;
   const criteria = new StoppingCriteriaList();
   criteria.push(
     new CallbackStoppingCriteria(ids.length, (generated) => {
-      if (generated.length && firstTokenMs === undefined) firstTokenMs = performance.now() - started;
+      if (generated.length && firstTokenMs === undefined)
+        firstTokenMs = performance.now() - started;
       if (performance.now() - started >= options.deadlineMs) {
         deadlineHit = true;
         return true;
@@ -248,15 +329,20 @@ export async function generateFree(model: PreTrainedModel, ids: readonly number[
     attention_mask: ones([1, ids.length]),
     max_new_tokens: options.maxNewTokens,
     do_sample: options.sample,
-    ...(options.sample ? { temperature: options.temperature, top_p: options.topP } : {}),
+    ...(options.sample
+      ? { temperature: options.temperature, top_p: options.topP }
+      : {}),
     stopping_criteria: criteria,
   };
-  const output = (await model.generate(parameters as unknown as Parameters<PreTrainedModel["generate"]>[0])) as Tensor;
+  const output = (await model.generate(
+    parameters as unknown as Parameters<PreTrainedModel["generate"]>[0],
+  )) as Tensor;
   const sequence = (output.tolist() as (number | bigint)[][])[0] ?? [];
   return {
     generated: sequence.slice(ids.length).map(Number),
     ms: Math.round(performance.now() - started),
-    firstTokenMs: firstTokenMs === undefined ? undefined : Math.round(firstTokenMs),
+    firstTokenMs:
+      firstTokenMs === undefined ? undefined : Math.round(firstTokenMs),
     deadlineHit,
   };
 }
@@ -264,12 +350,22 @@ export async function generateFree(model: PreTrainedModel, ids: readonly number[
 /** `SlmRuntimeLoader` for the ref's `SlmEngine`: WASM only, no WebGPU. */
 export const nodeWasmLoader = {
   async load(model: string, device: string, dtype: string) {
-    if (device !== "wasm") throw new Error(`The bench only runs on WASM (asked for ${device}).`);
-    const { tokenizer, model: instance } = await loadPretrained(model, dtype as "q8" | "q4");
-    return { tokenizer: adaptTokenizer(tokenizer), model: adaptModel(instance) };
+    if (device !== "wasm")
+      throw new Error(`The bench only runs on WASM (asked for ${device}).`);
+    const { tokenizer, model: instance } = await loadPretrained(
+      model,
+      dtype as "q8" | "q4",
+    );
+    return {
+      tokenizer: adaptTokenizer(tokenizer),
+      model: adaptModel(instance),
+    };
   },
   async probeWebGpu() {
-    return { available: false, reason: "The bench runs on WASM only, for comparable CPU results." };
+    return {
+      available: false,
+      reason: "The bench runs on WASM only, for comparable CPU results.",
+    };
   },
   now: () => performance.now(),
 };

@@ -17,7 +17,9 @@ export function machineProfile(): MachineProfile {
     ramMb: Math.round(totalmem() / 1024 / 1024),
     os: `${type()} ${release()}`,
     node: process.versions.node,
-    ...(process.env.BENCH_POWER_MODE ? { powerMode: process.env.BENCH_POWER_MODE } : {}),
+    ...(process.env.BENCH_POWER_MODE
+      ? { powerMode: process.env.BENCH_POWER_MODE }
+      : {}),
   };
   return profile;
 }
@@ -25,7 +27,11 @@ export function machineProfile(): MachineProfile {
 /** `VmRSS` or `VmHWM` of this process in MB (Linux), else undefined. */
 export function procMemoryMb(field: "VmRSS" | "VmHWM"): number | undefined {
   try {
-    const kb = Number(new RegExp(`${field}:\\s+(\\d+)`).exec(readFileSync("/proc/self/status", "utf8"))?.[1]);
+    const kb = Number(
+      new RegExp(`${field}:\\s+(\\d+)`).exec(
+        readFileSync("/proc/self/status", "utf8"),
+      )?.[1],
+    );
     return Number.isFinite(kb) ? Math.round(kb / 1024) : undefined;
   } catch {
     return undefined;
@@ -44,4 +50,5 @@ export function resetPeakRss(): boolean {
 }
 
 /** Peak RSS so far: `VmHWM` where readable, else the process's maximum. */
-export const peakRssMb = (): number => procMemoryMb("VmHWM") ?? Math.round(process.resourceUsage().maxRSS / 1024);
+export const peakRssMb = (): number =>
+  procMemoryMb("VmHWM") ?? Math.round(process.resourceUsage().maxRSS / 1024);

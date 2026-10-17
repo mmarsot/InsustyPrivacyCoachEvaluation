@@ -11,7 +11,13 @@ export interface RunModelMeta {
   wallMs?: number;
   threads?: number;
   /** Connected models: tokens and USD of this run's jobs (cached ones included). */
-  hosted?: { requests: number; inputTokens: number; outputTokens: number; usd: number; usdPer1000Prompts: number };
+  hosted?: {
+    requests: number;
+    inputTokens: number;
+    outputTokens: number;
+    usd: number;
+    usdPer1000Prompts: number;
+  };
 }
 
 export interface RunMeta {
@@ -23,7 +29,14 @@ export interface RunMeta {
   labelVariants: string[];
   models: RunModelMeta[];
   /** `runtime`: inference packages the ref's lockfile pins (older runs: `transformersRange` from its package.json). */
-  ext: { ref: string; sha: string; subject: string; committedAt: string; transformersRange?: string; runtime?: Record<string, string> };
+  ext: {
+    ref: string;
+    sha: string;
+    subject: string;
+    committedAt: string;
+    transformersRange?: string;
+    runtime?: Record<string, string>;
+  };
   /** The redaction contract version the module was scored through (absent on runs from before the contract). */
   contract?: string;
   datasetHash: string;

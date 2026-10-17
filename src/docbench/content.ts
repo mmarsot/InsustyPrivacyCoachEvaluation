@@ -103,7 +103,11 @@ const FILLER: Record<Lang, string[]> = {
 };
 
 /** About `words` words of neutral prose, in paragraphs of 3-6 sentences. */
-export function fillerParagraphs(lang: Lang, words: number, rng: Rng): string[] {
+export function fillerParagraphs(
+  lang: Lang,
+  words: number,
+  rng: Rng,
+): string[] {
   const bank = FILLER[lang];
   const out: string[] = [];
   let count = 0;
@@ -177,8 +181,13 @@ const DECOY_LABELS: Record<string, [string, string]> = {
   placeholder: ["Password", "Mot de passe"],
   term: ["Method", "Méthode"],
 };
-export const itemLabel = (kind: string, category: DetCategory, lang: Lang) => (ITEM_LABELS[kind] ?? (category === "SECRET" ? SECRET_LABEL : [category, category]))[lang === "en" ? 0 : 1];
-export const decoyLabel = (kind: string, lang: Lang) => (DECOY_LABELS[kind] ?? ["Value", "Valeur"])[lang === "en" ? 0 : 1];
+export const itemLabel = (kind: string, category: DetCategory, lang: Lang) =>
+  (ITEM_LABELS[kind] ??
+    (category === "SECRET" ? SECRET_LABEL : [category, category]))[
+    lang === "en" ? 0 : 1
+  ];
+export const decoyLabel = (kind: string, lang: Lang) =>
+  (DECOY_LABELS[kind] ?? ["Value", "Valeur"])[lang === "en" ? 0 : 1];
 
 // ------------------------------------------------------------ pools
 
@@ -198,8 +207,17 @@ const unitOf = (c: DetCase): Unit => ({
   source: c.id,
   lang: c.lang,
   text: c.text,
-  items: c.gold.map((g) => ({ key: g.key, category: g.category, kind: g.kind, value: g.value })),
-  decoys: c.decoySpans.map((d) => ({ key: d.key, kind: d.kind, value: d.value })),
+  items: c.gold.map((g) => ({
+    key: g.key,
+    category: g.category,
+    kind: g.kind,
+    value: g.value,
+  })),
+  decoys: c.decoySpans.map((d) => ({
+    key: d.key,
+    kind: d.kind,
+    value: d.value,
+  })),
 });
 
 /** Splits a multi-line value (a PEM block) out of field units: a cell keeps one line. */
@@ -207,10 +225,16 @@ const oneLine = (v: string) => !/[\r\n]/.test(v);
 
 export function loadPools(): ContentPools {
   const { dataset, issues } = loadDetDataset();
-  if (!dataset) throw new Error(`dataset/detbench is invalid: ${issues.join("; ")}`);
+  if (!dataset)
+    throw new Error(`dataset/detbench is invalid: ${issues.join("; ")}`);
   const base = dataset.cases.filter((c) => !c.large);
   const by = (f: (c: DetCase) => boolean) =>
-    Object.fromEntries((["en", "fr"] as const).map((l) => [l, base.filter((c) => c.lang === l && f(c)).map(unitOf)])) as Record<Lang, Unit[]>;
+    Object.fromEntries(
+      (["en", "fr"] as const).map((l) => [
+        l,
+        base.filter((c) => c.lang === l && f(c)).map(unitOf),
+      ]),
+    ) as Record<Lang, Unit[]>;
   const fields = { en: [] as Unit[], fr: [] as Unit[] };
   const decoyFields = { en: [] as Unit[], fr: [] as Unit[] };
   const seen = new Set<string>();
@@ -219,19 +243,39 @@ export function loadPools(): ContentPools {
       if (!oneLine(g.value) || seen.has(g.value)) continue;
       seen.add(g.value);
       const label = itemLabel(g.kind, g.category, c.lang);
-      fields[c.lang].push({ source: `field:${c.id}:${g.key}`, lang: c.lang, text: `${label}\t${g.value}`, items: [{ key: g.key, category: g.category, kind: g.kind, value: g.value }], decoys: [], field: { label, value: g.value } });
+      fields[c.lang].push({
+        source: `field:${c.id}:${g.key}`,
+        lang: c.lang,
+        text: `${label}\t${g.value}`,
+        items: [
+          { key: g.key, category: g.category, kind: g.kind, value: g.value },
+        ],
+        decoys: [],
+        field: { label, value: g.value },
+      });
     }
     for (const d of c.decoySpans) {
-      if (!oneLine(d.value) || seen.has(d.value) || d.value.length < 4) continue;
+      if (!oneLine(d.value) || seen.has(d.value) || d.value.length < 4)
+        continue;
       seen.add(d.value);
       const label = decoyLabel(d.kind, c.lang);
-      decoyFields[c.lang].push({ source: `decoy:${c.id}:${d.key}`, lang: c.lang, text: `${label}\t${d.value}`, items: [], decoys: [{ key: d.key, kind: d.kind, value: d.value }], field: { label, value: d.value } });
+      decoyFields[c.lang].push({
+        source: `decoy:${c.id}:${d.key}`,
+        lang: c.lang,
+        text: `${label}\t${d.value}`,
+        items: [],
+        decoys: [{ key: d.key, kind: d.kind, value: d.value }],
+        field: { label, value: d.value },
+      });
     }
   }
   return {
     hash: dataset.hash,
     prose: by((c) => c.gold.length > 0 && c.text.length <= 900),
-    shortProse: by((c) => c.gold.length > 0 && c.text.length <= 320 && !c.text.includes("```")),
+    shortProse: by(
+      (c) =>
+        c.gold.length > 0 && c.text.length <= 320 && !c.text.includes("```"),
+    ),
     negatives: by((c) => c.gold.length === 0),
     fields,
     decoyFields,
@@ -254,8 +298,18 @@ export function shuffled<T>(list: readonly T[], rng: Rng): T[] {
  * value appears once and is located without ambiguity. Field units are drawn
  * round-robin over categories, so each document mixes kinds of values.
  */
-export function pickUnits(pool: Unit[], n: number, rng: Rng, taken: Set<string>, byCategory = false): Unit[] {
-  const fresh = (u: Unit) => [...u.items, ...u.decoys].every((v) => ![...taken].some((t) => t.includes(v.value) || v.value.includes(t)));
+export function pickUnits(
+  pool: Unit[],
+  n: number,
+  rng: Rng,
+  taken: Set<string>,
+  byCategory = false,
+): Unit[] {
+  const fresh = (u: Unit) =>
+    [...u.items, ...u.decoys].every(
+      (v) =>
+        ![...taken].some((t) => t.includes(v.value) || v.value.includes(t)),
+    );
   const order = shuffled(pool, rng);
   const out: Unit[] = [];
   if (byCategory) {

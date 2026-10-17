@@ -13,7 +13,9 @@ const END = 0xfffffffe;
 const FREE = 0xffffffff;
 const FATSECT = 0xfffffffd;
 
-export function writeCfb(streams: Array<{ name: string; data: Uint8Array }>): Uint8Array {
+export function writeCfb(
+  streams: Array<{ name: string; data: Uint8Array }>,
+): Uint8Array {
   const padded = streams.map((s) => {
     const size = Math.max(4096, Math.ceil(s.data.length / SECTOR) * SECTOR);
     const data = new Uint8Array(size);
@@ -22,7 +24,8 @@ export function writeCfb(streams: Array<{ name: string; data: Uint8Array }>): Ui
   });
   const streamSectors = padded.map((s) => s.data.length / SECTOR);
   const total = 2 + streamSectors.reduce((a, b) => a + b, 0);
-  if (total > SECTOR / 4) throw new Error("writeCfb: streams too large for one FAT sector");
+  if (total > SECTOR / 4)
+    throw new Error("writeCfb: streams too large for one FAT sector");
   const fat = new Uint32Array(SECTOR / 4).fill(FREE);
   fat[0] = FATSECT;
   fat[1] = END;
@@ -30,7 +33,8 @@ export function writeCfb(streams: Array<{ name: string; data: Uint8Array }>): Ui
   const starts: number[] = [];
   for (const count of streamSectors) {
     starts.push(next);
-    for (let i = 0; i < count; i++) fat[next + i] = i === count - 1 ? END : next + i + 1;
+    for (let i = 0; i < count; i++)
+      fat[next + i] = i === count - 1 ? END : next + i + 1;
     next += count;
   }
   const header = new Uint8Array(SECTOR);
@@ -51,10 +55,19 @@ export function writeCfb(streams: Array<{ name: string; data: Uint8Array }>): Ui
   h.setUint32(76, 0, true); // DIFAT[0] = sector 0
   for (let i = 1; i < 109; i++) h.setUint32(76 + i * 4, FREE, true);
   const dir = new Uint8Array(SECTOR);
-  const entry = (index: number, name: string, type: number, child: number, right: number, start: number, size: number) => {
+  const entry = (
+    index: number,
+    name: string,
+    type: number,
+    child: number,
+    right: number,
+    start: number,
+    size: number,
+  ) => {
     const at = index * 128;
     const v = new DataView(dir.buffer, at, 128);
-    for (let i = 0; i < name.length; i++) v.setUint16(i * 2, name.charCodeAt(i), true);
+    for (let i = 0; i < name.length; i++)
+      v.setUint16(i * 2, name.charCodeAt(i), true);
     v.setUint16(64, (name.length + 1) * 2, true);
     dir[at + 66] = type;
     dir[at + 67] = 1; // black
@@ -65,14 +78,29 @@ export function writeCfb(streams: Array<{ name: string; data: Uint8Array }>): Ui
     v.setUint32(120, size, true);
   };
   entry(0, "Root Entry", 5, padded.length ? 1 : FREE, FREE, END, 0);
-  padded.forEach((s, i) => entry(i + 1, s.name, 2, FREE, i + 1 < padded.length ? i + 2 : FREE, starts[i]!, s.size));
+  padded.forEach((s, i) =>
+    entry(
+      i + 1,
+      s.name,
+      2,
+      FREE,
+      i + 1 < padded.length ? i + 2 : FREE,
+      starts[i]!,
+      s.size,
+    ),
+  );
   for (let i = padded.length + 1; i < 4; i++) {
     const v = new DataView(dir.buffer, i * 128, 128);
     v.setUint32(68, FREE, true);
     v.setUint32(72, FREE, true);
     v.setUint32(76, FREE, true);
   }
-  return concat([header, new Uint8Array(fat.buffer), dir, ...padded.map((s) => s.data)]);
+  return concat([
+    header,
+    new Uint8Array(fat.buffer),
+    dir,
+    ...padded.map((s) => s.data),
+  ]);
 }
 
 /** Deterministic filler bytes that look encrypted. */
@@ -91,9 +119,21 @@ export function noise(length: number, seed: number): Uint8Array {
 /** A password-protected Office file as Office saves it: an OLE2 container with the encrypted package. */
 export const writeEncryptedOffice = (seed: number) =>
   writeCfb([
-    { name: "EncryptionInfo", data: concat([Uint8Array.from([4, 0, 4, 0, 0x40, 0, 0, 0]), new TextEncoder().encode('<?xml version="1.0" encoding="UTF-8"?><encryption xmlns="http://schemas.microsoft.com/office/2006/encryption"/>')]) },
+    {
+      name: "EncryptionInfo",
+      data: concat([
+        Uint8Array.from([4, 0, 4, 0, 0x40, 0, 0, 0]),
+        new TextEncoder().encode(
+          '<?xml version="1.0" encoding="UTF-8"?><encryption xmlns="http://schemas.microsoft.com/office/2006/encryption"/>',
+        ),
+      ]),
+    },
     { name: "EncryptedPackage", data: noise(12_000, seed) },
   ]);
 
 /** A legacy binary Word document (`.doc`): not read by the extension. */
-export const writeLegacyDoc = (seed: number) => writeCfb([{ name: "WordDocument", data: noise(6_000, seed) }, { name: "1Table", data: noise(4_096, seed + 1) }]);
+export const writeLegacyDoc = (seed: number) =>
+  writeCfb([
+    { name: "WordDocument", data: noise(6_000, seed) },
+    { name: "1Table", data: noise(4_096, seed + 1) },
+  ]);

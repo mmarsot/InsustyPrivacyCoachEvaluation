@@ -26,7 +26,11 @@ export class BusyError extends Error {}
 const readRssMb = (pid: number | undefined, field: "VmRSS" | "VmHWM") => {
   if (!pid) return undefined;
   try {
-    const kb = Number(new RegExp(`${field}:\\s+(\\d+)`).exec(readFileSync(`/proc/${pid}/status`, "utf8"))?.[1]);
+    const kb = Number(
+      new RegExp(`${field}:\\s+(\\d+)`).exec(
+        readFileSync(`/proc/${pid}/status`, "utf8"),
+      )?.[1],
+    );
     return Number.isFinite(kb) ? Math.round(kb / 1024) : undefined;
   } catch {
     return undefined;
@@ -36,17 +40,26 @@ const readRssMb = (pid: number | undefined, field: "VmRSS" | "VmHWM") => {
 export class PlaygroundHost {
   private child?: ChildProcess;
   private nextId = 1;
-  private pending = new Map<number, { resolve(v: unknown): void; reject(e: Error): void }>();
+  private pending = new Map<
+    number,
+    { resolve(v: unknown): void; reject(e: Error): void }
+  >();
   private status: HostStatus = { state: "empty" };
   private peak = 0;
 
-  constructor(private readonly hostScript = join(ROOT, "src/playground/host.ts")) {}
+  constructor(
+    private readonly hostScript = join(ROOT, "src/playground/host.ts"),
+  ) {}
 
   getStatus(): HostStatus {
     const rss = readRssMb(this.child?.pid, "VmRSS");
     const hwm = readRssMb(this.child?.pid, "VmHWM");
     this.peak = Math.max(this.peak, hwm ?? 0, rss ?? 0);
-    return { ...this.status, ...(rss === undefined ? {} : { rssMb: rss }), ...(this.peak ? { peakRssMb: this.peak } : {}) };
+    return {
+      ...this.status,
+      ...(rss === undefined ? {} : { rssMb: rss }),
+      ...(this.peak ? { peakRssMb: this.peak } : {}),
+    };
   }
 
   /** Kills the host (freeing all model memory) and resolves once it has exited. */
@@ -55,7 +68,8 @@ export class PlaygroundHost {
     this.child = undefined;
     this.status = { state: "empty" };
     this.peak = 0;
-    for (const p of this.pending.values()) p.reject(new Error("model unloaded"));
+    for (const p of this.pending.values())
+      p.reject(new Error("model unloaded"));
     this.pending.clear();
     if (!child || child.exitCode !== null) return;
     await new Promise<void>((resolve) => {
@@ -65,28 +79,53 @@ export class PlaygroundHost {
   }
 
   async load(model: string, bundle: string): Promise<HostStatus> {
-    if (this.status.activity) throw new BusyError(`busy: ${this.status.activity.kind}`);
+    if (this.status.activity)
+      throw new BusyError(`busy: ${this.status.activity.kind}`);
     await this.unload();
-    const child = fork(this.hostScript, [], { cwd: ROOT, execArgv: ["--expose-gc", "--import", "tsx"], stdio: ["ignore", "inherit", "inherit", "ipc"] });
-    this.child = child;
-    child.on("message", (msg: { id: number; ok: boolean; result?: unknown; error?: string }) => {
-      const p = this.pending.get(msg.id);
-      if (!p) return;
-      this.pending.delete(msg.id);
-      if (msg.ok) p.resolve(msg.result);
-      else p.reject(new Error(msg.error));
+    const child = fork(this.hostScript, [], {
+      cwd: ROOT,
+      execArgv: ["--expose-gc", "--import", "tsx"],
+      stdio: ["ignore", "inherit", "inherit", "ipc"],
     });
+    this.child = child;
+    child.on(
+      "message",
+      (msg: { id: number; ok: boolean; result?: unknown; error?: string }) => {
+        const p = this.pending.get(msg.id);
+        if (!p) return;
+        this.pending.delete(msg.id);
+        if (msg.ok) p.resolve(msg.result);
+        else p.reject(new Error(msg.error));
+      },
+    );
     child.on("exit", (code) => {
       if (this.child !== child) return;
       this.child = undefined;
-      this.status = { state: "error", model: this.status.model, error: `model process exited (code ${code})` };
-      for (const p of this.pending.values()) p.reject(new Error("model process exited"));
+      this.status = {
+        state: "error",
+        model: this.status.model,
+        error: `model process exited (code ${code})`,
+      };
+      for (const p of this.pending.values())
+        p.reject(new Error("model process exited"));
       this.pending.clear();
     });
-    this.status = { state: "loading", model, activity: { kind: "load", since: Date.now() } };
+    this.status = {
+      state: "loading",
+      model,
+      activity: { kind: "load", since: Date.now() },
+    };
     try {
-      const info = (await this.send({ type: "load", model, bundle })) as Record<string, unknown>;
-      this.status = { state: "ready", model, loadMs: Number(info.loadMs), info };
+      const info = (await this.send({ type: "load", model, bundle })) as Record<
+        string,
+        unknown
+      >;
+      this.status = {
+        state: "ready",
+        model,
+        loadMs: Number(info.loadMs),
+        info,
+      };
     } catch (error) {
       // An unload during the load already reset the state; keep it.
       if (this.child !== child) return this.getStatus();
@@ -103,14 +142,27 @@ export class PlaygroundHost {
   }
 
   /** Runs one chat or review request; rejects with BusyError while another runs. */
-  async request(type: "chat" | "review", payload: Record<string, unknown>): Promise<unknown> {
-    if (this.status.state !== "ready") throw new BusyError(this.status.state === "busy" ? `busy: ${this.status.activity?.kind}` : "load a model first");
+  async request(
+    type: "chat" | "review",
+    payload: Record<string, unknown>,
+  ): Promise<unknown> {
+    if (this.status.state !== "ready")
+      throw new BusyError(
+        this.status.state === "busy"
+          ? `busy: ${this.status.activity?.kind}`
+          : "load a model first",
+      );
     const previous = this.status;
-    this.status = { ...previous, state: "busy", activity: { kind: type, since: Date.now() } };
+    this.status = {
+      ...previous,
+      state: "busy",
+      activity: { kind: type, since: Date.now() },
+    };
     try {
       return await this.send({ type, ...payload });
     } finally {
-      if (this.status.state === "busy") this.status = { ...previous, state: "ready" };
+      if (this.status.state === "busy")
+        this.status = { ...previous, state: "ready" };
     }
   }
 

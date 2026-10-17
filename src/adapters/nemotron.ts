@@ -17,9 +17,25 @@ import { readParquet } from "./parquet.ts";
 import type { BenchmarkAdapter, GoldCase, LabelTarget } from "./types.ts";
 
 const REVISION = "b70ffaf5ff39e079776134c5bf4381f00a9fd1ed";
-const FILE = { name: "test.parquet", url: `https://huggingface.co/datasets/nvidia/Nemotron-PII/resolve/${REVISION}/data/test-00000-of-00001.parquet`, sha256: "1a4b0512ecb5370f0992d29d0f9c07351e6de13f0d7ea33bb18cecb984780247", bytes: 150968398 };
+const FILE = {
+  name: "test.parquet",
+  url: `https://huggingface.co/datasets/nvidia/Nemotron-PII/resolve/${REVISION}/data/test-00000-of-00001.parquet`,
+  sha256: "1a4b0512ecb5370f0992d29d0f9c07351e6de13f0d7ea33bb18cecb984780247",
+  bytes: 150968398,
+};
 
-const b = (label: "EMAIL" | "PHONE" | "ADDRESS" | "DATE_OF_BIRTH" | "FINANCIAL" | "NATIONAL_ID" | "IP" | "SECRET", subtype: string): LabelTarget => ({ builtin: [label], subtype });
+const b = (
+  label:
+    | "EMAIL"
+    | "PHONE"
+    | "ADDRESS"
+    | "DATE_OF_BIRTH"
+    | "FINANCIAL"
+    | "NATIONAL_ID"
+    | "IP"
+    | "SECRET",
+  subtype: string,
+): LabelTarget => ({ builtin: [label], subtype });
 const OUT = "out_of_scope" as const;
 const LABELS: Record<string, LabelTarget> = {
   email: b("EMAIL", "email"),
@@ -44,39 +60,86 @@ const LABELS: Record<string, LabelTarget> = {
   company_name: { custom: "Organisations" },
   ...Object.fromEntries(
     [
-      "date", "url", "occupation", "time", "country", "customer_id", "city", "state", "user_name", "date_time", "biometric_identifier",
-      "medical_record_number", "employment_status", "health_plan_beneficiary_number", "education_level", "race_ethnicity", "employee_id",
-      "language", "county", "coordinate", "gender", "age", "pin", "political_view", "postcode", "religious_belief", "blood_type", "cvv",
-      "vehicle_identifier", "mac_address", "license_plate", "sexuality", "certificate_license_number", "device_identifier", "unique_id",
+      "date",
+      "url",
+      "occupation",
+      "time",
+      "country",
+      "customer_id",
+      "city",
+      "state",
+      "user_name",
+      "date_time",
+      "biometric_identifier",
+      "medical_record_number",
+      "employment_status",
+      "health_plan_beneficiary_number",
+      "education_level",
+      "race_ethnicity",
+      "employee_id",
+      "language",
+      "county",
+      "coordinate",
+      "gender",
+      "age",
+      "pin",
+      "political_view",
+      "postcode",
+      "religious_belief",
+      "blood_type",
+      "cvv",
+      "vehicle_identifier",
+      "mac_address",
+      "license_plate",
+      "sexuality",
+      "certificate_license_number",
+      "device_identifier",
+      "unique_id",
     ].map((l) => [l, OUT]),
   ),
 };
 
 /** `[{'start': 0, 'end': 5, 'text': '...', 'label': 'first_name'}, ...]` (a Python literal). */
-const SPAN = /'start': (\d+), 'end': (\d+), 'text': .*?, 'label': '([a-z_0-9]+)'\}/gs;
+const SPAN =
+  /'start': (\d+), 'end': (\d+), 'text': .*?, 'label': '([a-z_0-9]+)'\}/gs;
 
 export const nemotron: BenchmarkAdapter = {
   id: "nemotron-pii",
   title: "Nemotron-PII (NVIDIA, EN, US and international)",
   revision: REVISION,
-  license: { spdx: "CC-BY-4.0", url: "https://huggingface.co/datasets/nvidia/Nemotron-PII", note: "CC BY 4.0 (card metadata and its License/Terms of Use section; \"ready for commercial use\"). Attribution: NVIDIA Corporation." },
+  license: {
+    spdx: "CC-BY-4.0",
+    url: "https://huggingface.co/datasets/nvidia/Nemotron-PII",
+    note: 'CC BY 4.0 (card metadata and its License/Terms of Use section; "ready for commercial use"). Attribution: NVIDIA Corporation.',
+  },
   homepage: "https://huggingface.co/datasets/nvidia/Nemotron-PII",
-  citation: "NVIDIA (2025). Nemotron-PII: Synthesized Data for Privacy-Preserving AI. Hugging Face dataset nvidia/Nemotron-PII.",
+  citation:
+    "NVIDIA (2025). Nemotron-PII: Synthesized Data for Privacy-Preserving AI. Hugging Face dataset nvidia/Nemotron-PII.",
   languages: ["en"],
   splits: ["test"],
   defaultSplit: "test",
   defaultLimit: 3000,
   files: (split) => {
-    if (split !== "test") throw new Error("nemotron-pii: only the test split is wired (test)");
+    if (split !== "test")
+      throw new Error("nemotron-pii: only the test split is wired (test)");
     return [FILE];
   },
   async load(dir) {
-    const rows = await readParquet(join(dir, FILE.name), ["uid", "locale", "text", "spans"]);
+    const rows = await readParquet(join(dir, FILE.name), [
+      "uid",
+      "locale",
+      "text",
+      "spans",
+    ]);
     return rows.map((r): GoldCase => ({
       id: `${String(r.locale)}-${String(r.uid)}`,
       text: String(r.text),
       language: "en",
-      gold: [...String(r.spans).matchAll(SPAN)].map((m) => ({ start: Number(m[1]), end: Number(m[2]), label: m[3]! })),
+      gold: [...String(r.spans).matchAll(SPAN)].map((m) => ({
+        start: Number(m[1]),
+        end: Number(m[2]),
+        label: m[3]!,
+      })),
     }));
   },
   labelMap: LABELS,

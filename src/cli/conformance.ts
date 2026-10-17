@@ -19,9 +19,17 @@ if (!SYSTEMS.includes(name)) {
   console.error(`--system must be one of ${SYSTEMS.join(", ")}`);
   process.exit(2);
 }
-const module = await loadSystem(name, { ref: opt("ref"), extRepo: opt("ext-repo") });
-console.log(`${module.info.name} ${module.info.version} implements contract ${module.contract}; builtins ${module.capabilities.builtins.join(", ")}; documents ${module.capabilities.documents}; Private AI ${module.capabilities.privateAi.join(", ") || "none"}`);
+const module = await loadSystem(name, {
+  ref: opt("ref"),
+  extRepo: opt("ext-repo"),
+});
+console.log(
+  `${module.info.name} ${module.info.version} implements contract ${module.contract}; builtins ${module.capabilities.builtins.join(", ")}; documents ${module.capabilities.documents}; Private AI ${module.capabilities.privateAi.join(", ") || "none"}`,
+);
 const results = await checkConformance(module);
-for (const r of results) console.log(`${r.problems.length ? "FAIL" : "ok  "} ${r.case}${r.problems.map((p) => `\n       ${p}`).join("")}`);
+for (const r of results)
+  console.log(
+    `${r.problems.length ? "FAIL" : "ok  "} ${r.case}${r.problems.map((p) => `\n       ${p}`).join("")}`,
+  );
 await module.dispose?.();
 process.exit(results.some((r) => r.problems.length) ? 1 : 0);

@@ -32,9 +32,13 @@ export const INSTRUCTION_VARIANTS: readonly InstructionVariant[] = [
   },
 ];
 
-export type LabelVariantId = "desc" | "desc_ex1" | "desc_ex3" | "ex3" | "ex_counter";
+export type LabelVariantId =
+  "desc" | "desc_ex1" | "desc_ex3" | "ex3" | "ex_counter";
 
-export const LABEL_VARIANTS: ReadonlyArray<{ id: LabelVariantId; title: string }> = [
+export const LABEL_VARIANTS: ReadonlyArray<{
+  id: LabelVariantId;
+  title: string;
+}> = [
   { id: "desc", title: "Description only" },
   { id: "desc_ex1", title: "Description + 1 example" },
   { id: "desc_ex3", title: "Description + 3 examples" },
@@ -42,10 +46,14 @@ export const LABEL_VARIANTS: ReadonlyArray<{ id: LabelVariantId; title: string }
   { id: "ex_counter", title: "Examples (3) + counter-examples" },
 ];
 
-const quoteList = (items: readonly string[]) => items.map((item) => `"${item}"`).join(", ");
+const quoteList = (items: readonly string[]) =>
+  items.map((item) => `"${item}"`).join(", ");
 
 /** The text a user would type in "What it should detect" for this label and variant. */
-export function composeLabelDescription(spec: LabelSpec, variant: LabelVariantId): string {
+export function composeLabelDescription(
+  spec: LabelSpec,
+  variant: LabelVariantId,
+): string {
   const three = spec.examples.slice(0, 3);
   switch (variant) {
     case "desc":

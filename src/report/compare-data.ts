@@ -2,7 +2,11 @@
 import { metrics, type Metrics } from "../score/aggregate.ts";
 import type { Scored } from "../score/score.ts";
 
-export const COMPARE_METRICS: ReadonlyArray<{ name: string; get: (m: Metrics) => number | null; higherIsBetter: boolean }> = [
+export const COMPARE_METRICS: ReadonlyArray<{
+  name: string;
+  get: (m: Metrics) => number | null;
+  higherIsBetter: boolean;
+}> = [
   { name: "F1 overlap", get: (m) => m.overlap.f1, higherIsBetter: true },
   { name: "Recall", get: (m) => m.overlap.recall, higherIsBetter: true },
   { name: "Precision", get: (m) => m.overlap.precision, higherIsBetter: true },
@@ -32,7 +36,10 @@ export interface CompareRow {
 }
 
 /** Compares only (configuration, case) pairs present in both runs. */
-export function compareRows(aAll: Scored[], bAll: Scored[]): { shared: number; rows: CompareRow[] } {
+export function compareRows(
+  aAll: Scored[],
+  bAll: Scored[],
+): { shared: number; rows: CompareRow[] } {
   const key = (r: Scored) => `${r.config}\u0000${r.caseId}`;
   const bKeys = new Set(bAll.map(key));
   const aKeys = new Set(aAll.map(key));
@@ -52,7 +59,12 @@ export function compareRows(aAll: Scored[], bAll: Scored[]): { shared: number; r
           const va = get(ma);
           const vb = get(mb);
           const delta = va === null || vb === null ? null : vb - va;
-          const direction = delta === null || Math.abs(delta) < 0.005 ? 0 : (delta > 0) === higherIsBetter ? 1 : -1;
+          const direction =
+            delta === null || Math.abs(delta) < 0.005
+              ? 0
+              : delta > 0 === higherIsBetter
+                ? 1
+                : -1;
           return { a: va, b: vb, delta, direction };
         }),
         latencyP50: [ma.latencyP50, mb.latencyP50],

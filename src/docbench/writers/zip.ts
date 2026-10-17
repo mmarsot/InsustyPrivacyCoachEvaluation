@@ -31,7 +31,8 @@ const CRC_TABLE = Uint32Array.from({ length: 256 }, (_, n) => {
 
 export function crc32(bytes: Uint8Array, crc = 0): number {
   let c = ~crc >>> 0;
-  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]!) & 0xff]! ^ (c >>> 8);
+  for (let i = 0; i < bytes.length; i++)
+    c = CRC_TABLE[(c ^ bytes[i]!) & 0xff]! ^ (c >>> 8);
   return ~c >>> 0;
 }
 
@@ -42,7 +43,11 @@ const DOS_DATE = ((2026 - 1980) << 9) | (1 << 5) | 2;
 const utf8 = (s: string) => new TextEncoder().encode(s);
 
 /** Traditional PKWARE encryption (APPNOTE 6.1), with a deterministic 12-byte header. */
-function zipCrypto(data: Uint8Array, password: string, crc: number): Uint8Array {
+function zipCrypto(
+  data: Uint8Array,
+  password: string,
+  crc: number,
+): Uint8Array {
   let k0 = 0x12345678;
   let k1 = 0x23456789;
   let k2 = 0x34567890;
@@ -80,7 +85,11 @@ export function writeZip(entries: ZipInput[], comment = ""): Uint8Array {
     const method = e.raw ? 8 : (e.method ?? 8);
     const crc = e.raw ? e.raw.crc : crc32(data);
     const size = e.raw ? e.raw.size : data.length;
-    let body = e.raw ? e.raw.compressed : method === 8 ? new Uint8Array(deflateRawSync(data, { level: 6 })) : data;
+    let body = e.raw
+      ? e.raw.compressed
+      : method === 8
+        ? new Uint8Array(deflateRawSync(data, { level: 6 }))
+        : data;
     let flags = 0x0800 | (e.flags ?? 0);
     if (e.password) {
       body = zipCrypto(body, e.password, crc);
@@ -126,7 +135,12 @@ export function writeZip(entries: ZipInput[], comment = ""): Uint8Array {
   end.setUint32(12, dirSize, true);
   end.setUint32(16, offset, true);
   end.setUint16(20, commentBytes.length, true);
-  return concat([...chunks, ...central, new Uint8Array(end.buffer), commentBytes]);
+  return concat([
+    ...chunks,
+    ...central,
+    new Uint8Array(end.buffer),
+    commentBytes,
+  ]);
 }
 
 export function concat(chunks: Uint8Array[]): Uint8Array {
@@ -140,7 +154,15 @@ export function concat(chunks: Uint8Array[]): Uint8Array {
 }
 
 /** A deflated entry of `size` zero bytes (a zip bomb's payload: ~1,000:1). */
-export function zeroBomb(size: number): { compressed: Uint8Array; size: number; crc: number } {
+export function zeroBomb(size: number): {
+  compressed: Uint8Array;
+  size: number;
+  crc: number;
+} {
   const zeros = new Uint8Array(size);
-  return { compressed: new Uint8Array(deflateRawSync(zeros, { level: 9 })), size, crc: crc32(zeros) };
+  return {
+    compressed: new Uint8Array(deflateRawSync(zeros, { level: 9 })),
+    size,
+    crc: crc32(zeros),
+  };
 }

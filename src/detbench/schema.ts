@@ -105,7 +105,18 @@ export interface DetDecoy {
 }
 
 /** `table`: rows pasted from a spreadsheet or a CSV/TSV export. */
-export const REGISTERS = ["email", "chat", "notes", "doc", "form", "ticket", "code", "log", "config", "table"] as const;
+export const REGISTERS = [
+  "email",
+  "chat",
+  "notes",
+  "doc",
+  "form",
+  "ticket",
+  "code",
+  "log",
+  "config",
+  "table",
+] as const;
 
 /** A placeholder rendered as generated plain text (`generate.ts`), for cases too large to store. */
 export interface DetGenerated {
@@ -141,7 +152,10 @@ export type DetCaseType = "negative" | "single" | "multi";
 export type Zone = "prose" | "code";
 
 /** A piece of a case: literal text, or one placeholder occurrence. */
-export type Part = { t: "text"; s: string } | { t: "item"; key: string; s: string } | { t: "decoy"; key: string; s: string };
+export type Part =
+  | { t: "text"; s: string }
+  | { t: "item"; key: string; s: string }
+  | { t: "decoy"; key: string; s: string };
 
 export interface GoldSpan {
   key: string;

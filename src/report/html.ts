@@ -5,7 +5,12 @@
 import { readFileSync } from "node:fs";
 import { CONNECTED_MODELS } from "../hosted/connected.ts";
 import { MODELS_FILE } from "../paths.ts";
-import { DIMENSIONS, summarize, type ConfigSummary, type Metrics } from "../score/aggregate.ts";
+import {
+  DIMENSIONS,
+  summarize,
+  type ConfigSummary,
+  type Metrics,
+} from "../score/aggregate.ts";
 import { FAILURE_MODES, type Scored } from "../score/score.ts";
 import type { RunMeta } from "../run/meta.ts";
 
@@ -14,17 +19,41 @@ interface ModelMeta {
   short: string;
   extensionLabel: string;
   weightsBytes: number;
-  languages: { advertised: string[]; fr: string; summary: string; source: string };
+  languages: {
+    advertised: string[];
+    fr: string;
+    summary: string;
+    source: string;
+  };
 }
 export const loadModelsMeta = (): ModelMeta[] => [
-  ...(JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelMeta[] }).models,
-  ...CONNECTED_MODELS.map((h) => ({ id: h.id, short: h.short, extensionLabel: "connected", weightsBytes: 0, languages: h.languages })),
+  ...(JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelMeta[] })
+    .models,
+  ...CONNECTED_MODELS.map((h) => ({
+    id: h.id,
+    short: h.short,
+    extensionLabel: "connected",
+    weightsBytes: 0,
+    languages: h.languages,
+  })),
 ];
 
 export const esc = (s: unknown) =>
-  String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
-export const pct = (v: number | null | undefined) => (v === null || v === undefined ? "–" : `${(100 * v).toFixed(0)}%`);
-const ms = (v: number | null) => (v === null ? "–" : v >= 10_000 ? `${(v / 1000).toFixed(0)} s` : `${(v / 1000).toFixed(1)} s`);
+  String(s ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ]!,
+  );
+export const pct = (v: number | null | undefined) =>
+  v === null || v === undefined ? "–" : `${(100 * v).toFixed(0)}%`;
+const ms = (v: number | null) =>
+  v === null
+    ? "–"
+    : v >= 10_000
+      ? `${(v / 1000).toFixed(0)} s`
+      : `${(v / 1000).toFixed(1)} s`;
 /** A percentage cell with a meter bar. `invert` for metrics where lower is better. */
 export const meter = (v: number | null | undefined, invert = false) =>
   v === null || v === undefined
@@ -71,14 +100,18 @@ function langSection(summaries: ConfigSummary[], models: ModelMeta[]): string {
     const meta = models.find((m) => m.id === s.model);
     for (const [value, m] of Object.entries(s.breakdowns.langMixed ?? {})) {
       const lang = value.split("+")[0]!;
-      const support = lang === "en" ? "advertised" : (meta?.languages.fr ?? "?");
+      const support =
+        lang === "en" ? "advertised" : (meta?.languages.fr ?? "?");
       rows.push(
         `<tr>${configCells(s)}<td>${esc(value)}</td><td><span class="tag${support === "advertised" ? "" : " bad"}">${esc(support)}</span></td><td class="num">${m.cases}</td>${meter(m.overlap.f1)}${meter(m.overlap.recall)}${meter(m.caseDetection)}${meter(m.falsePositiveRate, true)}${meter(m.compliance)}<td class="num">${ms(m.latencyP50)}</td></tr>`,
       );
     }
   }
   const cards = models
-    .map((m) => `<li><b>${esc(m.short)}</b> (${esc(m.extensionLabel)}): ${esc(m.languages.summary)} <a href="${esc(m.languages.source)}">model card</a></li>`)
+    .map(
+      (m) =>
+        `<li><b>${esc(m.short)}</b> (${esc(m.extensionLabel)}): ${esc(m.languages.summary)} <a href="${esc(m.languages.source)}">model card</a></li>`,
+    )
     .join("");
   return `<h2 id="language">Results by language vs advertised support</h2>
 <p>Advertised language support comes from each model card (see <code>models/models.json</code>). <code>fr+mixed</code> rows are French cases that mix in English codenames, code or franglais.</p>
@@ -113,7 +146,11 @@ function labelSection(summaries: ConfigSummary[]): string {
 
 function breakdownSection(summaries: ConfigSummary[]): string {
   const parts = DIMENSIONS.filter((d) => d.id !== "langMixed").map((dim) => {
-    const values = [...new Set(summaries.flatMap((s) => Object.keys(s.breakdowns[dim.id] ?? {})))].sort();
+    const values = [
+      ...new Set(
+        summaries.flatMap((s) => Object.keys(s.breakdowns[dim.id] ?? {})),
+      ),
+    ].sort();
     const rows = summaries
       .flatMap((s) =>
         values.map((v) => {
@@ -128,7 +165,11 @@ function breakdownSection(summaries: ConfigSummary[]): string {
   return `<h2 id="breakdowns">Breakdowns</h2><p>Every metric split by profile, case type, difficulty, length and writing style. Small groups are noisy: check the case counts.</p>${parts.join("")}`;
 }
 
-function examplesSection(rows: Scored[], summaries: ConfigSummary[], perConfig = 6): string {
+function examplesSection(
+  rows: Scored[],
+  summaries: ConfigSummary[],
+  perConfig = 6,
+): string {
   const parts = summaries.map((s) => {
     const mine = rows.filter((r) => r.config === s.config);
     const pick = [
@@ -139,8 +180,14 @@ function examplesSection(rows: Scored[], summaries: ConfigSummary[], perConfig =
     ].slice(0, perConfig);
     const items = pick
       .map((r) => {
-        const exp = r.expected.map((e) => `${e.label}: ${e.passage}${e.overlap ? " ✓" : " ✗"}`).join("\n") || "(negative)";
-        const pred = r.predicted.map((p) => `${p.label}: ${p.value}${p.overlap ? " ✓" : " ✗"}`).join("\n") || "(none)";
+        const exp =
+          r.expected
+            .map((e) => `${e.label}: ${e.passage}${e.overlap ? " ✓" : " ✗"}`)
+            .join("\n") || "(negative)";
+        const pred =
+          r.predicted
+            .map((p) => `${p.label}: ${p.value}${p.overlap ? " ✓" : " ✗"}`)
+            .join("\n") || "(none)";
         return `<details><summary><code>${esc(r.caseId)}</code> <span class="tag">${esc(r.type)}</span><span class="tag${r.failure === "ok" ? "" : " bad"}">${esc(r.failure)}</span> ${r.detected ? "detected" : r.falsePositiveCase ? "false positive" : ""} · ${ms(r.reviewMs)}</summary><h3>Expected</h3><pre>${esc(exp)}</pre><h3>Accepted findings</h3><pre>${esc(pred)}</pre><h3>Raw model output</h3><pre>${esc(r.raw || "(empty)")}</pre></details>`;
       })
       .join("");
@@ -152,7 +199,9 @@ function examplesSection(rows: Scored[], summaries: ConfigSummary[], perConfig =
 export function renderReport(meta: RunMeta, rows: Scored[]): string {
   const summaries = summarize(rows);
   const models = loadModelsMeta();
-  const headline = summaries.map((s) => `<tr>${configCells(s)}${headlineCells(s.overall)}</tr>`).join("");
+  const headline = summaries
+    .map((s) => `<tr>${configCells(s)}${headlineCells(s.overall)}</tr>`)
+    .join("");
   const modelRows = meta.models
     .map(
       (m) =>

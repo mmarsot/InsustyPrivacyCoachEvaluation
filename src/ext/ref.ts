@@ -32,7 +32,11 @@ const readLocalConfig = (): LocalConfig => {
  * `../InsustyPromptCoach` checkout. Relative paths resolve from the bench root.
  */
 export function resolveExtRepo(cli?: string): string {
-  const configured = cli ?? process.env.INSUSTY_EXT_REPO ?? readLocalConfig().extRepo ?? "../InsustyPromptCoach";
+  const configured =
+    cli ??
+    process.env.INSUSTY_EXT_REPO ??
+    readLocalConfig().extRepo ??
+    "../InsustyPromptCoach";
   const path = isAbsolute(configured) ? configured : resolve(ROOT, configured);
   if (!existsSync(join(path, ".git")))
     throw new Error(
@@ -42,7 +46,12 @@ export function resolveExtRepo(cli?: string): string {
 }
 
 export function resolveExtRefName(cli?: string): string {
-  return cli ?? process.env.INSUSTY_EXT_REF ?? readLocalConfig().extRef ?? DEFAULT_EXT_REF;
+  return (
+    cli ??
+    process.env.INSUSTY_EXT_REF ??
+    readLocalConfig().extRef ??
+    DEFAULT_EXT_REF
+  );
 }
 
 export interface ExtRef {
@@ -57,9 +66,21 @@ export interface ExtRef {
 }
 
 /** Resolves and materializes a ref; cached per commit sha. */
-export async function materializeExtRef(repo: string, ref: string, log?: (line: string) => void): Promise<ExtRef> {
+export async function materializeExtRef(
+  repo: string,
+  ref: string,
+  log?: (line: string) => void,
+): Promise<ExtRef> {
   const m = await materializeModule(repo, ref, log);
-  return { ref, sha: m.sha, subject: m.subject, committedAt: m.committedAt, dir: m.dir, bundle: m.bundle, runtimeMismatches: runtimeMismatches(m) };
+  return {
+    ref,
+    sha: m.sha,
+    subject: m.subject,
+    committedAt: m.committedAt,
+    dir: m.dir,
+    bundle: m.bundle,
+    runtimeMismatches: runtimeMismatches(m),
+  };
 }
 
 /**
@@ -130,7 +151,11 @@ export interface RuntimeReportLike {
   answerProbability?: number;
 }
 export interface ModelClientLike {
-  review(request: ReviewRequestLike, model?: string, selection?: RuntimeSelection): Promise<{ output: unknown; runtime?: RuntimeReportLike }>;
+  review(
+    request: ReviewRequestLike,
+    model?: string,
+    selection?: RuntimeSelection,
+  ): Promise<{ output: unknown; runtime?: RuntimeReportLike }>;
 }
 export interface FindingLike {
   category: string;
@@ -139,7 +164,11 @@ export interface FindingLike {
   value?: string;
 }
 export interface EngineLike {
-  prepare(model: string, selection: RuntimeSelection, instructions: readonly string[]): Promise<unknown>;
+  prepare(
+    model: string,
+    selection: RuntimeSelection,
+    instructions: readonly string[],
+  ): Promise<unknown>;
   review(
     model: string,
     selection: RuntimeSelection,
@@ -150,48 +179,91 @@ export interface EngineLike {
 
 /** Imports a materialized bundle and checks the exports the bench needs. */
 export async function loadExtApi(bundle: string): Promise<ExtApi> {
-  const mod = (await import(pathToFileURL(bundle).href)) as Record<string, Record<string, unknown>>;
+  const mod = (await import(pathToFileURL(bundle).href)) as Record<
+    string,
+    Record<string, unknown>
+  >;
   const review = mod.review ?? {};
   const need = (value: unknown, what: string) => {
-    if (value === undefined) throw new Error(`The extension ref does not export ${what}.`);
+    if (value === undefined)
+      throw new Error(`The extension ref does not export ${what}.`);
     return value;
   };
-  const models = need(mod.models?.SLM_MODELS, "SLM_MODELS") as ReadonlyArray<{ id: string }>;
+  const models = need(mod.models?.SLM_MODELS, "SLM_MODELS") as ReadonlyArray<{
+    id: string;
+  }>;
   const common = {
-    generationBudgetMs: (review.SLM_GENERATION_BUDGET_MS as number | undefined) ?? 30_000,
+    generationBudgetMs:
+      (review.SLM_GENERATION_BUDGET_MS as number | undefined) ?? 30_000,
     modelIds: models.map((m) => m.id),
-    defaultModelId: (mod.models?.DEFAULT_SLM_MODEL_ID as string | undefined) ?? models[0]!.id,
+    defaultModelId:
+      (mod.models?.DEFAULT_SLM_MODEL_ID as string | undefined) ?? models[0]!.id,
     SlmEngine: need(mod.engine?.SlmEngine, "SlmEngine") as ExtApi["SlmEngine"],
   };
   type Fn = (...args: unknown[]) => unknown;
   if (typeof review.composeLabelPrefix === "function") {
-    const sets = need(review.reviewInstructionSets, "reviewInstructionSets") as (rules: Rule[]) => string[];
+    const sets = need(
+      review.reviewInstructionSets,
+      "reviewInstructionSets",
+    ) as (rules: Rule[]) => string[];
     const reviewPrompt = need(review.reviewPrompt, "reviewPrompt") as Fn;
     // Since PR #52 a rule also carries what the label learned from reviews (`learned`); the bench runs a new
     // user's labels, which have learned nothing. Older refs ignore the extra field.
-    const withExamples = (rules: Rule[]) => rules.map((r) => ({ ...r, examples: r.examples ?? [], learned: { examples: [], falseAlarms: [] } }));
+    const withExamples = (rules: Rule[]) =>
+      rules.map((r) => ({
+        ...r,
+        examples: r.examples ?? [],
+        learned: { examples: [], falseAlarms: [] },
+      }));
     return {
       ...common,
       kind: "completion",
       defaultPrompt: "",
-      composeReviewInstructions: (_s, rules) => sets(withExamples(rules)).join("\n\n"),
+      composeReviewInstructions: (_s, rules) =>
+        sets(withExamples(rules)).join("\n\n"),
       preparedInstructions: (_s, rules) => sets(withExamples(rules)),
       reviewCategories: () => [],
       runReview: (text, _s, client, rules, model, selection, contextBudget) =>
-        reviewPrompt(text, client, withExamples(rules), model, selection, ...(contextBudget === undefined ? [] : [contextBudget])) as Promise<{ findings: FindingLike[] }>,
+        reviewPrompt(
+          text,
+          client,
+          withExamples(rules),
+          model,
+          selection,
+          ...(contextBudget === undefined ? [] : [contextBudget]),
+        ) as Promise<{ findings: FindingLike[] }>,
     };
   }
-  const compose = need(review.composeReviewInstructions, "composeReviewInstructions") as ExtApi["composeReviewInstructions"];
+  const compose = need(
+    review.composeReviewInstructions,
+    "composeReviewInstructions",
+  ) as ExtApi["composeReviewInstructions"];
   const reviewPrompt = need(review.reviewPrompt, "reviewPrompt") as Fn;
   return {
     ...common,
     kind: "chat",
-    defaultPrompt: need(mod.config?.DEFAULT_SLM_PROMPT, "DEFAULT_SLM_PROMPT") as string,
+    defaultPrompt: need(
+      mod.config?.DEFAULT_SLM_PROMPT,
+      "DEFAULT_SLM_PROMPT",
+    ) as string,
     composeReviewInstructions: compose,
     preparedInstructions: (s, rules) => [compose(s, rules)],
-    reviewCategories: need(review.reviewCategories, "reviewCategories") as ExtApi["reviewCategories"],
+    reviewCategories: need(
+      review.reviewCategories,
+      "reviewCategories",
+    ) as ExtApi["reviewCategories"],
     runReview: (text, s, client, rules, model, selection) =>
-      reviewPrompt(text, [], s, client, undefined, undefined, rules, model, selection) as Promise<{ findings: FindingLike[] }>,
+      reviewPrompt(
+        text,
+        [],
+        s,
+        client,
+        undefined,
+        undefined,
+        rules,
+        model,
+        selection,
+      ) as Promise<{ findings: FindingLike[] }>,
     frameReviewChunk: review.frameReviewChunk as ExtApi["frameReviewChunk"],
     replyPrefill: review.SLM_REPLY_PREFILL as string | undefined,
     outputSchema: review.SLM_OUTPUT_SCHEMA as string | undefined,

@@ -12,4 +12,5 @@ import type { BenchmarkAdapter } from "./types.ts";
  * benchmarks").
  */
 export const ADAPTERS: BenchmarkAdapter[] = [tab, gretel, nemotron];
-export const findAdapter = (id: string) => ADAPTERS.find((a) => a.id === id || a.id.startsWith(id));
+export const findAdapter = (id: string) =>
+  ADAPTERS.find((a) => a.id === id || a.id.startsWith(id));

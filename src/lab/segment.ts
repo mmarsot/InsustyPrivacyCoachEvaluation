@@ -45,7 +45,9 @@ export interface SegmentMode {
 
 /** Tokens that end with a period without ending a sentence (lower-case, trailing dot removed). */
 const ABBREVIATIONS = new Set(
-  "mr mrs ms dr prof st jr sr mme mlle mm vs etc approx cf fig figs vol art env inc ltd corp co llc dept est min max no nos tel ref réf av bd ch resp ex".split(" "),
+  "mr mrs ms dr prof st jr sr mme mlle mm vs etc approx cf fig figs vol art env inc ltd corp co llc dept est min max no nos tel ref réf av bd ch resp ex".split(
+    " ",
+  ),
 );
 
 const OPEN_QUOTES = new Set(['"', "“", "«"]);
@@ -53,7 +55,10 @@ const CLOSE_QUOTES = new Set(['"', "”", "»"]);
 
 /** Whether the period at `dot` (the last char of `token`) ends a sentence. */
 function periodEnds(token: string, lineStart: boolean): boolean {
-  const word = token.replace(/^[("'“‘«[]+/u, "").replace(/\.+$/u, "").toLowerCase();
+  const word = token
+    .replace(/^[("'“‘«[]+/u, "")
+    .replace(/\.+$/u, "")
+    .toLowerCase();
   if (!word) return true;
   if (ABBREVIATIONS.has(word)) return false;
   // Initials (K. Anand, M. Lhomme) and dotted abbreviations (e.g., p.m., U.S.).
@@ -94,7 +99,10 @@ function splitLine(text: string, from: number, to: number): Segment[] {
       if (run === ".") {
         let s = i;
         while (s > from && !/\s/u.test(text[s - 1]!)) s--;
-        ends = periodEnds(text.slice(s, i + 1), s === from || /^\s*$/u.test(text.slice(from, s)));
+        ends = periodEnds(
+          text.slice(s, i + 1),
+          s === from || /^\s*$/u.test(text.slice(from, s)),
+        );
       }
       if (ends) cuts.push(k + 1);
     }
@@ -126,7 +134,12 @@ function splitLong(text: string, seg: Segment, maxChars: number): Segment[] {
     const slice = text.slice(seg.start, seg.end);
     for (let m = re.exec(slice); m; m = re.exec(slice)) {
       const at = seg.start + m.index + 1;
-      if (at > seg.start && at < seg.end && (best < 0 || Math.abs(at - mid) < Math.abs(best - mid))) best = at;
+      if (
+        at > seg.start &&
+        at < seg.end &&
+        (best < 0 || Math.abs(at - mid) < Math.abs(best - mid))
+      )
+        best = at;
     }
     if (best > 0) break;
   }
@@ -148,7 +161,8 @@ export function segmentText(text: string, maxChars = 1000): Segment[] {
   let start = 0;
   for (let m = lineBreak.exec(text); ; m = lineBreak.exec(text)) {
     const end = m ? m.index : text.length;
-    for (const seg of splitLine(text, start, end)) out.push(...splitLong(text, seg, maxChars));
+    for (const seg of splitLine(text, start, end))
+      out.push(...splitLong(text, seg, maxChars));
     if (!m) break;
     start = m.index + m[0].length;
   }
@@ -158,12 +172,19 @@ export function segmentText(text: string, maxChars = 1000): Segment[] {
 // ------------------------------------------------------------------ ranges
 
 /** Merges overlapping ranges and ranges separated only by whitespace (never across other text). */
-export function mergeRanges(text: string, ranges: readonly Segment[]): Segment[] {
+export function mergeRanges(
+  text: string,
+  ranges: readonly Segment[],
+): Segment[] {
   const sorted = [...ranges].sort((a, b) => a.start - b.start || a.end - b.end);
   const out: Segment[] = [];
   for (const r of sorted) {
     const last = out.at(-1);
-    if (last && (r.start <= last.end || /^\s*$/u.test(text.slice(last.end, r.start)))) last.end = Math.max(last.end, r.end);
+    if (
+      last &&
+      (r.start <= last.end || /^\s*$/u.test(text.slice(last.end, r.start)))
+    )
+      last.end = Math.max(last.end, r.end);
     else out.push({ ...r });
   }
   return out;
@@ -198,9 +219,15 @@ export const YES_WORDS = ["Yes", " Yes", "yes", " yes"];
 export const NO_WORDS = ["No", " No", "no", " no"];
 
 /** Decision of one check from its record (greedy text and first-step Yes/No masses). */
-export function decide(decision: SegmentMode["decision"], output: string | undefined, pYes?: number, pNo?: number): "yes" | "no" | null {
+export function decide(
+  decision: SegmentMode["decision"],
+  output: string | undefined,
+  pYes?: number,
+  pNo?: number,
+): "yes" | "no" | null {
   if (output === undefined) return null;
-  if (decision === "text" || pYes === undefined || pNo === undefined) return parseYesNo(output);
+  if (decision === "text" || pYes === undefined || pNo === undefined)
+    return parseYesNo(output);
   if (decision === "logit") return pYes > pNo ? "yes" : "no";
   return pYes + pNo > 0 && pYes / (pYes + pNo) >= decision ? "yes" : "no";
 }
@@ -232,8 +259,14 @@ const CARRIERS: Record<"en" | "fr", string[]> = {
 };
 /** A sensitive BEFORE sentence and a harmless TARGET: the answer is No (spec §4's third demonstration). */
 const CONTEXT_DEMO: Record<"en" | "fr", { before: string; target: string }> = {
-  en: { before: "We had a long call about {ex} this morning.", target: "Please make this shorter and friendlier." },
-  fr: { before: "On a eu un long appel sur {ex} ce matin.", target: "Tu peux rendre ça plus court et plus sympa ?" },
+  en: {
+    before: "We had a long call about {ex} this morning.",
+    target: "Please make this shorter and friendlier.",
+  },
+  fr: {
+    before: "On a eu un long appel sur {ex} ce matin.",
+    target: "Tu peux rendre ça plus court et plus sympa ?",
+  },
 };
 
 const fill = (template: string, ex: string) => template.replace("{ex}", ex);
@@ -243,8 +276,10 @@ export const quote = (s: string) => JSON.stringify(s);
 /** The label's policy: name and description, its examples as covered cases, its counter-examples as exclusions. */
 export function policyBlock(spec: LabelSpec): string {
   const lines = ["POLICY:", `${spec.label}: ${spec.description}`];
-  if (spec.examples.length) lines.push(`Covered, for example: ${spec.examples.map(quote).join(", ")}.`);
-  if (spec.counterExamples.length) lines.push(`Not covered: ${spec.counterExamples.map(quote).join(", ")}.`);
+  if (spec.examples.length)
+    lines.push(`Covered, for example: ${spec.examples.map(quote).join(", ")}.`);
+  if (spec.counterExamples.length)
+    lines.push(`Not covered: ${spec.counterExamples.map(quote).join(", ")}.`);
   return lines.join("\n");
 }
 
@@ -256,7 +291,14 @@ export interface InputParts {
 
 /** BEFORE / TARGET / AFTER lines (empty sections are left out, as in the spec's pattern), then the answer cue. */
 export function inputBlock({ before, target, after }: InputParts): string {
-  return [before ? `Before: ${quote(before)}` : "", `Target: ${quote(target)}`, after ? `After: ${quote(after)}` : "", "Answer:"].filter(Boolean).join("\n");
+  return [
+    before ? `Before: ${quote(before)}` : "",
+    `Target: ${quote(target)}`,
+    after ? `After: ${quote(after)}` : "",
+    "Answer:",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 /**
@@ -267,15 +309,42 @@ export function inputBlock({ before, target, after }: InputParts): string {
  * BEFORE sentence. They alternate and end on No (the shipped design's
  * NONE-last finding: ending on a positive biases the model to answer).
  */
-export function demoBlocks(profile: Profile, spec: LabelSpec, lang: "en" | "fr", count: number): string[] {
+export function demoBlocks(
+  profile: Profile,
+  spec: LabelSpec,
+  lang: "en" | "fr",
+  count: number,
+): string[] {
   const others = profile.labels.filter((l) => l.label !== spec.label);
-  const other = others.length ? others[(profile.labels.indexOf(spec)) % others.length]!.examples[0]! : (spec.counterExamples[0] ?? "");
+  const other = others.length
+    ? others[profile.labels.indexOf(spec) % others.length]!.examples[0]!
+    : (spec.counterExamples[0] ?? "");
   const ex = spec.examples;
   const all = [
-    { before: "", target: fill(CARRIERS[lang][0]!, ex[0]!), after: "", answer: "Yes" },
-    { before: "", target: fill(CARRIERS[lang][1]!, other), after: "", answer: "No" },
-    { before: "", target: fill(CARRIERS[lang][2]!, ex[1] ?? ex[0]!), after: "", answer: "Yes" },
-    { before: fill(CONTEXT_DEMO[lang].before, ex[2] ?? ex[0]!), target: CONTEXT_DEMO[lang].target, after: "", answer: "No" },
+    {
+      before: "",
+      target: fill(CARRIERS[lang][0]!, ex[0]!),
+      after: "",
+      answer: "Yes",
+    },
+    {
+      before: "",
+      target: fill(CARRIERS[lang][1]!, other),
+      after: "",
+      answer: "No",
+    },
+    {
+      before: "",
+      target: fill(CARRIERS[lang][2]!, ex[1] ?? ex[0]!),
+      after: "",
+      answer: "Yes",
+    },
+    {
+      before: fill(CONTEXT_DEMO[lang].before, ex[2] ?? ex[0]!),
+      target: CONTEXT_DEMO[lang].target,
+      after: "",
+      answer: "No",
+    },
   ];
   // Two demonstrations: the first Yes and the sensitive-context No.
   const picked = count >= 4 ? all : count >= 2 ? [all[0]!, all[3]!] : [];
@@ -283,18 +352,39 @@ export function demoBlocks(profile: Profile, spec: LabelSpec, lang: "en" | "fr",
 }
 
 /** Everything before the per-check input: policy and demonstrations (the reusable part of each request). */
-export function policyAndDemos(profile: Profile, spec: LabelSpec, lang: "en" | "fr", mode: SegmentMode): string {
+export function policyAndDemos(
+  profile: Profile,
+  spec: LabelSpec,
+  lang: "en" | "fr",
+  mode: SegmentMode,
+): string {
   const demos = demoBlocks(profile, spec, lang, mode.demos);
-  return [policyBlock(spec), demos.length ? `EXAMPLES:\n${demos.join("\n\n")}` : "", "CURRENT INPUT:\n"].filter(Boolean).join("\n\n");
+  return [
+    policyBlock(spec),
+    demos.length ? `EXAMPLES:\n${demos.join("\n\n")}` : "",
+    "CURRENT INPUT:\n",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 /**
  * The input of check `i`: the target segment and its surrounding original
  * text, whole or the neighboring segments only (trimmed at the edges).
  */
-export function checkInput(text: string, segments: readonly Segment[], i: number, context: SegmentMode["context"]): InputParts {
+export function checkInput(
+  text: string,
+  segments: readonly Segment[],
+  i: number,
+  context: SegmentMode["context"],
+): InputParts {
   const seg = segments[i]!;
   const from = context === "whole" ? 0 : (segments[i - 1]?.start ?? seg.start);
-  const to = context === "whole" ? text.length : (segments[i + 1]?.end ?? seg.end);
-  return { before: text.slice(from, seg.start).trim(), target: text.slice(seg.start, seg.end), after: text.slice(seg.end, to).trim() };
+  const to =
+    context === "whole" ? text.length : (segments[i + 1]?.end ?? seg.end);
+  return {
+    before: text.slice(from, seg.start).trim(),
+    target: text.slice(seg.start, seg.end),
+    after: text.slice(seg.end, to).trim(),
+  };
 }

@@ -14,7 +14,8 @@
  */
 import { REF_CONFIG, withOverrides, type LabConfig } from "./config.ts";
 
-const EXT_PR = (n: number) => `https://github.com/mmarsot/InsustyPromptCoach/pull/${n}`;
+const EXT_PR = (n: number) =>
+  `https://github.com/mmarsot/InsustyPromptCoach/pull/${n}`;
 
 /** Default model of the extension. */
 export const SHIPPED_MODEL = "smollm2-360m";
@@ -24,7 +25,8 @@ export const SHIPPED_CONFIG: LabConfig = withOverrides(REF_CONFIG, "shipped", {
   raw: true,
   perLabel: true,
   passageOnly: true,
-  instruction: "Copy the {label} passages from each text, exactly as written. {label}: {description} Write NONE when the text has none.",
+  instruction:
+    "Copy the {label} passages from each text, exactly as written. {label}: {description} Write NONE when the text has none.",
   schema: "",
   labelHeader: "",
   labelLine: "",
@@ -79,7 +81,8 @@ export const SHIPPED_COMPONENTS: ShippedComponent[] = [
     title: "Completion framing instead of chat",
     pr: EXT_PR(26),
     off: { raw: false, system: "{instructions}" },
-    offNote: "same instruction as the system message, demonstrations as prior chat turns, the model's chat template",
+    offNote:
+      "same instruction as the system message, demonstrations as prior chat turns, the model's chat template",
   },
   {
     id: "perlabel",
@@ -98,14 +101,16 @@ export const SHIPPED_COMPONENTS: ShippedComponent[] = [
       // ref's line-protocol stop (blank line, NONE, repeat) replaces the first-line stop.
       stopAtNewline: false,
     },
-    offNote: "one request for all custom labels: every label listed, two demos per label answered `LABEL: passage`, multi-line answer (ref line stop), 48-token cap",
+    offNote:
+      "one request for all custom labels: every label listed, two demos per label answered `LABEL: passage`, multi-line answer (ref line stop), 48-token cap",
   },
   {
     id: "examples",
     title: "Label-example demonstrations",
     pr: EXT_PR(26),
     off: { shots: ["clean-neg-auto"] },
-    offNote: "description only: the NONE demonstration alone (what a label without examples gets)",
+    offNote:
+      "description only: the NONE demonstration alone (what a label without examples gets)",
   },
   {
     id: "lang",
@@ -126,14 +131,17 @@ export const SHIPPED_COMPONENTS: ShippedComponent[] = [
     title: "First-line stop with a 48-token cap",
     pr: EXT_PR(26),
     off: { stopAtNewline: false, maxNewTokens: 0 },
-    offNote: "no cap; the ref's line-protocol stop (blank line, NONE, repeated line), EOS or the 30 s deadline; every answer line parsed",
+    offNote:
+      "no cap; the ref's line-protocol stop (blank line, NONE, repeated line), EOS or the 30 s deadline; every answer line parsed",
   },
   {
     id: "pinned",
-    title: "Pinned greedy decoding (repetition_penalty 1, no_repeat_ngram_size 0)",
+    title:
+      "Pinned greedy decoding (repetition_penalty 1, no_repeat_ngram_size 0)",
     pr: EXT_PR(26),
     off: { repetitionPenalty: null, noRepeatNgram: null },
-    offNote: "penalties from the model's generation_config.json (greedy kept; SmolLM2 ships none)",
+    offNote:
+      "penalties from the model's generation_config.json (greedy kept; SmolLM2 ships none)",
   },
   {
     id: "plausible",
@@ -146,7 +154,8 @@ export const SHIPPED_COMPONENTS: ShippedComponent[] = [
     id: "model",
     title: "SmolLM2-360M default, SmolLM2-135M removed",
     pr: EXT_PR(26),
-    retired: "SmolLM2-135M was removed from the bench (captain's decision, 2026-10-17): the baseline can no longer run on the previous default",
+    retired:
+      "SmolLM2-135M was removed from the bench (captain's decision, 2026-10-17): the baseline can no longer run on the previous default",
     offNote: "baseline on SmolLM2-135M, the previous default",
   },
   {
@@ -166,21 +175,27 @@ export const SHIPPED_COMPONENTS: ShippedComponent[] = [
   },
   {
     id: "stopwords",
-    title: "Overfit stop words \"simple\" and \"terms\" removed from the plausibility filter",
+    title:
+      'Overfit stop words "simple" and "terms" removed from the plausibility filter',
     pr: EXT_PR(32),
     off: { extraStopWords: ["simple", "terms"] },
-    offNote: "the plausibility filter also drops passages made only of stop words and \"simple\"/\"terms\" (the PR #26 list)",
+    offNote:
+      'the plausibility filter also drops passages made only of stop words and "simple"/"terms" (the PR #26 list)',
   },
 ];
 
-export const shippedOffId = (component: ShippedComponent) => `shipped-no-${component.id}`;
+export const shippedOffId = (component: ShippedComponent) =>
+  `shipped-no-${component.id}`;
 
 /** `shipped` and one `shipped-no-<id>` configuration per config switch. */
 export function shippedConfigs(): LabConfig[] {
   return [
     SHIPPED_CONFIG,
     ...SHIPPED_COMPONENTS.filter((c) => c.off).map((c) =>
-      withOverrides(SHIPPED_CONFIG, shippedOffId(c), { note: `shipped without: ${c.title} (${c.offNote})`, ...c.off }),
+      withOverrides(SHIPPED_CONFIG, shippedOffId(c), {
+        note: `shipped without: ${c.title} (${c.offNote})`,
+        ...c.off,
+      }),
     ),
   ];
 }

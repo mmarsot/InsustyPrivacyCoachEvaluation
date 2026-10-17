@@ -5,14 +5,42 @@
  */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import type { CompiledCase, CompiledDataset, Split } from "../dataset/schema.ts";
+import type {
+  CompiledCase,
+  CompiledDataset,
+  Split,
+} from "../dataset/schema.ts";
 import { join } from "node:path";
 import { CONNECTED_MODELS } from "../hosted/connected.ts";
 import { MODELS_FILE, ROOT } from "../paths.ts";
-import { INSTRUCTION_VARIANTS, isLabelVariant, LABEL_VARIANTS, type InstructionVariant, type LabelVariantId } from "../variants.ts";
-import { detDatasetHash, GEN_VERSION, SWEEP_TYPES, SWEEP_UNITS, suiteSpecs, sweepSpecs, type DocSpec, type SweepType } from "../docbench/specs.ts";
+import {
+  INSTRUCTION_VARIANTS,
+  isLabelVariant,
+  LABEL_VARIANTS,
+  type InstructionVariant,
+  type LabelVariantId,
+} from "../variants.ts";
+import {
+  detDatasetHash,
+  GEN_VERSION,
+  SWEEP_TYPES,
+  SWEEP_UNITS,
+  suiteSpecs,
+  sweepSpecs,
+  type DocSpec,
+  type SweepType,
+} from "../docbench/specs.ts";
 import type { DocJob } from "../docbench/types.ts";
-import { cachedTimings, DEFAULT_QUICK_CASES_PER_PROFILE, jobKey, rulesFor, selectCases, TIERS, type Job, type Tier } from "./jobs.ts";
+import {
+  cachedTimings,
+  DEFAULT_QUICK_CASES_PER_PROFILE,
+  jobKey,
+  rulesFor,
+  selectCases,
+  TIERS,
+  type Job,
+  type Tier,
+} from "./jobs.ts";
 
 export interface ModelInfo {
   id: string;
@@ -27,7 +55,9 @@ export interface ModelInfo {
  * languages), including ones a ref no longer ships. Which models a ref ships comes from the ref
  * (`RefModels`), never from this file.
  */
-export const MODELS: ModelInfo[] = (JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelInfo[] }).models;
+export const MODELS: ModelInfo[] = (
+  JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelInfo[] }
+).models;
 /** The models a ref ships (`SLM_MODELS`) and the one a new user gets (`DEFAULT_SLM_MODEL_ID`). */
 export interface RefModels {
   modelIds: readonly string[];
@@ -35,17 +65,39 @@ export interface RefModels {
 }
 /** A local model by id: its models/models.json entry, else conservative priors (a model added by a ref the bench has not timed yet). */
 export const localModel = (id: string): ModelInfo =>
-  MODELS.find((m) => m.id === id) ?? { id, short: id.replace(/^.*\//, "").replace(/-Instruct-ONNX$|-ONNX$/i, "").toLowerCase(), priorSecondsPerCase: 20, priorLoadSeconds: 10 };
+  MODELS.find((m) => m.id === id) ?? {
+    id,
+    short: id
+      .replace(/^.*\//, "")
+      .replace(/-Instruct-ONNX$|-ONNX$/i, "")
+      .toLowerCase(),
+    priorSecondsPerCase: 20,
+    priorLoadSeconds: 10,
+  };
 /** `--models shipped` (the default): the ref's default model; `all`: every model the ref ships. */
-export const refBenchModels = (ref: RefModels, which: "shipped" | "all"): ModelInfo[] =>
-  (which === "shipped" ? [ref.defaultModelId] : [...ref.modelIds]).map(localModel);
+export const refBenchModels = (
+  ref: RefModels,
+  which: "shipped" | "all",
+): ModelInfo[] =>
+  (which === "shipped" ? [ref.defaultModelId] : [...ref.modelIds]).map(
+    localModel,
+  );
 /**
  * Connected models the bench can run by name (`--models glm47-flash-connected`).
  * Never part of `--models all`: they send the dataset to an API and cost money.
  */
-export const HOSTED_BENCH_MODELS: ModelInfo[] = CONNECTED_MODELS.map((h) => ({ id: h.id, short: h.short, priorSecondsPerCase: h.priorSecondsPerCase, priorLoadSeconds: 0, hosted: true }));
+export const HOSTED_BENCH_MODELS: ModelInfo[] = CONNECTED_MODELS.map((h) => ({
+  id: h.id,
+  short: h.short,
+  priorSecondsPerCase: h.priorSecondsPerCase,
+  priorLoadSeconds: 0,
+  hosted: true,
+}));
 /** A local or connected model by id or short name. */
-export const findBenchModel = (name: string) => [...MODELS, ...HOSTED_BENCH_MODELS].find((x) => x.short === name || x.id === name);
+export const findBenchModel = (name: string) =>
+  [...MODELS, ...HOSTED_BENCH_MODELS].find(
+    (x) => x.short === name || x.id === name,
+  );
 
 export interface BenchOptions {
   tier: Tier;
@@ -75,7 +127,10 @@ export interface BenchOptions {
 export const DEFAULT_LABEL_VARIANTS = "desc";
 
 /** `--ref` and `--ext-repo` of bench arguments: what to materialize before `parseBenchArgs` can resolve the ref's models. */
-export function benchRefArgs(argv: readonly string[]): { ref?: string; extRepo?: string } {
+export function benchRefArgs(argv: readonly string[]): {
+  ref?: string;
+  extRepo?: string;
+} {
   const opt = (name: string) => {
     const i = argv.indexOf(`--${name}`);
     return i >= 0 ? argv[i + 1] : undefined;
@@ -87,13 +142,22 @@ export function benchRefArgs(argv: readonly string[]): { ref?: string; extRepo?:
  * Parses `npm run bench` arguments. Throws on an unknown value. `--models shipped` (the default)
  * and `all` need the ref's model list (`ref`); named models do not.
  */
-export function parseBenchArgs(argv: readonly string[], ref?: RefModels): BenchOptions {
+export function parseBenchArgs(
+  argv: readonly string[],
+  ref?: RefModels,
+): BenchOptions {
   const flag = (name: string) => argv.includes(`--${name}`);
   const opt = (name: string, fallback?: string) => {
     const i = argv.indexOf(`--${name}`);
     return i >= 0 ? argv[i + 1] : fallback;
   };
-  const list = (value: string | undefined) => (value ? value.split(",").map((s) => s.trim()).filter(Boolean) : []);
+  const list = (value: string | undefined) =>
+    value
+      ? value
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
   const bad = (message: string): never => {
     throw new Error(message);
   };
@@ -101,11 +165,16 @@ export function parseBenchArgs(argv: readonly string[], ref?: RefModels): BenchO
   if (!TIERS.includes(tier)) bad(`--tier must be one of ${TIERS.join(", ")}`);
   const modelArg = opt("models", "shipped")!;
   const instrArg = opt("instructions", "current")!;
-  const labelArg = opt("label-variants") ?? opt("labels") ?? DEFAULT_LABEL_VARIANTS;
-  const casesPerProfile = Number(opt("cases-per-profile", String(DEFAULT_QUICK_CASES_PER_PROFILE)));
-  if (!Number.isInteger(casesPerProfile) || casesPerProfile < 1) bad("--cases-per-profile must be a positive integer");
+  const labelArg =
+    opt("label-variants") ?? opt("labels") ?? DEFAULT_LABEL_VARIANTS;
+  const casesPerProfile = Number(
+    opt("cases-per-profile", String(DEFAULT_QUICK_CASES_PER_PROFILE)),
+  );
+  if (!Number.isInteger(casesPerProfile) || casesPerProfile < 1)
+    bad("--cases-per-profile must be a positive integer");
   const split = opt("split") as Split | "all" | undefined;
-  if (split && !["dev", "test", "all"].includes(split)) bad("--split must be dev, test or all");
+  if (split && !["dev", "test", "all"].includes(split))
+    bad("--split must be dev, test or all");
   return {
     tier,
     casesPerProfile,
@@ -114,10 +183,23 @@ export function parseBenchArgs(argv: readonly string[], ref?: RefModels): BenchO
         ? ref
           ? refBenchModels(ref, modelArg)
           : bad(`--models ${modelArg} needs the ref's model list`)
-        : list(modelArg).map((m) => findBenchModel(m) ?? bad(`unknown model ${m}`)),
+        : list(modelArg).map(
+            (m) => findBenchModel(m) ?? bad(`unknown model ${m}`),
+          ),
     instructions:
-      instrArg === "all" ? [...INSTRUCTION_VARIANTS] : list(instrArg).map((i) => INSTRUCTION_VARIANTS.find((v) => v.id === i) ?? bad(`unknown instruction variant ${i}`)),
-    labelVariants: labelArg === "all" ? LABEL_VARIANTS.map((v) => v.id) : list(labelArg).map((l) => (isLabelVariant(l) ? l : bad(`unknown label variant ${l}`))),
+      instrArg === "all"
+        ? [...INSTRUCTION_VARIANTS]
+        : list(instrArg).map(
+            (i) =>
+              INSTRUCTION_VARIANTS.find((v) => v.id === i) ??
+              bad(`unknown instruction variant ${i}`),
+          ),
+    labelVariants:
+      labelArg === "all"
+        ? LABEL_VARIANTS.map((v) => v.id)
+        : list(labelArg).map((l) =>
+            isLabelVariant(l) ? l : bad(`unknown label variant ${l}`),
+          ),
     split,
     profiles: list(opt("profiles")),
     langs: list(opt("langs")),
@@ -133,7 +215,8 @@ export function parseBenchArgs(argv: readonly string[], ref?: RefModels): BenchO
   };
 }
 
-export const splitLabel = (o: Pick<BenchOptions, "split" | "tier">) => o.split ?? (o.tier === "full" ? "all" : "dev");
+export const splitLabel = (o: Pick<BenchOptions, "split" | "tier">) =>
+  o.split ?? (o.tier === "full" ? "all" : "dev");
 
 export interface Plan {
   cases: CompiledCase[];
@@ -149,8 +232,11 @@ export function planJobs(
   /** Completion refs take label examples (`examples` field); chat refs never do. */
   withExamples = false,
 ): Plan {
-  let cases = o.set ? casesOfSet(dataset, o.set) : selectCases(dataset, o.tier, o.split, o.casesPerProfile);
-  if (o.profiles.length) cases = cases.filter((c) => o.profiles.includes(c.profile));
+  let cases = o.set
+    ? casesOfSet(dataset, o.set)
+    : selectCases(dataset, o.tier, o.split, o.casesPerProfile);
+  if (o.profiles.length)
+    cases = cases.filter((c) => o.profiles.includes(c.profile));
   if (o.langs.length) cases = cases.filter((c) => o.langs.includes(c.lang));
   const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
   const jobsByModel = new Map<string, Job[]>();
@@ -160,9 +246,20 @@ export function planJobs(
       for (const labelVariant of o.labelVariants)
         for (const c of cases) {
           const systemInstruction = variant.text ?? defaultPrompt;
-          const rules = rulesFor(profiles.get(c.profile)!, labelVariant, withExamples);
+          const rules = rulesFor(
+            profiles.get(c.profile)!,
+            labelVariant,
+            withExamples,
+          );
           jobs.push({
-            key: jobKey({ extSha, model: model.id, systemInstruction, rules, caseId: c.id, text: c.text }),
+            key: jobKey({
+              extSha,
+              model: model.id,
+              systemInstruction,
+              rules,
+              caseId: c.id,
+              text: c.text,
+            }),
             caseId: c.id,
             model: model.id,
             instruction: variant.id,
@@ -178,25 +275,49 @@ export function planJobs(
 }
 
 /** Cases of a lab set (experiments/sets/<name>.json); held-out test cases are refused. */
-export function casesOfSet(dataset: CompiledDataset, name: string): CompiledCase[] {
-  const ids = (JSON.parse(readFileSync(join(ROOT, "experiments", "sets", `${name}.json`), "utf8")) as { cases: string[] }).cases;
-  const cases = ids.map((id) => dataset.cases.find((c) => c.id === id) ?? (() => {
-    throw new Error(`set ${name}: unknown case ${id}`);
-  })());
-  if (cases.some((c) => c.split === "test")) throw new Error(`set ${name} contains held-out test cases`);
+export function casesOfSet(
+  dataset: CompiledDataset,
+  name: string,
+): CompiledCase[] {
+  const ids = (
+    JSON.parse(
+      readFileSync(join(ROOT, "experiments", "sets", `${name}.json`), "utf8"),
+    ) as { cases: string[] }
+  ).cases;
+  const cases = ids.map(
+    (id) =>
+      dataset.cases.find((c) => c.id === id) ??
+      (() => {
+        throw new Error(`set ${name}: unknown case ${id}`);
+      })(),
+  );
+  if (cases.some((c) => c.split === "test"))
+    throw new Error(`set ${name} contains held-out test cases`);
   return cases;
 }
 
 /** Mean cached review time on this machine (timeouts included), else the prior from models.json; connected models: their pacing-bound prior. */
-export function secondsPerCase(m: ModelInfo, timings: number[] = cachedTimings(m.id)): number {
+export function secondsPerCase(
+  m: ModelInfo,
+  timings: number[] = cachedTimings(m.id),
+): number {
   // Hosted runs are paced (requests per minute): cached latencies would underestimate them.
   if (m.hosted) return m.priorSecondsPerCase;
-  return timings.length >= 10 ? timings.reduce((a, b) => a + b, 0) / timings.length / 1000 : m.priorSecondsPerCase;
+  return timings.length >= 10
+    ? timings.reduce((a, b) => a + b, 0) / timings.length / 1000
+    : m.priorSecondsPerCase;
 }
-export const estimateSeconds = (m: ModelInfo, pending: number, perCase = secondsPerCase(m)) =>
-  pending ? m.priorLoadSeconds + pending * perCase * 1.1 : 0;
+export const estimateSeconds = (
+  m: ModelInfo,
+  pending: number,
+  perCase = secondsPerCase(m),
+) => (pending ? m.priorLoadSeconds + pending * perCase * 1.1 : 0);
 export const formatDuration = (s: number) =>
-  s < 90 ? `${Math.round(s)} s` : s < 5400 ? `${Math.round(s / 60)} min` : `${(s / 3600).toFixed(1)} h`;
+  s < 90
+    ? `${Math.round(s)} s`
+    : s < 5400
+      ? `${Math.round(s / 60)} min`
+      : `${(s / 3600).toFixed(1)} h`;
 
 // ------------------------------------------------------------------ document bench (npm run docbench / npm run bench -- --track docbench)
 
@@ -242,27 +363,54 @@ export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
     const i = argv.indexOf(`--${name}`);
     return i >= 0 ? argv[i + 1] : fallback;
   };
-  const list = (value: string | undefined) => (value ? value.split(",").map((s) => s.trim()).filter(Boolean) : []);
+  const list = (value: string | undefined) =>
+    value
+      ? value
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
   const bad = (message: string): never => {
     throw new Error(message);
   };
   const tier = (opt("tier", "quick") ?? "quick") as DocTier;
-  if (!["smoke", "quick", "full"].includes(tier)) bad("--tier must be smoke, quick or full");
+  if (!["smoke", "quick", "full"].includes(tier))
+    bad("--tier must be smoke, quick or full");
   const configs = list(opt("configs", "default,all")) as DocConfig[];
-  for (const c of configs) if (c !== "default" && c !== "all") bad(`unknown config ${c} (default, all)`);
-  const kinds = list(opt("kinds", "positive,negative,failure")) as DocbenchOptions["kinds"];
-  for (const k of kinds) if (!["positive", "negative", "failure"].includes(k)) bad(`unknown kind ${k}`);
+  for (const c of configs)
+    if (c !== "default" && c !== "all")
+      bad(`unknown config ${c} (default, all)`);
+  const kinds = list(
+    opt("kinds", "positive,negative,failure"),
+  ) as DocbenchOptions["kinds"];
+  for (const k of kinds)
+    if (!["positive", "negative", "failure"].includes(k))
+      bad(`unknown kind ${k}`);
   // `--ai` alone (or `--ai default`) runs the ref's default model; `--ai smollm2-360m,...` named bundled models.
   const aiAt = argv.indexOf("--ai");
-  const aiArg = aiAt < 0 ? undefined : argv[aiAt + 1] && !argv[aiAt + 1]!.startsWith("--") ? argv[aiAt + 1]! : "default";
-  const tracks = list(opt("tracks", aiArg ? "suite,sweep,ai" : "suite,sweep")) as DocbenchOptions["tracks"];
-  for (const t of tracks) if (!["suite", "sweep", "ai"].includes(t)) bad(`unknown track ${t} (suite, sweep, ai)`);
+  const aiArg =
+    aiAt < 0
+      ? undefined
+      : argv[aiAt + 1] && !argv[aiAt + 1]!.startsWith("--")
+        ? argv[aiAt + 1]!
+        : "default";
+  const tracks = list(
+    opt("tracks", aiArg ? "suite,sweep,ai" : "suite,sweep"),
+  ) as DocbenchOptions["tracks"];
+  for (const t of tracks)
+    if (!["suite", "sweep", "ai"].includes(t))
+      bad(`unknown track ${t} (suite, sweep, ai)`);
   const sweepArg = opt("sweep-types", "all")!;
-  const sweepTypes = (sweepArg === "all" ? [...SWEEP_TYPES] : list(sweepArg)) as SweepType[];
-  for (const s of sweepTypes) if (!(SWEEP_TYPES as readonly string[]).includes(s)) bad(`unknown sweep type ${s} (${SWEEP_TYPES.join(", ")})`);
+  const sweepTypes = (
+    sweepArg === "all" ? [...SWEEP_TYPES] : list(sweepArg)
+  ) as SweepType[];
+  for (const s of sweepTypes)
+    if (!(SWEEP_TYPES as readonly string[]).includes(s))
+      bad(`unknown sweep type ${s} (${SWEEP_TYPES.join(", ")})`);
   const seed = Number(opt("seed", "1"));
   const reps = Number(opt("reps", "3"));
-  if (!Number.isInteger(seed) || !Number.isInteger(reps) || reps < 1) bad("--seed and --reps take integers (reps >= 1)");
+  if (!Number.isInteger(seed) || !Number.isInteger(reps) || reps < 1)
+    bad("--seed and --reps take integers (reps >= 1)");
   return {
     tier,
     seed,
@@ -281,13 +429,23 @@ export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
     maxRssMb: Number(opt("max-rss-mb", "3000")),
     aiModels: list(aiArg)
       .filter((m) => m !== "default")
-      .map((m) => findBenchModel(m) ?? bad(`unknown model ${m} (Private AI track: local or connected model names)`)),
-    aiDefault: aiArg !== undefined && (list(aiArg).includes("default") || !list(aiArg).length),
+      .map(
+        (m) =>
+          findBenchModel(m) ??
+          bad(
+            `unknown model ${m} (Private AI track: local or connected model names)`,
+          ),
+      ),
+    aiDefault:
+      aiArg !== undefined &&
+      (list(aiArg).includes("default") || !list(aiArg).length),
     budgetUsd: Number(opt("budget-usd", "5")),
     aiSizes: list(opt("ai-sizes", "1000,5000,20000,50000")).map(Number),
     aiTier: ((): DocTier => {
       const t = opt("ai-tier", "smoke")!;
-      return ["smoke", "quick", "full"].includes(t) ? (t as DocTier) : bad("--ai-tier must be smoke, quick or full");
+      return ["smoke", "quick", "full"].includes(t)
+        ? (t as DocTier)
+        : bad("--ai-tier must be smoke, quick or full");
     })(),
   };
 }
@@ -295,8 +453,26 @@ export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
 /** Bump when scoring changes what a cached result holds (results are recomputed). */
 export const DOC_SCORE_VERSION = 3;
 
-export const docJobKey = (extSha: string, o: Pick<DocbenchOptions, "seed" | "configs">, id: string, spec: unknown) =>
-  createHash("sha256").update(JSON.stringify([extSha, GEN_VERSION, detDatasetHash(), DOC_SCORE_VERSION, o.seed, [...o.configs].sort(), id, spec])).digest("hex");
+export const docJobKey = (
+  extSha: string,
+  o: Pick<DocbenchOptions, "seed" | "configs">,
+  id: string,
+  spec: unknown,
+) =>
+  createHash("sha256")
+    .update(
+      JSON.stringify([
+        extSha,
+        GEN_VERSION,
+        detDatasetHash(),
+        DOC_SCORE_VERSION,
+        o.seed,
+        [...o.configs].sort(),
+        id,
+        spec,
+      ]),
+    )
+    .digest("hex");
 
 export interface DocPlan {
   suite: DocJob[];
@@ -306,13 +482,34 @@ export interface DocPlan {
 /** Expands docbench options into jobs for one extension commit. The dashboard rebuilds the same plan from a run's arguments. */
 export function planDocbench(o: DocbenchOptions, extSha: string): DocPlan {
   let specs = o.tracks.includes("suite") ? suiteSpecs() : [];
-  if (o.tier === "smoke") specs = specs.filter((s) => s.lang === "en" || s.kind !== "positive");
-  if (o.families.length) specs = specs.filter((s) => o.families.includes(s.family) || o.families.includes(s.ext));
+  if (o.tier === "smoke")
+    specs = specs.filter((s) => s.lang === "en" || s.kind !== "positive");
+  if (o.families.length)
+    specs = specs.filter(
+      (s) => o.families.includes(s.family) || o.families.includes(s.ext),
+    );
   specs = specs.filter((s) => o.kinds.includes(s.kind));
-  const sweeps = o.tracks.includes("sweep") ? sweepSpecs(o.tier, o.sweepTypes).filter((s) => !o.families.length || o.families.includes(s.type) || o.families.includes(SWEEP_UNITS[s.type].family)) : [];
+  const sweeps = o.tracks.includes("sweep")
+    ? sweepSpecs(o.tier, o.sweepTypes).filter(
+        (s) =>
+          !o.families.length ||
+          o.families.includes(s.type) ||
+          o.families.includes(SWEEP_UNITS[s.type].family),
+      )
+    : [];
   return {
-    suite: specs.map((spec) => ({ key: docJobKey(extSha, o, spec.id, spec), id: spec.id, track: "suite" as const, spec })),
-    sweeps: sweeps.map((sweep) => ({ key: docJobKey(extSha, o, sweep.id, sweep), id: sweep.id, track: "sweep" as const, sweep })),
+    suite: specs.map((spec) => ({
+      key: docJobKey(extSha, o, spec.id, spec),
+      id: spec.id,
+      track: "suite" as const,
+      spec,
+    })),
+    sweeps: sweeps.map((sweep) => ({
+      key: docJobKey(extSha, o, sweep.id, sweep),
+      id: sweep.id,
+      track: "sweep" as const,
+      sweep,
+    })),
   };
 }
 
@@ -334,20 +531,39 @@ export interface LiteratureOptions {
 }
 
 /** Parses `npm run literature` arguments. Throws on an unknown value. */
-export function parseLiteratureArgs(argv: readonly string[], known: { datasets: string[]; systems: readonly string[] }): LiteratureOptions {
+export function parseLiteratureArgs(
+  argv: readonly string[],
+  known: { datasets: string[]; systems: readonly string[] },
+): LiteratureOptions {
   const opt = (name: string) => {
     const i = argv.indexOf(`--${name}`);
     return i >= 0 ? argv[i + 1] : undefined;
   };
-  const list = (value: string | undefined, fallback: string[]) => (value ? value.split(",").map((s) => s.trim()).filter(Boolean) : fallback);
+  const list = (value: string | undefined, fallback: string[]) =>
+    value
+      ? value
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : fallback;
   const datasets = list(opt("datasets") ?? opt("dataset"), known.datasets);
-  for (const d of datasets) if (!known.datasets.some((k) => k === d || k.startsWith(d))) throw new Error(`unknown dataset ${d} (${known.datasets.join(", ")})`);
+  for (const d of datasets)
+    if (!known.datasets.some((k) => k === d || k.startsWith(d)))
+      throw new Error(`unknown dataset ${d} (${known.datasets.join(", ")})`);
   const systems = list(opt("systems") ?? opt("system"), ["insusty"]);
-  for (const s of systems) if (!known.systems.includes(s)) throw new Error(`unknown system ${s} (${known.systems.join(", ")})`);
+  for (const s of systems)
+    if (!known.systems.includes(s))
+      throw new Error(`unknown system ${s} (${known.systems.join(", ")})`);
   const configs = list(opt("configs"), ["default", "all"]);
-  for (const c of configs) if (c !== "default" && c !== "all") throw new Error(`unknown config ${c} (default, all)`);
+  for (const c of configs)
+    if (c !== "default" && c !== "all")
+      throw new Error(`unknown config ${c} (default, all)`);
   const limit = opt("limit");
-  if (limit !== undefined && !(Number.isInteger(Number(limit)) && Number(limit) >= 0)) throw new Error("--limit takes a non-negative integer (0 = all)");
+  if (
+    limit !== undefined &&
+    !(Number.isInteger(Number(limit)) && Number(limit) >= 0)
+  )
+    throw new Error("--limit takes a non-negative integer (0 = all)");
   return {
     datasets,
     systems,
@@ -362,7 +578,24 @@ export function parseLiteratureArgs(argv: readonly string[], known: { datasets: 
 }
 
 /** One cached output of one system on one case with one configuration. */
-export const literatureJobKey = (system: { name: string; version: string }, dataset: { id: string; revision: string }, caseId: string, config: unknown) =>
-  createHash("sha256").update(JSON.stringify([LITERATURE_SCORE_VERSION, system.name, system.version, dataset.id, dataset.revision, caseId, config])).digest("hex");
+export const literatureJobKey = (
+  system: { name: string; version: string },
+  dataset: { id: string; revision: string },
+  caseId: string,
+  config: unknown,
+) =>
+  createHash("sha256")
+    .update(
+      JSON.stringify([
+        LITERATURE_SCORE_VERSION,
+        system.name,
+        system.version,
+        dataset.id,
+        dataset.revision,
+        caseId,
+        config,
+      ]),
+    )
+    .digest("hex");
 /** Bump when what a cached literature output holds changes. */
 export const LITERATURE_SCORE_VERSION = 1;

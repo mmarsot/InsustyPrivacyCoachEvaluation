@@ -32,4 +32,7 @@ export const CATEGORY_ALIASES: Record<string, BuiltinLabel> = {
 };
 
 export const toBuiltin = (category: string): BuiltinLabel | null =>
-  CATEGORY_ALIASES[category] ?? ((BUILTIN_LABELS as readonly string[]).includes(category) ? (category as BuiltinLabel) : null);
+  CATEGORY_ALIASES[category] ??
+  ((BUILTIN_LABELS as readonly string[]).includes(category)
+    ? (category as BuiltinLabel)
+    : null);

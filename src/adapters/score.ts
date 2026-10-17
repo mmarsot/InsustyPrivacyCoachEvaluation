@@ -44,8 +44,14 @@ export interface AdapterScores {
     overRedactionPer1k: number | null;
   };
   /** Per built-in target label, then per gold label. */
-  byBuiltin: Record<string, RecallRow & { typed: number; recallTyped: number | null }>;
-  byGoldLabel: Record<string, RecallRow & { scope: "headline" | "custom" | "out_of_scope" }>;
+  byBuiltin: Record<
+    string,
+    RecallRow & { typed: number; recallTyped: number | null }
+  >;
+  byGoldLabel: Record<
+    string,
+    RecallRow & { scope: "headline" | "custom" | "out_of_scope" }
+  >;
   custom: RecallRow;
   outOfScope: RecallRow;
   nativeTotal: RecallRow;
@@ -54,9 +60,17 @@ export interface AdapterScores {
   falsePositiveSamples: Array<{ caseId: string; label: string; value: string }>;
 }
 
-const row = (gold: number, masked: number): RecallRow => ({ gold, masked, recall: gold ? masked / gold : null });
+const row = (gold: number, masked: number): RecallRow => ({
+  gold,
+  masked,
+  recall: gold ? masked / gold : null,
+});
 
-export function scoreAdapter(cases: GoldCase[], outputs: Map<string, RedactionOutput>, labelMap: Record<string, LabelTarget>): AdapterScores {
+export function scoreAdapter(
+  cases: GoldCase[],
+  outputs: Map<string, RedactionOutput>,
+  labelMap: Record<string, LabelTarget>,
+): AdapterScores {
   const unmapped = new Set<string>();
   const scopeOf = (g: GoldSpan): "headline" | "custom" | "out_of_scope" => {
     const t = labelMap[g.label];
@@ -75,8 +89,18 @@ export function scoreAdapter(cases: GoldCase[], outputs: Map<string, RedactionOu
   let overChars = 0;
   const custom = { gold: 0, masked: 0 };
   const out = { gold: 0, masked: 0 };
-  const byBuiltin: Record<string, { gold: number; masked: number; typed: number }> = {};
-  const byGold: Record<string, { gold: number; masked: number; scope: "headline" | "custom" | "out_of_scope" }> = {};
+  const byBuiltin: Record<
+    string,
+    { gold: number; masked: number; typed: number }
+  > = {};
+  const byGold: Record<
+    string,
+    {
+      gold: number;
+      masked: number;
+      scope: "headline" | "custom" | "out_of_scope";
+    }
+  > = {};
   const fpSamples: AdapterScores["falsePositiveSamples"] = [];
   for (const c of cases) {
     const o = outputs.get(c.id);
@@ -87,7 +111,9 @@ export function scoreAdapter(cases: GoldCase[], outputs: Map<string, RedactionOu
     for (const g of c.gold) goldCover.fill(1, g.start, g.end);
     for (const g of c.gold) {
       const scope = scopeOf(g);
-      const overlapping = masked.filter((s) => s.start < g.end && g.start < s.end);
+      const overlapping = masked.filter(
+        (s) => s.start < g.end && g.start < s.end,
+      );
       const hit = overlapping.length > 0;
       const bg = (byGold[g.label] ??= { gold: 0, masked: 0, scope });
       bg.gold++;
@@ -103,14 +129,21 @@ export function scoreAdapter(cases: GoldCase[], outputs: Map<string, RedactionOu
         continue;
       }
       const target = labelMap[g.label] as { builtin: string[] };
-      const exact = overlapping.some((s) => s.start === g.start && s.end === g.end);
-      const typed = overlapping.some((s) => s.kind === "builtin" && target.builtin.includes(s.label));
+      const exact = overlapping.some(
+        (s) => s.start === g.start && s.end === g.end,
+      );
+      const typed = overlapping.some(
+        (s) => s.kind === "builtin" && target.builtin.includes(s.label),
+      );
       headGold++;
       if (hit) headMasked++;
       if (exact) headExact++;
       if (typed) headTyped++;
       partial += exact ? 1 : hit ? 0.5 : 0;
-      const key = target.builtin.length === 1 ? target.builtin[0]! : target.builtin.join("|");
+      const key =
+        target.builtin.length === 1
+          ? target.builtin[0]!
+          : target.builtin.join("|");
       const bb = (byBuiltin[key] ??= { gold: 0, masked: 0, typed: 0 });
       bb.gold++;
       if (hit) bb.masked++;
@@ -119,8 +152,14 @@ export function scoreAdapter(cases: GoldCase[], outputs: Map<string, RedactionOu
     for (const s of masked) {
       predicted++;
       if (c.gold.some((g) => s.start < g.end && g.start < s.end)) correct++;
-      else if (fpSamples.length < 40) fpSamples.push({ caseId: c.id, label: s.label, value: c.text.slice(s.start, s.end).slice(0, 60) });
-      for (let i = s.start; i < s.end; i++) if (!goldCover[i] && !/\s/u.test(c.text[i]!)) overChars++;
+      else if (fpSamples.length < 40)
+        fpSamples.push({
+          caseId: c.id,
+          label: s.label,
+          value: c.text.slice(s.start, s.end).slice(0, 60),
+        });
+      for (let i = s.start; i < s.end; i++)
+        if (!goldCover[i] && !/\s/u.test(c.text[i]!)) overChars++;
     }
   }
   const recall = headGold ? headMasked / headGold : null;
@@ -140,11 +179,27 @@ export function scoreAdapter(cases: GoldCase[], outputs: Map<string, RedactionOu
       predicted,
       correct,
       precision,
-      f1: recall !== null && precision !== null && recall + precision > 0 ? (2 * recall * precision) / (recall + precision) : null,
+      f1:
+        recall !== null && precision !== null && recall + precision > 0
+          ? (2 * recall * precision) / (recall + precision)
+          : null,
       overRedactionPer1k: chars ? (overChars / chars) * 1000 : null,
     },
-    byBuiltin: Object.fromEntries(Object.entries(byBuiltin).map(([k, v]) => [k, { ...row(v.gold, v.masked), typed: v.typed, recallTyped: v.gold ? v.typed / v.gold : null }])),
-    byGoldLabel: Object.fromEntries(Object.entries(byGold).sort((a, b) => b[1].gold - a[1].gold).map(([k, v]) => [k, { ...row(v.gold, v.masked), scope: v.scope }])),
+    byBuiltin: Object.fromEntries(
+      Object.entries(byBuiltin).map(([k, v]) => [
+        k,
+        {
+          ...row(v.gold, v.masked),
+          typed: v.typed,
+          recallTyped: v.gold ? v.typed / v.gold : null,
+        },
+      ]),
+    ),
+    byGoldLabel: Object.fromEntries(
+      Object.entries(byGold)
+        .sort((a, b) => b[1].gold - a[1].gold)
+        .map(([k, v]) => [k, { ...row(v.gold, v.masked), scope: v.scope }]),
+    ),
     custom: row(custom.gold, custom.masked),
     outOfScope: row(out.gold, out.masked),
     nativeTotal: row(totalGold, totalMasked),

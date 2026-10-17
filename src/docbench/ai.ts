@@ -34,28 +34,62 @@ export interface AiDocSpec {
 const SMOKE_PROFILES = ["dev", "finance"];
 
 /** Cases per tier: dev split; per profile and language, the first clear positive (and, in `full`, the first look-alike negative). */
-export function aiCases(dataset: CompiledDataset, tier: DocTier): CompiledCase[] {
+export function aiCases(
+  dataset: CompiledDataset,
+  tier: DocTier,
+): CompiledCase[] {
   const out: CompiledCase[] = [];
   const profiles = [...new Set(dataset.cases.map((c) => c.profile))].sort();
   for (const profile of tier === "smoke" ? SMOKE_PROFILES : profiles)
     for (const lang of tier === "smoke" ? ["en"] : ["en", "fr"])
-      for (const type of tier === "full" ? ["clear_positive", "lookalike_negative"] : ["clear_positive"]) {
-        const c = dataset.cases.filter((x) => x.profile === profile && x.lang === lang && x.type === type && x.split === "dev").sort((a, b) => a.id.localeCompare(b.id))[0];
+      for (const type of tier === "full"
+        ? ["clear_positive", "lookalike_negative"]
+        : ["clear_positive"]) {
+        const c = dataset.cases
+          .filter(
+            (x) =>
+              x.profile === profile &&
+              x.lang === lang &&
+              x.type === type &&
+              x.split === "dev",
+          )
+          .sort((a, b) => a.id.localeCompare(b.id))[0];
         if (c) out.push(c);
       }
   return out;
 }
 
 export const aiSpecs = (cases: CompiledCase[], sizes: number[]): AiDocSpec[] =>
-  cases.flatMap((c) => sizes.map((size) => ({ id: `doc:${c.id}:${size}`, caseId: c.id, profile: c.profile, lang: c.lang, size })));
+  cases.flatMap((c) =>
+    sizes.map((size) => ({
+      id: `doc:${c.id}:${size}`,
+      caseId: c.id,
+      profile: c.profile,
+      lang: c.lang,
+      size,
+    })),
+  );
 
 /** A Word document of about `size` characters with the case's text in the middle. */
-export function aiDocument(spec: AiDocSpec, c: CompiledCase, seed: number): Uint8Array {
+export function aiDocument(
+  spec: AiDocSpec,
+  c: CompiledCase,
+  seed: number,
+): Uint8Array {
   const rng = rngFor(`docbench-ai:${seed}:${spec.id}`);
   const fillerChars = Math.max(0, spec.size - c.text.length);
-  const paras = fillerParagraphs(c.lang as "en" | "fr", Math.round(fillerChars / 6.2), rng);
+  const paras = fillerParagraphs(
+    c.lang as "en" | "fr",
+    Math.round(fillerChars / 6.2),
+    rng,
+  );
   const middle = Math.floor(paras.length / 2);
-  return writeDocx({ title: c.lang === "en" ? "Working notes" : "Notes de travail", body: [...paras.slice(0, middle), c.text, ...paras.slice(middle)].map((text) => ({ type: "p" as const, text })) });
+  return writeDocx({
+    title: c.lang === "en" ? "Working notes" : "Notes de travail",
+    body: [...paras.slice(0, middle), c.text, ...paras.slice(middle)].map(
+      (text) => ({ type: "p" as const, text }),
+    ),
+  });
 }
 
 export interface AiDoc {
@@ -68,28 +102,81 @@ export interface AiDoc {
 }
 
 /** Builds and reads every AI document with the module. */
-export async function readAiDocs(specs: AiDocSpec[], dataset: CompiledDataset, module: RedactionModule, seed: number): Promise<AiDoc[]> {
-  const config = { ...module.defaultConfig(), privateAi: { runsOn: "off" as const } };
+export async function readAiDocs(
+  specs: AiDocSpec[],
+  dataset: CompiledDataset,
+  module: RedactionModule,
+  seed: number,
+): Promise<AiDoc[]> {
+  const config = {
+    ...module.defaultConfig(),
+    privateAi: { runsOn: "off" as const },
+  };
   const byId = new Map(dataset.cases.map((c) => [c.id, c]));
   const out: AiDoc[] = [];
   for (const spec of specs) {
     const c = byId.get(spec.caseId)!;
-    const checked = await module.redact({ kind: "document", name: "notes.docx", bytes: aiDocument(spec, c, seed) }, config);
-    const read = { text: checked.text, readMs: checked.runtime.stages.find((s) => s.stage === "read")?.ms ?? 0 };
+    const checked = await module.redact(
+      {
+        kind: "document",
+        name: "notes.docx",
+        bytes: aiDocument(spec, c, seed),
+      },
+      config,
+    );
+    const read = {
+      text: checked.text,
+      readMs: checked.runtime.stages.find((s) => s.stage === "read")?.ms ?? 0,
+    };
     const at = read.text.indexOf(c.text);
-    if (at < 0) throw new Error(`${spec.id}: the case text is not in the extracted document text`);
-    out.push({ spec, case: c, inDoc: { ...c, id: spec.id, text: read.text, spans: c.spans.map((s) => ({ ...s, start: s.start + at, end: s.end + at })) }, chars: read.text.length, readMs: read.readMs });
+    if (at < 0)
+      throw new Error(
+        `${spec.id}: the case text is not in the extracted document text`,
+      );
+    out.push({
+      spec,
+      case: c,
+      inDoc: {
+        ...c,
+        id: spec.id,
+        text: read.text,
+        spans: c.spans.map((s) => ({
+          ...s,
+          start: s.start + at,
+          end: s.end + at,
+        })),
+      },
+      chars: read.text.length,
+      readMs: read.readMs,
+    });
   }
   return out;
 }
 
 /** Bench jobs for the model worker: the ref's shipped instruction and the `desc` label descriptions. */
-export function aiJobs(docs: AiDoc[], dataset: CompiledDataset, ext: { sha: string }, api: ExtApi, model: string): Job[] {
+export function aiJobs(
+  docs: AiDoc[],
+  dataset: CompiledDataset,
+  ext: { sha: string },
+  api: ExtApi,
+  model: string,
+): Job[] {
   const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
   return docs.map((d) => {
-    const rules = rulesFor(profiles.get(d.case.profile)!, "desc", api.kind === "completion");
+    const rules = rulesFor(
+      profiles.get(d.case.profile)!,
+      "desc",
+      api.kind === "completion",
+    );
     return {
-      key: jobKey({ extSha: ext.sha, model, systemInstruction: api.defaultPrompt, rules, caseId: d.spec.id, text: d.inDoc.text }),
+      key: jobKey({
+        extSha: ext.sha,
+        model,
+        systemInstruction: api.defaultPrompt,
+        rules,
+        caseId: d.spec.id,
+        text: d.inDoc.text,
+      }),
       caseId: d.spec.id,
       model,
       instruction: "current",
@@ -121,7 +208,13 @@ export interface AiPoint {
   error?: string;
 }
 
-export function scoreAi(docs: AiDoc[], jobs: Job[], records: Map<string, ResultRecord>, dataset: CompiledDataset, api: ExtApi): AiPoint[] {
+export function scoreAi(
+  docs: AiDoc[],
+  jobs: Job[],
+  records: Map<string, ResultRecord>,
+  dataset: CompiledDataset,
+  api: ExtApi,
+): AiPoint[] {
   const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
   const builtin = api.reviewCategories([]);
   const out: AiPoint[] = [];
@@ -129,7 +222,14 @@ export function scoreAi(docs: AiDoc[], jobs: Job[], records: Map<string, ResultR
     const job = jobs[i]!;
     const record = records.get(job.key);
     if (!record) return;
-    const s: Scored = scoreResult(d.inDoc, profiles.get(d.case.profile)!, record, builtin, api.composeReviewInstructions(job.systemInstruction, job.rules), api.kind === "completion");
+    const s: Scored = scoreResult(
+      d.inDoc,
+      profiles.get(d.case.profile)!,
+      record,
+      builtin,
+      api.composeReviewInstructions(job.systemInstruction, job.rules),
+      api.kind === "completion",
+    );
     out.push({
       id: d.spec.id,
       model: job.model,
@@ -146,8 +246,15 @@ export function scoreAi(docs: AiDoc[], jobs: Job[], records: Map<string, ResultR
       failure: s.failure,
       ...(record.chunks.some((c) => c.usage)
         ? {
-            usd: Math.round(record.chunks.reduce((a, c) => a + (c.usage?.costUsd ?? 0), 0) * 1e6) / 1e6,
-            inputTokens: record.chunks.reduce((a, c) => a + (c.usage?.inputTokens ?? 0), 0),
+            usd:
+              Math.round(
+                record.chunks.reduce((a, c) => a + (c.usage?.costUsd ?? 0), 0) *
+                  1e6,
+              ) / 1e6,
+            inputTokens: record.chunks.reduce(
+              (a, c) => a + (c.usage?.inputTokens ?? 0),
+              0,
+            ),
           }
         : {}),
       ...(record.error ? { error: record.error } : {}),
@@ -159,7 +266,20 @@ export function scoreAi(docs: AiDoc[], jobs: Job[], records: Map<string, ResultR
 export interface AiSummary {
   model: string;
   /** Per size: recall of expected passages, false positives, median and max review time, timeouts. */
-  bySize: Array<{ size: number; chars: number; cases: number; expected: number; found: number; recall: number | null; falsePositives: number; reviewMsP50: number; reviewMsMax: number; requestsP50: number; errors: number; usd?: number }>;
+  bySize: Array<{
+    size: number;
+    chars: number;
+    cases: number;
+    expected: number;
+    found: number;
+    recall: number | null;
+    falsePositives: number;
+    reviewMsP50: number;
+    reviewMsMax: number;
+    requestsP50: number;
+    errors: number;
+    usd?: number;
+  }>;
   /** Hosted models: USD of all its reviews here, and per document. */
   usd?: number;
   /** Review time = a * chars^b. */
@@ -176,7 +296,12 @@ const p50 = (xs: number[]) => {
   return s.length ? s[Math.floor((s.length - 1) / 2)]! : 0;
 };
 
-export function summarizeAi(points: AiPoint[], fit: (pts: Array<[number, number]>) => { a: number; b: number; r2: number } | null): AiSummary[] {
+export function summarizeAi(
+  points: AiPoint[],
+  fit: (
+    pts: Array<[number, number]>,
+  ) => { a: number; b: number; r2: number } | null,
+): AiSummary[] {
   return [...new Set(points.map((p) => p.model))].map((model) => {
     const mine = points.filter((p) => p.model === model);
     const sizes = [...new Set(mine.map((p) => p.size))].sort((a, b) => a - b);
@@ -196,7 +321,13 @@ export function summarizeAi(points: AiPoint[], fit: (pts: Array<[number, number]
         reviewMsMax: Math.max(...at.map((p) => p.reviewMs)),
         requestsP50: p50(at.map((p) => p.requests)),
         errors: at.filter((p) => p.error).length,
-        ...(at.some((p) => p.usd !== undefined) ? { usd: Math.round(at.reduce((n, p) => n + (p.usd ?? 0), 0) * 1e6) / 1e6 } : {}),
+        ...(at.some((p) => p.usd !== undefined)
+          ? {
+              usd:
+                Math.round(at.reduce((n, p) => n + (p.usd ?? 0), 0) * 1e6) /
+                1e6,
+            }
+          : {}),
       };
     });
     const f = fit(bySize.map((b) => [b.chars, b.reviewMsP50]));
@@ -205,10 +336,27 @@ export function summarizeAi(points: AiPoint[], fit: (pts: Array<[number, number]
       [30, 60, 120].map((s) => {
         if (!f || f.b <= 0) return [`${s}s`, null];
         const chars = ((s * 1000) / f.a) ** (1 / f.b);
-        return [`${s}s`, !Number.isFinite(chars) || chars >= largest ? { chars: largest, atLeast: true } : { chars: Math.round(chars), atLeast: false }];
+        return [
+          `${s}s`,
+          !Number.isFinite(chars) || chars >= largest
+            ? { chars: largest, atLeast: true }
+            : { chars: Math.round(chars), atLeast: false },
+        ];
       }),
     );
     const hosted = mine.some((p) => p.usd !== undefined);
-    return { model, bySize, fit: f, within, ...(hosted ? { usd: Math.round(mine.reduce((n, p) => n + (p.usd ?? 0), 0) * 1e6) / 1e6 } : {}) };
+    return {
+      model,
+      bySize,
+      fit: f,
+      within,
+      ...(hosted
+        ? {
+            usd:
+              Math.round(mine.reduce((n, p) => n + (p.usd ?? 0), 0) * 1e6) /
+              1e6,
+          }
+        : {}),
+    };
   });
 }

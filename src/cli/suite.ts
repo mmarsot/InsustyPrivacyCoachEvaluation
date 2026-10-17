@@ -38,32 +38,70 @@ let tracks: Track[];
 if (flag("full")) tracks = ["deterministic", "private-ai"];
 else if (opt("tracks")) {
   tracks = opt("tracks")!.split(",") as Track[];
-  for (const t of tracks) if (t !== "deterministic" && t !== "private-ai") fail(`unknown track ${t} (deterministic, private-ai)`);
+  for (const t of tracks)
+    if (t !== "deterministic" && t !== "private-ai")
+      fail(`unknown track ${t} (deterministic, private-ai)`);
 } else if (since) {
-  const paths = execFileSync("git", ["-C", extRepo, "diff", "--name-only", `${since}...${ref}`], { encoding: "utf8" }).split("\n").filter(Boolean);
+  const paths = execFileSync(
+    "git",
+    ["-C", extRepo, "diff", "--name-only", `${since}...${ref}`],
+    { encoding: "utf8" },
+  )
+    .split("\n")
+    .filter(Boolean);
   const selection = selectTracks(paths);
   console.log(`${paths.length} path(s) changed in ${since}...${ref}`);
-  for (const r of selection.reasons) console.log(`  ${r.tracks.join(" + ")}: ${r.why} (${r.paths.slice(0, 5).join(", ")}${r.paths.length > 5 ? `, +${r.paths.length - 5}` : ""})`);
-  if (selection.ignored.length) console.log(`  no benchmark: ${selection.ignored.length} path(s) (${selection.ignored.slice(0, 5).join(", ")}${selection.ignored.length > 5 ? ", ..." : ""})`);
+  for (const r of selection.reasons)
+    console.log(
+      `  ${r.tracks.join(" + ")}: ${r.why} (${r.paths.slice(0, 5).join(", ")}${r.paths.length > 5 ? `, +${r.paths.length - 5}` : ""})`,
+    );
+  if (selection.ignored.length)
+    console.log(
+      `  no benchmark: ${selection.ignored.length} path(s) (${selection.ignored.slice(0, 5).join(", ")}${selection.ignored.length > 5 ? ", ..." : ""})`,
+    );
   tracks = selection.tracks;
-} else tracks = fail("Pass --since <base ref> (tracks from what changed), --tracks <list>, or --full.");
+} else
+  tracks = fail(
+    "Pass --since <base ref> (tracks from what changed), --tracks <list>, or --full.",
+  );
 
 const ci = flag("ci");
 if (ci && !since) fail("--ci compares against a base: pass --since <base ref>");
-const steps = planSuite({ ref, ...(ci ? { base: since } : {}), tracks, ci, full: flag("full"), connected: flag("connected"), ...(opt("ext-repo") ? { extRepo: opt("ext-repo") } : {}), ...(opt("name-prefix") ? { namePrefix: opt("name-prefix") } : {}) });
+const steps = planSuite({
+  ref,
+  ...(ci ? { base: since } : {}),
+  tracks,
+  ci,
+  full: flag("full"),
+  connected: flag("connected"),
+  ...(opt("ext-repo") ? { extRepo: opt("ext-repo") } : {}),
+  ...(opt("name-prefix") ? { namePrefix: opt("name-prefix") } : {}),
+});
 const machine = machineProfile();
-console.log(`Tracks: ${tracks.join(", ") || "none (nothing to benchmark)"}${ci ? " (CI tiers)" : ""}; machine profile ${machine.id}${machine.id === "adhoc" ? " (absolute speed and memory are indicative only; set BENCH_MACHINE_ID on the reference machine)" : ""}`);
-for (const s of steps) console.log(`  [${s.track}] ${s.name}${s.gate ? " (gate)" : ""}: npm run ${s.script} -- ${s.args.join(" ")}`);
+console.log(
+  `Tracks: ${tracks.join(", ") || "none (nothing to benchmark)"}${ci ? " (CI tiers)" : ""}; machine profile ${machine.id}${machine.id === "adhoc" ? " (absolute speed and memory are indicative only; set BENCH_MACHINE_ID on the reference machine)" : ""}`,
+);
+for (const s of steps)
+  console.log(
+    `  [${s.track}] ${s.name}${s.gate ? " (gate)" : ""}: npm run ${s.script} -- ${s.args.join(" ")}`,
+  );
 if (flag("dry-run") || !steps.length) process.exit(0);
 
 const failed: string[] = [];
 for (const s of steps) {
   console.log(`\n=== [${s.track}] ${s.name}`);
-  const r = spawnSync("npm", ["run", "-s", s.script, "--", ...s.args], { cwd: ROOT, stdio: "inherit" });
+  const r = spawnSync("npm", ["run", "-s", s.script, "--", ...s.args], {
+    cwd: ROOT,
+    stdio: "inherit",
+  });
   if (r.status !== 0) {
-    console.error(`[${s.track}] ${s.name} exited with ${r.status}${s.gate ? " (gate)" : ""}`);
+    console.error(
+      `[${s.track}] ${s.name} exited with ${r.status}${s.gate ? " (gate)" : ""}`,
+    );
     if (s.gate) failed.push(s.name);
   }
 }
-console.log(failed.length ? `\nSuite FAILED: ${failed.join(", ")}` : "\nSuite passed.");
+console.log(
+  failed.length ? `\nSuite FAILED: ${failed.join(", ")}` : "\nSuite passed.",
+);
 process.exit(failed.length ? 1 : 0);

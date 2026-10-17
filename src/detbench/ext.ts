@@ -7,14 +7,19 @@
  * materialized by `src/module/materialize.ts`; any other contract
  * implementation scores the same way.
  */
-import type { BuiltinLabel, ModuleConfig, RedactionModule } from "../../contract/types.ts";
+import type {
+  BuiltinLabel,
+  ModuleConfig,
+  RedactionModule,
+} from "../../contract/types.ts";
 import { allLabelsConfig } from "../module/insusty.ts";
 import { toBuiltin } from "../module/labels.ts";
 import type { DetCategory } from "./schema.ts";
 
 export { CATEGORY_ALIASES } from "../module/labels.ts";
 /** A ref's category name as a dataset category (the contract's built-in labels), or null for one the dataset does not know. */
-export const mapCategory = (category: string): DetCategory | null => toBuiltin(category);
+export const mapCategory = (category: string): DetCategory | null =>
+  toBuiltin(category);
 
 export interface RefDetection {
   /** The module's label. */
@@ -40,17 +45,29 @@ export interface DetectorApi {
   /** What the "all" configuration changes from the default, for the report. */
   allConfigNote: string;
   /** Detections and the module's own rules time. */
-  detect(text: string, config: DetConfigName): Promise<{ detections: RefDetection[]; ms: number }>;
+  detect(
+    text: string,
+    config: DetConfigName,
+  ): Promise<{ detections: RefDetection[]; ms: number }>;
 }
 
-export function detectorApi(module: RedactionModule & { refCategories?: string[] }): DetectorApi {
+export function detectorApi(
+  module: RedactionModule & { refCategories?: string[] },
+): DetectorApi {
   const base = module.defaultConfig();
   const off = { runsOn: "off" as const };
-  const configs: Record<DetConfigName, ModuleConfig> = { default: { ...base, privateAi: off }, all: { ...allLabelsConfig(module), privateAi: off } };
+  const configs: Record<DetConfigName, ModuleConfig> = {
+    default: { ...base, privateAi: off },
+    all: { ...allLabelsConfig(module), privateAi: off },
+  };
   const notes: string[] = [];
-  const switchedOn = module.capabilities.builtins.filter((b) => base.builtins[b] === false);
+  const switchedOn = module.capabilities.builtins.filter(
+    (b) => base.builtins[b] === false,
+  );
   if (switchedOn.length) notes.push(`turns on ${switchedOn.join(", ")}`);
-  const added = configs.all.addressCountries.filter((c) => !base.addressCountries.includes(c));
+  const added = configs.all.addressCountries.filter(
+    (c) => !base.addressCountries.includes(c),
+  );
   if (added.length) notes.push(`adds address countries ${added.join(", ")}`);
   return {
     refCategories: module.refCategories ?? [...module.capabilities.builtins],
@@ -62,8 +79,18 @@ export function detectorApi(module: RedactionModule & { refCategories?: string[]
       return {
         detections: out.spans
           .filter((s) => s.kind === "builtin")
-          .map((s) => ({ category: s.label, mapped: toBuiltin(s.label), start: s.start, end: s.end, value: out.text.slice(s.start, s.end), source: s.subtype ?? "", selected: s.redacted })),
-        ms: out.runtime.stages.find((s) => s.stage === "rules")?.ms ?? out.runtime.totalMs,
+          .map((s) => ({
+            category: s.label,
+            mapped: toBuiltin(s.label),
+            start: s.start,
+            end: s.end,
+            value: out.text.slice(s.start, s.end),
+            source: s.subtype ?? "",
+            selected: s.redacted,
+          })),
+        ms:
+          out.runtime.stages.find((s) => s.stage === "rules")?.ms ??
+          out.runtime.totalMs,
       };
     },
   };

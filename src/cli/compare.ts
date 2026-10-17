@@ -13,7 +13,9 @@ import { readRun } from "../run/outputs.ts";
 
 const [aDir, bDir] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 if (!aDir || !bDir) {
-  console.error("usage: npm run compare -- runs/<A> runs/<B> [--out file.html]");
+  console.error(
+    "usage: npm run compare -- runs/<A> runs/<B> [--out file.html]",
+  );
   process.exit(2);
 }
 const outIndex = process.argv.indexOf("--out");
@@ -25,15 +27,26 @@ const arrow = (d: number) => (d > 0 ? "▲" : d < 0 ? "▼" : "");
 const htmlRows = rows.map(
   (r) =>
     `<tr><td>${esc(r.config)}</td><td>${r.slice}</td><td class="num">${r.cases}</td>${r.cells
-      .map((c) => `<td class="num">${pct(c.a)} → ${pct(c.b)} <b>${arrow(c.direction)}</b>${c.delta === null ? "" : ` ${c.delta >= 0 ? "+" : ""}${(100 * c.delta).toFixed(0)}`}</td>`)
-      .join("")}<td class="num">${r.latencyP50[0] ?? "–"} → ${r.latencyP50[1] ?? "–"} ms</td></tr>`,
+      .map(
+        (c) =>
+          `<td class="num">${pct(c.a)} → ${pct(c.b)} <b>${arrow(c.direction)}</b>${c.delta === null ? "" : ` ${c.delta >= 0 ? "+" : ""}${(100 * c.delta).toFixed(0)}`}</td>`,
+      )
+      .join(
+        "",
+      )}<td class="num">${r.latencyP50[0] ?? "–"} → ${r.latencyP50[1] ?? "–"} ms</td></tr>`,
 );
 const text = [
   `A = ${a.meta.name} (${a.meta.ext.sha.slice(0, 7)})  B = ${b.meta.name} (${b.meta.ext.sha.slice(0, 7)})  shared results: ${shared}`,
-  ...rows.map((r) => `${r.config.padEnd(44)} ${r.slice.padEnd(3)} ${r.cells.map((c, i) => `${COMPARE_METRICS[i]!.name} ${pct(c.a)}→${pct(c.b)}`).join("  ")}`),
+  ...rows.map(
+    (r) =>
+      `${r.config.padEnd(44)} ${r.slice.padEnd(3)} ${r.cells.map((c, i) => `${COMPARE_METRICS[i]!.name} ${pct(c.a)}→${pct(c.b)}`).join("  ")}`,
+  ),
 ];
 
-const out = outIndex >= 0 ? resolve(process.argv[outIndex + 1]!) : join(RUNS_DIR, `compare-${basename(aDir)}-vs-${basename(bDir)}.html`);
+const out =
+  outIndex >= 0
+    ? resolve(process.argv[outIndex + 1]!)
+    : join(RUNS_DIR, `compare-${basename(aDir)}-vs-${basename(bDir)}.html`);
 writeFileSync(
   out,
   `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bench Comparison</title><style>${STYLE}</style></head><body><main>

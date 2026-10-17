@@ -20,7 +20,17 @@ export const CONTRACT_VERSION = "1.0.0";
  * declares the ones it supports (`ModuleCapabilities.builtins`); a benchmark
  * adapter maps its own labels onto these or onto custom labels.
  */
-export const BUILTIN_LABELS = ["SECRET", "FINANCIAL", "NATIONAL_ID", "DATE_OF_BIRTH", "PHONE", "EMAIL", "ADDRESS", "IP", "COMPANY_ID"] as const;
+export const BUILTIN_LABELS = [
+  "SECRET",
+  "FINANCIAL",
+  "NATIONAL_ID",
+  "DATE_OF_BIRTH",
+  "PHONE",
+  "EMAIL",
+  "ADDRESS",
+  "IP",
+  "COMPANY_ID",
+] as const;
 export type BuiltinLabel = (typeof BUILTIN_LABELS)[number];
 
 // ------------------------------------------------------------------ input
@@ -247,7 +257,12 @@ export interface ModuleCapabilities {
   /** Countries whose postal addresses the module can look for (ISO alpha-2), when it declares them. */
   addressCountries?: string[];
   /** The models Private AI can run, and the one a new user gets (`default`). */
-  models?: Array<{ id: string; runsOn: "device" | "connected"; default?: boolean; bytes?: number }>;
+  models?: Array<{
+    id: string;
+    runsOn: "device" | "connected";
+    default?: boolean;
+    bytes?: number;
+  }>;
 }
 
 /** What a harness drives. One call checks one input with one configuration; calls may be repeated on one instance (warm). */
@@ -274,7 +289,10 @@ export interface PrepareReport {
 }
 
 /** A harness at `harness` accepts a module implementing `module` when the major versions match. */
-export function isCompatibleContract(module: string, harness: string = CONTRACT_VERSION): boolean {
+export function isCompatibleContract(
+  module: string,
+  harness: string = CONTRACT_VERSION,
+): boolean {
   const major = (v: string) => /^(\d+)\.\d+\.\d+$/.exec(v)?.[1];
   return major(module) !== undefined && major(module) === major(harness);
 }
