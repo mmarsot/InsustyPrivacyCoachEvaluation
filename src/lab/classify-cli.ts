@@ -37,6 +37,10 @@ import type { ClsGroup, ClsRecord, ClsWorkerSpec } from "./classify-worker.ts";
 env.cacheDir = MODEL_CACHE_DIR;
 env.allowLocalModels = false;
 
+/**
+ * One way to ask the yes/no question: the request templates, the
+ * label-description variant and the answer tokens read as yes or no.
+ */
 export interface ClsVariant {
   id: string;
   note: string;
@@ -56,6 +60,10 @@ const YES = ["yes", "Yes", "YES", " yes", " Yes", "oui", "Oui"];
 const NO = ["no", "No", "NO", " no", " No", "non", "Non"];
 const MARK = "\u0000QUESTION\u0000";
 
+/**
+ * The question variants `--variants` picks from; results are cached by rendered
+ * question, so add a variant rather than edit one.
+ */
 export const CLS_VARIANTS: ClsVariant[] = [
   {
     id: "q1",

@@ -29,6 +29,10 @@ import {
 } from "../run/plan.ts";
 import type { ActiveRun } from "./data.ts";
 
+/**
+ * Whether an active run's arguments are a docbench run (`npm run bench --
+ * --track docbench`).
+ */
 export const isDocbenchArgv = (argv: readonly string[]) => {
   const at = argv.indexOf("--track");
   return at >= 0 && argv[at + 1] === "docbench";
@@ -48,6 +52,7 @@ interface LiveDoc {
   error?: string;
 }
 
+/** A docbench run as the Documents view lists it, committed or in progress. */
 export interface DocRunListing {
   id: string;
   name: string;
@@ -60,6 +65,10 @@ export interface DocRunListing {
 const readJson = <T>(file: string): T =>
   JSON.parse(readFileSync(file, "utf8")) as T;
 
+/**
+ * The Documents view's data: committed docbench runs, and live ones whose plan
+ * is rebuilt from their arguments. Read-only.
+ */
 export class DocDashboard {
   private live = new Map<string, LiveDoc>();
 

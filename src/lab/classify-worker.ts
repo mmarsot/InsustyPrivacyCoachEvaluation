@@ -13,16 +13,25 @@ const { ones, Tensor: TensorClass } = await import("@huggingface/transformers");
 const { idsTensor, loadPretrained } =
   await import("../run/transformers-loader.ts");
 
+/**
+ * One (candidate, label) question: the text after the case prefix, keyed for
+ * the cache.
+ */
 export interface ClsJob {
   key: string;
   suffix: string;
 }
+/** One case: the prefix prefilled once, and its questions. */
 export interface ClsGroup {
   key: string;
   caseId: string;
   prefix: string;
   jobs: ClsJob[];
 }
+/**
+ * The job file `classify-cli.ts` writes for one model's worker; `yes` and `no`
+ * are the answer strings whose first token counts.
+ */
 export interface ClsWorkerSpec {
   model: string;
   dtype: string;
@@ -33,6 +42,10 @@ export interface ClsWorkerSpec {
   /** Run prefix + question in one forward pass (models whose prefix cache is unusable, e.g. LFM2). */
   noPrefixCache?: boolean;
 }
+/**
+ * One cached line of `cache/lab/cls-<model>.jsonl`: a prefix's or a question's
+ * timing and answer probabilities.
+ */
 export interface ClsRecord {
   key: string;
   kind: "prefix" | "question";
@@ -46,6 +59,7 @@ export interface ClsRecord {
   top?: string;
   at: string;
 }
+/** One `@@{json}` stdout line to the parent. */
 export type ClsEvent =
   | { type: "loaded"; loadMs: number }
   | { type: "case"; caseId: string; done: number; total: number; ms: number }

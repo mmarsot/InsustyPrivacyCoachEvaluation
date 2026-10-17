@@ -11,12 +11,15 @@ import type {
   RuntimeReportLike,
 } from "../ext/ref.ts";
 
+/** A chat turn's role. */
 export type ChatRole = "system" | "user" | "assistant";
+/** One chat turn. */
 export interface ChatMessage {
   role: ChatRole;
   content: string;
 }
 
+/** Free-form generation settings; `deadlineMs` is in milliseconds. */
 export interface GenerationSettings {
   maxNewTokens: number;
   sample: boolean;
@@ -25,6 +28,10 @@ export interface GenerationSettings {
   /** Wall-clock stop, so a runaway sample cannot hold the model forever. */
   deadlineMs: number;
 }
+/**
+ * Greedy, 256 new tokens, one minute: what a playground request gets unless it
+ * says otherwise.
+ */
 export const DEFAULT_SETTINGS: GenerationSettings = {
   maxNewTokens: 256,
   sample: false,
@@ -38,6 +45,10 @@ const clamp = (value: unknown, min: number, max: number, fallback: number) => {
   return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
 };
 
+/**
+ * Settings from an untrusted request body: each field clamped to its range, a
+ * missing or non-numeric one replaced by its default.
+ */
 export function normalizeSettings(input: unknown): GenerationSettings {
   const s = (input ?? {}) as Partial<Record<keyof GenerationSettings, unknown>>;
   return {
@@ -81,12 +92,14 @@ export function normalizeMessages(input: unknown): ChatMessage[] {
     : messages;
 }
 
+/** The part of a tokenizer prompt rendering needs. */
 export interface TemplateTokenizer {
   hasChatTemplate: boolean;
   applyChatTemplate(
     messages: ReadonlyArray<{ role: string; content: string }>,
   ): string;
 }
+/** A tokenizer that also counts tokens. */
 export interface EncodingTokenizer extends TemplateTokenizer {
   encode(text: string): number[];
 }
@@ -141,9 +154,17 @@ export function renderReviewPrompt(
   };
 }
 
+/**
+ * Why a generation stopped; `context` is what remains when no other reason
+ * applies (the model's context filled).
+ */
 export type ChatFinishReason =
   "eos" | "max_new_tokens" | "deadline" | "context";
 
+/**
+ * Why a generation stopped: an end-of-sequence token wins over the deadline,
+ * which wins over the token cap.
+ */
 export function chatFinishReason(o: {
   generated: readonly number[];
   eosIds: readonly number[];
@@ -161,6 +182,10 @@ export function chatFinishReason(o: {
 
 const RULE_LABEL_PATTERN = /^[A-Z][A-Z0-9_]{0,31}$/;
 
+/**
+ * A playground review: the custom labels and text, reviewed the way the
+ * extension would review them.
+ */
 export interface ReviewPlaygroundRequest {
   systemInstruction: string;
   rules: Rule[];
@@ -213,6 +238,10 @@ export function normalizeReviewRequest(
   return { systemInstruction, rules, text: r.text };
 }
 
+/**
+ * One model request of a playground review: the rendered prompt as the model
+ * saw it, its token count, and the raw answer.
+ */
 export interface ReviewChunkTrace {
   input: string;
   rendered: string;
@@ -222,6 +251,7 @@ export interface ReviewChunkTrace {
   ms: number;
   error?: string;
 }
+/** A playground review traced through the ref's own `runReview`. */
 export interface ReviewTrace {
   instructions: string;
   categories: string[];

@@ -7,8 +7,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT } from "../paths.ts";
 
+/** The playground host's lifecycle. */
 export type HostState = "empty" | "loading" | "ready" | "busy" | "error";
 
+/** What the dashboard shows of the host; memory in MB, read from `/proc`. */
 export interface HostStatus {
   state: HostState;
   model?: string;
@@ -21,6 +23,10 @@ export interface HostStatus {
   activity?: { kind: string; since: number };
 }
 
+/**
+ * Thrown when a request arrives while the host is loading or running another;
+ * the server answers 409.
+ */
 export class BusyError extends Error {}
 
 const readRssMb = (pid: number | undefined, field: "VmRSS" | "VmHWM") => {
@@ -37,6 +43,10 @@ const readRssMb = (pid: number | undefined, field: "VmRSS" | "VmHWM") => {
   }
 };
 
+/**
+ * Owns at most one model host process: loading another model kills the current
+ * host first, so two models never share the machine's memory.
+ */
 export class PlaygroundHost {
   private child?: ChildProcess;
   private nextId = 1;

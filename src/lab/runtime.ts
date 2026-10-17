@@ -9,6 +9,10 @@ import { join } from "node:path";
 import { ROOT } from "../paths.ts";
 import type { LabModel } from "./models.ts";
 
+/**
+ * The system's MemAvailable, in MB: what the memory waits and guards compare
+ * against.
+ */
 export const readMemAvailableMb = () => {
   const info = readFileSync("/proc/meminfo", "utf8");
   return Math.round(
@@ -16,6 +20,10 @@ export const readMemAvailableMb = () => {
   );
 };
 
+/**
+ * A process's current (`VmRSS`) or peak (`VmHWM`) resident memory in MB; 0 when
+ * it is gone.
+ */
 export const readRssMb = (pid: number, field: "VmRSS" | "VmHWM") => {
   try {
     const kb = Number(

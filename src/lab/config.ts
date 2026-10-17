@@ -23,12 +23,19 @@ import {
 } from "../variants.ts";
 import type { SegmentMode } from "./segment.ts";
 
+/**
+ * A few-shot demonstration: a scanned text and the reply the model should give.
+ */
 export interface Shot {
   text: string;
   /** Assistant reply after the prefill, e.g. "NONE" or "EMAIL: a@b.c". */
   answer: string;
 }
 
+/**
+ * Everything about how one review request reaches the model (see the file
+ * header). A field left as in `REF_CONFIG` behaves as the extension ref does.
+ */
 export interface LabConfig {
   id: string;
   /** Short hypothesis, shown in tables and the log. */
@@ -187,6 +194,10 @@ export type ShotSource =
 const REF_USER =
   "<text_to_scan>\n{text}\n</text_to_scan>\nTask: scan only the text above. List findings in the required format.\n";
 
+/**
+ * The extension ref as it builds its requests; `@ref` fields take the ref's own
+ * texts (`RefTexts`).
+ */
 export const REF_CONFIG: LabConfig = {
   id: "ref",
   note: "Extension ref as shipped",
@@ -223,6 +234,10 @@ export const REF_CONFIG: LabConfig = {
   examplePatterns: false,
 };
 
+/**
+ * The ref's own prompt texts, read from its bundle, that `@current` and `@ref`
+ * settings resolve to.
+ */
 export interface RefTexts {
   defaultPrompt: string;
   outputSchema: string;
@@ -233,6 +248,11 @@ export interface RefTexts {
 const fill = (template: string, vars: Record<string, string>) =>
   template.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? vars[k]! : m));
 
+/**
+ * The instruction text of a configuration: the ref's default for `@current`, a
+ * named variant for another `@id`, else the literal text. Throws on an unknown
+ * variant.
+ */
 export function resolveInstruction(instruction: string, ref: RefTexts): string {
   if (instruction === "@current") return ref.defaultPrompt;
   if (instruction.startsWith("@")) {
@@ -245,6 +265,7 @@ export function resolveInstruction(instruction: string, ref: RefTexts): string {
   return instruction;
 }
 
+/** A profile's custom labels with descriptions composed for one variant. */
 export function customLabels(profile: Profile, variant: LabelVariantId) {
   return profile.labels.map((spec) => ({
     label: spec.label,
@@ -252,6 +273,11 @@ export function customLabels(profile: Profile, variant: LabelVariantId) {
   }));
 }
 
+/**
+ * The instruction block of one request, its parts (`i` instruction, `s` schema,
+ * `l` label list) in `blockOrder`; `{label}`, `{name}` and `{description}` in
+ * the instruction take the profile's first label.
+ */
 export function composeInstructions(
   config: LabConfig,
   profile: Profile,
@@ -481,11 +507,17 @@ function buildShots(
   return shots;
 }
 
+/** One chat turn of a rendered request. */
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
   content: string;
 }
 
+/**
+ * Stands for the scanned text while a chat template renders, so the text can be
+ * split into a cacheable prefix and a per-case suffix; it must occur exactly
+ * once.
+ */
 export const CONTENT_MARKER = "\u0000LAB_CONTENT\u0000";
 
 /** Language of the demonstrations for a scanned text. */
@@ -580,6 +612,7 @@ export function buildRaw(
   };
 }
 
+/** A new configuration: `base` with `overrides`, under a new id. */
 export function withOverrides(
   base: LabConfig,
   id: string,

@@ -20,6 +20,10 @@ const EXT_PR = (n: number) =>
 /** Default model of the extension. */
 export const SHIPPED_MODEL = "smollm2-360m";
 
+/**
+ * The extension's shipped design as a lab configuration; new proposals are
+ * measured against it (`npm run ablate -- --with <config>`).
+ */
 export const SHIPPED_CONFIG: LabConfig = withOverrides(REF_CONFIG, "shipped", {
   note: "Extension as shipped (PR #26, #32): per-label completion, example demos, NONE last, first line, pinned greedy, plausibility filter, confidence filter 0.2, example patterns",
   raw: true,
@@ -59,6 +63,7 @@ export const BEFORE_PR32: Partial<LabConfig> = {
   extraStopWords: ["simple", "terms"],
 };
 
+/** One shipped improvement, as a switch the ablation can turn off. */
 export interface ShippedComponent {
   /** Switch id: the leave-one-out configuration is `shipped-no-<id>`. */
   id: string;
@@ -75,6 +80,10 @@ export interface ShippedComponent {
   offNote: string;
 }
 
+/**
+ * The shipped improvements, one per ledger entry in
+ * docs/shipped-improvements.md; ids are permanent.
+ */
 export const SHIPPED_COMPONENTS: ShippedComponent[] = [
   {
     id: "completion",
@@ -184,6 +193,7 @@ export const SHIPPED_COMPONENTS: ShippedComponent[] = [
   },
 ];
 
+/** The lab configuration id with `component` turned off. */
 export const shippedOffId = (component: ShippedComponent) =>
   `shipped-no-${component.id}`;
 

@@ -25,6 +25,10 @@ const { eosIds, idsTensor, loadPretrained, WASM_THREADS, transformersVersion } =
   await import("../run/transformers-loader.ts");
 const { YES_WORDS, NO_WORDS } = await import("./segment.ts");
 
+/**
+ * Generation settings of one lab request; the optional `score*` flags record
+ * probabilities without changing the output.
+ */
 export interface LabGen {
   maxNewTokens: number;
   deadlineMs: number;
@@ -49,16 +53,22 @@ export interface LabGen {
   /** Record P(Yes) and P(No) (single-token variants, src/lab/segment.ts) at the first generated token. */
   scoreYesNo?: boolean;
 }
+/**
+ * One request: the per-case suffix after its group's prefix, keyed for the
+ * cache.
+ */
 export interface LabJob {
   key: string;
   caseId: string;
   suffix: string;
   gen: LabGen;
 }
+/** Requests sharing one prompt prefix, prefilled once. */
 export interface LabGroup {
   prefix: string;
   jobs: LabJob[];
 }
+/** The job file `src/lab/cli.ts` writes for one model's worker. */
 export interface LabWorkerSpec {
   bundle: string;
   model: string;
@@ -68,7 +78,15 @@ export interface LabWorkerSpec {
   /** Run every request from scratch (checks that prefix KV reuse does not change outputs). */
   noPrefixCache?: boolean;
 }
+/**
+ * Why generation stopped: end of sequence, the line protocol, the token cap,
+ * the deadline or the context.
+ */
 export type LabFinish = "eos" | "line" | "length" | "deadline" | "context";
+/**
+ * One cached lab result: the raw output, its token counts and why it stopped,
+ * plus any probabilities the job asked for.
+ */
 export interface LabRecord {
   key: string;
   model: string;
@@ -88,6 +106,7 @@ export interface LabRecord {
   ms: number;
   at: string;
 }
+/** One `@@{json}` stdout line to the parent. */
 export type LabEvent =
   | {
       type: "loaded";

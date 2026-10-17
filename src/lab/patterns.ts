@@ -64,6 +64,7 @@ function tokenPattern(token: string): { source: string; standalone: boolean } {
   return { source, standalone };
 }
 
+/** A pattern derived from one label example (`from`). */
 export interface LabelPattern {
   label: string;
   regex: RegExp;
@@ -75,6 +76,11 @@ const isFigureToken = (token: string) =>
   /^[£€$]?\p{N}[\p{N}.,]*(?:%|k|m|bn|M|K)?$/u.test(token) &&
   /[£€$%]|\p{N}(?:k|m|bn|M|K)$/u.test(token);
 
+/**
+ * The patterns of a profile's labels. With `figures`, a money or percentage
+ * token of an example also matches on its own, as an identifier with a
+ * literal prefix does.
+ */
 export function labelPatterns(
   labels: ReadonlyArray<{ label: string; examples: readonly string[] }>,
   options: { figures?: boolean } = {},
@@ -109,6 +115,7 @@ export function labelPatterns(
   return out;
 }
 
+/** Every match of every pattern in `text`, once per label and span. */
 export function patternFindings(
   text: string,
   patterns: readonly LabelPattern[],

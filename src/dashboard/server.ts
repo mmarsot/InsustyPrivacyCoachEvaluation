@@ -85,6 +85,11 @@ interface LiveRun {
   error?: string;
 }
 
+/**
+ * The dashboard's state: the dataset, extension APIs loaded per ref, memoized
+ * plans, the Documents view and the playground host. Everything is read-only
+ * except the playground, which runs at most one model, in its own process.
+ */
 export class Dashboard {
   readonly dataset: CompiledDataset;
   /** At most one chat-playground model, in its own process. */
@@ -628,6 +633,7 @@ const send = (
   res.end(typeof body === "string" ? body : JSON.stringify(body));
 };
 
+/** Answers one HTTP request: the page, or a JSON endpoint. */
 export async function handle(
   dash: Dashboard,
   req: IncomingMessage,
@@ -788,6 +794,10 @@ export async function handle(
   }
 }
 
+/**
+ * Listens on `host:port` (loopback by default: the dashboard has no
+ * authentication).
+ */
 export function startServer(dash: Dashboard, port: number, host = "127.0.0.1") {
   const server = createServer((req, res) => void handle(dash, req, res));
   return new Promise<typeof server>((resolve) =>

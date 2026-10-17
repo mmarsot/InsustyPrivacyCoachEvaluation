@@ -53,6 +53,11 @@ const add = (
     out.push({ start: s, end: e, text: text.slice(s, e), kind });
 };
 
+/**
+ * The candidate passages of `text` (see the file header): the first `max` in
+ * text order, trimmed of surrounding quotes and punctuation, never shorter
+ * than two characters.
+ */
 export function generateCandidates(text: string, max = 60): Candidate[] {
   const out: Candidate[] = [];
   let m: RegExpExecArray | null;

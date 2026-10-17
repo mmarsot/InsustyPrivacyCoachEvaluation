@@ -13,11 +13,13 @@
  */
 import type { LabelSpec, Profile } from "../dataset/schema.ts";
 
+/** A sentence or clause of the prompt: UTF-16 offsets, `start < end`. */
 export interface Segment {
   start: number;
   end: number;
 }
 
+/** How a `seg-*` configuration uses segment checks. */
 export interface SegmentMode {
   /**
    * `classify`: one check per (segment, label); flagged segments are the
@@ -216,6 +218,7 @@ export function parseYesNo(raw: string): "yes" | "no" | null {
 
 /** Answer strings whose first token counts as Yes / No for the logit decisions (single-token variants only). */
 export const YES_WORDS = ["Yes", " Yes", "yes", " yes"];
+/** The No counterpart of `YES_WORDS`. */
 export const NO_WORDS = ["No", " No", "no", " no"];
 
 /** Decision of one check from its record (greedy text and first-step Yes/No masses). */
@@ -283,6 +286,7 @@ export function policyBlock(spec: LabelSpec): string {
   return lines.join("\n");
 }
 
+/** A check's input: the target segment and the context around it. */
 export interface InputParts {
   before: string;
   target: string;

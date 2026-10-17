@@ -453,6 +453,10 @@ addSeg(
   { use: "verify", framing: "completion" },
 );
 
+/**
+ * Every named configuration by id, the shipped baseline's leave-one-out
+ * switches included.
+ */
 export const LAB_CONFIGS: Record<string, LabConfig> = Object.fromEntries(
   defs.map((d) => [d.id, d]),
 );

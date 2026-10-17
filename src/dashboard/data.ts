@@ -44,11 +44,19 @@ export function readCacheFile(file: string): Map<string, ResultRecord> {
   fileCache.set(file, { size, mtimeMs, records });
   return records;
 }
+/**
+ * A model's cached results at a commit, re-read only when the file changed
+ * (size or mtime), so polling a run in progress stays cheap.
+ */
 export const readModelCache = (extSha: string, model: string) =>
   readCacheFile(cacheFile(extSha, model));
 
 // ------------------------------------------------------------ active runs
 
+/**
+ * A bench process in progress, from its `cache/active-runs/` marker; markers of
+ * dead processes are ignored.
+ */
 export interface ActiveRun {
   pid: number;
   name?: string;
@@ -154,6 +162,7 @@ export function findActiveRuns(): ActiveRun[] {
 
 // ------------------------------------------------------------ progress
 
+/** Progress of one (model, instruction, label variant) cell of a live run. */
 export interface ProgressCell {
   model: string;
   instruction: string;
@@ -164,6 +173,9 @@ export interface ProgressCell {
   errors: number;
   failures: Partial<Record<FailureMode, number>>;
 }
+/**
+ * Progress of one model of a live run; times in milliseconds, ETA in seconds.
+ */
 export interface ModelProgress {
   model: string;
   total: number;
@@ -175,6 +187,9 @@ export interface ModelProgress {
   etaSeconds: number;
   lastAt?: string;
 }
+/**
+ * A live run's progress: per cell, per model, overall, and the latest results.
+ */
 export interface Progress {
   cells: ProgressCell[];
   models: ModelProgress[];
@@ -296,6 +311,10 @@ export function computeProgress(
 
 // ------------------------------------------------------------ experiment matrix
 
+/**
+ * One cell of the Experiments view: how much of a (tier, model, instruction,
+ * label variant) combination is cached.
+ */
 export interface MatrixRow {
   tier: string;
   model: string;
@@ -353,6 +372,7 @@ export function matrixStatus(
 
 // ------------------------------------------------------------ committed runs
 
+/** A run as the run pickers list it, committed or in progress. */
 export interface RunListing {
   id: string;
   name: string;
@@ -364,6 +384,10 @@ export interface RunListing {
   results?: number;
 }
 
+/**
+ * Committed bench runs (`runs/<name>/` with `run.json` and `results.jsonl`),
+ * newest first.
+ */
 export function listCommittedRuns(): RunListing[] {
   if (!existsSync(RUNS_DIR)) return [];
   return readdirSync(RUNS_DIR)
@@ -390,6 +414,10 @@ export function listCommittedRuns(): RunListing[] {
 }
 
 const runRowsCache = new Map<string, { mtimeMs: number; rows: Scored[] }>();
+/**
+ * A committed run's scored rows, cached until `results.jsonl` changes. A name
+ * with characters other than `[\w.-]` (a slash) reads as empty.
+ */
 export function readCommittedRows(name: string): Scored[] {
   const file = join(RUNS_DIR, name, "results.jsonl");
   if (!/^[\w.-]+$/.test(name) || !existsSync(file)) return [];
@@ -423,8 +451,13 @@ export const RESULT_DIMENSIONS: Record<string, (r: Scored) => string> = {
   failure: (r) => r.failure,
 };
 
+/**
+ * Selected values per result dimension; an empty list or an unknown dimension
+ * filters nothing.
+ */
 export type Filters = Record<string, string[]>;
 
+/** Rows matching every active filter. */
 export function filterRows(rows: Scored[], filters: Filters): Scored[] {
   const active = Object.entries(filters).filter(
     ([dim, values]) => RESULT_DIMENSIONS[dim] && values.length,
@@ -446,6 +479,7 @@ export function filterOptions(rows: Scored[]): Record<string, string[]> {
   );
 }
 
+/** Metrics of the rows sharing one combination of dimension values. */
 export interface Group {
   keys: string[];
   metrics: Metrics;
@@ -469,12 +503,14 @@ export function groupMetrics(rows: Scored[], dims: string[]): Group[] {
     }));
 }
 
+/** A case-level verdict (`caseVerdict`). */
 export type Verdict = "TP" | "FP" | "FN" | "TN";
 
 /** Case-level verdict: any found passage makes a positive a TP; any finding on a negative is a FP. */
 export const caseVerdict = (r: Scored): Verdict =>
   r.positive ? (r.detected ? "TP" : "FN") : r.falsePositiveCase ? "FP" : "TN";
 
+/** One row of the case list: its verdict and passage counts. */
 export interface CaseListItem {
   caseId: string;
   config: string;
@@ -488,6 +524,10 @@ export interface CaseListItem {
   reviewMs: number;
 }
 
+/**
+ * The scored cases, optionally of one verdict; `total` counts them all, `items`
+ * holds the first `limit`.
+ */
 export function listCases(
   rows: Scored[],
   verdict?: string,
@@ -510,6 +550,7 @@ export function listCases(
   return { total: items.length, items: items.slice(0, limit) };
 }
 
+/** A range of the case text the case view marks (UTF-16 offsets). */
 export interface Highlight {
   start: number;
   end: number;
@@ -517,6 +558,10 @@ export interface Highlight {
   label: string;
 }
 
+/**
+ * Everything the case view shows: the request as sent, the expected and
+ * predicted passages, the raw answer and its failure mode.
+ */
 export interface CaseDetail {
   caseId: string;
   config: string;
