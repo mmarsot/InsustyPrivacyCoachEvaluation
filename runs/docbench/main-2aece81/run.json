@@ -6,7 +6,7 @@
     "--tier",
     "full",
     "--ai",
-    "default,glm47-flash-trusted",
+    "default",
     "--ai-sizes",
     "1000,2000,5000,10000,20000,50000",
     "--name",
@@ -71,10 +71,8 @@
   },
   "ai": {
     "models": [
-      "onnx-community/SmolLM2-360M-Instruct-ONNX",
-      "bedrock/zai.glm-4.7-flash#trusted"
+      "onnx-community/SmolLM2-360M-Instruct-ONNX"
     ],
-    "budgetUsd": 5,
     "sizes": [
       1000,
       2000,

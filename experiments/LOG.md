@@ -15,112 +15,31 @@ rate on negatives, format compliance, failure modes).
   positive cases detected, FPR = negatives with a false finding, comp = format
   compliance, p50s = median latency (s), tok = mean generated tokens.
 - Per-case outputs of every run: `experiments/runs/<name>.json`.
+- 2026-10-17: the bench keeps only SmolLM2-360M (on device) and GLM-4.7 Flash
+  (connected, through the extension's own client). Entries and runs about the
+  other models (SmolLM2-135M, Qwen2.5-0.5B, LFM2/2.5, Gemma 3, Nova Micro,
+  the bench-side hosted framings) were deleted to start fresh; git history
+  keeps them.
 
 ## 2026-09-26
 
 ### E0. Lab parity with the extension engine
 
 Ran the ref's own `SlmEngine` + `reviewPrompt` and the lab's `ref`
-configuration on 5 iter32 cases with SmolLM2-135M: 5/5 raw outputs identical
+configuration on 5 iter32 cases with the then-default model: 5/5 raw outputs identical
 (`src/lab/parity.ts`). The lab reproduces the extension exactly, so every
 other configuration differs from the shipped behaviour only by its overrides.
-
-### E1. Baseline, SmolLM2-135M (extension default model)
-
-| config | F1o | P | R | F1x | det | FPR | comp | p50s | tok | failures |
-|---|---|---|---|---|---|---|---|---|---|---|
-| ref | 5 | 33 | 3 | 0 | 5 | 10 | 34 | 5.6 | 123 | timeout 2, echo 3, echo_instructions 22, answered 5 |
-
-The shipped default model mostly recites the label list back (22/32) instead
-of scanning. Run: `smol135-ref`.
-
-### E2. First hypotheses on SmolLM2-135M
-
-One change at a time from `ref` (definitions in `src/lab/configs.ts`). Run `e2-smol135`.
-
-| config | F1o | P | R | F1x | det | FPR | comp | p50s | tok | failures |
-|---|---|---|---|---|---|---|---|---|---|---|
-| ref | 5 | 33 | 3 | 0 | 5 | 10 | 34 | 5.6 | 123 | timeout 2, echo 3, echoI 22, answered 5 |
-| rp1 | 5 | 33 | 3 | 0 | 5 | 10 | 34 | 5.9 | 122 | same as ref (SmolLM2 has no default penalty) |
-| strict | 0 | 0 | 0 | 0 | 0 | 10 | 13 | 5.4 | 125 | echoI 15, answered 9 |
-| nobuiltin | 5 | 100 | 3 | 0 | 5 | 0 | 22 | 3.4 | 145 | timeout 5, echoI 10, answered 10 |
-| shots-generic | - | - | 0 | - | 0 | 0 | 72 | 1.0 | 32 | halluc 16 (copies the demo email) |
-| shots-labelex | - | - | 0 | - | 0 | 0 | 97 | 0.5 | 2 | always "NONE" (copies the last demo answer) |
-| lbl-means | 27 | 50 | 18 | 23 | 23 | 0 | 16 | 5.7 | 120 | echoI 14, answered 7, unkL 3 |
-| lbl-quoted | - | - | 0 | - | 0 | 0 | 0 | 5.9 | 133 | echoI 24 |
-| order-lis | - | - | 0 | - | 0 | 0 | 0 | 2.5 | 63 | echo 14, answered 16 |
-| user-instr | 9 | 40 | 5 | 9 | 9 | 0 | 53 | 6.3 | 116 | echoI 21, answered 8 |
-| v4 | 5 | 100 | 3 | 5 | 5 | 0 | 28 | 4.6 | 94 | echo 7, echoI 14, answered 10 |
-
-Conclusions:
-
-- SmolLM2-135M cannot do the task with any prompt tried: it recites the label
-  list, invents labels, or copies demonstrations verbatim (the last
-  few-shot answer, or the demo email). Its best score (lbl-means, 4 of 22
-  positives) is within noise at n=32.
-- Few-shot as prior chat turns is harmful for this model: it parrots the last
-  demo reply instead of reading the text.
-- The label list's `- LABEL: description` layout is the line shape the model
-  is asked to produce, and it gets recited; changing it (`lbl-means`) was the
-  only change that moved recall. Worth retesting on stronger models.
-- Next: screen the other bundled models and the candidates
-  (experiments/RESEARCH.md) on a few configurations, instead of tuning the
-  135M further.
-
-### E2b. Candidate models need a newer runtime
-
-- All four candidate exports (LFM2.5-350M, LFM2-350M-Extract, Gemma 3 270M,
-  Granite 4.0 H 350M) fail to create a session on the onnxruntime-web build
-  the extension pins (1.22.0-dev.20250409, via Transformers.js 3.8.1): a raw
-  WASM exception number, no message. They are IR 10 / opset 21 exports with
-  `com.microsoft` ops and external `.onnx_data` weights.
-- onnxruntime-web 1.24.3 loads them. The lab runs candidates on it through a
-  module-resolution hook in the worker only (`src/lab/ort-next-hooks.mjs`,
-  package alias `onnxruntime-web-next`); bundled models stay on the pinned build.
-- Two more gaps in Transformers.js 3.8.1 for these exports, patched in the lab:
-  in Node it never hands external data to onnxruntime-web (the loader now
-  reads the `.onnx_data` file and passes `session_options.externalData`, as
-  the browser build does), and the newer exports take a `num_logits_to_keep`
-  input that only Transformers.js v4 feeds (the lab worker feeds 1).
-- **Consequence for the extension:** adopting any candidate model means
-  upgrading onnxruntime-web (Transformers.js v4.3 ships 1.31.0-dev) or
-  re-exporting the model for the old runtime.
-- LFM2.5-350M q8 peaks at about 2.1 GB RSS, far below Qwen2.5-0.5B (3.45 GB).
 
 ### E2c. Prefix KV reuse changes greedy outputs (numerics, not a bug)
 
 Running the same requests without the prefix cache (`--no-prefix-cache`,
-whole prompt in one forward pass) changed the raw output of 4/4 cases on both
-SmolLM2-135M and LFM2.5-350M. q8 models quantize activations dynamically with
+whole prompt in one forward pass) changed the raw output of 4/4 cases. q8 models quantize activations dynamically with
 one scale per forward call, so prefilling the instructions separately from the
 text changes the numbers slightly, and greedy decoding amplifies that. The
 lab keeps prefix reuse on by default because that is what the extension does
 (its engine prepares the instruction prefix once). Practical consequence:
 single-case differences between configurations are noisy; only aggregate
 metrics over many cases mean anything.
-
-### E3. Model screen (6 configurations per model)
-
-Configurations: `ref`, `lbl-means`, `v4`, `user-instr`, `fmt-example` (schema
-plus an example reply with made-up labels), `json-extract` (LFM2-Extract's
-native JSON protocol, converted to lines). Runs `e3-<model>`.
-
-SmolLM2-360M:
-
-| config | F1o | P | R | F1x | det | FPR | comp | p50s | tok | failures |
-|---|---|---|---|---|---|---|---|---|---|---|
-| ref | 19 | 36 | 13 | 12 | 18 | 30 | 28 | 9.1 | 127 | timeout 6, echo 3, echoI 7, answered 9, unkL 2, halluc 3 |
-| lbl-means | 18 | 67 | 11 | 9 | 14 | 10 | 16 | 4.3 | 65 | timeout 2, echo 7, answered 17 |
-| v4 | 19 | 33 | 13 | 8 | 14 | 20 | 41 | 8.8 | 99 | echoI 13, answered 6 |
-| user-instr | 14 | 60 | 8 | 14 | 9 | 10 | 78 | 12.0 | 102 | echoI 23 |
-| fmt-example | 0 | - | 0 | - | 0 | 0 | 9 | 5.4 | 73 | answered 16, unkL 5 |
-| json-extract | 0 | 0 | 0 | 0 | 0 | 10 | 0 | 12.5 | 116 | answered 22 |
-
-- The 360M does better than the 135M at baseline (F1 19 vs 5) but no prompt
-  change helps it; the example reply in `fmt-example` is imitated as prose.
-- Typical errors: recites the label list, lists topics of the text ("Tone:
-  Witty"), puts the same passage under every label, and completes names that
-  are not in the text ("Kofi Owusu" for "Kofi"), which anchoring drops.
 
 ### E3b. Relaxed anchoring (parser-side, rescoring only)
 
@@ -129,12 +48,6 @@ its words that is (at least 4 characters). Rescored the cached SmolLM2 runs
 (`e3-relax-smol`): recall +0 to +3 points, but the false-positive rate on
 negatives rises by 10 points in 3 of 8 rows. Not adopted for now; recheck on
 stronger models.
-
-LFM2.5-350M (partial, stopped after 54 of 192 generations to free the model
-slot): under `ref` it scored F1 13 (P 33, R 8), mostly listing bare passages
-without labels (answered 23/32), p50 17 s for about 28 tokens. Its natural
-style is a bare list of passages, which suits the per-label passage-only
-format better (see E5).
 
 ### E4. Classification instead of generation (negative result)
 
@@ -153,44 +66,11 @@ no echo, no answering, no invented passages, no loops.
 | model | question variant | AUC | best F1o | note |
 |---|---|---|---|---|
 | SmolLM2-360M | q1 ("is X one of these: description?") | 0.47 | 18 (t=0.5, P 13) | answers yes/no (92% of the mass) at random |
-| LFM2.5-350M | q1 | 0.50 | 22 (P 14) | says yes to nearly everything; FPR 100% |
-| LFM2.5-350M | q1-ex3 (description + 3 examples) | 0.42 | 22 | |
-| LFM2.5-350M | q2 (label name + description) | 0.51 | 22 | |
-| LFM2.5-350M | q3 (category + examples, contrast question) | 0.56 | 25 | |
 
 Conclusion: a label description like "names of our agency's clients" gives a
 sub-500M model nothing to decide on for an isolated candidate. Dropped; the
 candidate generator stays available (it could still serve as a cheap
 pre-filter or as a deterministic fallback).
-
-### E5a. Qwen2.5-0.5B memory: garbage-collect after load
-
-The first Qwen2.5-0.5B lab run was killed by the lab's 3.5 GB RSS guard right
-after loading (3.27 GB after load, 3.57 GB at the first prefill). Measured in
-a standalone process: RSS 3337 MB after load with 1.47 GB of live JS
-ArrayBuffers; after a forced `gc()`, RSS 2361 MB and 0.49 GB of ArrayBuffers.
-The load high-water mark is unchanged, but about 1 GB of stale JS copies of
-the weights would otherwise stay resident. `loadPretrained` now calls `gc()`
-when available, and every model worker (bench, lab, playground host) is
-spawned with `--expose-gc`. Relaunched run: RSS 3.03 GB after load, 2.65 GB
-while generating.
-
-### E5. Qwen2.5-0.5B with chat-style prompts (run `e5-qwen`)
-
-| config | F1o | P | R | F1x | det | FPR | comp | p50s | tok | failures |
-|---|---|---|---|---|---|---|---|---|---|---|
-| ref | 0 | - | 0 | - | 0 | 0 | 0 | 8.0 | 76 | timeout 3, echo 6, answered 23 |
-| rp1 | 0 | - | 0 | - | 0 | 0 | 3 | 7.0 | 56 | echo 10, answered 20 |
-| lbl-means | 0 | - | 0 | - | 0 | 0 | 0 | 9.0 | 74 | answered 29 |
-| v4 | 0 | - | 0 | - | 0 | 0 | 0 | 7.7 | 62 | echo 14, answered 17 |
-| pl-passages | 14 | 16 | 13 | 0 | 18 | 20 | 100 | 10.6 | 75 | halluc 26 |
-
-- As shipped, Qwen2.5-0.5B finds nothing: the `Findings:` prefill makes it
-  write analysis bullets about the text ("The text mentions...", "No labels
-  present"), or it answers the request inside the text.
-- Removing the inherited repetition penalty (`rp1`) does not change that.
-- Per-label passes produce the right kind of output but Qwen rewrites the
-  text (fixes typos, capitalizes, translates), so most passages fail anchoring.
 
 ### E6. Completion framing with per-label demonstrations (the first real gain)
 
@@ -200,13 +80,11 @@ demonstrations built from the label's first two examples (one English, one
 French carrier sentence), one clean-text demonstration answered `NONE`, then
 `Text: <prompt>` and the answer cue `<LABEL>:`. Generation stops at the first
 line break (48-token cap). The label is attached by code; each line is
-anchored by the ref's parser. Runs `e6-raw-smol360`, `e6-raw-others`,
-`e6b-raw-smol360`, `e6c-raw-smol360`.
+anchored by the ref's parser. Runs `e6-raw-smol360`, `e6b-raw-smol360`,
+`e6c-raw-smol360`.
 
 | model | config | F1o | P | R | F1x | det | FPR | comp | p50s | EN F1 | FR F1 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| SmolLM2-135M | ref | 5 | 33 | 3 | 0 | 5 | 10 | 34 | 5.6 | | |
-| SmolLM2-135M | **raw-pl** | **30** | 30 | 29 | 23 | 41 | 80 | 100 | 1.6 | 39 | 14 |
 | SmolLM2-360M | ref | 19 | 36 | 13 | 12 | 18 | 30 | 28 | 9.1 | | |
 | SmolLM2-360M | **raw-pl** | **38** | 37 | 39 | 21 | 36 | 40 | 100 | 2.3 | 51 | 20 |
 | SmolLM2-360M | raw-pl-negfirst (NONE demo first) | 29 | 24 | 37 | 19 | 45 | 100 | 100 | 2.8 | 33 | 24 |
@@ -216,37 +94,29 @@ anchored by the ref's parser. Runs `e6-raw-smol360`, `e6-raw-others`,
 | SmolLM2-360M | raw-pl-pair (two-passage demo `a \| b`) | 11 | 20 | 8 | 11 | 14 | 30 | 100 | 2.4 | 14 | 8 |
 | SmolLM2-360M | raw-pl-noinstr (demos only) | 31 | 31 | 32 | 18 | 36 | 60 | 100 | 2.7 | 36 | 25 |
 | SmolLM2-360M | raw-pl-delim (text in `"""`) | 22 | 27 | 18 | 13 | 27 | 60 | 100 | 2.6 | 33 | 8 |
-| Qwen2.5-0.5B | ref | 0 | - | 0 | - | 0 | 0 | 0 | 8.0 | | |
-| Qwen2.5-0.5B | **raw-pl** | **36** | 42 | 32 | 28 | 36 | 30 | 100 | 4.4 | 55 | 14 |
 
 Conclusions:
 
-- Plain completion with in-context demonstrations is what these models can
-  do: F1 x2 (360M), x6 (135M), 0 -> 36 (Qwen), with 100% parseable output
+- Plain completion with in-context demonstrations is what the model can
+  do: F1 x2, with 100% parseable output
   and 2-4x lower latency (one short line per label instead of a rambling list).
 - Demonstrations derived from the label's own examples are essential (without
   them, F1 5): the extension would need users to give 1-3 examples per label.
 - The last demonstration steers the default answer: ending on a positive demo
   makes the model always answer something (FPR 100%); a counter-example demo
   pushes it to answer NONE.
-- French stays weak (F1 14-20 vs 39-55 in English) for all three models.
-- Qwen still paraphrases, capitalizes or translates some passages, and the
-  upper-case label cue sometimes leaks into its answer (`KEYCLOAK_CORP_QMK_...`).
+- French stays weak (F1 20 vs 51 in English).
 
 ### C1. Confirmation of raw-pl on the disjoint 48-case set (`c1-confirm48`)
 
 `experiments/sets/confirm48.json` (32 positive, 16 negative, 24 EN / 24 FR,
-disjoint from iter32). Qwen2.5-0.5B was skipped: only about 3 GB of RAM was
-available (other processes on the machine), below its 3.45 GB peak plus margin.
+disjoint from iter32).
 
 | model | config | F1o | P | R | F1x | det | FPR | comp | p50s | EN F1 | FR F1 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| SmolLM2-135M | ref | 3 | 33 | 2 | 3 | 3 | 6 | 21 | 4.4 | | 8 |
-| SmolLM2-135M | raw-pl | **29** | 31 | 27 | 24 | 44 | 81 | 100 | 1.7 | 34 | 22 |
 | SmolLM2-360M | ref | 30 | 58 | 20 | 28 | 22 | 19 | 27 | 10.5 | 36 | 20 |
 | SmolLM2-360M | raw-pl | 32 | 42 | 25 | 23 | 38 | 44 | 100 | 3.5 | 37 | 23 |
 
-- SmolLM2-135M: the gain replicates (F1 3 -> 29).
 - SmolLM2-360M: the F1 gain does **not** replicate (30 -> 32; on iter32 it
   was 19 -> 38). What replicates is format compliance (27% -> 100%), latency
   (10.5 s -> 3.5 s) and case detection (22% -> 38%), at the cost of the
@@ -256,7 +126,7 @@ available (other processes on the machine), below its 3.45 GB peak plus margin.
 
 ### Ops: lab runs that looked hung
 
-Twice a lab run sat at 0% CPU with no worker (LFM2.5 screen, first C1 run):
+Twice a lab run sat at 0% CPU with no worker (a model screen, first C1 run):
 the parent was in `waitForMemory`, polling every 30 s for up to 10 min with a
 single log line. Fixed in `src/lab/runtime.ts`: a heartbeat line on every
 15 s poll, a 180 s default limit (`LAB_MEM_WAIT_S`) ending in an explicit
@@ -339,25 +209,6 @@ The basic filter is nearly free (F1 -1) and cuts the FP rate by 12 points;
 `raw-pl + basic + dedup` matches the shipped false-positive rate (14%) with
 F1 27 instead of 17. These filters are cheap for the extension to adopt.
 
-### E7a. Correction: prefix KV reuse is broken for LFM2 (E2c was wrong for it)
-
-In raw-pl mode LFM2.5-350M answered with an immediate end-of-sequence, or
-with garbage (`$$$$...`, `portportport...`) when EOS was forbidden. Run
-without prefix reuse, the same requests give correct answers ("Thibault
-Ferrand", "Norvik Dynamics", "Halvard Cycles"). So for LFM2 the difference
-seen in E2c was a Transformers.js 3.8.1 cache bug (its conv state does not
-survive a prompt prefilled in two parts), not numerics. SmolLM2 and Gemma 3
-give sensible (and, for Gemma, identical) outputs with reuse.
-
-- Invalidated: LFM2.5 rows of E3 (`ref` F1 13) and E4 (classifier AUC).
-- `models/candidates.json` now carries `prefixCache: false` for the LFM2
-  family; the lab and classifier workers then run each request whole.
-- The extension's engine always prefills the instruction prefix separately,
-  so shipping an LFM2 model would need that path disabled (or Transformers.js
-  v4) as well as the newer onnxruntime-web.
-- Granite 4.0 H 350M is not runnable on Transformers.js 3.8.1: its Mamba
-  state inputs (`past_conv.*`, `past_ssm.*`) are never initialized. Dropped.
-
 ## 2026-09-27
 
 ### G1. Reaching the NVIDIA GPU from WebGPU on this laptop
@@ -390,80 +241,6 @@ Probe: a page calling `navigator.gpu.requestAdapter()` with
   q4 weights on WebGPU; with the Vulkan feature the default adapter is the
   NVIDIA GPU here.
 
-### L1. LFM2.5-350M on raw-pl-lang, tune96, without prefix reuse (`l1-lfm-tune96`)
-
-Captain's priority. onnxruntime-web 1.24.3, q8, every request prefilled whole
-(the prefix-cache bug of E7a worked around).
-
-| config | F1o | P | R | F1x | det | FPR | comp | p50s | EN F1 | FR F1 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| raw-pl-lang | 13 | 18 | 11 | 11 | 19 | 40 | 95 | 21.4 | 15 | 12 |
-| raw-pl-lang + basic filter | 13 | 18 | 10 | 11 | 17 | 36 | 95 | 21.4 | 13 | 12 |
-
-(SmolLM2-360M on the same set: 33 / 32 with the filter, p50 3.1 s.)
-
-Most answers start correctly and then degenerate into repeating a character
-or syllable: `sshportportport...`, `flashaaaa...`, `keycloecoooo...`,
-`££££...`; 66 of 96 cases have a passage that fails anchoring for that reason.
-Short answers survive ("Thibault Ferrand", "Halvard Cycles", "J. Lindqvist").
-This looks like the same Transformers.js 3.8.1 conv-state problem as E7a, now
-in step-by-step decoding (the export targets Transformers.js v4), not like a
-property of the model. Latency is also poor (p50 21 s) because nothing can be
-cached. As measured, LFM2.5-350M is not usable with the extension's current
-runtime.
-
-### L2. LFM2.5-350M on confirm48 (`l2-lfm-confirm48`), and a Transformers.js v4 cross-check
-
-| config | F1o | P | R | F1x | det | FPR | comp | p50s | EN F1 | FR F1 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| raw-pl-lang | 18 | 23 | 15 | 16 | 28 | 63 | 96 | 17.8 | 16 | 21 |
-| raw-pl-lang + basic filter | 18 | 23 | 15 | 16 | 28 | 63 | 96 | 17.8 | | |
-
-Cross-check: the first 20 iter32 requests re-run with Transformers.js 4.3.0
-and the onnxruntime-web 1.31.0-dev build it pins (WASM, aliased the same way
-as the bench; `cache/tmp/tf4/check.mjs`, not committed). Outputs are
-**identical** to Transformers.js 3.8.1 + onnxruntime-web 1.24.3 without prefix
-reuse, degenerate ones included (`sshportport...`, `keycloecoooo...`). So:
-
-- the step-by-step degeneration is not a 3.8.1 decoding bug; it is how the q8
-  LFM2.5 export behaves with greedy plain-text continuation;
-- the prefix-reuse failure of E7a remains a 3.8.1 problem (v4 was not tested
-  with a split prefix);
-- v4 in Node also needed the external-data bytes passed by hand.
-
-### L3-L4. LFM2.5-350M: repetition penalties and chat framing (iter32)
-
-| config | F1o | P | R | F1x | det | FPR | p50s | note |
-|---|---|---|---|---|---|---|---|---|
-| raw-pl-lang | 23 | 29 | 18 | 19 | 27 | 30 | 19.5 | reference |
-| raw-pl-lang-rp105 (card's `repetition_penalty: 1.05`, whole sequence) | 20 | 27 | 16 | 17 | 23 | 40 | 17.1 | loops persist |
-| pl-passages (chat framing, one pass per label) | 21 | 33 | 16 | 14 | 9 | 20 | 9.6 | French F1 0 |
-| raw-pl-lang-arp1.3 (penalty on the answer's own tokens only) | 22 | 28 | 18 | 19 | 27 | 40 | 19.2 | loops become word salad |
-| raw-pl-lang-arp1.6 | 22 | 28 | 18 | 19 | 27 | 40 | 16.4 | same |
-
-The LFM2.5 card's repetition penalty (1.05) is not in the ONNX repo's
-`generation_config.json`, so it was off; turning it on does not help, since
-Transformers.js applies it to the scanned text too. A new lab option,
-`answerRepetitionPenalty` (a logits processor that penalizes only tokens of
-the answer being generated, so copying from the text stays free), replaces
-`portportport` with `portfndeffortforwardshift...`: the model loses the thread
-after a few tokens whatever the constraint.
-
-### E7b. Gemma 3 270M-it (onnxruntime-web 1.24.3, prefix reuse OK), iter32 (`e7-candidates`)
-
-| model | config | F1o | P | R | F1x | det | FPR | p50s | EN F1 | FR F1 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Gemma 3 270M | raw-pl | 33 | 30 | 37 | 29 | 50 | 100 | 6.6 | 43 | 21 |
-| Gemma 3 270M | **raw-pl-lang** | **39** | 34 | 45 | 29 | 55 | 100 | 8.4 | 45 | 30 |
-| Gemma 3 270M | raw-pl-lang + basic | 36 | 35 | 37 | 31 | 50 | 80 | 8.4 | | |
-| Gemma 3 270M | raw-pl-lang + basic + dedup | 31 | 45 | 24 | 28 | 27 | 40 | 8.4 | | |
-| SmolLM2-360M | raw-pl-lang | 38 | 43 | 34 | 30 | 50 | 60 | 2.9 | 42 | 33 |
-
-Gemma has the highest recall of all models so far but flags every negative:
-its false positives are look-alike entities (public companies and tools such
-as "Fellbeck Tooling", "Apec", "Parcelio", "Temporal"), often under two labels
-at once. Peak RSS 2.48 GB; 3x slower than SmolLM2-360M.
-
 ### G2. WebGPU on the GTX 1050 vs WASM, in real Chrome (`src/lab/browser/`)
 
 Browser bench: the lab exports its rendered requests, a local page runs them
@@ -494,60 +271,17 @@ iter32 (80 requests):
   instruction prefix (2.9 s per case) beats WebGPU without it (5.5 s). The
   extension's engine does not keep the prefix on WebGPU.
 
-### G3. fp32 weights on WebGPU keep the quality (SmolLM2-135M, raw-pl-lang, iter32)
+### D3. raw-pl-lang on confirm48 (`d3-smol360-confirm48`)
 
-| runtime | weights | F1o | P | R | per-request p50 | per-case p50 |
-|---|---|---|---|---|---|---|
-| Node WASM, prefix cache | q8 | 21 | 25 | 18 | | 1.6 s |
-| Chrome WebGPU (NVIDIA), whole prompt | fp32 | 21 | 20 | 24 | 0.66 s | 1.9 s |
-
-With fp32 weights (540 MB for the 135M) the GPU matches q8 quality and is as
-fast without a prefix cache as WASM is with one. The GTX 1050 cannot run
-fp16, and q4 costs half the F1 (G2), so fp32 is the only good WebGPU option
-on this GPU; for the 360M that is a 1.45 GB download and upload.
-(For the 135M, `raw-pl-lang` scores below `raw-pl`, 21 vs 30 on iter32.)
-
-### D1-D3. Keep Qwen2.5-0.5B? (captain's criterion: F1 within ~5 points of SmolLM2-360M or clearly better in French, FP rate no worse)
-
-raw-pl-lang, q8 WASM, prefix cache on (runs `d1-qwen-tune96`, `d2-qwen-confirm48`,
-`d3-smol360-confirm48`, filtered rescoring `d1-tune96-basic`, `d23-confirm48-basic`).
-Qwen2.5-0.5B loaded with a 600 MB margin (its peak is now ~3.1 GB with the GC
-fix; ~3.8 GB was available): RSS 2.27 GB after load, never below 1.9 GB free.
+raw-pl-lang, q8 WASM, prefix cache on (filtered rescoring `d23-confirm48-basic`
+for confirm48, `d1-tune96-basic` for tune96).
 
 | set | model | F1o | P | R | F1x | det | FPR | p50s | EN F1 | FR F1 |
 |---|---|---|---|---|---|---|---|---|---|---|
 | tune96 | SmolLM2-360M | 33 | 37 | 30 | 26 | 46 | 48 | 3.1 | 35 | 31 |
 | tune96 | SmolLM2-360M + basic | 32 | 42 | 26 | 29 | 41 | 36 | 3.1 | 33 | 31 |
-| tune96 | Qwen2.5-0.5B | 25 | 29 | 21 | 20 | 33 | 55 | 5.4 | 23 | 26 |
-| tune96 | Qwen2.5-0.5B + basic | 24 | 31 | 19 | 22 | 33 | 45 | 5.4 | 21 | 27 |
 | confirm48 | SmolLM2-360M | 30 | 37 | 25 | 28 | 38 | 50 | 3.1 | 27 | 35 |
 | confirm48 | SmolLM2-360M + basic | 31 | 38 | 25 | 29 | 38 | 50 | 3.1 | 27 | 36 |
-| confirm48 | Qwen2.5-0.5B | 24 | 32 | 19 | 16 | 28 | 56 | 6.3 | 24 | 23 |
-| confirm48 | Qwen2.5-0.5B + basic | 24 | 32 | 19 | 16 | 28 | 56 | 6.3 | 24 | 23 |
-
-With raw-pl-lang, Qwen2.5-0.5B is 6-8 F1 points below SmolLM2-360M on both
-sets, worse in French, with a higher FP rate and twice the latency; many of
-its passages fail anchoring because it paraphrases or re-cases them. Its
-English-demo framing (`raw-pl`, best on iter32) is being checked on both sets
-before the verdict.
-
-### D4-D5. Add Gemma 3 270M? (raw-pl-lang, onnxruntime-web 1.24.3)
-
-| set | model | F1o | P | R | F1x | det | FPR | p50s | EN F1 | FR F1 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| tune96 | Gemma 3 270M | 33 | 29 | 38 | 26 | 59 | 83 | 9.5 | 34 | 33 |
-| tune96 | Gemma 3 270M + basic | 33 | 32 | 35 | 28 | 57 | 76 | 9.5 | | |
-| tune96 | Gemma 3 270M + basic + dedup | 27 | 37 | 21 | 22 | 31 | 52 | 9.5 | | |
-| tune96 | SmolLM2-360M + basic | 32 | 42 | 26 | 29 | 41 | 36 | 3.1 | 33 | 31 |
-| confirm48 | Gemma 3 270M | 35 | 34 | 37 | 24 | 56 | 81 | 7.2 | 38 | 33 |
-| confirm48 | Gemma 3 270M + basic | 37 | 36 | 37 | 25 | 56 | 75 | 7.2 | | |
-| confirm48 | Gemma 3 270M + basic + dedup | 26 | 35 | 20 | 13 | 31 | 69 | 7.2 | | |
-| confirm48 | SmolLM2-360M + basic | 31 | 38 | 25 | 29 | 38 | 50 | 3.1 | 27 | 36 |
-
-Gemma matches or beats SmolLM2-360M on F1 (+1 and +6) through higher recall
-(35-37% vs 25-26%), but flags three negatives out of four (FP rate 75-76%
-vs 36-50%), is 2-3x slower, peaks at 2.5 GB RSS and needs the
-onnxruntime-web upgrade. It fails the "FP rate no worse" criterion.
 
 ### V1. Parity of the extension implementation (fm/slm-completion-framing, d42c466)
 
@@ -573,16 +307,6 @@ profile, and forwards the engine's pinned decoding settings in the Node loader.
 - No gap found in the implementation. Bench-side gaps fixed on the way: new
   review API signature, `examples` in rules, pinned `settings` forwarded to
   `generate`, completion answers analyzed with their `LABEL:` cue.
-
-### D6-D7. Qwen2.5-0.5B with English-only demonstrations (raw-pl): not completed
-
-Both runs were killed by the lab's guard (system MemAvailable below 600 MB)
-while Qwen2.5-0.5B loaded or ran: other processes on the machine had grown,
-and Qwen's load peak is ~3.1-3.3 GB. Only cached cases got scored (33/96 and
-a handful of 48); the lab now prints `INCOMPLETE` for such rows instead of a
-silently partial summary. Not retried. On the complete iter32 run, raw-pl gave
-Qwen EN F1 55 but FR 14, so it cannot meet the "clearly better in French"
-branch of the criterion either; the D1-D3 verdict (drop Qwen2.5-0.5B) stands.
 
 ### H1. Held-out test split, one shot (bench path; runs `test-dc91f36-smol360`, `test-d42c466-smol360`)
 
@@ -779,31 +503,6 @@ often. This is prompt-wording sensitivity at the noise level of a 96-case
 set, not a transferable lesson. Demo wording tuning stops here; the original
 prompt (the one the extension implements) stays.
 
-### G7-G8. Does the confidence filter rescue Gemma 3 270M's false positives?
-
-| set | model | filters | F1o | P | R | FPR | p50 |
-|---|---|---|---|---|---|---|---|
-| tune96 | Gemma 3 270M | basic | 33 | 32 | 35 | 76 | 7.7 s |
-| tune96 | Gemma 3 270M | basic + cmin0.2 | 34 | 34 | 34 | 67 | |
-| tune96 | Gemma 3 270M | basic + cmin0.4 | 33 | 36 | 30 | 50 | |
-| tune96 | SmolLM2-360M | basic + cmin0.2 | 30 | 48 | 21 | 21 | 2.5 s |
-| confirm48 | Gemma 3 270M | basic | 37 | 36 | 37 | 75 | 7.3 s |
-| confirm48 | Gemma 3 270M | basic + cmin0.2 | 35 | 36 | 34 | 69 | |
-| confirm48 | Gemma 3 270M | basic + cmin0.4 | 34 | 38 | 31 | 63 | |
-| confirm48 | SmolLM2-360M | basic + cmin0.2 | 33 | 45 | 25 | 44 | 2.4 s |
-
-Gemma's token confidence separates its false positives much less than
-SmolLM2's: even at 0.4 its FP rate stays at 50-63%. Its extra recall does not
-turn into a better operating point; the D4-D5 verdict stands.
-
-### Qwen3-0.6B: not run (memory rule)
-
-`onnx-community/Qwen3-0.6B-ONNX` q8 is a single 618 MB file (vs 512 MB for
-Qwen2.5-0.5B, whose load peak is ~3.1-3.3 GB even with the GC fix). Its load
-peak would exceed the ~3.5 GB limit for this 7 GB machine, so it was not
-loaded. It remains the most promising untested model (IFEval ~64, 119
-languages); worth measuring on a machine with more headroom.
-
 ### P1. Example-derived patterns next to the model (rescoring only; `h4-patterns-*`)
 
 On the held-out split, identifier-like labels were nearly missed by the model
@@ -850,21 +549,6 @@ match on their own: tune96 F1 40 -> 41 (FP 38 -> 38), with cmin0.2 38 -> 40
 (FP 21 -> 26); confirm48 41 -> 42, 43 -> 45 (FP unchanged). Within noise and
 it matches public figures too; not recommended, not run on held-out.
 
-### E14. LFM2-350M-Extract in its native JSON protocol (iter32, `e14-extract-iter32`)
-
-onnxruntime-web 1.24.3, no prefix reuse (LFM2 cache bug), schema in the
-system prompt as its card describes, JSON reply converted to lines.
-
-| model | config | F1o | P | R | F1x | det | FPR | p50 |
-|---|---|---|---|---|---|---|---|---|
-| LFM2-350M-Extract | json-extract | 25 | 26 | 24 | 19 | 36 | 60 | 13.6 s |
-| SmolLM2-360M | raw-pl-lang | 38 | 43 | 34 | 30 | 50 | 60 | 2.9 s |
-
-It invents its own keys ("tagline_1", "client", "campaign_code"), fills every
-key with something (copying whole sentences), and is 4-5x slower. (The
-"answered" failure count and 0% format compliance are the line-protocol
-analysis reading JSON; the F1 uses the converted lines.) Not competitive.
-
 ### A1. Leave-one-out ablation of the shipped design (tune96, SmolLM2-360M, `ablate-tune96-smollm2-360m`)
 
 Extension PR #26 (merge 372c8ff) shipped the `raw-pl-lang` + basic-filter
@@ -884,14 +568,13 @@ improvement. `npm run ablate -- --set tune96 --model smollm2-360m`:
 | first-line stop + 48 cap (ref line stop, no cap) | 31.1 | −1.0 | 40.6 | 25.2 | 33.3 | −2.4 | 38.9 | 32.9 / 29.5 | 2.38 s |
 | pinned decoding (generation_config) | 32.1 | ±0 | 41.5 | 26.2 | 35.7 | ±0 | 40.7 | 32.9 / 31.5 | (cached) |
 | plausibility filter | 33.0 | +0.9 | 36.6 | 30.1 | 47.6 | +11.9 | 46.3 | 34.9 / 31.3 | 2.37 s |
-| SmolLM2-360M default (SmolLM2-135M) | 23.1 | −9.0 | 28.6 | 19.4 | 47.6 | +11.9 | 31.5 | 26.6 / 19.3 | 1.19 s |
+| SmolLM2-360M default (SmolLM2-135M) | retired 2026-10-17 (the 135M model and its run were removed) | | | | | | | | |
 
 The baseline reproduces the bench's d42c466 numbers (V1). Examples,
 per-label requests and completion framing carry the F1 gain. NONE-last and the
 plausibility filter are false-positive levers (off: F1 +5 / +1, FP +36 / +12).
 The first-line stop is quality-neutral but bounds latency (off: 2 deadline
-timeouts, p95 6.4 → 7.3 s). Pinned decoding is a no-op on SmolLM2 (it matters
-for Qwen2.5's shipped 1.1 penalty). Ledger with the per-improvement evidence:
+timeouts, p95 6.4 → 7.3 s). Pinned decoding is a no-op on SmolLM2. Ledger with the per-improvement evidence:
 `docs/shipped-improvements.md`.
 
 ### S1-S4. Segment x label Yes/No classification (captain's spec v1.1): rejected
@@ -900,8 +583,7 @@ for Qwen2.5's shipped 1.1 penalty). Ledger with the per-improvement evidence:
 (spec v1.1, 2026-09-27) was implemented in the lab and screened on
 SmolLM2-360M. The captain stopped it after the iter32 screen and a partial
 tune96 run and rejected it as unsuccessful: confirm48 and the held-out split
-were never run, and no second model was tried (Qwen2.5-0.5B needs ~4.6 GB
-free with the margin; this machine had ~3 GB). The code stays in the lab,
+were never run, and no second model was tried. The code stays in the lab,
 off unless a `seg-*` configuration is selected. Reasons, in short (details
 in S2-S4):
 
@@ -1186,7 +868,7 @@ held RAM (cached requests are kept).
 | first-line stop + 48 cap | 38.2 | ±0 | 55.6 | 29.1 | 19.0 | −2.4 | 38.9 | 44.2 / 32.5 | 2.64 s |
 | pinned decoding | 38.2 | ±0 | 55.6 | 29.1 | 21.4 | ±0 | 38.9 | 44.2 / 32.5 | 2.53 s |
 | plausibility filter | 39.5 | +1.3 | 49.3 | 33.0 | 33.3 | +11.9 | 44.4 | 46.5 / 32.6 | 2.56 s |
-| SmolLM2-360M default (135M) | 26.9 | −11.3 | 43.9 | 19.4 | 31.0 | +9.6 | 27.8 | 32.9 / 20.0 | 1.43 s |
+| SmolLM2-360M default (135M) | retired 2026-10-17 (the 135M model and its run were removed) | | | | | | | | |
 | example patterns | 29.5 | −8.7 | 47.8 | 21.4 | 21.4 | ±0 | 31.5 | 31.0 / 28.2 | 2.56 s |
 | confidence filter 0.2 | 39.5 | +1.3 | 47.3 | 34.0 | 38.1 | +16.7 | 48.1 | 44.2 / 35.2 | 2.37 s |
 | stop-word fix | 38.2 | ±0 | 55.6 | 29.1 | 21.4 | ±0 | 38.9 | 44.2 / 32.5 | 2.56 s |
@@ -1199,316 +881,3 @@ largest FP lever after NONE-last (−16.7 FP points for −1.3 F1). The
 stop-word fix is ±0: its one tune96 case ("simple terms" in legal-en-040) is
 now dropped by the confidence filter. Ledger: `docs/shipped-improvements.md`.
 
-## 2026-09-29
-
-### B1-B2. Amazon Nova Micro on Bedrock with the shipped request, two chat framings (lab, `b1-nova-tune96`, `b2-nova-confirm48`)
-
-Question (captain): for a future "connect your own trusted hosted model"
-option, how does a small hosted chat model do on the same benchmark and
-prompts as the bundled SmolLM2-360M? Backend: `src/hosted/bedrock.ts`
-(README "Hosted models"), Amazon Nova Micro through the EU inference
-profile `eu.amazon.nova-micro-v1:0` called in eu-north-1, Converse API,
-temperature 0 and topK 1, 48-token cap, answer cut at its first line in
-code (Converse rejects `\n` as a stop sequence). The request is the
-`shipped` configuration's, byte for byte the extension's
-(`src/hosted/parity.ts`: every tune96, confirm48 and held-out per-label
-request equals what the ref's own `reviewPrompt` hands its model client at
-`main` @ c1407a4, except the 10 / 4 / 17 requests of prompts with fenced
-code, which the ref has skipped since PR #42, see below). Two framings:
-
-- `nova-micro-prefill`: the completion text (instruction line,
-  demonstrations, `Text: …`) as the user turn, and the assistant turn
-  prefilled with the cue `LABEL:` (Converse accepts assistant prefill for
-  Nova);
-- `nova-micro-system`: the instruction line as the system prompt, and the
-  demonstrations, text and cue as the user turn, with no prefill.
-
-Parsing, plausibility filter, patterns and scoring are the lab's `shipped`
-ones. **The answer-confidence filter (0.2) cannot apply:** the Converse
-response has no token probabilities (API reference: `output`, `stopReason`,
-`usage`, `metrics`, `trace`), and we found no documented logprobs option for
-Nova. Every hosted answer is kept. A "connect a trusted model" feature has
-to replace that precision lever by something else, or accept that it is
-missing.
-
-Parser fix found on the way: the system framing often answers
-`CLIENT_NAME: NONE`. The lab's `passagesToLines` checked NONE before
-stripping a repeated cue, so it kept "NONE" as a passage. The ref's
-`labelAnswerLines` strips the cue first. The lab now does the same
-(`tests/hosted.test.ts`). SmolLM2 never repeats the cue after the prefill,
-and its `shipped` numbers are unchanged.
-
-SmolLM2-360M baseline: lab `shipped` on tune96 (`b0-smol360-tune96`). On
-confirm48 the cached baseline is `shipped-no-pinned`
-(`b0-smol360-confirm48`). Pinned decoding is a no-op on SmolLM2 (identical
-outputs, A2; `shipped` and `shipped-no-pinned` are equal on tune96), so it
-is the same answers, but it is not a `shipped` run (the captain asked not
-to rerun it). SmolLM2 has the confidence filter; Nova cannot have it.
-
-| set | model / framing | F1o | P | R | F1x | Px | Rx | det | FPR | EN F1 / FPR | FR F1 / FPR | p50 | p95 | USD / 1k prompts |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| tune96 | SmolLM2-360M `shipped` (local) | 38.2 | 55.6 | 29.1 | 34.4 | 50.0 | 26.2 | 38.9 | 21.4 | 44.2 / 19.0 | 32.5 / 23.8 | 2.56 s | 6.32 s | 0 |
-| tune96 | Nova Micro, prefill | **61.0** | 71.1 | **53.4** | **53.6** | 63.2 | 46.6 | **72.2** | **14.3** | 63.4 / 14.3 | **58.4** / 14.3 | 0.97 s | 1.63 s | 0.032 |
-| tune96 | Nova Micro, system | 55.0 | **74.1** | 43.7 | 46.0 | 63.8 | 35.9 | 57.4 | **14.3** | 61.6 / 19.0 | 48.0 / 9.5 | 0.81 s | 2.08 s | 0.027 |
-| confirm48 | SmolLM2-360M `shipped-no-pinned` (local) | 43.1 | 54.8 | 35.6 | 35.6 | 42.9 | 30.5 | 43.8 | 50.0 | 44.4 / 75.0 | 41.0 / 25.0 | 2.37 s | 6.50 s | 0 |
-| confirm48 | Nova Micro, prefill | 67.1 | 74.5 | 61.0 | 56.4 | 60.8 | 52.5 | 71.9 | 43.8 | 58.9 / 50.0 | 76.6 / 37.5 | 0.82 s | 1.21 s | 0.031 |
-| confirm48 | Nova Micro, system | **68.3** | **83.7** | 57.6 | 52.9 | 62.8 | 45.8 | 71.9 | **25.0** | 66.9 / 25.0 | 69.8 / 25.0 | 0.83 s | 1.11 s | 0.027 |
-
-(Latency is per prompt: the sum of its 2-3 per-label requests, sent one at
-a time, network included and throttling retries excluded. Per request: p50
-0.3-0.4 s, p95 0.5-0.7 s, of which Bedrock reports ~0.25 s. confirm48 has
-16 negatives, so one false positive is 6 FP points.)
-
-- **Both framings beat SmolLM2 by a wide margin** on both sets: +17 to +25
-  F1, with higher precision and recall, a lower or equal FP rate, 3x lower
-  latency, and French as good as English.
-- **Prefill vs system:** prefill finds more (recall +10 on tune96, +3 on
-  confirm48). The system framing is more precise and flags fewer negatives on
-  confirm48 (25% vs 44%), with F1 tied there. Prefill wins tune96 by 6 F1
-  at the same FP rate.
-- **Errors:** half of prefill's wrong findings on tune96 (11 of 22; system
-  6 of 15) are the right passage under a second label of the same profile
-  (the client name also reported as CAMPAIGN_CODENAME, a host also as
-  INTERNAL_SERVICE). Each per-label request cannot see the other labels.
-  For redaction the passage is still hidden, so the strict label metric
-  understates Nova here. Hallucinated answers (dropped by anchoring) are
-  mostly a label example copied from the demonstrations ("Q3 revenue of
-  £1.284bn", "€87k base").
-- **Prefill run-on:** in 145 of 360 prefill answers Nova keeps writing a new
-  `Text:` demonstration until the 48-token cap. The first-line cut makes
-  this harmless for quality, but it doubles output tokens (26 vs 13 per
-  request) and adds latency. A `\nText:` stop sequence (non-blank, so
-  Converse accepts it) would remove it.
-- **Throttling:** about two in three calls got HTTP 429 (retried with
-  backoff). The cause is this test account's limit of 20 requests per
-  minute for Nova Micro (B3), not the model.
-
-### B3-B5. Hosted models through the bench: Nova Micro and GLM-4.7 Flash, three framings (runs `hosted-tune96-1c377d7`, `hosted-confirm48-1c377d7`)
-
-After B1-B2, the hosted backend moved into the bench (captain: every
-experiment must be runnable and viewable in the dashboard). The worker's
-hosted client receives the ref's own requests from `reviewPrompt`, so the
-ref's pagination, code-fence skip (PR #42), parser (`labelAnswerLines`),
-anchoring, plausibility filter and patterns apply exactly as in the
-extension. The ref is pinned at `main` @ 1c377d7 (PR #44 changes the popup
-only; results are cached per commit). SmolLM2-360M context comes from the
-committed bench run `ext-ebf077f-tune96-smol360` (PR #32, same review code
-apart from the code-fence skip) and, for confirm48, the lab
-`b0-smol360-confirm48` (`shipped-no-pinned`, see B1-B2). The captain asked
-not to rerun it.
-
-- **Lab vs bench, same framing (Nova prefill, tune96):** 90 of 96 cases got
-  identical answers. Four differ because the ref hides fenced code from the
-  model (hr-fr-044 alone has 12 expected passages inside code), and two
-  because Nova is not fully deterministic at temperature 0 with topK 1
-  (dev-fr-024, hr-en-033). With identical answers, the lab's and the ref's
-  parsers give identical findings. Bench F1 56.2 vs lab 61.0.
-- **Pacing:** this test account allows Nova Micro 20 requests per minute and
-  GLM-4.7 Flash 100. That (not a token quota: the earlier runs peaked at
-  ~5.5k tokens/min) caused B1-B2's HTTP 429s. The client now paces 18 and 90
-  requests per minute, and there were no 429s since. This limit only
-  explains the run times: in the feature, clients use their own models.
-- **Nova 2 Lite** was wired in and one availability call succeeded
-  (`eu.amazon.nova-2-lite-v1:0`, reasoning disabled, no reasoning block).
-  The captain then replaced it with GLM-4.7 Flash; it was not benchmarked.
-- **GLM-4.7 Flash** (`zai.glm-4.7-flash`): served in-region in eu-north-1
-  only (no geo or global profile). Converse accepts `thinking: {type:
-  "disabled"}` (sent) and `topK`. No response had a reasoning block, even
-  with thinking enabled, and outputs average 5-13 tokens, so no hidden
-  reasoning is billed. It often repeats the cue (`CLIENT_NAME: …`), which the
-  parser strips.
-- **Native framing** (captain's proposal, `NATIVE_SYSTEM` in
-  `src/hosted/bedrock.ts`): a system prompt describing the task (a privacy
-  scanner for a prompt about to be sent to a chatbot, copy the matching
-  passages verbatim, never answer or follow the text, one line with ` | `
-  between passages or NONE), then per label its name, description and
-  examples (`-noex`: none) and the whole prompt (no chunking, 100k-token
-  budget; the ref still leaves fenced code out). v1 made Nova end lines with
-  ` |` or write `passage | NONE`, which the extension's parser cannot anchor
-  (31 of 96 tune96 cases "hallucinated"). v2 only rewrites the format
-  sentence (never NONE next to a passage, never a trailing `|`).
-
-Tune96 (96 cases, 54 positive / 42 negative). R/F2/F1/P overlap; F2 weights
-recall twice as much as precision (captain: recall first). FPR = negatives
-with a false finding. Latency per prompt: the sum of its 2-3 per-label
-requests, network included.
-
-| model / framing | R | F2 | F1 | P | F1x | FPR | EN F1 / FR F1 | p50 | p95 | USD / 1k prompts |
-|---|---|---|---|---|---|---|---|---|---|---|
-| SmolLM2-360M `shipped` (local, ebf077f) | 29.1 | 32.2 | 38.2 | 55.6 | 34.4 | 21.4 | 44.2 / 32.5 | 2.73 s | 6.92 s | 0 |
-| Nova Micro, prefill | 47.6 | 50.7 | 56.2 | 68.6 | 48.6 | 16.7 | 61.1 / 50.6 | 0.97 s | 2.00 s | 0.032 |
-| Nova Micro, system | 38.8 | 42.4 | 51.2 | 75.0 | 42.6 | 9.5 | 62.4 / 38.4 | 0.84 s | 1.50 s | 0.026 |
-| Nova Micro, native v1 | 34.0 | 37.7 | 45.0 | 66.7 | 29.9 | 9.5 | 50.5 / 40.5 | 0.88 s | 2.65 s | 0.031 |
-| Nova Micro, native v1 no examples | 39.8 | 41.6 | 44.6 | 50.6 | 38.0 | 19.0 | 44.7 / 44.4 | 0.98 s | 2.51 s | 0.028 |
-| Nova Micro, native v2 | 38.8 | 40.9 | 45.2 | 54.2 | 32.0 | 11.9 | 50.1 / 40.9 | 1.06 s | 2.77 s | 0.034 |
-| Nova Micro, native v2 no examples | 35.9 | 37.3 | 39.6 | 44.2 | 28.6 | 26.2 | 41.5 / 38.0 | 0.85 s | 1.40 s | 0.031 |
-| GLM-4.7 Flash, prefill | 50.5 | 52.6 | 57.1 | 65.8 | 41.3 | 35.7 | 61.6 / 53.3 | 0.75 s | 2.22 s | 0.059 |
-| GLM-4.7 Flash, system | 51.5 | 51.8 | 52.8 | 54.3 | 40.6 | 52.4 | 59.0 / 46.5 | 0.67 s | 1.29 s | 0.058 |
-| GLM-4.7 Flash, native v2 | **68.0** | **66.4** | **64.6** | 61.5 | 47.2 | 33.3 | 67.3 / 61.8 | 0.65 s | 1.73 s | 0.072 |
-| GLM-4.7 Flash, native v2 no examples | 68.0 | 58.7 | 51.1 | 41.0 | 35.7 | 47.6 | 52.2 / 50.0 | 0.61 s | 1.81 s | 0.069 |
-
-Confirm48 (48 cases, 16 negatives: one false positive is 6 FP points), the
-best two framings of each model plus native v2:
-
-| model / framing | R | F2 | F1 | P | F1x | FPR | EN F1 / FR F1 | p50 | p95 | USD / 1k prompts |
-|---|---|---|---|---|---|---|---|---|---|---|
-| SmolLM2-360M `shipped-no-pinned` (lab) | 35.6 | 37.0 | 43.1 | 54.8 | 35.6 | 50.0 | 44.4 / 41.0 | 2.37 s | 6.50 s | 0 |
-| Nova Micro, prefill | 57.6 | 60.0 | 64.0 | 72.0 | 53.2 | 50.0 | 53.0 / 76.6 | 0.92 s | 1.39 s | 0.031 |
-| Nova Micro, system | 52.5 | 56.7 | 64.2 | 82.5 | 50.5 | 25.0 | 59.5 / 69.8 | 0.88 s | 1.33 s | 0.026 |
-| Nova Micro, native v2 | 28.8 | 31.8 | 37.7 | 54.5 | 26.1 | 31.2 | 49.5 / 17.6 | 0.88 s | 1.49 s | 0.034 |
-| GLM-4.7 Flash, prefill | **62.7** | **64.1** | **66.2** | 70.2 | 53.4 | 37.5 | 57.4 / 76.2 | 0.69 s | 3.34 s | 0.057 |
-| GLM-4.7 Flash, system | 55.9 | 56.7 | 57.9 | 60.0 | 40.3 | 56.2 | 49.4 / 67.5 | 0.73 s | 1.18 s | 0.060 |
-| GLM-4.7 Flash, native v2 | 57.6 | 57.1 | 56.3 | 55.1 | 45.3 | 56.2 | 58.7 / 53.1 | 0.64 s | 1.22 s | 0.073 |
-
-Pooled dev (tune96 + confirm48, 144 cases):
-
-| model / framing | R | F2 | F1 | P | FPR |
-|---|---|---|---|---|---|
-| GLM-4.7 Flash, native v2 | **64.2** | **63.1** | **61.5** | 59.0 | 39.7 |
-| GLM-4.7 Flash, prefill | 54.9 | 57.1 | 60.6 | 67.7 | 36.2 |
-| GLM-4.7 Flash, system | 53.1 | 53.7 | 54.7 | 56.5 | 53.4 |
-| Nova Micro, prefill | 51.2 | 54.1 | 59.2 | 70.0 | 25.9 |
-| Nova Micro, system | 43.8 | 48.1 | 56.2 | 78.3 | 13.8 |
-| Nova Micro, native v2 | 35.2 | 37.8 | 42.7 | 54.3 | 17.2 |
-
-- **Every hosted framing but Micro-native beats SmolLM2** on recall, F1
-  and latency (0.6-1.1 s vs 2.4-2.7 s per prompt).
-- **Nova Micro:** prefill finds the most (pooled recall 51), system is the
-  most precise and flags the fewest negatives (FPR 14% vs 26%). The native
-  framing does not suit Micro (pooled recall 35; French F1 18 on
-  confirm48): it needs the demonstrations.
-- **GLM-4.7 Flash** is the better hosted model and the one that benefits
-  from the native task description: native v2 has the best recall and F2 of
-  all (pooled 64 / 63), at the cost of more flagged negatives (40%). Its
-  lead comes from tune96: on confirm48 alone its prefill framing found more
-  (63 vs 58). The label examples matter for precision: without them GLM
-  keeps its recall but flags 48% of tune96 negatives.
-- **Choice for the one-shot held-out run** (recall first, F2 and F1
-  alongside, precision and FPR as context): GLM-4.7 Flash native v2, which
-  beats Micro on every recall metric, and Micro's best, prefill.
-- **Tokens and cost:** a per-label request is ~220-340 input tokens. Answers
-  average 5-13 output tokens, except Micro prefill (26: it keeps writing a
-  new `Text:` demonstration until the 48-token cap, which the first-line cut
-  discards). Per 1,000 prompts: Micro 0.026-0.034 USD, GLM 0.058-0.073 USD.
-- **Latency per request** (network included): Micro p50 0.30-0.38 s (Bedrock
-  server time ~0.25 s), GLM p50 0.23-0.26 s (~0.18 s).
-
-**False positives, by kind** (tune96, label-strict findings that overlap no
-expected passage; captain: false alarms are not a veto, some are an
-information gap):
-
-| kind | GLM native v2 | Micro prefill |
-|---|---|---|
-| right passage, extra or wrong label (the text is still hidden) | 13 | 12 |
-| defensible: matches the label's kind and nothing in the text says otherwise (a second deal amount, a competitor where a prospect could be, a product code, a person's name in a ticket) | 6 | 1 |
-| right kind, but the text itself says it is public (announced deal, published annual report, public guidance, market cap) | 8 | 5 |
-| clearly wrong: generic, textbook or placeholder (tenant_id, host.docker.internal, macro statistics, "Jane Smith", "customer", `[NOM DE L'ÉTUDE]`) | 15 | 4 |
-| total | 42 | 22 |
-
-So about half of each model's false positives are harmless or defensible
-(GLM 19 of 42, Micro 13 of 22). The "public" group is the information gap
-the captain describes: the model sees a deal, a figure or a product, and the
-label description asks it to judge whether it is public, which the text
-often states but a small model does not weigh. GLM's clearly wrong group
-(15) is what its extra recall costs.
-
-### B6. Held-out test split, one shot (run `hosted-test-1c377d7`)
-
-The two framings chosen on dev (B3-B5: GLM-4.7 Flash native v2 by recall,
-and Nova Micro's best, prefill), on the 242 test cases, once, through the
-bench at 1c377d7. SmolLM2-360M context: the committed bench run
-`ext-ebf077f-test-smol360` (extension PR #32, the shipped design; its review
-code differs only by the later code-fence skip).
-
-| model / framing | R | F2 | F1 | P | F1x | det | FPR | EN F1 / FPR | FR F1 / FPR | p50 | p95 | USD / 1k prompts |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| SmolLM2-360M `shipped` (local) | 27.0 | 29.2 | 33.2 | 43.3 | 26.6 | 44.0 | 35.6 | 31.8 / 34.6 | 34.5 / 36.7 | 2.61 s | 9.25 s | 0 |
-| Nova Micro, prefill | 45.3 | 49.0 | 55.8 | **72.6** | **41.9** | **72.3** | **23.8** | 57.8 / 26.9 | 53.9 / 20.4 | 1.00 s | 1.56 s | 0.032 |
-| GLM-4.7 Flash, native v2 | **64.7** | **62.2** | **58.7** | 53.7 | 41.4 | 71.6 | 32.7 | 56.0 / 38.5 | **61.1** / 26.5 | **0.61 s** | **0.97 s** | 0.076 |
-
-(101 negatives. Recall regardless of label: SmolLM2 28.7, Micro 47.4, GLM
-66.8. Right passage under another label: 17 of Micro's 49 wrong findings,
-43 of GLM's 157.)
-
-- **The dev ranking holds.** GLM-4.7 Flash native v2 finds 2.4x as many
-  sensitive passages as the shipped SmolLM2 (recall 65 vs 27), and Nova
-  Micro 1.7x (45), with fewer flagged negatives than SmolLM2 (33% and 24%
-  vs 36%). Latency per prompt drops from 2.6 s (p95 9.3 s) to 0.6-1.0 s
-  (p95 1.0-1.6 s), network included.
-- **Micro vs GLM:** a precision / recall trade. Micro is the most precise
-  (73%) and flags the fewest negatives. GLM finds 19 recall points more, at
-  54% precision. By the captain's recall-first rule GLM-4.7 Flash with the
-  native framing is the best hosted option measured.
-- **Cost:** 0.03 USD (Micro) and 0.08 USD (GLM) per 1,000 prompts, at ~2.5
-  per-label requests per prompt.
-- **Whole evaluation spend:** 0.092 USD (every hosted request, lab and
-  bench, including development calls), against the 5 USD cap.
-
-### B7. Provider-neutral hosted backend: Bedrock and OpenAI-compatible adapters (connector smoke, run `connector-smoke-1c377d7`)
-
-T7 of the "Trusted AI redaction" design, narrowed by the captain to the
-connectors: the quality measurements (the OpenAI-compatible `auto`
-default, all labels in one request, fenced code, JSON output vs the
-tolerant parser, learning from feedback, and any Ollama quality run) are
-parked. What changed (`src/hosted/`, README "Hosted models"):
-
-- One provider-neutral client (`client.ts`: pacing, retries, first-line
-  cut, answer confidence) over a neutral chat-or-completion request
-  (`framing.ts`), with two adapters: Bedrock Converse (`bedrock.ts`, chat
-  framings only) and OpenAI-compatible (`openai.ts`: `/chat/completions`
-  and `/completions`, optional API key from the env variable a model
-  entry names, optional `logprobs`). The model table is `models.ts`.
-- When a reply has token log probabilities, the client computes the
-  extension's answer confidence (lowest answer-token probability, the
-  token that ended the line left out) and passes it as
-  `runtime.answerProbability`, so the ref's own confidence filter (0.2)
-  applies to hosted answers.
-- Every earlier Bedrock model keeps its id and byte-identical request
-  (tests), so the cached B1-B6 results stay valid: a dry run of tune96 has
-  nothing to compute, and the lab rescoring of `nova-micro-prefill` gives
-  B1's numbers.
-- New entries: `nova-micro-prefill-stop` (the design's `\nText:` stop
-  sequence; Converse rejects a bare `\n`), `glm47-flash-oai-native-v2`
-  (GLM-4.7 Flash through Bedrock's OpenAI-compatible endpoint, same API
-  key), and `ollama-smollm{,2}-360m-{completion,native-v2}` (local Ollama).
-- `npm run hosted:check` sends one synthetic request per model, like the
-  extension's "Test connection". Unit tests use a fake OpenAI-compatible
-  server and a mocked Converse `fetch`: bodies, auth header, logprob
-  shapes, confidence, first-line cut, 429/5xx retry, 401 not retried,
-  reasoning output refused.
-
-Findings from the probes (a handful of requests each):
-
-- **Ollama's `/v1/completions` is not a raw completion.** Ollama 0.34.4
-  wraps the prompt in the model's chat template (smollm2: its default
-  system prompt too; "Hello" is 31 prompt tokens, vs 1 with
-  `/api/generate` and `raw: true`). The extension's completion text then
-  arrives as a user message, and both SmolLM models answered like a
-  chatbot ("Here's how you can implement this:"). The design's
-  "`/completions` = exactly the extension's framing" holds for servers that
-  do raw completion (vLLM, llama.cpp), not for Ollama.
-- **Log probabilities:** Ollama returns them on `/v1/chat/completions`
-  only (`/v1/completions` ignores `logprobs`). Bedrock's OpenAI-compatible
-  endpoint (`https://bedrock-runtime.<region>.amazonaws.com/openai/v1`)
-  returns them for GLM-4.7 Flash, so a hosted model can have the
-  confidence filter. That endpoint serves chat only (`/completions`:
-  UnknownOperationException), and does not serve Nova Micro
-  (`model_not_found`). It accepts `stop` and GLM's `thinking` switch.
-- **Connector smoke through the bench** (2 tune96 cases, 5 per-label
-  requests per model, ref 1c377d7; not a quality measurement): GLM-4.7
-  Flash over the OpenAI endpoint found all of hr-fr-004 and the
-  finance-en-005 margins, with answer confidences 0.25-0.99, 0.26-0.55 s per
-  request. `nova-micro-prefill-stop` averaged 15 output tokens (B1-B2
-  prefill without the stop: 26); one answer still ran to 45 tokens, so the
-  stop does not catch every run-on. smollm:360m through Ollama found
-  nothing with either framing: chat-style answers, confidences 0.08-0.24
-  (native) and none (completion). Hosted spend 0.0002 USD (total 0.092).
-
-Remaining T7 work (parked by the captain): the `auto` default per provider
-(raw completion vs native v2, now including Ollama's templated
-`/completions` and GLM through the OpenAI endpoint with the confidence
-filter), all labels in one request, whether a connected model reads fenced
-code, structured JSON output vs the tolerant parser, and learning from
-feedback (learned examples as demonstrations or pattern sources, false
-alarms as NONE demonstrations, quality vs number of corrections, with a
-subset that fits SmolLM2's 2,048-token budget).

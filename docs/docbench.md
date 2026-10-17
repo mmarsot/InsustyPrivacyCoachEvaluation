@@ -46,9 +46,9 @@ English positive cases), `--tracks suite,sweep,ai`, `--formats docx,pdf,...`
 `--sweep-types txt,csv,docx,xlsx,pptx,pdf,odt,ods,zip`, `--configs
 default,all`, `--seed 1`, `--reps 3` (timing repetitions per sweep point,
 median kept), `--ai [default,<models>]` (alone or with `default`: the ref's own default
-model, `DEFAULT_SLM_MODEL_ID`; other names are bundled models or hosted ones
-from `src/hosted/models.ts`), `--budget-usd 5` (hosted spend cap, cached
-hosted spend included), `--ai-tier smoke|quick|full` (default smoke) and
+model, `DEFAULT_SLM_MODEL_ID`; `glm47-flash-connected` adds the connected
+model), `--budget-usd 5` (connected spend cap, cached connected spend
+included), `--ai-tier smoke|quick|full` (default smoke) and
 `--ai-sizes 1000,5000,20000,50000`,
 `--name`, `--max-rss-mb 3000`, `--cached-only`, `--ext-repo`.
 
@@ -240,8 +240,7 @@ own connected-model client (requests, pacing, retries, parsing, its
 supplying only the transport (reply cache, cost, budget). The key comes only
 from the environment (`AWS_BEARER_TOKEN_BEDROCK`), the plan prints a cost
 estimate and refuses to start past `--budget-usd`, and each document's cost
-is reported. The `2aece81` results above ran the bench's older copy of that
-client (`glm47-flash-trusted`).
+is reported.
 
 ## Outputs
 

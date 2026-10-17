@@ -76,20 +76,17 @@ The extension runs `q8` weights on WASM (its `auto` choice when WebGPU is not
 used). The bench does the same, in Node: `package.json` aliases
 `onnxruntime-node` to the exact `onnxruntime-web` build the extension pins, so
 Transformers.js runs the same WASM kernels as the browser, with
-`min(4, CPU count)` threads like `model-worker.ts`. Findings from setting this up
-(2026-09-26, same prompt, greedy decoding):
+`min(4, CPU count)` threads like `model-worker.ts`.
 
-| Runtime | Qwen2.5-0.5B output | Peak RSS | Speed |
-| --- | --- | --- | --- |
-| onnxruntime-web WASM, default session options (**used**) | coherent | 3.0-3.45 GB during load, ~2.4 GB steady | 4-5 tok/s |
-| same, `graphOptimizationLevel: "basic"` or `"disabled"` | different text | ~2.7-3.0 GB | same or 3x slower |
-| native `onnxruntime-node` 1.21 CPU | **different, degraded text** | 2.1 GB | 7 tok/s |
-
-Greedy decoding on these q8 models is sensitive to kernel and graph-optimization
-differences, so only the unmodified WASM path is representative of what users
-get. SmolLM2-135M peaks around 1.1 GB. Qwen2.5-0.5B's transient load peak
-(model file buffered in JS while the WASM heap is filled) exceeds 3 GB for a
-few seconds; the browser showed a similar +2.2 GB. To keep this bounded, each
+When this was set up (2026-09-26, same prompt, greedy decoding), the same q8
+model gave different text with `graphOptimizationLevel: "basic"` or
+`"disabled"`, and different, degraded text on native `onnxruntime-node` 1.21
+CPU. Greedy decoding on q8 weights is sensitive to kernel and
+graph-optimization differences, so only the unmodified WASM path is
+representative of what users get. (That measurement was on a model since
+removed from the bench, with its numbers.) SmolLM2-360M peaks around 1.9 GB
+while loading (the model file is buffered in JS while the WASM heap is
+filled). To keep this bounded, each
 model runs in its own child process (the OS reclaims the whole WASM heap
 before the next model loads, and models never load in parallel), and the
 parent kills a worker whose RSS exceeds `--max-rss-mb` (default 3800).

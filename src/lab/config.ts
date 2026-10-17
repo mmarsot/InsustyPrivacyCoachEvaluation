@@ -53,7 +53,7 @@ export interface LabConfig {
   /** Token cap; 0 = none (the ref has none and relies on its line stop and deadline). */
   maxNewTokens: number;
   deadlineMs: number;
-  /** null = the model's generation_config default, like the extension (Qwen2.5 ships 1.1). */
+  /** null = the model's generation_config default. */
   repetitionPenalty: number | null;
   noRepeatNgram: number | null;
   /**

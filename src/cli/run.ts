@@ -117,8 +117,8 @@ for (const m of models.filter((x) => x.hosted)) {
 }
 const hostedSpent = models.some((m) => m.hosted) ? connectedSpentUsd() : 0;
 if (models.some((m) => m.hosted)) {
-  console.log(`Hosted spend so far ${hostedSpent.toFixed(4)} USD + this run <=${hostedEstimateUsd.toFixed(4)} USD; budget ${options.budgetUsd} USD`);
-  if (!options.cachedOnly && hostedSpent + hostedEstimateUsd > options.budgetUsd) fail("The hosted cost estimate would pass --budget-usd; nothing was sent.");
+  console.log(`Connected spend so far ${hostedSpent.toFixed(4)} USD + this run <=${hostedEstimateUsd.toFixed(4)} USD; budget ${options.budgetUsd} USD`);
+  if (!options.cachedOnly && hostedSpent + hostedEstimateUsd > options.budgetUsd) fail("The connected cost estimate would pass --budget-usd; nothing was sent.");
 }
 console.log(`Estimated runtime: ~${fmt(totalEstimate)} (sequential, one model at a time)`);
 if (options.dryRun) process.exit(0);

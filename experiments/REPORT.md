@@ -1,6 +1,9 @@
 # Local SLM review: best configuration so far
 
-Status: **current** as of 2026-09-29 (updated after every experiment).
+Status: **current** as of 2026-10-17 (updated after every experiment). The
+bench keeps two models, SmolLM2-360M on the device and GLM-4.7 Flash
+connected; findings about the other models were deleted with them on
+2026-10-17 (git history keeps them).
 Evidence and run names: [LOG.md](LOG.md); model research: [RESEARCH.md](RESEARCH.md).
 Runtime everywhere unless noted: q8 weights on onnxruntime-web WASM (4
 threads), greedy decoding, the extension's own code for anything the
@@ -8,13 +11,12 @@ extension ships.
 
 ## Summary
 
-- **Hosted models (LOG B1-B6):** with the extension's own review code, a
-  small hosted chat model on Amazon Bedrock finds far more than the shipped
-  in-browser SmolLM2-360M. On the held-out split, recall goes from 27% to
-  65% with GLM-4.7 Flash (native framing) and to 45% with Nova Micro
-  (prefill framing). Both flag fewer negatives (33% and 24% vs 36%) and
-  answer in 0.6-1.0 s instead of 2.6 s, for a few cents per 1,000 prompts
-  (section "Hosted models" below).
+- **Connected model:** GLM-4.7 Flash runs through the extension's own
+  connected-model client (README "Connected model in the bench"). First
+  smoke on `main` @ 95454ec (16 prompts): F1 51.9%, recall 70.0%, precision
+  41.2%, 6 of 8 negatives flagged, 1.9 s per prompt, 0.072 USD per 1,000
+  prompts, against F1 33.3% for SmolLM2-360M on the same prompts. Its
+  tuning-set and held-out runs are still to do.
 
 - **The per-label completion design on SmolLM2-360M has shipped** (extension
   PR #26, merge 372c8ff; benched as branch commit d42c466;
@@ -33,9 +35,8 @@ extension ships.
   vs 11% for the old chat design). A threshold of 0.3 cuts them to 25% for
   4 F1 points (measured without the patterns): a candidate sensitivity
   setting.
-- **Models:** SmolLM2-360M as default is right. Qwen2.5-0.5B, Gemma 3 270M
-  and LFM2.5-350M all fail the keep/add criterion (below). SmolLM2-135M only
-  becomes marginally useful with the new design (F1 ~30% on dev, FP 80%).
+- **Model:** SmolLM2-360M, the model the extension ships, is the only
+  on-device model the bench keeps.
 - **GPU:** reachable on this laptop (Chrome with `--enable-features=Vulkan`),
   but the extension's WebGPU q4 weights halve the quality; use fp32/fp16 on
   WebGPU, keep WASM q8 as the default.
@@ -64,85 +65,6 @@ Sets: `tune96` (96 dev cases, 54 positive / 42 negative, half EN half FR) for
 tuning, `confirm48` (48 disjoint dev cases) to confirm, `heldout-test` (the
 242 test-split cases) for one-shot evaluation of choices made on dev only.
 With 96 cases, F1 differences under ~8 points are noise.
-
-## Hosted models ("connect a trusted model"; LOG B1-B7)
-
-The captain is evaluating letting clients connect their own trusted hosted
-model instead of the in-browser one. Two small hosted models on Amazon
-Bedrock ran through the bench with the extension's own review code
-(`reviewPrompt`: requests, code-fence skip, parser, anchoring, plausibility
-filter, patterns). The only change is the model client
-(`src/hosted/bedrock.ts`, README "Hosted models").
-
-Held-out test split (242 cases, one shot; framings chosen on dev by recall
-first; run `hosted-test-1c377d7`):
-
-| model / framing | recall | F2 | F1 | precision | FP rate | p50 / p95 per prompt | USD / 1,000 prompts |
-|---|---|---|---|---|---|---|---|
-| SmolLM2-360M, shipped (in the browser) | 27.0% | 29.2% | 33.2% | 43.3% | 35.6% | 2.61 s / 9.25 s | 0 |
-| Amazon Nova Micro, prefill framing | 45.3% | 49.0% | 55.8% | **72.6%** | **23.8%** | 1.00 s / 1.56 s | 0.03 |
-| Z.ai GLM-4.7 Flash, native framing (v2) | **64.7%** | **62.2%** | **58.7%** | 53.7% | 32.7% | **0.61 s / 0.97 s** | 0.08 |
-
-- **A small hosted model is a large improvement.** GLM-4.7 Flash finds 2.4x
-  as many sensitive passages as the shipped model and Nova Micro 1.7x. Both
-  flag fewer negatives, answer 3-4x faster (network included), and are as
-  good in French as in English. The cost is negligible (a few cents per
-  1,000 prompts). The whole evaluation cost 0.09 USD.
-- **Micro vs GLM** is a precision / recall trade. By the captain's
-  recall-first rule, GLM with the native framing is the best measured. About
-  half of each model's false positives on tune96 are harmless (the right
-  passage under a second label) or defensible (the label's kind, with
-  nothing in the text saying otherwise). About a quarter are right-kind items
-  the text says are public (LOG B3-B5).
-- **What the prompt format needs for chat models:**
-  - **Framing depends on the model.** Nova Micro needs the extension's own
-    completion text (demonstrations included) with the answer cue as an
-    assistant prefill. A task-description ("native") prompt costs it a third
-    of its recall. GLM-4.7 Flash does best with the native prompt: a system
-    prompt describing the privacy-scanner task and the one-line answer
-    format, then the label's name, description and examples, then the
-    prompt. Keep the examples: without them GLM keeps its recall but flags
-    48% of negatives. A connected-model feature should offer both framings,
-    or pick one per model.
-  - **Answer format:** chat models write `passage |` and `passage | NONE`,
-    and repeat the cue (`LABEL: passage`). The extension's parser already
-    strips the cue, but a trailing ` |` breaks anchoring. The v2 wording
-    fixes it in the prompt. A tolerant parser (drop empty and NONE parts) or
-    the provider's structured output (Converse `outputConfig`, a JSON list)
-    would be more robust.
-  - **No answer confidence:** Bedrock's Converse returns no token
-    probabilities, so the shipped confidence filter (0.2) cannot apply to a
-    hosted model. The feature needs another precision control, or must
-    accept its absence (Micro's precision is fine without it).
-  - **One request per label** lets the model return the same passage under
-    two labels of the profile (a third to a half of the hosted models' false
-    positives). A capable chat model could get all labels in one request,
-    which also cuts requests per prompt from ~2.5 to 1.
-  - **Stop and length:** Converse rejects `\n` as a stop sequence, so the
-    first-line cut happens in code. Nova Micro's prefill answers run on into
-    a new `Text:` demonstration up to the cap (twice the output tokens); a
-    `\nText:` stop sequence would remove that. Chunking is unnecessary at
-    these context sizes (128K-203K), and with a hosted model, hiding fenced
-    code from the model (done for latency) is worth revisiting.
-  - **Determinism:** temperature 0 is not fully deterministic on Nova (2 of
-    96 answers differed between two runs).
-- **Connectors (LOG B7):** the backend is provider-neutral (`src/hosted/`):
-  a Bedrock Converse adapter and an OpenAI-compatible one (chat and
-  completions, optional key, log probabilities), behind one client. With
-  log probabilities, the extension's confidence filter applies to hosted
-  answers. Three findings for the design's connected-model defaults:
-  - Ollama's `/v1/completions` wraps the prompt in the chat template, so it
-    is not the extension's raw completion framing (vLLM and llama.cpp do
-    raw completion). Ollama returns log probabilities on chat only.
-  - Bedrock's OpenAI-compatible endpoint serves GLM-4.7 Flash (chat only,
-    same API key) with log probabilities, so a hosted model can have the
-    confidence filter. Nova Micro is not served there.
-  - A `\nText:` stop sequence shortens Nova's prefill answers (15 vs 26
-    output tokens on a 5-request smoke), but it does not stop every run-on.
-
-  Parked by the captain (remaining T7): the `auto` framing per provider,
-  all labels in one request, fenced code, JSON output vs the tolerant
-  parser, and learning from feedback.
 
 ## Held-out confirmation (242 test cases, never used for tuning)
 
@@ -190,7 +112,8 @@ CLIENT_NAME:
   when the stop-word guess says so, 564/567 right on dev); the instruction
   line stays English (a French one drops French F1 from 31% to 17%).
 - One line per answer: stop at the first line break, 48-token cap; pinned
-  greedy settings (`repetition_penalty: 1`, overriding e.g. Qwen's shipped 1.1).
+  greedy settings (`repetition_penalty: 1`, whatever the model's
+  `generation_config.json` ships).
 - Code attaches the label, drops implausible passages (under 3 characters,
   1-2 digit numbers, only stop words, over 8 words) and anchors the rest with
   the existing parser. Built-in labels stay with the deterministic detector.
@@ -218,38 +141,7 @@ C2-C3, H2, V2; ledger items 10-12).
 4. **WebGPU path:** do not use q4 (it halves quality); use fp32, or fp16 on
    GPUs with `shader-f16`; keep WASM q8 as default. (LOG G2-G3.)
 5. **Free the fetched weight buffers after session creation** (the Node
-   workers now force a GC after load: Qwen2.5-0.5B RSS 3.34 → 2.36 GB).
-
-## Model decisions (completion design + plausibility filter, dev sets)
-
-Criterion for keeping or adding a model next to SmolLM2-360M: F1 within ~5
-points or clearly better in French, FP rate no worse.
-
-| model | tune96 F1 | confirm48 F1 | FR F1 (t96 / c48) | FP rate (t96 / c48) | p50 | verdict |
-|---|---|---|---|---|---|---|
-| **SmolLM2-360M** (default) | 32 | 31 | 31 / 36 | 36% / 50% | 3.1 s | keep |
-| Qwen2.5-0.5B | 24 | 24 | 27 / 23 | 45% / 56% | 5.4-6.3 s | drop: −8 F1, worse in French and FP |
-| Gemma 3 270M (candidate) | 33 | 37 | 33 / 33 | 76% / 75% | 7-10 s | don't add: FP far worse, the confidence filter doesn't fix it (FP ≥ 50%), needs onnxruntime-web ≥ 1.24 |
-| LFM2.5-350M (candidate) | 13 | 18 | 12 / 21 | 40% / 63% | 18-21 s | not usable (below) |
-| Granite 4.0 H 350M (candidate) | – | – | – | – | – | not runnable on Transformers.js 3.8.1 (Mamba state inputs never initialized) |
-| LFM2-350M-Extract (candidate) | – | – | – | – | 13.6 s | iter32 F1 25% in its native JSON mode vs 38% for SmolLM2-360M; invents keys, fills every key |
-| Qwen3-0.6B (candidate) | – | – | – | – | – | not run: q8 load peak would exceed ~3.5 GB on this machine; most promising untested model |
-
-Also measured: SmolLM2-135M with the new design reaches F1 ~30% on iter32
-and confirm48 (from 3-5%) but flags 80% of negatives.
-
-### LFM2.5-350M (requested by the captain): not usable as exported
-
-With the prefix-cache bug worked around (every request prefilled whole),
-onnxruntime-web 1.24.3: tune96 F1 13% (q8), confirm48 18%, iter32 23% (q8)
-and 14% (q4). Answers start right, then degenerate into repeated characters
-(`sshportportport...`, `keycloecoooo...`); Transformers.js 4.3 with
-onnxruntime-web 1.31 produces the same outputs byte for byte. The card's
-`repetition_penalty: 1.05`, a penalty on the answer's own tokens only, and
-chat framing per label do not help (20-22%). Integration would also need the
-onnxruntime-web upgrade and disabling prefix KV reuse (Transformers.js 3.8.1
-breaks LFM2's conv state when the prompt is prefilled in two parts), making it
-6x slower than SmolLM2-360M. (LOG E7a, L1-L5.)
+   workers force a GC after load, which lowers the steady RSS).
 
 ## Dev-set evidence for the design (SmolLM2-360M)
 
@@ -265,11 +157,10 @@ breaks LFM2's conv state when the prompt is prefilled in two parts), making it
 | same + confidence filter 0.2 | confirm48 | 33% | 45% | 25% | 30% | 38% | 44% | 100% | 2.4 s | 30% | 37% |
 
 How it was found: every chat-style variant (instruction wording, system vs
-user placement, few-shot chat turns, format examples, JSON output, removing
-Qwen's repetition penalty) left the models reciting the label list, answering
-the prompt or looping (F1 0-27% on iter32). Plain completion with
-demonstrations was the first framing all three bundled models could follow.
-(LOG E1-E6, T1-T5.)
+user placement, few-shot chat turns, format examples, JSON output) left the
+models reciting the label list, answering the prompt or looping. Plain
+completion with demonstrations was the first framing they could follow.
+(LOG E6, T1-T5.)
 
 ## GPU (WebGPU) on this laptop
 
@@ -283,18 +174,16 @@ demonstrations was the first framing all three bundled models could follow.
   on WebGPU). (LOG G2.)
 - **q8 on WebGPU is unusable** (~28 s per request: its operators fall back to
   the CPU), and the GTX 1050 has no fp16.
-- **fp32 on WebGPU keeps q8 quality and is fast:** SmolLM2-135M F1 21% on
-  both, 0.66 s per request, 1.9 s per prompt without any prefix cache. For
-  the 360M that means a 1.45 GB download, so WASM q8 stays the default.
-  (LOG G3.)
+- **fp32 on WebGPU** kept q8 quality on a smaller model (that evidence was
+  retired with it); for the 360M it means a 1.45 GB download, so WASM q8
+  stays the default.
 
 ## What has been ruled out
 
 | idea | result |
 |---|---|
 | Few-shot demonstrations as prior chat turns | SmolLM2 copies the last demo reply. |
-| "Scanner, not assistant" instructions; system vs user placement | No gain on any bundled model. |
-| Removing Qwen's inherited `repetition_penalty: 1.1` alone | Still F1 0 with chat prompts. |
+| "Scanner, not assistant" instructions; system vs user placement | No gain. |
 | Output-format example; JSON extraction protocol | F1 0 on SmolLM2-360M. |
 | Code-proposed candidates + yes/no classification | No discrimination (ROC AUC 0.42-0.56) though candidates cover 93% of expected passages. |
 | Sentence segments + one Yes/No per (segment, label), whole-segment redaction (spec v1.1), also as a verifier of shipped findings | Chat template: always Yes (AUC 0.48). Completion framing: AUC 0.62-0.63, F1 24-25 vs 34-38, ~9 requests per prompt, 83-94% over-redaction. As a verifier (AUC 0.60) it is worse than the confidence filter. (LOG S1-S4) |
@@ -307,16 +196,12 @@ demonstrations was the first framing all three bundled models could follow.
 
 ## Other findings
 
-1. **Candidate models need a newer onnxruntime-web** (1.24+): the pinned
-   1.22.0-dev build cannot load their opset-21 / external-data exports, and
-   Transformers.js 3.8.1 needs two workarounds (external data in Node,
-   `num_logits_to_keep`). (LOG E2b.)
-2. **Greedy q8 outputs depend on how the prompt is split into forward
+1. **Greedy q8 outputs depend on how the prompt is split into forward
    passes** (dynamic activation quantization): judge configurations on
    aggregates, not single cases. (LOG E2c.)
-3. **Memory on this 7 GB laptop:** Qwen2.5-0.5B loads with a ~3.1 GB peak;
-   runs were killed twice by the lab's guard when other processes grew. The
-   bench and lab now wait for memory and stop a model below 600 MB available.
+2. **Memory on this 7 GB laptop:** SmolLM2-360M peaks near 2 GB while
+   loading; the bench and lab wait for memory and stop a model below 600 MB
+   available.
 
 ## Open problems
 
@@ -332,6 +217,6 @@ demonstrations was the first framing all three bundled models could follow.
   (`proseRuns`; the patterns still scan code). The lab's `shipped`
   configuration still sends the whole text, so it differs from the extension
   on prompts with fenced code (10 of 240 tune96 requests, 17 of 606
-  held-out; `src/hosted/parity.ts`). It needs a ledger entry and a switch in
+  held-out; `npm run parity`). It needs a ledger entry and a switch in
   `docs/shipped-improvements.md` / `src/lab/shipped.ts`, and an ablation
   rerun.

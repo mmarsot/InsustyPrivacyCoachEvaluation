@@ -118,8 +118,8 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
     }
     if (aiModels.some((m) => m.hosted)) {
       hostedSpent = connectedSpentUsd();
-      console.log(`  Hosted spend so far ${hostedSpent.toFixed(4)} USD + this run <=${hostedEstimateUsd.toFixed(4)} USD; budget ${o.budgetUsd} USD`);
-      if (!o.cachedOnly && !o.dryRun && hostedSpent + hostedEstimateUsd > o.budgetUsd) throw new Error("The hosted cost estimate would pass --budget-usd; nothing was sent.");
+      console.log(`  Connected spend so far ${hostedSpent.toFixed(4)} USD + this run <=${hostedEstimateUsd.toFixed(4)} USD; budget ${o.budgetUsd} USD`);
+      if (!o.cachedOnly && !o.dryRun && hostedSpent + hostedEstimateUsd > o.budgetUsd) throw new Error("The connected cost estimate would pass --budget-usd; nothing was sent.");
     }
   }
   if (o.dryRun) return undefined;

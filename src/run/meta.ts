@@ -10,7 +10,7 @@ export interface RunModelMeta {
   peakRssMb?: number;
   wallMs?: number;
   threads?: number;
-  /** Hosted models: tokens and USD of this run's jobs (cached ones included). */
+  /** Connected models: tokens and USD of this run's jobs (cached ones included). */
   hosted?: { requests: number; inputTokens: number; outputTokens: number; usd: number; usdPer1000Prompts: number };
 }
 

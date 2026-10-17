@@ -44,7 +44,7 @@ export const refBenchModels = (ref: RefModels, which: "shipped" | "all"): ModelI
  * Never part of `--models all`: they send the dataset to an API and cost money.
  */
 export const HOSTED_BENCH_MODELS: ModelInfo[] = CONNECTED_MODELS.map((h) => ({ id: h.id, short: h.short, priorSecondsPerCase: h.priorSecondsPerCase, priorLoadSeconds: 0, hosted: true }));
-/** A bundled or hosted model by id or short name. */
+/** A local or connected model by id or short name. */
 export const findBenchModel = (name: string) => [...MODELS, ...HOSTED_BENCH_MODELS].find((x) => x.short === name || x.id === name);
 
 export interface BenchOptions {
@@ -67,7 +67,7 @@ export interface BenchOptions {
   allowMissingSplit: boolean;
   /** `--set <name>`: the dev cases of experiments/sets/<name>.json instead of a tier's selection. */
   set?: string;
-  /** Hosted models: USD the whole hosted evaluation may spend (cached lab and bench requests included). */
+  /** Connected models: USD the whole connected evaluation may spend (cached replies included). */
   budgetUsd: number;
 }
 
@@ -187,7 +187,7 @@ export function casesOfSet(dataset: CompiledDataset, name: string): CompiledCase
   return cases;
 }
 
-/** Mean cached review time on this machine (timeouts included), else the prior from models.json; hosted models: their pacing-bound prior. */
+/** Mean cached review time on this machine (timeouts included), else the prior from models.json; connected models: their pacing-bound prior. */
 export function secondsPerCase(m: ModelInfo, timings: number[] = cachedTimings(m.id)): number {
   // Hosted runs are paced (requests per minute): cached latencies would underestimate them.
   if (m.hosted) return m.priorSecondsPerCase;
@@ -220,13 +220,13 @@ export interface DocbenchOptions {
   cachedOnly: boolean;
   maxRssMb: number;
   /**
-   * Private AI review of documents: bundled or hosted models by name (hosted ones
+   * Private AI review of documents: local or connected models by name (connected ones
    * never by default). With the `ai` track on and no name, or with `default` in the
    * list, the ref's own default model (`DEFAULT_SLM_MODEL_ID`) runs first.
    */
   aiModels: ModelInfo[];
   aiDefault: boolean;
-  /** Hosted models: USD the whole hosted evaluation may spend (cached lab and bench requests included). */
+  /** Connected models: USD the whole connected evaluation may spend (cached replies included). */
   budgetUsd: number;
   /** Document sizes (characters of extracted text) for the Private AI track. */
   aiSizes: number[];
@@ -281,7 +281,7 @@ export function parseDocbenchArgs(argv: readonly string[]): DocbenchOptions {
     maxRssMb: Number(opt("max-rss-mb", "3000")),
     aiModels: list(aiArg)
       .filter((m) => m !== "default")
-      .map((m) => findBenchModel(m) ?? bad(`unknown model ${m} (Private AI track: bundled or hosted model names)`)),
+      .map((m) => findBenchModel(m) ?? bad(`unknown model ${m} (Private AI track: local or connected model names)`)),
     aiDefault: aiArg !== undefined && (list(aiArg).includes("default") || !list(aiArg).length),
     budgetUsd: Number(opt("budget-usd", "5")),
     aiSizes: list(opt("ai-sizes", "1000,5000,20000,50000")).map(Number),

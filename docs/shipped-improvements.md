@@ -49,7 +49,7 @@ With 96 cases, F1 differences under ~8 points are noise.
 | 6 | First-line stop with a 48-token cap | `firstline` | [#26](https://github.com/mmarsot/InsustyPromptCoach/pull/26) | 372c8ff | 2026-09-27 08:42 |
 | 7 | Pinned greedy decoding, `repetition_penalty` 1 | `pinned` | [#26](https://github.com/mmarsot/InsustyPromptCoach/pull/26) | 372c8ff | 2026-09-27 08:42 |
 | 8 | Basic plausibility filter | `plausible` | [#26](https://github.com/mmarsot/InsustyPromptCoach/pull/26) | 372c8ff | 2026-09-27 08:42 |
-| 9 | SmolLM2-360M default, SmolLM2-135M removed | `model` | [#26](https://github.com/mmarsot/InsustyPromptCoach/pull/26) | 372c8ff | 2026-09-27 08:42 |
+| 9 | SmolLM2-360M default, SmolLM2-135M removed | `model` (retired) | [#26](https://github.com/mmarsot/InsustyPromptCoach/pull/26) | 372c8ff | 2026-09-27 08:42 |
 | – | Automatic model preparation (no quality change) | none | [#29](https://github.com/mmarsot/InsustyPromptCoach/pull/29) | b2c4ca1 | 2026-09-27 11:38 |
 | 10 | Example-derived patterns next to the model | `patterns` | [#32](https://github.com/mmarsot/InsustyPromptCoach/pull/32) | b4f96b1 | 2026-09-27 16:13 |
 | 11 | Answer-confidence filter, minimum token probability 0.2 | `confidence` | [#32](https://github.com/mmarsot/InsustyPromptCoach/pull/32) | b4f96b1 | 2026-09-27 16:13 |
@@ -65,8 +65,9 @@ With 96 cases, F1 differences under ~8 points are noise.
 probing in the browser worker), q8 WASM. Full table with the "off"
 definitions:
 [`experiments/ablations/ablate-tune96-smollm2-360m.md`](../experiments/ablations/ablate-tune96-smollm2-360m.md).
-Runs: `experiments/runs/ablate-tune96-smollm2-360m.json` and
-`ablate-tune96-smollm2-360m-no-model.json`. Deltas are in points vs the
+Run: `experiments/runs/ablate-tune96-smollm2-360m.json` (the 2026-09-27
+`ablate-tune96-smollm2-360m-no-model.json` run of the `model` switch was
+deleted with SmolLM2-135M on 2026-10-17). Deltas are in points vs the
 baseline. Negative ΔF1 means the improvement helps F1, and positive ΔFP means
 it lowers false positives. The PR #26-baseline run of this ablation is LOG
 A1.
@@ -82,7 +83,7 @@ A1.
 | `firstline` | 38.2 | ±0.0 | 55.6 | 29.1 | 19.0 | −2.4 | 38.9 | 44.2 / 32.5 | 2.64 s |
 | `pinned` | 38.2 | ±0.0 | 55.6 | 29.1 | 21.4 | ±0.0 | 38.9 | 44.2 / 32.5 | 2.53 s |
 | `plausible` | 39.5 | +1.3 | 49.3 | 33.0 | 33.3 | +11.9 | 44.4 | 46.5 / 32.6 | 2.56 s |
-| `model` (SmolLM2-135M) | 26.9 | −11.3 | 43.9 | 19.4 | 31.0 | +9.6 | 27.8 | 32.9 / 20.0 | 1.43 s |
+| `model` (SmolLM2-135M) | retired | | | | | | | | |
 | `patterns` | 29.5 | −8.7 | 47.8 | 21.4 | 21.4 | ±0.0 | 31.5 | 31.0 / 28.2 | 2.56 s |
 | `confidence` | 39.5 | +1.3 | 47.3 | 34.0 | 38.1 | +16.7 | 48.1 | 44.2 / 35.2 | 2.37 s |
 | `stopwords` | 38.2 | ±0.0 | 55.6 | 29.1 | 21.4 | ±0.0 | 38.9 | 44.2 / 32.5 | 2.56 s |
@@ -111,12 +112,13 @@ What it says (tune96 only; differences under ~8 F1 points are noise):
 - **Near-neutral on quality:** the first-line stop (F1 ±0, FP −2.4 without
   it: within noise). It bounds latency and keeps the answer format fixed.
   Pinned decoding changes nothing on SmolLM2, as expected: identical outputs.
-  It matters for Qwen2.5-0.5B. The stop-word fix is ±0 here: the one tune96
+  The stop-word fix is ±0 here: the one tune96
   case it affected (legal-en-040, LOG "Fix: overfit words") is now dropped by
   the confidence filter anyway; it is a correctness fix against tuning-set
   overfitting, not a quality lever.
-- **The model switch:** the design on SmolLM2-135M loses 11 F1 points and
-  flags 10 points more negatives, at about half the latency.
+- **The model switch** is retired: SmolLM2-135M was removed from the bench
+  on 2026-10-17, so its "off" state no longer runs and its evidence run was
+  deleted.
 
 The held-out split was not used for this ablation. Its one-shot numbers
 for the whole design are in the PR #26 and PR #32 tables below.
@@ -143,7 +145,7 @@ replaced (extension dc91f36):
 | **held-out test** | completion design (d42c466, bench) | **27.4%** | 32.2% | **23.9%** | **41.8%** | 44.6% | **100%** | **0** | **2.4 s** |
 
 Runs: `runs/ext-d42c466-tune96-smol360/`, `test-dc91f36-smol360`,
-`test-d42c466-smol360`, `d3-smol360-confirm48`. See LOG T1, D1-D3, V1 and H1.
+`test-d42c466-smol360`, `d3-smol360-confirm48`. See LOG T1, D3, V1 and H1.
 The cost is the false-positive rate: 45% of held-out negatives get a
 finding, against 11% before. That is the main open problem (REPORT.md).
 
@@ -155,12 +157,11 @@ finding, against 11% before. That is the main open problem (REPORT.md).
 - **Evidence:** every chat-style variant tried on iter32 (instruction
   wording, system vs user placement, few-shot demonstrations as prior chat
   turns, format examples, JSON output, removing the repetition penalty) left
-  the models reciting the label list, answering the prompt or looping: F1
-  0-27% (LOG E1-E5). Few-shot as chat turns made SmolLM2-135M copy the last
-  demonstration's reply ("always NONE", E2). Completion with demonstrations
-  was the first framing all three bundled models followed. On iter32,
-  SmolLM2-360M went 19 → 38, SmolLM2-135M 5 → 30 and Qwen2.5-0.5B 0 → 36, with
-  100% parseable output and 2-4x lower latency (E6).
+  the models reciting the label list, answering the prompt or looping (those
+  screens ran on models since removed; their runs are retired). Completion
+  with demonstrations was the first framing the models followed. On iter32,
+  SmolLM2-360M went 19 → 38, with 100% parseable output and 2-4x lower
+  latency (E6).
 - **Off:** the same instruction as the system message, demonstrations as
   prior chat turns, and the model's chat template.
 
@@ -172,9 +173,7 @@ finding, against 11% before. That is the main open problem (REPORT.md).
   detector, so no model request runs without custom labels.
 - **Evidence:** it shipped as part of the E6 design and was never isolated
   before this ablation. Ablation (tune96): F1 32.1 → 9.0 without it (format
-  compliance 100 → 75%). Per-label chat passes were the first chat variant
-  that gave Qwen2.5-0.5B the right kind of output (F1 0 → 14, format 0 →
-  100%, E5).
+  compliance 100 → 75%).
 - **Off:** one request per prompt covering every custom label. The
   instruction lists every label, each label gets two example demonstrations
   answered `LABEL: passage`, and the NONE demonstration comes last. The
@@ -228,13 +227,11 @@ finding, against 11% before. That is the main open problem (REPORT.md).
 
 - **What:** every generation passes `do_sample: false`, `num_beams: 1`,
   `repetition_penalty: 1` and `no_repeat_ngram_size: 0` explicitly, instead
-  of inheriting the model's `generation_config.json`. Qwen2.5 ships sampling
-  and a 1.1 penalty.
+  of inheriting the model's `generation_config.json`.
 - **Evidence:** this is a correctness pin rather than a quality lever. It
   makes the extension decode exactly like the bench, which is always greedy.
   SmolLM2 ships no penalty, so the pin changes nothing for the default model
-  (E2 `rp1` = `ref`). Removing Qwen's 1.1 penalty alone did not rescue the
-  chat design (E5).
+  (E2 `rp1` = `ref`).
 - **Off:** penalties come from the model's `generation_config.json`. Greedy
   decoding is kept, because the lab never samples.
 
@@ -255,12 +252,12 @@ finding, against 11% before. That is the main open problem (REPORT.md).
 ### 9. SmolLM2-360M default, SmolLM2-135M removed (`model`)
 
 - **What:** SmolLM2-360M is the default Local AI redaction model, and
-  SmolLM2-135M is gone from the model list. Qwen2.5-0.5B stays in the list.
-- **Evidence:** with the completion design, SmolLM2-135M reaches F1 ~30 but
-  flags ~80% of negatives (iter32 30 / FP 80%, confirm48 29 / FP 81%; E6, C1).
-  SmolLM2-360M gets F1 32 / FP 36% on tune96 and 31 / 50% on confirm48 at
-  about 3 s. Under the chat design the 135M model scored F1 3-5 (E1, C1).
-- **Off:** the baseline runs on SmolLM2-135M, the previous default.
+  SmolLM2-135M is gone from the model list.
+- **Evidence:** SmolLM2-360M gets F1 32 / FP 36% on tune96 and 31 / 50% on
+  confirm48 at about 3 s. The SmolLM2-135M comparison runs were deleted
+  with the older models on 2026-10-17: that evidence is retired.
+- **Off:** the baseline on SmolLM2-135M, the previous default. The switch is
+  retired: the bench no longer has that model.
 
 ## Extension PR #29: automatic model preparation (not a quality change)
 
@@ -389,11 +386,10 @@ headful Chrome with `--enable-features=Vulkan`, `src/lab/browser/`):
   WASM q8 and 38 in the lab (Node WASM q8) (G2).
 - q8 on WebGPU is unusable: about 28 s per request, because its operators
   fall back to the CPU (G2).
-- fp32 on WebGPU keeps q8 quality. SmolLM2-135M, iter32: F1 21 with both,
-  0.66 s per request without a prefix cache (G3).
+- fp32 on WebGPU kept q8 quality on the smaller SmolLM2-135M (G3; that
+  model and its evidence were retired on 2026-10-17).
 
-Not verified: fp32 quality and speed for SmolLM2-360M (G3 measured the
-135M), fp16 (the GTX 1050 has no `shader-f16`), and the extension's own
+Not verified: fp32 quality and speed for SmolLM2-360M, fp16 (the GTX 1050 has no `shader-f16`), and the extension's own
 full-precision load. A headed load of SmolLM2-360M fp32 in the extension on
 this laptop was OOM-killed at about 2.5 GB of renderer RAM, which is why
 WASM q8 became the default.
@@ -414,19 +410,16 @@ usable, so the default path is the one this ledger measures.
 https://github.com/mmarsot/InsustyPromptCoach/pull/48, merge commit
 71e0c25 (2026-09-29 21:25 UTC). Trusted AI redaction can now run on a
 connected model (Amazon Bedrock Converse, or an OpenAI-compatible server)
-from the service worker, mirroring the bench's hosted backend
-(`src/hosted/`, LOG B1-B7):
+from the service worker, mirroring what was then the bench's hosted
+backend (since removed: the bench now runs the extension's own client):
 
-- **Task prompt:** the native-v2 system prompt and user message are
-  byte-identical to the bench's `NATIVE_SYSTEM.v2` and `nativeUserMessage`
-  (label examples always sent) in `src/hosted/framing.ts`
-  (extension `src/hosted-framing.ts`).
-- **Per-model framing** (`resolveRequestFormat`): Nova on Bedrock gets the
-  on-device completion text with the answer cue as an assistant prefill
-  (bench `prefill`; on OpenAI-compatible servers, a raw `/completions` call,
-  bench `completion`); GLM and any other chat model get the native task
-  prompt (bench `native`). Greedy decoding, topK 1 on Converse, GLM thinking
-  disabled.
+- **Task prompt:** the native-v2 system prompt and user message
+  (`NATIVE_SYSTEM_V2`, `nativeUserMessage`, label examples always sent; in
+  the extension's `hosted-framing.ts`).
+- **Per-model framing** (`resolveRequestFormat`): GLM and any chat model get
+  the native task prompt; the answer-cue format (the on-device completion
+  text with the cue as an assistant prefill) is chosen for other models.
+  Greedy decoding, topK 1 on Converse, GLM thinking disabled.
 - **Tolerant answer parser** (`hostedAnswerLines`): first line, a repeated
   `LABEL:` cue stripped, split on `|`, empty and `NONE` parts dropped, then
   handed to the on-device `reviewPrompt` parser.
@@ -438,23 +431,16 @@ from the service worker, mirroring the bench's hosted backend
   limit, timeout, unreadable answer), the review falls back to rule-based
   redaction.
 
-Evidence, held-out test split, one shot (LOG B6, run `hosted-test-1c377d7`;
-framings chosen on dev in B3-B5): GLM-4.7 Flash native v2 recall **64.7%**
-(F1 58.7, precision 53.7, FP rate 32.7%, p50 0.61 s) against **27.0%** for
-the bundled SmolLM2-360M `shipped` design (F1 33.2, FP rate 35.6%, p50
-2.61 s); Nova Micro prefill 45.3% recall at 72.6% precision.
+Evidence: the held-out runs of the bench-side hosted framings (LOG B3-B6)
+were deleted with the older models and hosted variants on 2026-10-17; that
+evidence is retired. The bench now runs the connected model as
+`glm47-flash-connected` through the extension's own client (README
+"Connected model in the bench"); its first measurement is a smoke check on
+`main` @ 95454ec (16 prompts: F1 51.9%, precision 41.2%, recall 70.0%).
 
 This is a connected-model feature, not a change to the in-browser model: the
 `shipped` lab baseline, its switches and the ablation above are unchanged,
-and it has no switch. Hosted framings are measured as hosted model ids
-(`src/hosted/models.ts`, e.g. `glm47-flash-native-v2`), where a new framing
-is a new id. The bench's `-trusted` hosted models (README "Hosted models")
-send the extension's PR #48 requests (its stop sequences and tolerant answer
-parser); LOG B3-B6 predate them (first-line stop only, no tolerant parser),
-and have not been rerun. Known extension behaviours the bench does not
-model: one retry with a minimal OpenAI body after an HTTP 400, topK and
-GLM's thinking switch sent only to Nova and GLM (the bench always sends
-topK 1 on Converse), and confidence capped at 1.
+and it has no switch.
 
 ## Extension PR #52: learning custom labels from the review dialog (not in the baseline)
 

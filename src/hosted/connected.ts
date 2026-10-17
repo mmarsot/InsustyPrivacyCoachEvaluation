@@ -132,7 +132,7 @@ export function connectedTarget(m: ConnectedModel, budget: { budgetUsd: number; 
     const key = createHash("sha256").update(JSON.stringify([m.id, url, init?.body ?? ""])).digest("hex");
     const hit = cache.get(key);
     if (hit) return new Response(hit.body, { status: hit.status, headers: { "content-type": "application/json", [CACHE_HEADER]: "hit" } });
-    if (budget.spentUsd() >= budget.budgetUsd) throw new Error(`hosted budget of ${budget.budgetUsd} USD reached; nothing was sent`);
+    if (budget.spentUsd() >= budget.budgetUsd) throw new Error(`connected budget of ${budget.budgetUsd} USD reached; nothing was sent`);
     const response = await fetch(input, init);
     const body = await response.text();
     if (response.ok) {

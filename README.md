@@ -132,8 +132,7 @@ difficulty, length bucket, register and error level:
 
 Findings are scored as the extension would accept them: they are the output of
 the ref's own `reviewPrompt` parser and anchoring. Language results are shown
-next to each model's advertised language support. For example, SmolLM2 is
-English-first, while Qwen2.5 lists French.
+next to each model's advertised language support (SmolLM2 is English-first).
 
 ## Tiers and runtime
 
@@ -170,7 +169,7 @@ Useful flags:
 
 - `--cases-per-profile 3` (quick tier volume)
 - `--models shipped` (default), `all` (every model the ref ships), or names such
-  as `smollm2-360m,qwen2.5-0.5b` (any model `models/models.json` describes); the
+  as `smollm2-360m` (any model `models/models.json` describes); the
   connected model by name only (`glm47-flash-connected`,
   [below](#connected-model-in-the-bench)), with `--budget-usd 5`
 - `--label-variants desc,desc_ex3` or `all` (alias `--labels`)
@@ -189,28 +188,22 @@ Useful flags:
 
 ## Results so far
 
-[`runs/quick-partial-81fb9b5/report.html`](runs/quick-partial-81fb9b5/report.html)
-is a **partial** run. It covers the PR #17 branch commit `81fb9b5` (before its
-squash-merge into `main`), with the older 10-cases-per-profile quick tier and
-the `desc` and `desc_ex3` variants. It was stopped on request after 291 of 960
-jobs:
+The bench keeps two models: SmolLM2-360M on the device (the model the
+extension ships) and GLM-4.7 Flash connected. Older models and their runs
+were deleted on 2026-10-17 to start fresh. Committed SmolLM2-360M runs
+(passage-level overlap F1 / precision / recall, share of negatives with a
+false finding):
 
-- SmolLM2-135M, `desc`: all 160 cases.
-- SmolLM2-135M, `desc_ex3`: 125 cases.
-- Qwen2.5-0.5B, `desc_ex3`: 6 smoke cases only.
+| Run | Ref | Cases | F1 | P | R | FP rate |
+| --- | --- | --- | --- | --- | --- | --- |
+| `runs/ext-ebf077f-tune96-smol360` | `ebf077f` (PR #32) | tune96 | 38.2% | 55.6% | 29.1% | 21.4% |
+| `runs/ext-ebf077f-test-smol360` | `ebf077f` (PR #32) | held-out test, 242 | 33.2% | 43.3% | 27.0% | 35.6% |
+| `runs/ext-d42c466-tune96-smol360` | `d42c466` (PR #26) | tune96 | 32.1% | 41.5% | 26.2% | 35.7% |
+| `runs/test-d42c466-smol360` | `d42c466` (PR #26) | held-out test, 242 | 27.4% | 32.2% | 23.9% | 44.6% |
+| `runs/test-dc91f36-smol360` | `dc91f36` (chat design) | held-out test, 242 | 12.0% | 44.2% | 6.9% | 10.9% |
 
-What it shows for SmolLM2-135M, the extension's default model:
-
-- **Outcome:** it found 1 expected passage across 285 cases, and had no false
-  positives on negatives.
-- **Format:** only 11-16% of outputs follow the line protocol.
-- **Timeouts:** 66% of cases hit the 30 s budget, almost all in repeated-line
-  loops (167 of the 187 timeouts repeat a line).
-- **Other failures:** it recited the label list back (`echo_instructions`, 16%),
-  echoed the prompt (10%), or answered it (6%).
-
-`main` has since added a stop on repeated lines, so the next run on `main`
-should show far fewer timeouts. The other two models still need a run.
+The smoke tier on `main` and the connected model are in
+[Connected model in the bench](#connected-model-in-the-bench).
 
 ## Deterministic redaction bench
 
@@ -441,32 +434,29 @@ dataset as of `c1c7a64`;
   0.5 ms per 1,000 characters everywhere, so a 2 MB text costs ~1 s of rules
   and every type stays under 5 s up to its caps. Peak memory stays under
   500 MB per document (worker baseline ~140 MB).
-- **Private AI on documents** (`--ai default,glm47-flash-trusted`, pinned
-  to `2aece81`; `--ai-tier smoke`: 2 dev cases, 3 expected passages, each in
-  Word documents of 1,000 to 50,000 characters; 18 passage instances per
-  model). SmolLM2-360M is the ref's default on-device model; GLM-4.7 Flash
-  ran through the bench's own hosted client with its copy of the framing of
-  the extension's connected-model (Trusted AI) requests (`glm47-flash-trusted`:
-  Bedrock Converse, native prompt, tolerant answer parser; the bench now
-  runs `glm47-flash-connected` through the ref's own client instead):
+- **Private AI on documents** (`--ai default`, pinned to `2aece81`;
+  `--ai-tier smoke`: 2 dev cases, 3 expected passages, each in Word
+  documents of 1,000 to 50,000 characters; 18 passage instances).
+  SmolLM2-360M, the ref's default on-device model:
 
-  | | SmolLM2-360M (on device) | GLM-4.7 Flash (connected) |
-  | --- | --- | --- |
-  | Passages found | 2 / 18 (both at 20,000 chars) | 14 / 18 |
-  | False positives | 1 | 8 (`qm-payouts-worker`, `batch 7781` in a log) |
-  | Review time, 1,000 chars | 5-10 s | 1.0-1.9 s |
-  | Review time, 20,000 chars | 89-141 s | 1.4-2.0 s |
-  | Review time, 50,000 chars | 229-367 s | 1.5-3.0 s |
-  | Time fit | `5.78 · chars^0.98` ms (linear) | nearly flat (`chars^0.12`) |
-  | Within 30 s | ~6,300 chars | ≥ 49,000 chars (all sizes) |
-  | Cost | – | 0.0075 USD for the 12 documents (0.0001-0.0023 USD each) |
+  | | SmolLM2-360M (on device) |
+  | --- | --- |
+  | Passages found | 2 / 18 (both at 20,000 chars) |
+  | False positives | 1 |
+  | Review time, 1,000 chars | 5-10 s |
+  | Review time, 20,000 chars | 89-141 s |
+  | Review time, 50,000 chars | 229-367 s |
+  | Time fit | `5.78 · chars^0.98` ms (linear) |
+  | Within 30 s | ~6,300 chars |
 
   The 360M answers are mostly dropped by the ref's own checks
-  (`hallucinated`, `echo_instructions`). GLM finds the figure passage from
-  1,000 to 20,000 characters but not at 50,000, where it answers with the
-  passage plus a leading word ("our Q3 volumes fell…") and the ref drops
-  it. Three passages are too few for a firm recall curve; `--ai-tier
-  quick` (16 cases) gives one.
+  (`hallucinated`, `echo_instructions`). Three passages are too few for a
+  firm recall curve; `--ai-tier quick` (16 cases) gives one. This run also
+  had GLM-4.7 Flash through a bench-side copy of the connected-model client
+  (`glm47-flash-trusted`, removed with the older models on 2026-10-17; its
+  points were retired). The connected model now runs as
+  `glm47-flash-connected` through the ref's own client
+  (`--ai default,glm47-flash-connected`).
 
 ## Literature benchmarks and the Presidio baseline
 
@@ -616,8 +606,8 @@ Loading another model or pressing *Unload* kills that process, so the
 operating system gets all of its memory back. The header shows load time,
 current and peak RSS (from `/proc`), context length and WASM threads. It
 handles one request at a time; a second one gets HTTP 409 while it is busy.
-Rough RSS on this laptop: SmolLM2-135M about 1 GB. Qwen2.5-0.5B can peak above
-3 GB while loading, so do not load it while a bench run is going.
+Rough RSS on this laptop: SmolLM2-360M about 1.9 GB at its peak, so do not
+load it while a bench run is going.
 
 - **Free chat.** Editable system message, user message and optional assistant
   prefill, max new tokens, greedy or sampling (temperature, top-p, not seeded)
@@ -667,14 +657,14 @@ F1 33.3% (P 37.5%, R 30.0%), 3.7 s per prompt.
 
 ```bash
 npm run lab -- --configs ref,shots-labelex --models smollm2-360m   # iter32 set by default
-npm run lab -- --configs ref --models qwen2.5-0.5b --show-prompt --dry-run
+npm run lab -- --configs ref --models smollm2-360m --show-prompt --dry-run
 ```
 
 `npm run lab` (`src/lab/`) is for fast iteration on everything the extension
 could change beyond the user's own text: instruction wording and layout,
 system vs user placement, few-shot demonstrations as prior chat turns, the
-assistant prefill, token cap, repetition settings, JSON vs line output, and
-candidate models (`models/candidates.json`). Each named configuration in
+assistant prefill, token cap, repetition settings and JSON vs line output,
+on the shipped SmolLM2-360M. Each named configuration in
 `src/lab/configs.ts` is the shipped `ref` configuration plus overrides. The
 `ref` configuration renders byte-identical prompts to the extension engine
 (checked with `src/lab/parity.ts`).
@@ -708,8 +698,7 @@ candidate models (`models/candidates.json`). Each named configuration in
   language and label.
 - While a worker runs, the run file is rewritten every ~30 s with the cases
   finished so far (`inProgress`), for the dashboard's Lab view.
-- Candidate models run on onnxruntime-web 1.24.3 (`ort: "next"` in
-  `models/candidates.json`); `--no-prefix-cache` runs every request whole.
+- `--no-prefix-cache` runs every request whole.
 - `npm run lab:classify` tests the candidate-classification approach, and
   `npx tsx src/lab/browser/run.ts --device webgpu --dtype q4 -- <lab args>`
   runs lab requests in a real Chrome (WebGPU or WASM) and stores them for
@@ -720,104 +709,17 @@ candidate models (`models/candidates.json`). Each named configuration in
   `experiments/LOG.md`, and the current best configuration with its evidence
   is `experiments/REPORT.md`.
 
-### Hosted models in the lab (Amazon Bedrock, OpenAI-compatible servers)
+### Request parity
 
 ```bash
-npm run hosted:check -- --models nova-micro-prefill,glm47-flash-oai-native-v2   # one synthetic request each ("Test connection")
-npm run lab -- --configs shipped --models nova-micro-prefill --set tune96 --by-lang
 npm run parity -- --set tune96     # lab requests vs the ref's own reviewPrompt requests (no model, no network)
 ```
 
-Lab runs show in the Lab view. Results so far:
-`runs/hosted-{tune96,confirm48,test}-1c377d7/`, `runs/connector-smoke-1c377d7/`
-(bench runs from before the redaction contract)
-and [`experiments/REPORT.md`](experiments/REPORT.md) "Hosted models" (LOG B1-B7).
-
-To try framings, prompts and endpoints the extension does not ship, the lab
-sends the shipped baseline's per-label requests to a hosted or self-hosted
-model through the bench's own provider-neutral backend (`src/hosted/`);
-the bench itself only runs what a ref ships (above):
-
-- `framing.ts` turns the ref's request (`{instructions, input,
-  responsePrefill}`) into a neutral chat or completion request, in one of
-  four framings (the model name's suffix):
-  - `-prefill`: the completion text as the user turn, and the assistant turn
-    prefilled with the cue `LABEL:`;
-  - `-completion`: the completion text and cue as a raw completion prompt;
-  - `-system`: the instruction line as the system prompt, and the
-    demonstrations, text and cue as the user turn;
-  - `-native*`: a chat-native request for the same label: a
-    system prompt describing the task and the answer format
-    (`NATIVE_SYSTEM` v1/v2), then the label's name, description and
-    examples (`-noex`: none) and the prompt.
-- Adapters send it and return the answer text, token usage, latency and,
-  when the provider has them, token log probabilities: `bedrock.ts`
-  (Converse, chat framings only) and `openai.ts` (any OpenAI-compatible
-  server: chat to `/chat/completions`, completion to `/completions`).
-- `client.ts` paces, retries (429, 5xx, network), cuts the answer at its
-  first line like the extension's first-line stop, and turns log
-  probabilities into the extension's answer confidence (the lowest
-  answer-token probability), so the ref's confidence filter (0.2) applies.
-- `models.ts` is the model table: provider, endpoint, framing, decoding,
-  prices, pacing. A new framing, prompt wording, endpoint or decoding
-  setting is a new entry and id (results are cached by model id), never an
-  edit. Result cache files are named after the id's last segment, which must
-  stay unique.
-
-Decoding is temperature 0 (topK 1 on Bedrock) and a 48-token cap (128 for
-native). Converse rejects `\n` as a stop sequence, so it gets only non-blank
-ones (`nova-micro-prefill-stop`: `\nText:`); OpenAI-compatible entries send
-`stop: ["\n"]` and ask for `logprobs`.
-
-The `-trusted` entries (`nova-micro-trusted`, `glm47-flash-trusted`,
-`glm47-flash-oai-trusted`, `ollama-*-completion-trusted`,
-`ollama-*-native-v2-trusted`) are the bench's copy of what the extension's
-Trusted AI redaction sent at PR #48 (`src/hosted-framing.ts` @ 71e0c25),
-kept for the lab and older results: a `\nText:` stop for
-answer-cue requests (prefill or completion), no stop for native chat, and
-the extension's tolerant answer parser (`tolerantAnswer` in `framing.ts`:
-repeated `LABEL:` cue stripped, split on `|`, empty and `NONE` parts
-dropped) before the ref's parser. Known extension behaviours the bench does
-not model: one retry with a minimal OpenAI body after an HTTP 400, topK and
-GLM's thinking switch sent only to Nova and GLM (the bench always sends topK
-1 on Converse), and confidence capped at 1. The bench's connected model
-runs the ref's own client instead, so it has none of these gaps.
-
-- **Models:** `nova-micro-*`: Amazon Nova Micro through the EU inference
-  profile `eu.amazon.nova-micro-v1:0`. `glm47-flash-*`: Z.ai GLM-4.7 Flash
-  (`zai.glm-4.7-flash`, in-region only) with thinking disabled (a reply with
-  reasoning stops the run); `glm47-flash-oai-native-v2` reaches it through
-  Bedrock's OpenAI-compatible endpoint (chat only, no `/completions`; it
-  returns log probabilities; Nova is not served there). All in `eu-north-1`.
-  `ollama-smollm-360m-*` and `ollama-smollm2-360m-*`: a local Ollama
-  (`OLLAMA_BASE_URL`, default `http://127.0.0.1:11434/v1`); the bench waits
-  for their RSS plus the memory margin and unloads each after its run.
-  Ollama's `/v1/completions` wraps the prompt in the model's chat template
-  (not a raw completion) and returns no log probabilities; its chat endpoint
-  returns them. Send only the benchmark's fictional dataset.
-- **Auth:** Bedrock: a Bedrock API key in `AWS_BEARER_TOKEN_BEDROCK`, sent as
-  a bearer token. OpenAI-compatible: the environment variable a model entry
-  names (`apiKeyEnv`), else no key. Keys are read from the environment only
-  and never logged.
-- **Cache and cost:** results are cached like local ones: in the bench's
-  result cache per ref commit, and in the lab by model id with framing,
-  rendered prompt and generation settings (`cache/lab/<model>-api.jsonl`).
-  Each request records its latency (network included, throttling retries
-  excluded), the provider's server latency, token usage, cost and answer
-  confidence, and `run.json` and the report give each hosted model's cost.
-  Before sending anything, the bench and the lab print an estimate. They
-  refuse to start when the hosted spend so far (every cached hosted request)
-  plus the estimate would pass `--budget-usd` (default 5), and they stop
-  mid-run at the budget. Per 1M input / output tokens in eu-north-1 (AWS
-  price list): Nova Micro 0.038 / 0.152 USD, GLM-4.7 Flash 0.08 / 0.48 USD.
-  A tune96 run (240 requests) costs about 0.003 USD on Micro.
-- **Pacing:** requests are sent one at a time, so each measured latency is a
-  single request's, and paced per model (`rpm`; `HOSTED_RPM`, or
-  `BEDROCK_RPM` for Bedrock, overrides it). Nova Micro runs at 18 per minute
-  and GLM-4.7 Flash at 90, because this test account allows them 20 and 100,
-  so a tune96 pass takes about 13 minutes on Micro. Backoff on HTTP 429 is a
-  safety net. A request that runs out of retries is not cached, and a rerun
-  computes it.
+`src/lab/request-parity.ts` runs the ref's own `reviewPrompt` with a
+recording client and checks every per-label request against what the lab's
+`shipped` configuration renders. Requests that differ only by the ref's
+code-fence skip (PR #42, not modelled by the lab yet) are counted apart; any
+other difference fails it (a CI gate of the Private AI track).
 
 ### Shipped baseline and ablations
 
@@ -833,8 +735,8 @@ the extension ships byte for byte, and each improvement recorded in
 `npm run ablate` runs the baseline, every switch and any `--with` proposals
 (configurations added on top of `shipped` in `src/lab/configs.ts`) through
 the lab, and writes the deltas vs the baseline to
-`experiments/ablations/<name>.md`. The model switch reruns the baseline on
-the previous default model in a second worker, after the first one exits.
+`experiments/ablations/<name>.md`. A switch whose "off" state can no longer
+run (the `model` switch: SmolLM2-135M was removed) is listed as retired.
 
 ## How it runs the extension's code
 
@@ -971,7 +873,7 @@ src/playground/ chat playground: request logic, model host process, its manager
 src/lab/        prompt-engineering lab: configurations, shipped baseline + switches, ablation, renderer, worker, parity check
 src/detbench/   deterministic redaction bench: dataset, perturbations, detector loading, scoring, report
 src/docbench/   document bench: document writers, cases and sweeps, the ref's file check, scoring, report
-src/hosted/     connected models of the Private AI track (transport for the ref's own client); the lab's hosted framings and adapters
+src/hosted/     the connected model of the Private AI track (the transport for the ref's own client)
 experiments/    lab iteration sets, run summaries, ablation tables, LOG.md, REPORT.md, RESEARCH.md
 src/cli/        validate, split, bench, report, compare, detbench, docbench, conformance, literature, suite
 runs/           committed run outputs (runs/detbench/ for the rule-based detector, runs/docbench/ for documents, runs/literature/)
