@@ -33,7 +33,7 @@ echo '{ "extRepo": "../InsustyPromptCoach" }' > bench.local.json   # untracked
 npm run validate                       # check the dataset
 npm run bench -- --tier smoke          # 8 cases per model, a few minutes
 npm run bench -- --dry-run             # print the plan and the time estimate only
-npm run bench                          # quick tier: 32 cases x 3 models, ~30 min
+npm run bench                          # quick tier: 32 cases x the ref's shipped model, a few minutes
 open runs/<run-name>/report.html
 ```
 
@@ -48,7 +48,7 @@ Each job runs one configuration on one case. A configuration has four parts:
 
 | Axis | Values |
 | --- | --- |
-| Model | the 3 bundled models, q8 on WASM (`models/models.json`) |
+| Model | the ref's shipped model (`DEFAULT_SLM_MODEL_ID`), or every model it ships (`--models all`, `SLM_MODELS`), q8 on WASM; `models/models.json` only describes them |
 | System instruction | `current` (the ref's `DEFAULT_SLM_PROMPT`), `strict` ("privacy scanner, not an assistant"), `short` (`src/variants.ts`) |
 | Label description | `desc`, `desc_ex1`, `desc_ex3`, `ex3` (examples only), `ex_counter` (examples and counter-examples), all built from `dataset/profiles/*.json` |
 | Cases | profile, language, type, difficulty, length, writing style |
@@ -90,7 +90,7 @@ English-first, while Qwen2.5 lists French.
 | `quick` (default) | 32: 2 dev cases per profile and language, stratified by type across the run (`--cases-per-profile N`) | Fast iteration on prompts and descriptions |
 | `full` | all 809 (both splits) | Overnight runs |
 
-The defaults are the `quick` tier, all 3 models, the `current` instruction and
+The defaults are the `quick` tier, the ref's shipped model, the `current` instruction and
 one label-description variant (`desc`). Other axes are opt-in:
 `--label-variants desc,desc_ex3` or `all`, and `--instructions all`.
 
@@ -99,9 +99,8 @@ The runner prints its plan and a time estimate before it starts
 this machine, or the priors in `models/models.json`. Estimates on the 8-vCPU,
 7 GB laptop this was built on:
 
-- **Default quick run** (32 cases × 3 models × 1 variant): about 30 min. This is
-  conservative. The SmolLM2-135M timing comes from runs before `main`'s
-  repeated-line stop, which should cut its many 30 s timeouts.
+- **Default quick run** (32 cases × SmolLM2-360M, the model `main` ships, × 1
+  variant): about 3 min from cached timings.
 - **Quick with 3 cases per profile:** about 45 min.
 - **Quick with 10 cases per profile and 2 variants:** about 3 h.
 - **Full tier, 1 variant:** about 12 h.
@@ -117,7 +116,8 @@ run incomplete when jobs are missing.
 Useful flags:
 
 - `--cases-per-profile 3` (quick tier volume)
-- `--models smollm2-135m,qwen2.5-0.5b`; hosted models by name only
+- `--models shipped` (default), `all` (every model the ref ships), or names such
+  as `smollm2-360m,qwen2.5-0.5b` (any model `models/models.json` describes); hosted models by name only
   (`nova-micro-prefill`, `nova-micro-system`, [below](#hosted-models-amazon-bedrock)),
   with `--budget-usd 5`
 - `--label-variants desc,desc_ex3` or `all` (alias `--labels`)
@@ -436,7 +436,7 @@ It has seven views:
   model × instruction × label description it shows progress, timeouts, errors
   and failure-mode counts so far. It also lists the latest results.
 - **Experiments.** The full planned matrix for the quick and full tiers, on all
-  axes (3 models × 3 instructions × 5 label descriptions). Each cell shows
+  axes (the ref's models × 3 instructions × 5 label descriptions). Each cell shows
   done/total, a status (done, running, partial or pending) and the estimated
   remaining time.
 - **Results.** Pick a committed run, or a LIVE run whose results are scored as

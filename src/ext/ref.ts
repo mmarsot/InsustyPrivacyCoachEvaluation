@@ -22,13 +22,16 @@ import { EXT_CACHE_DIR, LOCAL_CONFIG_FILE, ROOT } from "../paths.ts";
 /** Default extension ref: `main`, which ships the line protocol since PR #17. */
 export const DEFAULT_EXT_REF = "main";
 
-/** Modules the bench imports from the ref, by export name. The first four are required. */
-const MODULES: ReadonlyArray<{ name: string; file: string; required: boolean }> = [
-  { name: "review", file: "src/slm-review.ts", required: true },
-  { name: "engine", file: "src/slm-engine.ts", required: true },
-  { name: "config", file: "src/config.ts", required: true },
-  { name: "models", file: "src/slm-models.ts", required: true },
-  { name: "generation", file: "src/slm-generation.ts", required: false },
+/**
+ * Modules the bench imports from the ref, by export name, with where each
+ * lives: area folders since PR #82, flat `src/` before. The first four are required.
+ */
+const MODULES: ReadonlyArray<{ name: string; files: string[]; required: boolean }> = [
+  { name: "review", files: ["src/private-ai/slm-review.ts", "src/slm-review.ts"], required: true },
+  { name: "engine", files: ["src/private-ai/on-device/slm-engine.ts", "src/slm-engine.ts"], required: true },
+  { name: "config", files: ["src/config/config.ts", "src/config.ts"], required: true },
+  { name: "models", files: ["src/private-ai/on-device/slm-models.ts", "src/slm-models.ts"], required: true },
+  { name: "generation", files: ["src/private-ai/on-device/slm-generation.ts", "src/slm-generation.ts"], required: false },
 ];
 
 interface LocalConfig {
@@ -104,10 +107,13 @@ export async function materializeExtRef(repo: string, ref: string): Promise<ExtR
     rmSync(staging, { recursive: true, force: true });
     mkdirSync(staging, { recursive: true });
     archiveCommit(repo, sha, ["src", "package.json"], staging);
-    const present = MODULES.filter((m) => existsSync(join(staging, m.file)));
-    const missing = MODULES.filter((m) => m.required && !present.includes(m));
+    const present = MODULES.flatMap((m) => {
+      const file = m.files.find((f) => existsSync(join(staging, f)));
+      return file ? [{ ...m, file }] : [];
+    });
+    const missing = MODULES.filter((m) => m.required && !present.some((p) => p.name === m.name));
     if (missing.length)
-      throw new Error(`Ref ${ref} (${sha.slice(0, 8)}) lacks ${missing.map((m) => m.file).join(", ")}; the bench cannot drive it.`);
+      throw new Error(`Ref ${ref} (${sha.slice(0, 8)}) lacks ${missing.map((m) => m.files.join(" or ")).join(", ")}; the bench cannot drive it.`);
     writeFileSync(
       join(staging, "bench-entry.ts"),
       present.map((m) => `export * as ${m.name} from "./${m.file}";`).join("\n") + "\n",

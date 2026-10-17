@@ -9,8 +9,8 @@
  *   2. The npm packages those modules import (`@embedpdf/pdfium`, `fflate`,
  *      the detector's own) are installed at the versions the ref's
  *      package-lock pins.
- *   3. esbuild bundles `src/file-check.ts`, `src/document-reader.ts`,
- *      `src/document-model.ts`, `src/detector.ts` and `src/config.ts` into
+ *   3. esbuild bundles the ref's file check, document reader, document
+ *      model, detector, redaction and config modules (`MODULES` below) into
  *      `bench-docs.mjs`, resolving packages only from that install.
  *
  * A ref from before the document worker (no `src/document-reader.ts`) still
@@ -29,15 +29,16 @@ import { importedPackages, installLocked, isBuiltin } from "../detbench/ext.ts";
 export const DOC_EXT_CACHE_DIR = join(CACHE_DIR, "docbench", "ext");
 
 /** Bundle layout version: bump when the entry below changes, so cached bundles are rebuilt. */
-const BUNDLE_VERSION = 3;
+const BUNDLE_VERSION = 4;
 
-const MODULES: ReadonlyArray<{ name: string; file: string; required: boolean }> = [
-  { name: "detector", file: "src/detector.ts", required: true },
-  { name: "config", file: "src/config.ts", required: true },
-  { name: "fileCheck", file: "src/file-check.ts", required: false },
-  { name: "documentReader", file: "src/document-reader.ts", required: false },
-  { name: "documentModel", file: "src/document-model.ts", required: false },
-  { name: "redaction", file: "src/redaction.ts", required: false },
+/** Where each module lives: area folders since PR #82, flat `src/` before. */
+const MODULES: ReadonlyArray<{ name: string; files: string[]; required: boolean }> = [
+  { name: "detector", files: ["src/detection/detector.ts", "src/detector.ts"], required: true },
+  { name: "config", files: ["src/config/config.ts", "src/config.ts"], required: true },
+  { name: "fileCheck", files: ["src/files/file-check.ts", "src/file-check.ts"], required: false },
+  { name: "documentReader", files: ["src/files/readers/document-reader.ts", "src/document-reader.ts"], required: false },
+  { name: "documentModel", files: ["src/files/document-model.ts", "src/document-model.ts"], required: false },
+  { name: "redaction", files: ["src/detection/redaction.ts", "src/redaction.ts"], required: false },
 ];
 
 export interface DocReaderRef {
@@ -66,9 +67,12 @@ export async function materializeDocReader(repo: string, ref: string, log: (line
     rmSync(staging, { recursive: true, force: true });
     mkdirSync(staging, { recursive: true });
     archiveCommit(repo, sha, ["src", "package.json", "package-lock.json"], staging);
-    const present = MODULES.filter((m) => existsSync(join(staging, m.file)));
-    const missing = MODULES.filter((m) => m.required && !present.includes(m));
-    if (missing.length) throw new Error(`Ref ${ref} (${sha.slice(0, 8)}) lacks ${missing.map((m) => m.file).join(", ")}; docbench cannot drive it.`);
+    const present = MODULES.flatMap((m) => {
+      const file = m.files.find((f) => existsSync(join(staging, f)));
+      return file ? [{ ...m, file }] : [];
+    });
+    const missing = MODULES.filter((m) => m.required && !present.some((p) => p.name === m.name));
+    if (missing.length) throw new Error(`Ref ${ref} (${sha.slice(0, 8)}) lacks ${missing.map((m) => m.files.join(" or ")).join(", ")}; docbench cannot drive it.`);
     const entry = join(staging, "bench-docs-entry.ts");
     writeFileSync(entry, present.map((m) => `export * as ${m.name} from "./${m.file}";`).join("\n") + "\n");
     // PDFium is loaded by the ref's document worker, not imported by the reader (types only): install it too.

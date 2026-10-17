@@ -12,7 +12,7 @@ import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo, type 
 import { HOSTED_MODELS } from "../hosted/models.ts";
 import { EXT_CACHE_DIR, MODELS_FILE, ROOT } from "../paths.ts";
 import { DEFAULT_QUICK_CASES_PER_PROFILE, rulesFor, selectCases, type Job, type ResultRecord } from "../run/jobs.ts";
-import { findBenchModel, MODELS, parseBenchArgs, planJobs, secondsPerCase, splitLabel, type Plan } from "../run/plan.ts";
+import { benchRefArgs, findBenchModel, localModel, MODELS, parseBenchArgs, planJobs, refBenchModels, secondsPerCase, splitLabel, type Plan } from "../run/plan.ts";
 import { compareRows, COMPARE_METRICS } from "../report/compare-data.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
 import { INSTRUCTION_VARIANTS, LABEL_VARIANTS } from "../variants.ts";
@@ -139,11 +139,12 @@ export class Dashboard {
       }
       const live: LiveRun = { id, run };
       try {
-        const o = parseBenchArgs(run.argv);
+        const refArgs = benchRefArgs(run.argv);
+        live.ext = await this.ext(refArgs.ref ?? resolveExtRefName(this.options.ref), refArgs.extRepo ?? this.options.extRepo);
+        if (!live.ext) throw new Error("extension clone not available");
+        const o = parseBenchArgs(run.argv, live.ext.api);
         live.tier = o.tier;
         live.split = splitLabel(o);
-        live.ext = await this.ext(o.ref ?? resolveExtRefName(this.options.ref), o.extRepo ?? this.options.extRepo);
-        if (!live.ext) throw new Error("extension clone not available");
         const { dataset } = compileDataset({ requireSplit: !o.allowMissingSplit, profiles: o.profiles });
         if (!dataset) throw new Error("dataset invalid for this run's options");
         live.plan = planJobs(dataset, o, live.ext.ext.sha, live.ext.api.defaultPrompt, live.ext.api.kind === "completion");
@@ -168,7 +169,7 @@ export class Dashboard {
         live.plan.jobsByModel,
         (model) => readModelCache(ext.sha, model),
         (job, record) => this.score(api, job, record).failure,
-        (model) => secondsPerCase(findBenchModel(model) ?? MODELS[0]!),
+        (model) => secondsPerCase(findBenchModel(model) ?? localModel(model)),
       );
       return { ...base, ref: ext.ref, sha: ext.sha, cases: live.plan.cases.length, ...progress };
     });
@@ -194,7 +195,7 @@ export class Dashboard {
   private plansFor(loaded: LoadedExt) {
     let plans = this.plansMemo.get(loaded.ext.sha);
     if (!plans) {
-      const all = { casesPerProfile: DEFAULT_QUICK_CASES_PER_PROFILE, cachedOnly: false, models: MODELS, instructions: [...INSTRUCTION_VARIANTS], labelVariants: LABEL_VARIANTS.map((v) => v.id), profiles: [], langs: [], maxRssMb: 0, dryRun: false, allowMissingSplit: false, budgetUsd: 0 };
+      const all = { casesPerProfile: DEFAULT_QUICK_CASES_PER_PROFILE, cachedOnly: false, models: refBenchModels(loaded.api, "all"), instructions: [...INSTRUCTION_VARIANTS], labelVariants: LABEL_VARIANTS.map((v) => v.id), profiles: [], langs: [], maxRssMb: 0, dryRun: false, allowMissingSplit: false, budgetUsd: 0 };
       plans = {
         quick: planJobs(this.dataset, { ...all, tier: "quick" }, loaded.ext.sha, loaded.api.defaultPrompt, loaded.api.kind === "completion"),
         full: planJobs(this.dataset, { ...all, tier: "full" }, loaded.ext.sha, loaded.api.defaultPrompt, loaded.api.kind === "completion"),
@@ -212,8 +213,9 @@ export class Dashboard {
       const live = await this.liveRuns();
       const activeKeys = new Set<string>();
       for (const l of live) if (l.plan) for (const jobs of l.plan.jobsByModel.values()) for (const j of jobs) activeKeys.add(j.key);
-      const perCase = new Map(MODELS.map((m) => [m.id, secondsPerCase(m)]));
-      const caches = new Map(MODELS.map((m) => [m.id, readModelCache(loaded.ext.sha, m.id)]));
+      const refModels = refBenchModels(loaded.api, "all");
+      const perCase = new Map(refModels.map((m) => [m.id, secondsPerCase(m)]));
+      const caches = new Map(refModels.map((m) => [m.id, readModelCache(loaded.ext.sha, m.id)]));
       const isDone = (model: string, key: string) => caches.get(model)?.has(key) ?? false;
       const isActive = (_model: string, key: string) => activeKeys.has(key);
       this.matrixMemo = {
@@ -224,7 +226,7 @@ export class Dashboard {
         ],
       };
     }
-    return { ref: loaded.ext.ref, sha: loaded.ext.sha, subject: loaded.ext.subject, rows: this.matrixMemo.rows, secondsPerCase: Object.fromEntries(MODELS.map((m) => [m.id, secondsPerCase(m)])) };
+    return { ref: loaded.ext.ref, sha: loaded.ext.sha, subject: loaded.ext.subject, rows: this.matrixMemo.rows, secondsPerCase: Object.fromEntries(refBenchModels(loaded.api, "all").map((m) => [m.id, secondsPerCase(m)])) };
   }
 
   // ---------------------------------------------------------- results

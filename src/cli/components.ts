@@ -15,16 +15,17 @@
 import { compileDataset } from "../dataset/load.ts";
 import { loadExtApi, materializeExtRef, resolveExtRefName, resolveExtRepo, type ModelClientLike } from "../ext/ref.ts";
 import { loadCache, type ResultRecord } from "../run/jobs.ts";
-import { parseBenchArgs, planJobs } from "../run/plan.ts";
+import { benchRefArgs, parseBenchArgs, planJobs } from "../run/plan.ts";
 import { metrics } from "../score/aggregate.ts";
 import { scoreResult, type Scored } from "../score/score.ts";
 
 const PATTERN_REASON = "Matches the format of a label example.";
-const options = parseBenchArgs(process.argv.slice(2));
+const refArgs = benchRefArgs(process.argv.slice(2));
+const ext = await materializeExtRef(resolveExtRepo(refArgs.extRepo), resolveExtRefName(refArgs.ref));
+const api = await loadExtApi(ext.bundle);
+const options = parseBenchArgs(process.argv.slice(2), api);
 const { dataset } = compileDataset({ requireSplit: !options.allowMissingSplit, profiles: options.profiles });
 if (!dataset) throw new Error("dataset is invalid: run `npm run validate`");
-const ext = await materializeExtRef(resolveExtRepo(options.extRepo), resolveExtRefName(options.ref));
-const api = await loadExtApi(ext.bundle);
 if (api.kind !== "completion") throw new Error(`${ext.ref} is not a completion-design ref`);
 const { cases, jobsByModel } = planJobs(dataset, options, ext.sha, api.defaultPrompt, true);
 const byId = new Map(cases.map((c) => [c.id, c]));

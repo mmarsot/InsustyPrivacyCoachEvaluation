@@ -48,7 +48,7 @@ import { findLabModel } from "../lab/models.ts";
 import { readMemAvailableMb, runGuardedWorker, waitForMemory } from "../lab/runtime.ts";
 import { ACTIVE_RUNS_DIR, CACHE_DIR } from "../paths.ts";
 import { cacheFile, loadCache } from "../run/jobs.ts";
-import { formatDuration as fmt, MODELS, parseDocbenchArgs, planDocbench, type DocbenchOptions } from "../run/plan.ts";
+import { formatDuration as fmt, localModel, parseDocbenchArgs, planDocbench, type DocbenchOptions } from "../run/plan.ts";
 import type { WorkerSpec } from "../run/worker.ts";
 
 /** Rough seconds per job before anything is cached (suite: per case; sweeps: per point, by type). */
@@ -92,8 +92,7 @@ async function runRef(o: DocbenchOptions, repo: string, refName: string, argv: s
     const extApi = await loadExtApi(ext.bundle);
     if (o.aiDefault || !aiModels.length) {
       // The ref's own default model, as a new user gets it.
-      const own = MODELS.find((m) => m.id === extApi.defaultModelId);
-      if (!own) throw new Error(`The ref's default model ${extApi.defaultModelId} is not in models/models.json.`);
+      const own = localModel(extApi.defaultModelId);
       aiModels = [own, ...aiModels.filter((m) => m.id !== own.id)];
     }
     const docs = await readAiDocs(aiSpecs(aiCases(dataset, o.aiTier), o.aiSizes), dataset, api, o.seed);

@@ -2,7 +2,7 @@
  * Runs the benchmark.
  *
  *   npm run bench -- [--tier smoke|quick|full] [--cases-per-profile 2]
- *                    [--models all|smollm2-135m,...] [--instructions current,strict,short|all]
+ *                    [--models shipped|all|smollm2-360m,...] [--instructions current,strict,short|all]
  *                    [--label-variants desc,desc_ex3|all] [--split dev|test|all]
  *                    [--profiles sales,dev] [--langs en,fr] [--ref main] [--ext-repo <path>]
  *                    [--name <run name>] [--max-rss-mb 3800] [--allow-missing-split]
@@ -32,7 +32,7 @@ import { ACTIVE_RUNS_DIR, CACHE_DIR, ROOT, RUNS_DIR } from "../paths.ts";
 import { cacheFile, loadCache, type Job } from "../run/jobs.ts";
 import type { RunMeta, RunModelMeta } from "../run/meta.ts";
 import { writeRun } from "../run/outputs.ts";
-import { estimateSeconds, formatDuration as fmt, parseBenchArgs, planJobs, secondsPerCase, splitLabel } from "../run/plan.ts";
+import { benchRefArgs, estimateSeconds, formatDuration as fmt, parseBenchArgs, planJobs, secondsPerCase, splitLabel } from "../run/plan.ts";
 import type { WorkerEvent, WorkerSpec } from "../run/worker.ts";
 import { releaseHostedModel } from "../hosted/client.ts";
 import { costOf, describeTarget, findHostedModel, hostedSpentUsd } from "../hosted/models.ts";
@@ -57,9 +57,13 @@ if (trackAt >= 0) {
   }
   argv.splice(trackAt, 2);
 }
+const refArgs = benchRefArgs(argv);
+const extRepo = resolveExtRepo(refArgs.extRepo);
+const ext = await materializeExtRef(extRepo, resolveExtRefName(refArgs.ref));
+const api = await loadExtApi(ext.bundle);
 let options;
 try {
-  options = parseBenchArgs(argv);
+  options = parseBenchArgs(argv, api);
 } catch (error) {
   fail((error as Error).message);
 }
@@ -71,9 +75,6 @@ if (!dataset) {
   for (const i of issues.filter((x) => x.level === "error").slice(0, 20)) console.error(`ERROR ${i.where}: ${i.message}`);
   fail("dataset is invalid: run `npm run validate`");
 }
-const extRepo = resolveExtRepo(options.extRepo);
-const ext = await materializeExtRef(extRepo, resolveExtRefName(options.ref));
-const api = await loadExtApi(ext.bundle);
 for (const m of models) if (!m.hosted && !api.modelIds.includes(m.id)) console.warn(`warning: ${m.id} is not bundled by ${ext.ref}`);
 const installedTransformers = (JSON.parse(readFileSync(join(ROOT, "node_modules/@huggingface/transformers/package.json"), "utf8")) as { version: string }).version;
 if (ext.transformersRange && ext.transformersRange.replace(/^[\^~=]/, "") !== installedTransformers)

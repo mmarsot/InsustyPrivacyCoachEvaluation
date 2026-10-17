@@ -22,7 +22,23 @@ export interface ModelInfo {
   /** Hosted chat model (src/hosted/models.ts): its requests go to an API, not a local worker model. */
   hosted?: boolean;
 }
+/**
+ * Local models the bench knows how to describe (models/models.json: priors, sizes, advertised
+ * languages), including ones a ref no longer ships. Which models a ref ships comes from the ref
+ * (`RefModels`), never from this file.
+ */
 export const MODELS: ModelInfo[] = (JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelInfo[] }).models;
+/** The models a ref ships (`SLM_MODELS`) and the one a new user gets (`DEFAULT_SLM_MODEL_ID`). */
+export interface RefModels {
+  modelIds: readonly string[];
+  defaultModelId: string;
+}
+/** A local model by id: its models/models.json entry, else conservative priors (a model added by a ref the bench has not timed yet). */
+export const localModel = (id: string): ModelInfo =>
+  MODELS.find((m) => m.id === id) ?? { id, short: id.replace(/^.*\//, "").replace(/-Instruct-ONNX$|-ONNX$/i, "").toLowerCase(), priorSecondsPerCase: 20, priorLoadSeconds: 10 };
+/** `--models shipped` (the default): the ref's default model; `all`: every model the ref ships. */
+export const refBenchModels = (ref: RefModels, which: "shipped" | "all"): ModelInfo[] =>
+  (which === "shipped" ? [ref.defaultModelId] : [...ref.modelIds]).map(localModel);
 /**
  * Hosted models the bench can run by name (`--models nova-micro-prefill`).
  * Never part of `--models all`: they send the dataset to an API and cost money.
@@ -58,8 +74,20 @@ export interface BenchOptions {
 /** One label-description variant by default; the others are opt-in (`--label-variants all`). */
 export const DEFAULT_LABEL_VARIANTS = "desc";
 
-/** Parses `npm run bench` arguments. Throws on an unknown value. */
-export function parseBenchArgs(argv: readonly string[]): BenchOptions {
+/** `--ref` and `--ext-repo` of bench arguments: what to materialize before `parseBenchArgs` can resolve the ref's models. */
+export function benchRefArgs(argv: readonly string[]): { ref?: string; extRepo?: string } {
+  const opt = (name: string) => {
+    const i = argv.indexOf(`--${name}`);
+    return i >= 0 ? argv[i + 1] : undefined;
+  };
+  return { ref: opt("ref"), extRepo: opt("ext-repo") };
+}
+
+/**
+ * Parses `npm run bench` arguments. Throws on an unknown value. `--models shipped` (the default)
+ * and `all` need the ref's model list (`ref`); named models do not.
+ */
+export function parseBenchArgs(argv: readonly string[], ref?: RefModels): BenchOptions {
   const flag = (name: string) => argv.includes(`--${name}`);
   const opt = (name: string, fallback?: string) => {
     const i = argv.indexOf(`--${name}`);
@@ -71,7 +99,7 @@ export function parseBenchArgs(argv: readonly string[]): BenchOptions {
   };
   const tier = (opt("tier", "quick") ?? "quick") as Tier;
   if (!TIERS.includes(tier)) bad(`--tier must be one of ${TIERS.join(", ")}`);
-  const modelArg = opt("models", "all")!;
+  const modelArg = opt("models", "shipped")!;
   const instrArg = opt("instructions", "current")!;
   const labelArg = opt("label-variants") ?? opt("labels") ?? DEFAULT_LABEL_VARIANTS;
   const casesPerProfile = Number(opt("cases-per-profile", String(DEFAULT_QUICK_CASES_PER_PROFILE)));
@@ -81,7 +109,12 @@ export function parseBenchArgs(argv: readonly string[]): BenchOptions {
   return {
     tier,
     casesPerProfile,
-    models: modelArg === "all" ? MODELS : list(modelArg).map((m) => findBenchModel(m) ?? bad(`unknown model ${m}`)),
+    models:
+      modelArg === "shipped" || modelArg === "all"
+        ? ref
+          ? refBenchModels(ref, modelArg)
+          : bad(`--models ${modelArg} needs the ref's model list`)
+        : list(modelArg).map((m) => findBenchModel(m) ?? bad(`unknown model ${m}`)),
     instructions:
       instrArg === "all" ? [...INSTRUCTION_VARIANTS] : list(instrArg).map((i) => INSTRUCTION_VARIANTS.find((v) => v.id === i) ?? bad(`unknown instruction variant ${i}`)),
     labelVariants: labelArg === "all" ? LABEL_VARIANTS.map((v) => v.id) : list(labelArg).map((l) => (isLabelVariant(l) ? l : bad(`unknown label variant ${l}`))),

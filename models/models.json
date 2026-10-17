@@ -1,5 +1,5 @@
 {
-  "$comment": "Models bundled in InsustyPromptCoach (src/slm-models.ts). Sizes are the q8 ('model_quantized.onnx') files the extension loads on WASM, read from the Hugging Face API on 2026-09-26. 'languages' is what each base model card advertises; the bench reports every metric split by language next to it.",
+  "$comment": "Local models the bench can describe: InsustyPromptCoach ships or once shipped them. Which ones a ref ships, and its default, come from the ref (SLM_MODELS, DEFAULT_SLM_MODEL_ID), not from this file. Sizes are the q8 ('model_quantized.onnx') files the extension loads on WASM, read from the Hugging Face API on 2026-09-26. 'languages' is what each base model card advertises; the bench reports every metric split by language next to it.",
   "backend": {
     "device": "wasm",
     "dtype": "q8",
@@ -11,7 +11,6 @@
       "id": "onnx-community/SmolLM2-135M-Instruct-ONNX",
       "short": "smollm2-135m",
       "extensionLabel": "Very small (135M)",
-      "extensionDefault": true,
       "parameters": "135M",
       "architecture": "Llama (30 layers, hidden 576)",
       "contextLength": 8192,
@@ -33,7 +32,6 @@
       "id": "onnx-community/SmolLM2-360M-Instruct-ONNX",
       "short": "smollm2-360m",
       "extensionLabel": "Small (360M)",
-      "extensionDefault": false,
       "parameters": "360M",
       "architecture": "Llama (32 layers, hidden 960)",
       "contextLength": 8192,
@@ -55,7 +53,6 @@
       "id": "onnx-community/Qwen2.5-0.5B-Instruct-ONNX",
       "short": "qwen2.5-0.5b",
       "extensionLabel": "Medium (500M)",
-      "extensionDefault": false,
       "parameters": "494M",
       "architecture": "Qwen2 (24 layers, hidden 896)",
       "contextLength": 32768,
