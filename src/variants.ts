@@ -71,5 +71,3 @@ export function composeLabelDescription(
 
 export const isLabelVariant = (value: string): value is LabelVariantId =>
   LABEL_VARIANTS.some((variant) => variant.id === value);
-export const findInstructionVariant = (id: string) =>
-  INSTRUCTION_VARIANTS.find((variant) => variant.id === id);

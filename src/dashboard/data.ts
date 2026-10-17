@@ -7,11 +7,7 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import type {
-  CompiledCase,
-  CompiledDataset,
-  Profile,
-} from "../dataset/schema.ts";
+import type { CompiledCase } from "../dataset/schema.ts";
 import { ACTIVE_RUNS_DIR, RUNS_DIR } from "../paths.ts";
 import { cacheFile, type Job, type ResultRecord } from "../run/jobs.ts";
 import type { RunMeta } from "../run/meta.ts";
@@ -648,6 +644,4 @@ export function caseDetail(
   };
 }
 
-export const profileMap = (dataset: CompiledDataset) =>
-  new Map<string, Profile>(dataset.profiles.map((p) => [p.id, p]));
 export { FAILURE_MODES };

@@ -156,7 +156,5 @@ export function independentViews(bytes: Uint8Array, depth = 0): Views {
   return { text, strings: text, pdftotext: text };
 }
 
-/** Whitespace-insensitive "is this value still in the text". */
+/** Collapses whitespace runs, so a value matches text however its spaces were laid out. */
 export const normalizeSpaces = (s: string) => s.replace(/\s+/g, " ").trim();
-export const stillContains = (haystack: string, value: string) =>
-  normalizeSpaces(haystack).includes(normalizeSpaces(value));

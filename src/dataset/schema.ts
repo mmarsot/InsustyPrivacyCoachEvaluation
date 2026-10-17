@@ -72,7 +72,12 @@ export type ErrorLevel = (typeof ERROR_LEVELS)[number];
 export const SPLITS = ["dev", "test"] as const;
 export type Split = (typeof SPLITS)[number];
 
-/** Well-known tags; free-form extra tags are allowed. */
+/**
+ * Well-known tags; free-form extra tags are allowed. Nothing checks against
+ * this list: it is the vocabulary docs/dataset.md points authors to.
+ *
+ * @public
+ */
 export const KNOWN_TAGS = [
   // subtle positives
   "abbreviation",

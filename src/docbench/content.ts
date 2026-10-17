@@ -124,8 +124,6 @@ export function fillerParagraphs(
   return out;
 }
 
-export const wordCount = (text: string) => (text.match(/\S+/g) ?? []).length;
-
 // ------------------------------------------------------------ labels for field units
 
 const ITEM_LABELS: Record<string, [en: string, fr: string]> = {

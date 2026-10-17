@@ -77,12 +77,6 @@ export function luhn(value: string): boolean {
   return sum % 10 === 0;
 }
 
-/** The Luhn check digit to append to `partial`. */
-export function luhnCheckDigit(partial: string): string {
-  for (let d = 0; d <= 9; d++) if (luhn(`${partial}${d}`)) return String(d);
-  throw new Error("unreachable");
-}
-
 export const isValidCard = (value: string): boolean => {
   const digits = compact(value);
   return /^\d{13,19}$/.test(digits) && luhn(digits);
