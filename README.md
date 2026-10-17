@@ -85,11 +85,12 @@ weights (133 to 512 MB each) are downloaded from Hugging Face on first use into
   connected model (GLM-4.7 Flash, paid) runs only with `--connected`.
 - **CI** (`--ci --since <base>`): the gates compare the head ref with the
   base on the same dataset and fail on a deterministic or document
-  regression (`detbench --compare <base> --gate`, `docbench --tier smoke
---compare <base> --gate`: half a point of F1, recall or precision, a new
-  leak, a failure file no longer reported, more flagged hard negatives) and
-  on contract conformance and request parity. The Private AI smoke tier runs
-  on Private AI changes and never fails on score deltas.
+  regression (`detbench --compare <base> --gate`,
+  `docbench --tier smoke --compare <base> --gate`: half a point of F1,
+  recall or precision, a new leak, a failure file no longer reported, more
+  flagged hard negatives) and on contract conformance and request parity.
+  The Private AI smoke tier runs on Private AI changes and never fails on
+  score deltas.
 - **Speed and memory** are recorded on every run with the machine profile
   (`machineProfile` in `run.json`; `BENCH_MACHINE_ID` names a declared
   reference machine, anything else is `adhoc`). Compare absolute numbers only
@@ -853,6 +854,28 @@ Other commands:
   process, no weights; the contract conformance of the extension runs when a
   clone is configured).
 - `npm run typecheck` runs the type checker.
+
+## Code checks
+
+`npm run check` runs every check that needs no model and no network, and
+changes nothing: `typecheck` (strict TypeScript), `lint` (TypeScript-aware
+ESLint), `format:check` (Prettier), `knip` (unused files, exports and
+dependencies) and `npm test`. Run it before every commit. The tooling and its
+settings follow the extension's (InsustyPromptCoach):
+
+- `npm run format` applies Prettier (default options). It covers only the
+  globs in `package.json` (code, `README.md`, `AGENTS.md`, root JSON); never
+  run it on `docs/`, `experiments/`, `dataset/` or `runs/`, where it would
+  reflow tables and data.
+- A lint rule that does not fit the bench is turned off in `eslint.config.js`
+  with its reason, never with scattered inline disables.
+- Knip's entries are the CLIs, the spawned workers and the standalone
+  scripts (`knip.json`); a new `npx tsx` script or child-process entry goes
+  there. An export kept on purpose without a caller (contract API, documented
+  vocabulary) carries `@public`.
+- JSDoc/TSDoc beside each exported symbol, and beside internals whose intent
+  the code does not show, is the documentation's source of truth: say why,
+  the invariants and the units, not what the code already says.
 
 ## Repository layout
 

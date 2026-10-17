@@ -3,6 +3,7 @@
 This file is the project's committed home for project-intrinsic agent knowledge: build, test, release, architecture, and sharp-edge notes that should travel with the code.
 
 - Purpose, commands and layout: `README.md`. Dataset schema and how to add cases: `docs/dataset.md`. How refs are materialized and why the runtime is what it is: `docs/approach.md`.
+- `npm run check` (typecheck, ESLint, Prettier check, Knip, `npm test`; no model, no network) must pass before every commit. README "Code checks" has the conventions: Prettier only on its `package.json` globs (never `docs/`), lint rules turned off only in `eslint.config.js` with a reason, new script or worker entries in `knip.json`, JSDoc beside symbols as the source of truth.
 - The default extension ref is `main` (`DEFAULT_EXT_REF` in `src/ext/ref.ts`); results are cached per commit sha, so a new `main` commit means a fresh run.
 - Never modify the extension clone: refs are read with `git archive` into `cache/module/<sha>/` by the one materializer (`src/module/materialize.ts`), and every bench scores them only through the redaction contract (`contract/`, `src/module/insusty.ts`). The clone path comes from the untracked `bench.local.json`, `INSUSTY_EXT_REPO` or `--ext-repo`; never commit an absolute path.
 - Inference must stay on onnxruntime-web WASM with default session options (`onnxruntime-node` is aliased in `package.json`). Native ORT and other graph-optimization levels change greedy outputs on the q8 models, so results would not reflect the extension.
