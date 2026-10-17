@@ -1,0 +1,730 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://insusty.dev/schemas/redaction-contract/1.0.0.json",
+  "title": "Redaction contract",
+  "description": "JSON form of contract/types.ts (contract version 1.0.0). Byte arrays appear as {size, sha256, base64?}.",
+  "version": "1.0.0",
+  "$defs": {
+    "BuiltinLabel": {
+      "enum": [
+        "SECRET",
+        "FINANCIAL",
+        "NATIONAL_ID",
+        "DATE_OF_BIRTH",
+        "PHONE",
+        "EMAIL",
+        "ADDRESS",
+        "IP",
+        "COMPANY_ID"
+      ]
+    },
+    "Bytes": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "base64": {
+          "type": "string",
+          "contentEncoding": "base64"
+        }
+      },
+      "required": [
+        "size",
+        "sha256"
+      ],
+      "additionalProperties": false,
+      "description": "Bytes in JSON: their size and SHA-256, and the bytes themselves (base64) only when the record carries them."
+    },
+    "RedactionInput": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "text"
+            },
+            "text": {
+              "type": "string"
+            },
+            "language": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "document"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bytes": {
+              "$ref": "#/$defs/Bytes"
+            }
+          },
+          "required": [
+            "kind",
+            "name",
+            "bytes"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "CustomLabel": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "label",
+        "description",
+        "examples"
+      ],
+      "additionalProperties": false
+    },
+    "ModuleConfig": {
+      "type": "object",
+      "properties": {
+        "builtins": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/BuiltinLabel"
+          },
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "addressCountries": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$"
+          }
+        },
+        "customLabels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CustomLabel"
+          }
+        },
+        "privateAi": {
+          "type": "object",
+          "properties": {
+            "runsOn": {
+              "enum": [
+                "off",
+                "device",
+                "connected"
+              ]
+            },
+            "model": {
+              "type": "string"
+            },
+            "backend": {
+              "enum": [
+                "wasm",
+                "webgpu"
+              ]
+            }
+          },
+          "required": [
+            "runsOn"
+          ],
+          "additionalProperties": false
+        },
+        "ocr": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "languages": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "enabled",
+            "languages"
+          ],
+          "additionalProperties": false
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "builtins",
+        "addressCountries",
+        "customLabels",
+        "privateAi",
+        "ocr"
+      ],
+      "additionalProperties": false
+    },
+    "Span": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "builtin",
+            "custom"
+          ]
+        },
+        "subtype": {
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "rules",
+            "model",
+            "pattern",
+            "learned"
+          ]
+        },
+        "redacted": {
+          "type": "boolean"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "box": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "label",
+        "kind",
+        "source",
+        "redacted"
+      ],
+      "additionalProperties": false
+    },
+    "TextPart": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "where": {
+          "type": "string"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "where"
+      ],
+      "additionalProperties": false
+    },
+    "RedactedFile": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string"
+        },
+        "bytes": {
+          "$ref": "#/$defs/Bytes"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "bytes"
+      ],
+      "additionalProperties": false
+    },
+    "Redaction": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "file": {
+          "$ref": "#/$defs/RedactedFile"
+        },
+        "mode": {
+          "enum": [
+            "in_place",
+            "text_copy",
+            "fallback_text_copy",
+            "none",
+            "error"
+          ]
+        },
+        "leakChecked": {
+          "type": "boolean"
+        },
+        "unredactable": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "error": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "leakChecked"
+      ],
+      "additionalProperties": false
+    },
+    "Coverage": {
+      "type": "object",
+      "properties": {
+        "checked": {
+          "enum": [
+            "full",
+            "partial",
+            "none"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "format": {
+          "type": "string"
+        },
+        "pages": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ocrPages": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "signed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "checked",
+        "gaps",
+        "ocrPages"
+      ],
+      "additionalProperties": false
+    },
+    "StageTiming": {
+      "type": "object",
+      "properties": {
+        "stage": {
+          "enum": [
+            "read",
+            "ocr",
+            "rules",
+            "model",
+            "redact",
+            "verify"
+          ]
+        },
+        "ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "pages": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "requests": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "stage",
+        "ms"
+      ],
+      "additionalProperties": false
+    },
+    "MachineProfile": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cpu": {
+          "type": "string"
+        },
+        "cores": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "ramMb": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "os": {
+          "type": "string"
+        },
+        "node": {
+          "type": "string"
+        },
+        "python": {
+          "type": "string"
+        },
+        "chrome": {
+          "type": "string"
+        },
+        "powerMode": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "cpu",
+        "cores",
+        "ramMb",
+        "os"
+      ],
+      "additionalProperties": false
+    },
+    "ModelRequestTrace": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "promptTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "outputTokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "finishReason": {
+          "type": "string"
+        },
+        "output": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number"
+        },
+        "cached": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ms"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeReport": {
+      "type": "object",
+      "properties": {
+        "stages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StageTiming"
+          }
+        },
+        "totalMs": {
+          "type": "number",
+          "minimum": 0
+        },
+        "peakRssMb": {
+          "type": "number",
+          "minimum": 0
+        },
+        "charsPerSecond": {
+          "type": "number",
+          "minimum": 0
+        },
+        "pagesPerMinute": {
+          "type": "number",
+          "minimum": 0
+        },
+        "backend": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "enum": [
+                "wasm",
+                "webgpu",
+                "native",
+                "python",
+                "api"
+              ]
+            },
+            "threads": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "dtype": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "cold": {
+              "type": "boolean"
+            },
+            "loadMs": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "id",
+            "cold"
+          ],
+          "additionalProperties": false
+        },
+        "cost": {
+          "type": "object",
+          "properties": {
+            "usd": {
+              "type": "number",
+              "minimum": 0
+            },
+            "provider": {
+              "type": "string"
+            },
+            "connected": {
+              "const": true
+            }
+          },
+          "required": [
+            "usd",
+            "provider",
+            "connected"
+          ],
+          "additionalProperties": false
+        },
+        "requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ModelRequestTrace"
+          }
+        },
+        "machine": {
+          "$ref": "#/$defs/MachineProfile"
+        }
+      },
+      "required": [
+        "stages",
+        "totalMs"
+      ],
+      "additionalProperties": false
+    },
+    "ModuleInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "ModuleCapabilities": {
+      "type": "object",
+      "properties": {
+        "builtins": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BuiltinLabel"
+          },
+          "uniqueItems": true
+        },
+        "customLabels": {
+          "type": "boolean"
+        },
+        "documents": {
+          "type": "boolean"
+        },
+        "ocr": {
+          "type": "boolean"
+        },
+        "privateAi": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "device",
+              "connected"
+            ]
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "builtins",
+        "customLabels",
+        "documents",
+        "ocr",
+        "privateAi"
+      ],
+      "additionalProperties": false
+    },
+    "RedactionOutput": {
+      "type": "object",
+      "properties": {
+        "contract": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "module": {
+          "$ref": "#/$defs/ModuleInfo"
+        },
+        "text": {
+          "type": "string"
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TextPart"
+          }
+        },
+        "spans": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Span"
+          }
+        },
+        "redaction": {
+          "$ref": "#/$defs/Redaction"
+        },
+        "coverage": {
+          "$ref": "#/$defs/Coverage"
+        },
+        "runtime": {
+          "$ref": "#/$defs/RuntimeReport"
+        }
+      },
+      "required": [
+        "contract",
+        "module",
+        "text",
+        "spans",
+        "redaction",
+        "coverage",
+        "runtime"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

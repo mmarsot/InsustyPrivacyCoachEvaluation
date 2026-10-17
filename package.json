@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@huggingface/transformers": "3.8.1",
+    "ajv": "^8.20.0",
     "esbuild": "^0.25.0",
     "tsx": "^4.19.0"
   },
