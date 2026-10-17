@@ -392,6 +392,10 @@ export function detectLang(text: string): "en" | "fr" {
   return fr > en ? "fr" : "en";
 }
 
+/**
+ * The demonstrations a configuration asks for (`shots`), built from the
+ * profile's label examples in the scanned text's language.
+ */
 function buildShots(
   config: LabConfig,
   profile: Profile,

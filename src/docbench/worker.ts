@@ -69,6 +69,11 @@ const round = (v: number) => Math.round(v * 100) / 100;
 /** Generated documents are cached on disk by spec hash (generation is deterministic). */
 export const FILES_DIR = join(CACHE_DIR, "docbench", "files");
 
+/**
+ * A job's document, from `FILES_DIR` when an earlier run generated it, else
+ * generated and stored there (files of 64 MB and more are regenerated each
+ * time).
+ */
 async function documentFor(
   job: DocJob,
   seed: number,

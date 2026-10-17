@@ -66,9 +66,17 @@ const TYPES: Record<string, BuiltinLabel> = {
 /** National ids: every country pack's personal identifiers. */
 const NATIONAL =
   /^(US_SSN|US_ITIN|US_PASSPORT|US_DRIVER_LICENSE|UK_NHS|UK_NINO|UK_PASSPORT|ES_NIF|ES_NIE|IT_FISCAL_CODE|IT_DRIVER_LICENSE|IT_PASSPORT|IT_IDENTITY_CARD|PL_PESEL|SG_NRIC_FIN|AU_TFN|AU_MEDICARE|IN_PAN|IN_AADHAAR|IN_VEHICLE_REGISTRATION|IN_VOTER|IN_PASSPORT|FI_PERSONAL_IDENTITY_CODE|KR_RRN|TH_TNIN|SE_PERSONNUMMER|NG_NIN|PH_[A-Z_]+|TR_[A-Z_]+|ZA_[A-Z_]+|CA_[A-Z_]+|DE_[A-Z_]+)$/;
+/**
+ * A birth word just before a date (at most three words between,
+ * EN/FR/DE/ES/IT): only those dates are a DATE_OF_BIRTH.
+ */
 const BIRTH_CONTEXT =
   /(born|birth|d\.?o\.?b|né|née|naissance|geboren|nacido|nata|nato)\W{0,3}(\w+\W+){0,3}$/iu;
 
+/**
+ * The built-in labels Presidio's recognizers map to; `SECRET` is absent, as
+ * Presidio has no secret recognizer.
+ */
 export const PRESIDIO_BUILTINS: BuiltinLabel[] = [
   "FINANCIAL",
   "NATIONAL_ID",
@@ -114,6 +122,10 @@ export function presidioLabel(
   return TYPES[type] ?? (NATIONAL.test(type) ? "NATIONAL_ID" : null);
 }
 
+/**
+ * Starts the Presidio server (installing its environment on first use) and
+ * wraps it as a contract module; `dispose` stops it.
+ */
 export async function presidioModule(
   log: (line: string) => void = console.log,
 ): Promise<RedactionModule> {

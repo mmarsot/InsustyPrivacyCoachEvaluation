@@ -236,6 +236,9 @@ const p50 = (xs: number[]) => {
   return s.length ? s[Math.floor((s.length - 1) / 2)]! : 0;
 };
 
+/**
+ * The metrics of the positive cases of one format and zone, per configuration.
+ */
 function zoneMetrics(
   rows: DocJobResult[],
   family: string,

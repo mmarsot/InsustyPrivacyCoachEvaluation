@@ -180,6 +180,7 @@ export function chatFinishReason(o: {
 
 // ---------------------------------------------------------------- extension review
 
+/** The extension's custom-label name constraint (config-gateway). */
 const RULE_LABEL_PATTERN = /^[A-Z][A-Z0-9_]{0,31}$/;
 
 /**

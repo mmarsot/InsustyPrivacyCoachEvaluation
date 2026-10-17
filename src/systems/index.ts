@@ -17,6 +17,7 @@ import {
 import { materializeModule } from "../module/materialize.ts";
 import { presidioModule } from "./presidio.ts";
 
+/** The systems `--system` accepts. */
 export const SYSTEMS = ["insusty", "presidio", "reference"] as const;
 export type SystemName = (typeof SYSTEMS)[number];
 
@@ -36,6 +37,10 @@ export async function loadExtensionModule(
   return loadInsustyModule(ref, o);
 }
 
+/**
+ * Loads a system as a contract module; `ref` and `extRepo` apply to `insusty`
+ * only.
+ */
 export async function loadSystem(
   name: SystemName,
   o: { ref?: string; extRepo?: string; log?: (line: string) => void } = {},

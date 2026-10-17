@@ -108,6 +108,10 @@ function entityRecall(
   return total ? found / total : null;
 }
 
+/**
+ * The Text Anonymization Benchmark: English court judgments of the ECHR,
+ * several annotators per document.
+ */
 export const tab: BenchmarkAdapter = {
   id: "tab",
   title: "Text Anonymization Benchmark (TAB, ECHR)",

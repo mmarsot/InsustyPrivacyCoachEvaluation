@@ -203,6 +203,11 @@ function dobForms(iso: string, lang: "en" | "fr"): string[] {
       ];
 }
 
+/**
+ * The other common ways to write a phone number of one kind (international
+ * prefix, trunk zero, grouping), for `alt_format`; none when the number does
+ * not have the national length.
+ */
 function phoneForms(kind: string, value: string): string[] {
   const digits = value.replace(/\D/g, "");
   const intl: Record<string, [string, number]> = {

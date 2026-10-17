@@ -55,6 +55,7 @@ import {
   type DetScored,
 } from "../detbench/score.ts";
 
+/** Committed detbench runs, `runs/detbench/<name>/`. */
 export const DETBENCH_RUNS_DIR = join(RUNS_DIR, "detbench");
 
 function fail(message: string): never {
@@ -202,6 +203,10 @@ const system = option("system") ?? "insusty";
 if (system !== "insusty" && system !== "presidio")
   fail("--system must be insusty or presidio");
 
+/**
+ * Scores one ref (or the Presidio baseline) on the dataset and its variants,
+ * and writes the run.
+ */
 async function runRef(ref: string, name?: string): Promise<RunOutput> {
   const baseline = system === "presidio" ? await presidioModule() : undefined;
   const ext = baseline

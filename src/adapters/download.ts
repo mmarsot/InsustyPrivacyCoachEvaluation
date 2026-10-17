@@ -17,11 +17,14 @@ import { join } from "node:path";
 import { CACHE_DIR } from "../paths.ts";
 import type { BenchmarkAdapter } from "./types.ts";
 
+/** Downloaded literature datasets, never committed. */
 export const DATASETS_DIR = join(CACHE_DIR, "datasets");
 
+/** Where one adapter's files live at its pinned revision. */
 export const datasetDir = (a: Pick<BenchmarkAdapter, "id" | "revision">) =>
   join(DATASETS_DIR, a.id, a.revision);
 
+/** The SHA-256 of a file, streamed (dataset files run to hundreds of MB). */
 export async function sha256File(file: string): Promise<string> {
   const hash = createHash("sha256");
   for await (const chunk of createReadStream(file))

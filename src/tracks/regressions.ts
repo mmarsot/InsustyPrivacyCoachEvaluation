@@ -8,6 +8,7 @@
 import type { DetSummary } from "../detbench/aggregate.ts";
 import type { DocSummary } from "../docbench/aggregate.ts";
 
+/** Half a percentage point: the smallest drop in a rate that fails a gate. */
 const POINT = 0.005;
 const drop = (
   what: string,
@@ -31,6 +32,10 @@ const rise = (
     ? [`${what} ${base} → ${head}`]
     : [];
 
+/**
+ * The detbench regressions of `head` against `base`, per configuration both
+ * ran, as report lines; empty when the gate passes.
+ */
 export function detRegressions(
   head: DetSummary[],
   base: DetSummary[],
@@ -80,6 +85,10 @@ export function detRegressions(
   return out;
 }
 
+/**
+ * The docbench regressions of `head` against `base`, as report lines; empty
+ * when the gate passes.
+ */
 export function docRegressions(head: DocSummary, base: DocSummary): string[] {
   const out: string[] = [
     ...drop(

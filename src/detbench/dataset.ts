@@ -24,6 +24,7 @@ export const DETBENCH_DIR = join(DATASET_DIR, "detbench");
 /** Detbench languages, one dataset file each. */
 export const DETBENCH_LANGS = ["en", "fr"] as const;
 
+/** A `{{key}}` placeholder in a template; keys are lower-case snake case. */
 const PLACEHOLDER = /\{\{([a-z0-9_]+)\}\}/g;
 
 /** Splits a template into literal text and placeholder parts; a generated placeholder becomes literal text. */

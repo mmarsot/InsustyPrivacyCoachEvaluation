@@ -61,6 +61,10 @@ export type View = "text" | "strings" | "pdftotext";
  */
 export type Views = Record<View, string>;
 
+/**
+ * The views of a PDF: every literal and hex string of the raw and inflated
+ * streams, Poppler's `pdftotext` when installed, and the raw bytes.
+ */
 function pdfViews(bytes: Uint8Array): Views {
   const raw = latin1(bytes);
   const strings: string[] = [pdfStrings(raw)];

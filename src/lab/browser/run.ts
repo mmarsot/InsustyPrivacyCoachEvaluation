@@ -186,6 +186,10 @@ const cleanup = () => {
 };
 process.on("SIGINT", () => (cleanup(), process.exit(130)));
 
+/**
+ * Reads the bench page's `#out` text over the DevTools protocol; empty until
+ * the page is up.
+ */
 const evaluate = async (): Promise<string> => {
   const targets = (await (
     await fetch(`http://127.0.0.1:${debugPort}/json`)

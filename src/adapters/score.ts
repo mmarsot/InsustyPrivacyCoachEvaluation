@@ -22,12 +22,20 @@
 import type { RedactionOutput } from "../../contract/types.ts";
 import type { GoldCase, GoldSpan, LabelTarget } from "./types.ts";
 
+/**
+ * Gold spans and how many a redacted span masked; `recall` is null without
+ * gold.
+ */
 export interface RecallRow {
   gold: number;
   masked: number;
   recall: number | null;
 }
 
+/**
+ * One system and configuration on one dataset (see the file header for each
+ * metric).
+ */
 export interface AdapterScores {
   cases: number;
   chars: number;
@@ -66,6 +74,10 @@ const row = (gold: number, masked: number): RecallRow => ({
   recall: gold ? masked / gold : null,
 });
 
+/**
+ * Scores a system's outputs (by case id) on an adapter's gold, through its
+ * label map; cases without an output are left out.
+ */
 export function scoreAdapter(
   cases: GoldCase[],
   outputs: Map<string, RedactionOutput>,

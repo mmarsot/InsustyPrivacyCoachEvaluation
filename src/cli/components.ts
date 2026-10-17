@@ -57,6 +57,11 @@ type Finding = {
   value?: string;
   reason?: string;
 };
+/**
+ * Replays a result's cached answers through the ref's `runReview`, in request
+ * order; `filter: false` withholds the answer probabilities, turning the
+ * confidence filter off.
+ */
 const replay = async (
   record: ResultRecord,
   text: string,

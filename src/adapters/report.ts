@@ -5,6 +5,10 @@ import { esc, pct, STYLE } from "../report/html.ts";
 import type { AdapterScores } from "./score.ts";
 import type { LabelTarget } from "./types.ts";
 
+/**
+ * `runs/literature/<name>/run.json`: the datasets as pinned (revision, files,
+ * licence, label map) and each system's scores on them.
+ */
 export interface LiteratureRun {
   name: string;
   argv: string[];
@@ -55,6 +59,7 @@ const target = (t: LabelTarget | undefined) =>
       ? t.builtin.join(" | ")
       : `custom: ${t.custom}`;
 
+/** The `report.html` of one literature run. */
 export function renderLiteratureReport(run: LiteratureRun): string {
   const sections = run.datasets
     .map((d) => {

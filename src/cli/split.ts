@@ -11,6 +11,7 @@ import { join } from "node:path";
 import { CASES_DIR } from "../paths.ts";
 import type { Case } from "../dataset/schema.ts";
 
+/** Target share of held-out test cases in each (profile, lang, type) group. */
 const TEST_SHARE = 0.3;
 const hash = (id: string) => createHash("sha256").update(id).digest("hex");
 const only = process.argv.includes("--profile")

@@ -18,6 +18,7 @@
  */
 export type Track = "deterministic" | "private-ai";
 
+/** Which tracks a changed extension path needs, and why. */
 export interface ChangeRule {
   /** Matches a path of the extension repository. */
   pattern: RegExp;
@@ -57,6 +58,7 @@ export const CHANGE_RULES: ChangeRule[] = [
   },
 ];
 
+/** The tracks a change needs, with the evidence for each. */
 export interface Selection {
   tracks: Track[];
   /** Why each track was selected: the matching paths, by rule. */
@@ -65,6 +67,10 @@ export interface Selection {
   ignored: string[];
 }
 
+/**
+ * The tracks a set of changed extension paths needs: each path takes the first
+ * rule it matches.
+ */
 export function selectTracks(paths: string[]): Selection {
   const reasons = new Map<ChangeRule, string[]>();
   const ignored: string[] = [];
@@ -88,6 +94,7 @@ export function selectTracks(paths: string[]): Selection {
   };
 }
 
+/** One command of a suite run. */
 export interface Step {
   track: Track;
   name: string;
@@ -98,6 +105,7 @@ export interface Step {
   gate: boolean;
 }
 
+/** Parsed `npm run suite` arguments. */
 export interface SuiteOptions {
   ref: string;
   /** Compare against this ref and fail on a deterministic regression. */

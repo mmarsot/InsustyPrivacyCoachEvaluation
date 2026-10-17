@@ -27,6 +27,10 @@ import { composeLabelDescription, LABEL_VARIANTS } from "../variants.ts";
 /** Same constraints the extension applies to custom rules (src/config-gateway.ts). */
 const RULE_LABEL_PATTERN = /^[A-Z][A-Z0-9_]{0,31}$/;
 const RULE_PROMPT_MAX_LENGTH = 1_000;
+/**
+ * `<profile>-<lang>-<nnn>`: the id prefix must repeat the case's profile and
+ * language.
+ */
 const CASE_ID_PATTERN = /^([a-z]+)-(en|fr)-(\d{3})$/;
 
 /**

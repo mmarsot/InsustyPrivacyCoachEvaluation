@@ -8,9 +8,13 @@
  */
 import { concat } from "./zip.ts";
 
+/** Sector size of a version 3 compound file. */
 const SECTOR = 512;
+/** FAT entry ending a sector chain (ENDOFCHAIN). */
 const END = 0xfffffffe;
+/** FAT entry of an unused sector (FREESECT). */
 const FREE = 0xffffffff;
+/** FAT entry of a sector that holds the FAT itself (FATSECT). */
 const FATSECT = 0xfffffffd;
 
 /** A compound file holding `streams` at its root, in order. */

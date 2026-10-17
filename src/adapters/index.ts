@@ -12,5 +12,6 @@ import type { BenchmarkAdapter } from "./types.ts";
  * benchmarks").
  */
 export const ADAPTERS: BenchmarkAdapter[] = [tab, gretel, nemotron];
+/** An adapter by id or id prefix (`--datasets tab`). */
 export const findAdapter = (id: string) =>
   ADAPTERS.find((a) => a.id === id || a.id.startsWith(id));

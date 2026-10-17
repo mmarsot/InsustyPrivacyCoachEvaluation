@@ -125,6 +125,10 @@ const SUPPORTED = (refCategories: string[]) => [
   ),
 ];
 
+/**
+ * Runs one ref's planned docbench jobs (cached ones reused), the Private AI
+ * track when asked, and writes the run.
+ */
 async function runRef(
   o: DocbenchOptions,
   repo: string,
@@ -608,6 +612,10 @@ async function validate(seed: number): Promise<number> {
   return problems ? 1 : 0;
 }
 
+/**
+ * The docbench CLI as a function, so `npm run bench -- --track docbench` runs
+ * it in process; resolves to the exit code.
+ */
 export async function main(argv: string[]): Promise<number> {
   const compareRuns = argv.indexOf("--compare-runs");
   if (compareRuns >= 0) {

@@ -2,6 +2,7 @@
 import { metrics, type Metrics } from "../score/aggregate.ts";
 import type { Scored } from "../score/score.ts";
 
+/** The metrics a comparison shows, and which direction counts as better. */
 export const COMPARE_METRICS: ReadonlyArray<{
   name: string;
   get: (m: Metrics) => number | null;
@@ -20,6 +21,7 @@ const SLICES: ReadonlyArray<[string, (r: Scored) => boolean]> = [
   ["fr", (r) => r.lang === "fr"],
 ];
 
+/** One metric in runs A and B; `delta` is B minus A. */
 export interface CompareCell {
   a: number | null;
   b: number | null;
@@ -27,6 +29,10 @@ export interface CompareCell {
   /** 1 better, -1 worse, 0 unchanged (under half a point) or unknown. */
   direction: 1 | -1 | 0;
 }
+/**
+ * One configuration on one slice (`all`, `en`, `fr`) of the cases both runs
+ * share; latencies in milliseconds.
+ */
 export interface CompareRow {
   config: string;
   slice: string;

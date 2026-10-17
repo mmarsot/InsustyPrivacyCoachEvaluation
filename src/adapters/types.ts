@@ -26,6 +26,7 @@ export type LabelTarget =
   | { custom: string }
   | "out_of_scope";
 
+/** A dataset annotation: UTF-16 offsets into `GoldCase.text`. */
 export interface GoldSpan {
   start: number;
   end: number;
@@ -39,6 +40,7 @@ export interface GoldSpan {
   identifier?: "DIRECT" | "QUASI" | "NO_MASK";
 }
 
+/** One dataset document and its annotations, in the harness's common form. */
 export interface GoldCase {
   id: string;
   text: string;
@@ -50,6 +52,10 @@ export interface GoldCase {
   annotators?: string[];
 }
 
+/**
+ * A pinned dataset file: a download whose SHA-256 differs is deleted and
+ * stops the run; `bytes` is for the progress line.
+ */
 export interface DatasetFile {
   /** File name in the cache directory. */
   name: string;
@@ -58,6 +64,10 @@ export interface DatasetFile {
   bytes: number;
 }
 
+/**
+ * One published dataset: its pinned files, how to read them and how its labels
+ * map onto the contract.
+ */
 export interface BenchmarkAdapter {
   id: string;
   title: string;

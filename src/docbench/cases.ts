@@ -133,6 +133,11 @@ function fieldRows(c: Ctx, f: Unit[], d: Unit[]): string[][] {
   ];
 }
 
+/**
+ * Writes a positive case: labelled values in the spec's zone of its format,
+ * next to neutral filler. The builder is picked by format (the id's first
+ * segment) and zone.
+ */
 async function buildPositive(c: Ctx): Promise<Built> {
   const { spec, lang } = c;
   const key = spec.id.split("-")[0]!;
@@ -958,6 +963,11 @@ async function buildPositive(c: Ctx): Promise<Built> {
   throw new Error(`no builder for ${spec.id}`);
 }
 
+/**
+ * Writes a hard-negative case: decoy-only detbench content (bibliographies,
+ * diagnostic dumps, invoices, numeric sheets), so every detection is a false
+ * alarm.
+ */
 async function buildNegative(c: Ctx): Promise<Built> {
   const { spec, lang } = c;
   const negs = c.pools.negatives[lang];
@@ -1085,6 +1095,11 @@ async function buildNegative(c: Ctx): Promise<Built> {
   throw new Error(`no builder for ${spec.id}`);
 }
 
+/**
+ * Writes a failure case: a file the extension must report as not or partly
+ * checked, or as signed (encrypted, scanned, zip bombs, signed PDFs...), never
+ * as a clean check.
+ */
 async function buildFailure(c: Ctx): Promise<Built> {
   const { spec } = c;
   const enc = (s: string) => new TextEncoder().encode(s);

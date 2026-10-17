@@ -43,6 +43,7 @@ import { percentile } from "../score/aggregate.ts";
 import { literatureJobKey, parseLiteratureArgs } from "../run/plan.ts";
 import { loadSystem, SYSTEMS, type SystemName } from "../systems/index.ts";
 
+/** Committed literature runs, `runs/literature/<name>/`. */
 export const LITERATURE_RUNS_DIR = join(RUNS_DIR, "literature");
 const CACHE = join(CACHE_DIR, "literature");
 
@@ -68,6 +69,9 @@ const loadCache = (file: string) => {
   return out;
 };
 
+/**
+ * Scores every requested system on every requested dataset and writes the run.
+ */
 async function main() {
   const o = parseLiteratureArgs(process.argv.slice(2), {
     datasets: ADAPTERS.map((a) => a.id),

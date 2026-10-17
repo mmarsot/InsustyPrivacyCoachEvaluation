@@ -61,6 +61,7 @@ export interface PdfSpec {
 
 const FIXED_DATE = new Date("2026-01-02T10:00:00Z");
 const A4: [number, number] = [595.28, 841.89];
+/** Page margin in points (about 2 cm). */
 const MARGIN = 56;
 
 /** WinAnsi can encode Latin-1 and a few typographic marks; anything else becomes "?". */

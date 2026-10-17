@@ -103,6 +103,10 @@ const LABELS: Record<string, LabelTarget> = {
 const SPAN =
   /'start': (\d+), 'end': (\d+), 'text': .*?, 'label': '([a-z_0-9]+)'\}/gs;
 
+/**
+ * NVIDIA's Nemotron-PII dataset; its split is large, so a default run scores a
+ * pinned, seeded sample (`defaultLimit`).
+ */
 export const nemotron: BenchmarkAdapter = {
   id: "nemotron-pii",
   title: "Nemotron-PII (NVIDIA, EN, US and international)",

@@ -169,6 +169,10 @@ const hash = (v: unknown) =>
 const cacheFile = (m: LabModel) =>
   join(CACHE_DIR, "lab", `cls-${m.id.replace(/^.*\//, "")}-${m.dtype}.jsonl`);
 
+/**
+ * Renders every (variant, case) prefix and its questions with the model's own
+ * chat template, so the worker only runs forward passes.
+ */
 async function plan(model: LabModel): Promise<CasePlan[]> {
   const tokenizer = await AutoTokenizer.from_pretrained(model.id);
   const out: CasePlan[] = [];

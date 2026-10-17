@@ -26,6 +26,10 @@ interface ModelMeta {
     source: string;
   };
 }
+/**
+ * Local and connected models with their advertised languages, for the
+ * language-support notes next to results.
+ */
 export const loadModelsMeta = (): ModelMeta[] => [
   ...(JSON.parse(readFileSync(MODELS_FILE, "utf8")) as { models: ModelMeta[] })
     .models,
@@ -38,6 +42,10 @@ export const loadModelsMeta = (): ModelMeta[] => [
   })),
 ];
 
+/**
+ * Text as HTML (element content or a quoted attribute); `null` and `undefined`
+ * become empty.
+ */
 export const esc = (s: unknown) =>
   String(s ?? "").replace(
     /[&<>"']/g,
@@ -46,6 +54,7 @@ export const esc = (s: unknown) =>
         c
       ]!,
   );
+/** A 0..1 rate as a whole percentage; `–` for a missing value. */
 export const pct = (v: number | null | undefined) =>
   v === null || v === undefined ? "–" : `${(100 * v).toFixed(0)}%`;
 const ms = (v: number | null) =>
@@ -60,6 +69,7 @@ export const meter = (v: number | null | undefined, invert = false) =>
     ? `<td class="num muted">–</td>`
     : `<td class="num"><span class="meter${invert ? " inv" : ""}"><span style="width:${Math.round(100 * v)}%"></span></span>${pct(v)}</td>`;
 
+/** The shared stylesheet of every static report, light and dark. */
 export const STYLE = `
 :root{--bg:#fbfbfa;--surface:#ffffff;--ink:#1d1f23;--ink2:#4a4f57;--muted:#7a808a;--line:#e3e5e8;--bar:#3b6fb6;--bar-bg:#e8edf5;--bad:#b4442f;--bad-bg:#f6e6e2;--code:#f3f4f6}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15171a;--surface:#1c1f23;--ink:#e8eaed;--ink2:#b9bec6;--muted:#8a919b;--line:#30343a;--bar:#6f9be0;--bar-bg:#27303d;--bad:#e0826e;--bad-bg:#3a2723;--code:#23272c}}
@@ -196,6 +206,7 @@ function examplesSection(
   return `<h2 id="examples">Sample raw outputs</h2><p>A few hits, misses and false positives per configuration. Every raw output is in <code>results.jsonl</code>.</p>${parts.join("")}`;
 }
 
+/** The `report.html` of one bench run. */
 export function renderReport(meta: RunMeta, rows: Scored[]): string {
   const summaries = summarize(rows);
   const models = loadModelsMeta();

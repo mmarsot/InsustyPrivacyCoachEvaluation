@@ -45,6 +45,10 @@ const reply = (
   body: { ok: true; result: unknown } | { ok: false; error: string },
 ) => process.send?.({ id, ...body });
 
+/**
+ * Runs one message from the parent: load a model (the ref's engine reuses its
+ * weights), chat, or review.
+ */
 async function handle(msg: Record<string, unknown>): Promise<unknown> {
   if (msg.type === "load") {
     const started = performance.now();

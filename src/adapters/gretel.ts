@@ -72,6 +72,10 @@ const LABELS: Record<string, LabelTarget> = {
   local_latlng: "out_of_scope",
 };
 
+/**
+ * Gretel's synthetic finance PII dataset, English and French documents of its
+ * test split.
+ */
 export const gretel: BenchmarkAdapter = {
   id: "gretel-pii-finance-multilingual",
   title: "Gretel synthetic PII finance multilingual (EN, FR test)",

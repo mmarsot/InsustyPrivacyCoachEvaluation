@@ -225,6 +225,12 @@ const loadLabCache = (file: string) => {
   return map;
 };
 
+/**
+ * Renders every request of every (configuration, case) pair, per label for
+ * per-label configurations, with the model's tokenizer. A request's key hashes
+ * the model, dtype, rendered prompt and generation settings, so identical
+ * requests run once across configurations.
+ */
 async function plan(
   model: LabModel,
   cache: Map<string, LabRecord> = new Map(),
@@ -474,6 +480,10 @@ function planChecks(
 /** Called every ~30 s while a worker runs (main writes the partial run file). */
 let progressHook: ((progress: string) => void) | undefined;
 
+/**
+ * Runs the pending requests in one worker process, grouped by prompt prefix so
+ * each prefix is prefilled once, under the memory guards of `runtime.ts`.
+ */
 async function runWorker(
   model: LabModel,
   dtype: string,

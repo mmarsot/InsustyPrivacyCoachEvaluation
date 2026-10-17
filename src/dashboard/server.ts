@@ -412,6 +412,10 @@ export class Dashboard {
 
 // ------------------------------------------------------------ playground
 
+/**
+ * What the playground's forms start from: the ref's prompts, the models and the
+ * default settings.
+ */
 async function playgroundPresets(dash: Dashboard) {
   const loaded = await dash.ext();
   const api = loaded?.api;
@@ -475,6 +479,10 @@ const readBody = (req: IncomingMessage): Promise<Record<string, unknown>> =>
     req.on("error", reject);
   });
 
+/**
+ * The playground endpoints: status and presets, then the POST actions that load
+ * a model, chat or review.
+ */
 async function handlePlayground(
   dash: Dashboard,
   path: string,
