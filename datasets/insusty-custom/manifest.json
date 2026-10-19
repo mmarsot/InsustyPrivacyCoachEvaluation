@@ -1,0 +1,15 @@
+{
+  "id": "insusty-custom",
+  "title": "Insusty custom-label prompts",
+  "origin": "ours",
+  "source": {
+    "note": "Written in this repository: 8 fictional client profiles, each with 1-3 custom labels, and prompts written like real people write them (style guides in style-guides/)."
+  },
+  "licence": {
+    "spdx": "UNLICENSED",
+    "note": "Written or generated in this repository; every value is fictional.",
+    "commercialResults": true
+  },
+  "languages": ["en", "fr"],
+  "size": "809 prompts (30% held-out test split) across 8 profiles"
+}

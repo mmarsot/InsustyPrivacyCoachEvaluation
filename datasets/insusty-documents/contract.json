@@ -1,0 +1,24 @@
+{
+  "dataset": "insusty-documents",
+  "version": "1.0.0",
+  "input": "document",
+  "scorer": "documents",
+  "labels": {
+    "SECRET": "credentials and secrets: API keys, tokens, passwords, private keys, connection strings",
+    "FINANCIAL": "payment and bank data: IBAN, card, BIC, account numbers",
+    "NATIONAL_ID": "personal national identifiers: NIR, SSN, NINO, NHS, passport numbers",
+    "DATE_OF_BIRTH": "dates of birth (not other dates)",
+    "PHONE": "phone and fax numbers",
+    "EMAIL": "e-mail addresses",
+    "ADDRESS": "postal addresses",
+    "IP": "IP and MAC addresses",
+    "COMPANY_ID": "company identifiers: SIREN, SIRET, VAT numbers"
+  },
+  "customLabels": "per-case",
+  "splits": ["all"],
+  "tiers": {
+    "smoke": 0,
+    "quick": 0,
+    "full": 0
+  }
+}

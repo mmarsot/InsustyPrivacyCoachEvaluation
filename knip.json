@@ -2,18 +2,22 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": [
     "contract/*.ts",
-    "src/cli/*.ts",
-    "src/run/worker.ts",
-    "src/lab/worker.ts",
-    "src/lab/classify-worker.ts",
-    "src/docbench/worker.ts",
-    "src/playground/host.ts",
-    "tests/**/*.test.ts",
-    "tests/fixtures/*.mjs",
-    "src/lab/browser/run.ts",
-    "src/lab/candidates-coverage.ts",
-    "src/lab/parity.ts"
+    "engine/cli/*.ts",
+    "engine/workers/*.ts",
+    "dashboard/playground/host.ts",
+    "dashboard/playground/*.fixture.mjs",
+    "datasets/*/loader.ts",
+    "modules/*/module.ts",
+    "modules/insusty-privacy/lab/worker.ts",
+    "modules/insusty-privacy/lab/browser/run.ts",
+    "**/*.test.ts"
   ],
-  "project": ["contract/**/*.ts", "src/**/*.ts", "tests/**/*.{ts,mjs}"],
+  "project": [
+    "contract/**/*.ts",
+    "modules/**/*.{ts,mjs}",
+    "datasets/**/*.ts",
+    "engine/**/*.ts",
+    "dashboard/**/*.{ts,mjs}"
+  ],
   "ignoreExportsUsedInFile": true
 }

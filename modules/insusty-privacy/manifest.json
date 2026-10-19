@@ -1,0 +1,64 @@
+{
+  "id": "insusty-privacy",
+  "title": "Insusty privacy (the extension's redaction module)",
+  "role": "system-under-test",
+  "contract": "1.0.0",
+  "aliases": ["insusty", "insusty-prompt-coach"],
+  "source": {
+    "kind": "git-ref",
+    "repo": "bench.local.json extRepo, INSUSTY_EXT_REPO or --ext-repo",
+    "defaultRef": "main"
+  },
+  "inputs": ["text", "document"],
+  "labels": {
+    "builtin": [
+      "SECRET",
+      "FINANCIAL",
+      "NATIONAL_ID",
+      "DATE_OF_BIRTH",
+      "PHONE",
+      "EMAIL",
+      "ADDRESS",
+      "IP",
+      "COMPANY_ID"
+    ],
+    "custom": true
+  },
+  "configurations": [
+    {
+      "id": "rules",
+      "title": "Rules, default settings (Private AI off)",
+      "builtins": "default",
+      "privateAi": "off"
+    },
+    {
+      "id": "rules-all",
+      "title": "Rules, every built-in label on (Private AI off)",
+      "builtins": "all",
+      "privateAi": "off"
+    },
+    {
+      "id": "smollm2-360m",
+      "title": "Rules + Private AI on the device (SmolLM2-360M, the shipped model)",
+      "builtins": "default",
+      "privateAi": "device",
+      "model": "onnx-community/SmolLM2-360M-Instruct-ONNX",
+      "peakRssMb": 1900
+    },
+    {
+      "id": "glm47-flash-connected",
+      "title": "Rules + Private AI on a connected model (GLM-4.7 Flash on Bedrock)",
+      "builtins": "default",
+      "privateAi": "connected",
+      "model": "connected/bedrock/zai.glm-4.7-flash#auto-15s",
+      "paid": true,
+      "env": ["AWS_BEARER_TOKEN_BEDROCK"],
+      "budgetUsd": 5
+    }
+  ],
+  "notes": [
+    "Read-only on the extension clone: refs are read with git archive into cache/module/<sha>/.",
+    "Inference runs on onnxruntime-web WASM with default session options, like the extension.",
+    "OCR is not wired in Node: images and scanned pages are reported as the ref reports them with OCR off."
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "dataset": "tab",
+  "datasetContract": "1.0.0",
+  "configurations": "all",
+  "labels": {
+    "CODE": ["FINANCIAL", "NATIONAL_ID", "PHONE", "EMAIL", "IP", "COMPANY_ID"]
+  },
+  "missing": ["PERSON", "ORG", "DATETIME", "LOC", "DEM", "QUANTITY", "MISC"]
+}

@@ -5,7 +5,7 @@ import parser from "@typescript-eslint/parser";
 
 export default [
   {
-    ignores: ["cache/**", "runs/**"],
+    ignores: ["cache/**", "runs/**", "results/**"],
   },
   eslint.configs.recommended,
   {
@@ -40,7 +40,7 @@ export default [
   {
     // The document writers strip the control characters XML 1.0 forbids, so
     // their regular expressions name those characters on purpose.
-    files: ["src/docbench/writers/**/*.ts"],
+    files: ["datasets/insusty-documents/writers/**/*.ts"],
     rules: {
       "no-control-regex": "off",
     },

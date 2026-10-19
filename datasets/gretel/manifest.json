@@ -1,0 +1,19 @@
+{
+  "id": "gretel",
+  "resultsId": "gretel-pii-finance-multilingual",
+  "title": "Gretel synthetic PII finance multilingual (EN, FR test)",
+  "origin": "published",
+  "source": {
+    "url": "https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual",
+    "revision": "7b844d16738527a04264f50214cb426a4cea0897"
+  },
+  "licence": {
+    "spdx": "Apache-2.0",
+    "url": "https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual",
+    "note": "Apache-2.0 (card metadata and its License section: \"can be used for any purpose that is not harmful\").",
+    "commercialResults": true
+  },
+  "citation": "Watson, Meyer, Van Segbroeck, Grossman, Torbey, Mlocek, Greco (2024). Synthetic PII Financial Documents. Gretel.ai.",
+  "languages": ["en", "fr"],
+  "size": "3,334 documents (the English and French test files)"
+}

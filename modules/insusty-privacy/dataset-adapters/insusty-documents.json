@@ -1,0 +1,18 @@
+{
+  "dataset": "insusty-documents",
+  "datasetContract": "1.0.0",
+  "configurations": "all",
+  "labels": {
+    "SECRET": "SECRET",
+    "FINANCIAL": "FINANCIAL",
+    "NATIONAL_ID": "NATIONAL_ID",
+    "DATE_OF_BIRTH": "DATE_OF_BIRTH",
+    "PHONE": "PHONE",
+    "EMAIL": "EMAIL",
+    "ADDRESS": "ADDRESS",
+    "IP": "IP",
+    "COMPANY_ID": "COMPANY_ID"
+  },
+  "missing": [],
+  "customLabels": "per-case"
+}

@@ -1,0 +1,22 @@
+{
+  "dataset": "tab",
+  "version": "1.0.0",
+  "input": "text",
+  "scorer": "literature",
+  "labels": {
+    "CODE": "numbers and identification codes: case and application numbers, phone, passport, account numbers",
+    "PERSON": "names of people",
+    "ORG": "organisations: companies, institutions, courts",
+    "DATETIME": "dates, times and durations",
+    "LOC": "places: cities, countries, addresses",
+    "DEM": "demographic attributes: nationality, ethnicity, profession, age",
+    "QUANTITY": "quantities: amounts of money, percentages, counts",
+    "MISC": "other identifying information"
+  },
+  "splits": ["dev", "test"],
+  "defaultSplit": "test",
+  "tiers": {
+    "smoke": 20,
+    "full": 0
+  }
+}

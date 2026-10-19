@@ -1,0 +1,46 @@
+{
+  "dataset": "gretel",
+  "datasetContract": "1.0.0",
+  "configurations": "all",
+  "labels": {
+    "email": "EMAIL/email",
+    "phone_number": "PHONE/phone",
+    "street_address": "ADDRESS/street_address",
+    "date_of_birth": "DATE_OF_BIRTH/date_of_birth",
+    "iban": "FINANCIAL/iban",
+    "bban": "FINANCIAL/bban",
+    "credit_card_number": "FINANCIAL/card",
+    "swift_bic_code": "FINANCIAL/bic",
+    "bank_routing_number": "FINANCIAL/routing_number",
+    "ssn": "NATIONAL_ID/ssn",
+    "passport_number": "NATIONAL_ID/passport",
+    "driver_license_number": "NATIONAL_ID/driver_license",
+    "ipv4": "IP/ipv4",
+    "ipv6": "IP/ipv6",
+    "api_key": "SECRET/api_key",
+    "password": "SECRET/password",
+    "name": {
+      "custom": "Person names"
+    },
+    "first_name": {
+      "custom": "Person names"
+    },
+    "last_name": {
+      "custom": "Person names"
+    },
+    "company": {
+      "custom": "Organisations"
+    }
+  },
+  "missing": [
+    "date",
+    "time",
+    "date_time",
+    "employee_id",
+    "customer_id",
+    "user_name",
+    "account_pin",
+    "credit_card_security_code",
+    "local_latlng"
+  ]
+}

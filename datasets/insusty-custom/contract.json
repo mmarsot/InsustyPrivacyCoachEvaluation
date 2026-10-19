@@ -1,0 +1,14 @@
+{
+  "dataset": "insusty-custom",
+  "version": "1.0.0",
+  "input": "text",
+  "scorer": "custom-passages",
+  "labels": "per-case",
+  "splits": ["dev", "test"],
+  "defaultSplit": "dev",
+  "tiers": {
+    "smoke": 16,
+    "quick": 32,
+    "full": 809
+  }
+}

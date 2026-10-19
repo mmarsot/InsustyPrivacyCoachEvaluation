@@ -4,6 +4,8 @@ cache/
 # Machine-local settings (for example the path to the extension clone).
 bench.local.json
 *.tmp.*
-# Run outputs (results, metrics, reports): they copy the full text of every case, so they stay
-# local; the tools read and write them here. Their headline numbers are quoted in the docs.
+# Run outputs and the costly job caches (results, metrics, reports, model answers, paid replies):
+# they copy the full text of every case, so they stay local. Their headline numbers are quoted in
+# the docs. runs/ is where they lived before the modules/datasets layout; it is still read.
+results/
 runs/

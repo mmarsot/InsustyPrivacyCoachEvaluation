@@ -1,0 +1,18 @@
+{
+  "id": "tab",
+  "title": "Text Anonymization Benchmark (TAB, ECHR)",
+  "origin": "published",
+  "source": {
+    "url": "https://github.com/NorskRegnesentral/text-anonymization-benchmark",
+    "revision": "558e09e26d6b36f5f78440074e6a233946d98bd9"
+  },
+  "licence": {
+    "spdx": "MIT",
+    "url": "https://raw.githubusercontent.com/NorskRegnesentral/text-anonymization-benchmark/558e09e26d6b36f5f78440074e6a233946d98bd9/LICENSE.txt",
+    "note": "MIT (LICENSE.txt in the repository): commercial use and publication of results allowed.",
+    "commercialResults": true
+  },
+  "citation": "Pilán, Lison, Øvrelid, Papadopoulou, Sánchez, Batet (2022). The Text Anonymization Benchmark (TAB). Computational Linguistics 48(4).",
+  "languages": ["en"],
+  "size": "1,268 ECHR judgements; the test split (127 documents) is scored"
+}

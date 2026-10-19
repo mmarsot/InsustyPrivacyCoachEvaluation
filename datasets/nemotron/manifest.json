@@ -1,0 +1,19 @@
+{
+  "id": "nemotron",
+  "resultsId": "nemotron-pii",
+  "title": "Nemotron-PII (NVIDIA, EN, US and international)",
+  "origin": "published",
+  "source": {
+    "url": "https://huggingface.co/datasets/nvidia/Nemotron-PII",
+    "revision": "b70ffaf5ff39e079776134c5bf4381f00a9fd1ed"
+  },
+  "licence": {
+    "spdx": "CC-BY-4.0",
+    "url": "https://huggingface.co/datasets/nvidia/Nemotron-PII",
+    "note": "CC BY 4.0 (card metadata and its License/Terms of Use section; \"ready for commercial use\"). Attribution: NVIDIA Corporation.",
+    "commercialResults": true
+  },
+  "citation": "NVIDIA (2025). Nemotron-PII: Synthesized Data for Privacy-Preserving AI. Hugging Face dataset nvidia/Nemotron-PII.",
+  "languages": ["en"],
+  "size": "100,000 test records (96 M characters); a pinned, seeded sample of 3,000 by default"
+}

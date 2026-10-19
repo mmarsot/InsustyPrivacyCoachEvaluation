@@ -1,0 +1,15 @@
+{
+  "id": "insusty-documents",
+  "title": "Insusty documents (docbench)",
+  "origin": "ours",
+  "source": {
+    "note": "Generated deterministically from insusty-builtin values and a seed (nothing binary is committed): Word, Excel, PowerPoint, OpenDocument, PDF, text and zip files, size sweeps, and insusty-custom cases inside Word documents for Private AI."
+  },
+  "licence": {
+    "spdx": "UNLICENSED",
+    "note": "Written or generated in this repository; every value is fictional.",
+    "commercialResults": true
+  },
+  "languages": ["en", "fr"],
+  "size": "156 documents (55 format x zone pairs, hard negatives, 23 failure files) plus size sweeps"
+}

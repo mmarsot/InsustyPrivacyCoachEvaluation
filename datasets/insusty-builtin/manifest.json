@@ -1,0 +1,15 @@
+{
+  "id": "insusty-builtin",
+  "title": "Insusty built-in-label prompts (detbench)",
+  "origin": "ours",
+  "source": {
+    "note": "Written in this repository: prompts with labelled items and hard negatives, values checksum-valid where a checksum exists, plus seeded perturbations."
+  },
+  "licence": {
+    "spdx": "UNLICENSED",
+    "note": "Written or generated in this repository; every value is fictional.",
+    "commercialResults": true
+  },
+  "languages": ["en", "fr"],
+  "size": "316 prompts, 532 labelled items, 502 hard negatives, about 3,400 perturbed variants"
+}

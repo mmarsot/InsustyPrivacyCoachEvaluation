@@ -1,0 +1,38 @@
+{
+  "id": "presidio",
+  "title": "Microsoft Presidio (baseline)",
+  "role": "baseline",
+  "contract": "1.0.0",
+  "source": {
+    "kind": "python-env",
+    "version": "presidio-analyzer 2.2.364, spaCy en_core_web_sm",
+    "requirements": "modules/presidio/requirements.txt"
+  },
+  "inputs": ["text"],
+  "labels": {
+    "builtin": [
+      "FINANCIAL",
+      "NATIONAL_ID",
+      "DATE_OF_BIRTH",
+      "PHONE",
+      "EMAIL",
+      "ADDRESS",
+      "IP",
+      "COMPANY_ID"
+    ],
+    "custom": false
+  },
+  "configurations": [
+    {
+      "id": "default",
+      "title": "Default recognizers, every text analysed as English",
+      "builtins": "default",
+      "privateAi": "off"
+    }
+  ],
+  "notes": [
+    "No secret recognizer.",
+    "Runs locally in a pinned uv environment under cache/tmp/presidio/, sockets disabled.",
+    "A baseline only, never a component of the product."
+  ]
+}
