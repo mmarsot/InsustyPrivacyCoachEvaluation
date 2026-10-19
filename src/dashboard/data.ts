@@ -1,6 +1,6 @@
 /**
  * Data layer of the dashboard. Everything here only READS: the dataset, the
- * result cache (`cache/results/`), active-run markers and committed runs. It
+ * result cache (`cache/results/`), active-run markers and finished runs. It
  * never writes, so it is safe to use while a bench run is in progress.
  * The functions taking plain data (progress, matrix status, grouping, case
  * detail) are pure so they can be unit-tested without a model.
@@ -385,8 +385,8 @@ export interface RunListing {
 }
 
 /**
- * Committed bench runs (`runs/<name>/` with `run.json` and `results.jsonl`),
- * newest first.
+ * Finished bench runs (`runs/<name>/` with `run.json` and `results.jsonl`;
+ * git-ignored, so empty on a fresh clone), newest first.
  */
 export function listCommittedRuns(): RunListing[] {
   if (!existsSync(RUNS_DIR)) return [];

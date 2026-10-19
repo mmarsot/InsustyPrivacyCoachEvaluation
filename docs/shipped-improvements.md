@@ -144,8 +144,15 @@ replaced (extension dc91f36):
 | **held-out test** | chat design (dc91f36, bench) | 12.0% | 44.2% | 6.9% | 11.3% | 10.9% | 33% | 34 | 10.0 s |
 | **held-out test** | completion design (d42c466, bench) | **27.4%** | 32.2% | **23.9%** | **41.8%** | 44.6% | **100%** | **0** | **2.4 s** |
 
-Runs: `runs/ext-d42c466-tune96-smol360/`, `test-dc91f36-smol360`,
-`test-d42c466-smol360`, `d3-smol360-confirm48`. See LOG T1, D3, V1 and H1.
+Bench runs (kept locally, not in git; overlap F1 / precision / recall / FP
+rate, SmolLM2-360M, all 2026-09-27):
+
+- tune96 on d42c466: 32.1% / 41.5% / 26.2% / 35.7% (run `ext-d42c466-tune96-smol360`).
+- held-out test (242) on dc91f36: 12.0% / 44.2% / 6.9% / 10.9% (run `test-dc91f36-smol360`).
+- held-out test (242) on d42c466: 27.4% / 32.2% / 23.9% / 44.6% (run `test-d42c466-smol360`).
+
+The confirm48 rows are the lab run `d3-smol360-confirm48`. See LOG T1, D3, V1
+and H1.
 The cost is the false-positive rate: 45% of held-out negatives get a
 finding, against 11% before. That is the main open problem (REPORT.md).
 
@@ -287,8 +294,9 @@ the engine now reports each completion answer's confidence
 (`SlmReviewRuntime.answerProbability`, recorded by a pass-through logits
 processor, so decoding is unaffected).
 
-Evidence, SmolLM2-360M, bench on ebf077f (LOG V2; runs
-`runs/ext-ebf077f-tune96-smol360/`, `runs/ext-ebf077f-test-smol360/`), each
+Evidence, SmolLM2-360M, bench on ebf077f, 2026-09-27 (LOG V2; local runs
+`ext-ebf077f-tune96-smol360`: F1 38.2%, FP rate 21.4% on tune96, and
+`ext-ebf077f-test-smol360`: F1 33.2%, FP rate 35.6% on the held-out test), each
 part switched off by replaying the cached answers (`npm run components`):
 
 | set | variant | F1 | precision | recall | detection | FP rate | EN / FR F1 |

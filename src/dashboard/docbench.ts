@@ -1,6 +1,6 @@
 /**
- * The dashboard's Documents view (read-only): document-bench runs committed
- * under `runs/docbench/`, and runs in progress, whose plan is rebuilt from
+ * The dashboard's Documents view (read-only): finished document-bench runs
+ * under `runs/docbench/` (git-ignored, local), and runs in progress, whose plan is rebuilt from
  * their arguments with `planDocbench` (`src/run/plan.ts`, the planner the
  * CLI uses) and compared with the ref's result cache.
  */
@@ -66,7 +66,7 @@ const readJson = <T>(file: string): T =>
   JSON.parse(readFileSync(file, "utf8")) as T;
 
 /**
- * The Documents view's data: committed docbench runs, and live ones whose plan
+ * The Documents view's data: finished docbench runs, and live ones whose plan
  * is rebuilt from their arguments. Read-only.
  */
 export class DocDashboard {

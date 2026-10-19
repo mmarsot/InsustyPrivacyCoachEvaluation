@@ -286,7 +286,7 @@ for confirm48, `d1-tune96-basic` for tune96).
 ### V1. Parity of the extension implementation (fm/slm-completion-framing, d42c466)
 
 `npm run bench -- --ext-repo <task copy of InsustyPromptCoach> --ref d42c466
---set tune96 --models smollm2-360m` (run `runs/ext-d42c466-tune96-smol360/`),
+--set tune96 --models smollm2-360m` (local run `ext-d42c466-tune96-smol360`, 2026-09-27: F1o 32.1, FPR 35.7),
 read-only through `git archive`. The bench now recognizes completion-design
 refs (`src/ext/ref.ts`), fills each rule's new `examples` field from the
 profile, and forwards the engine's pinned decoding settings in the Node loader.
@@ -308,7 +308,7 @@ profile, and forwards the engine's pinned decoding settings in the Node loader.
   review API signature, `examples` in rules, pinned `settings` forwarded to
   `generate`, completion answers analyzed with their `LABEL:` cue.
 
-### H1. Held-out test split, one shot (bench path; runs `test-dc91f36-smol360`, `test-d42c466-smol360`)
+### H1. Held-out test split, one shot (bench path; local runs `test-dc91f36-smol360`, `test-d42c466-smol360`, 2026-09-27)
 
 All 242 test cases (never used for any tuning), SmolLM2-360M, q8 WASM,
 through `npm run bench -- --tier full --split test`.
@@ -807,8 +807,9 @@ second model. Runs: `experiments/runs/s1-seg-iter32.json`,
 ### V2. Parity of the patterns + confidence-filter implementation (extension PR #32, fm/slm-patterns-confidence-filter, ebf077f)
 
 `npm run bench -- --ref ebf077f --models smollm2-360m` with `--set tune96`
-(run `runs/ext-ebf077f-tune96-smol360/`), then once with `--tier full --split
-test` (run `runs/ext-ebf077f-test-smol360/`; the configuration was fixed on
+(local run `ext-ebf077f-tune96-smol360`, 2026-09-27: F1o 38.2, FPR 21.4), then
+once with `--tier full --split test` (local run `ext-ebf077f-test-smol360`,
+2026-09-27: F1o 33.2, FPR 35.6; the configuration was fixed on
 the dev sets before, P1). The bench's Node loader now honours the ref's
 optional `SlmGenerateOptions.onTokenProbability` with a pass-through logits
 processor equivalent to the extension's `TokenProbabilityRecorder` (refs that

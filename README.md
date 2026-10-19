@@ -54,6 +54,10 @@ npm run suite -- --since <base ref> --ref main --dry-run   # which tracks a chan
 npm run literature -- --ref main       # TAB, Gretel, Nemotron-PII (datasets download once into cache/datasets/)
 ```
 
+Run outputs stay on your machine: `runs/` is git-ignored, because results
+copy the full text of every case, so a fresh clone has no runs until you
+produce them (the commands that read a stored run say so and print the command
+that produces it). The docs quote the headline numbers of the runs they cite.
 `BENCH_RUNS_DIR=<dir>` writes run outputs there instead of `runs/` (CI and
 scratch runs).
 
@@ -191,17 +195,17 @@ Useful flags:
 
 The bench keeps two models: SmolLM2-360M on the device (the model the
 extension ships) and GLM-4.7 Flash connected. Older models and their runs
-were deleted on 2026-10-17 to start fresh. Committed SmolLM2-360M runs
-(passage-level overlap F1 / precision / recall, share of negatives with a
-false finding):
+were deleted on 2026-10-17 to start fresh. SmolLM2-360M runs, all on
+2026-09-27 and kept locally (passage-level overlap F1 / precision / recall,
+share of negatives with a false finding):
 
-| Run                               | Ref                     | Cases              | F1    | P     | R     | FP rate |
-| --------------------------------- | ----------------------- | ------------------ | ----- | ----- | ----- | ------- |
-| `runs/ext-ebf077f-tune96-smol360` | `ebf077f` (PR #32)      | tune96             | 38.2% | 55.6% | 29.1% | 21.4%   |
-| `runs/ext-ebf077f-test-smol360`   | `ebf077f` (PR #32)      | held-out test, 242 | 33.2% | 43.3% | 27.0% | 35.6%   |
-| `runs/ext-d42c466-tune96-smol360` | `d42c466` (PR #26)      | tune96             | 32.1% | 41.5% | 26.2% | 35.7%   |
-| `runs/test-d42c466-smol360`       | `d42c466` (PR #26)      | held-out test, 242 | 27.4% | 32.2% | 23.9% | 44.6%   |
-| `runs/test-dc91f36-smol360`       | `dc91f36` (chat design) | held-out test, 242 | 12.0% | 44.2% | 6.9%  | 10.9%   |
+| Run                          | Ref                     | Cases              | F1    | P     | R     | FP rate |
+| ---------------------------- | ----------------------- | ------------------ | ----- | ----- | ----- | ------- |
+| `ext-ebf077f-tune96-smol360` | `ebf077f` (PR #32)      | tune96             | 38.2% | 55.6% | 29.1% | 21.4%   |
+| `ext-ebf077f-test-smol360`   | `ebf077f` (PR #32)      | held-out test, 242 | 33.2% | 43.3% | 27.0% | 35.6%   |
+| `ext-d42c466-tune96-smol360` | `d42c466` (PR #26)      | tune96             | 32.1% | 41.5% | 26.2% | 35.7%   |
+| `test-d42c466-smol360`       | `d42c466` (PR #26)      | held-out test, 242 | 27.4% | 32.2% | 23.9% | 44.6%   |
+| `test-dc91f36-smol360`       | `dc91f36` (chat design) | held-out test, 242 | 12.0% | 44.2% | 6.9%  | 10.9%   |
 
 The smoke tier on `main` and the connected model are in
 [Connected model in the bench](#connected-model-in-the-bench).
@@ -255,8 +259,7 @@ cases, the perturbations and the metric definitions.
 
 Baseline on `main` @ `4d68779` (after the detector upgrade, PR #42, its gap
 fixes, PRs #43 and #45, the reference-link fixes, PRs #72 and #73, and the
-spreadsheet fix, PR #74;
-[`runs/detbench/main-4d68779/report.html`](runs/detbench/main-4d68779/report.html)),
+spreadsheet fix, PR #74; run `main-4d68779`, 2026-10-05, kept locally),
 base cases, `default` config (FR addresses only, `IP` and `COMPANY_ID` off)
 and `all` (every category; the ref does not export its address-country list,
 so FR addresses only too). The four large generated cases are scored apart
@@ -333,16 +336,16 @@ so FR addresses only too). The four large generated cases are scored apart
   `fr_multiline_address`; added after `4d68779`, from the OCR of a scanned
   French letter in which rule-based detection missed both postal addresses):
   on `main` @ `3d22b5b`
-  ([`runs/detbench/main-3d22b5b/report.html`](runs/detbench/main-3d22b5b/report.html),
-  "Per tag" under the slices), in both configs, all 10 addresses are missed
+  (run `main-3d22b5b`, 2026-10-06, F1 86% `default` / 94% `all`, "Per tag"
+  under the slices of its report), in both configs, all 10 addresses are missed
   (`fr-142`–`fr-150`, nothing detected in them): street line, then
   `postcode CITY` (`7 rue des Glycines` / `00100 ST NULLE PART D ICI`),
   uppercase streets ending with an OCR ` :`, ` ;` or `,`, a `CS 70001` line
   and `CEDEX 08`. The detector scans one line at a time, so its FR pattern
   never crosses the line break. The 6 near-miss line pairs (`fr-151`–`fr-156`,
   tag `address_near_miss`) pass: none is flagged, so a fix must keep them
-  clean. Fixed on `main` @ `539608e` (InsustyPromptCoach PR #91;
-  [`runs/detbench/main-539608e/report.html`](runs/detbench/main-539608e/report.html)):
+  clean. Fixed on `main` @ `539608e` (InsustyPromptCoach PR #91; run
+  `main-539608e`, 2026-10-07, F1 87% `default` / 95% `all`):
   all 10 addresses are found with exact spans in both configs, the near-miss
   pairs stay clean, and no other base case or variant changes outcome
   (overall F1 86%→87% in `default`, 94%→95% in `all`; false positives
@@ -388,8 +391,7 @@ Documents view shows them. [docs/docbench.md](docs/docbench.md) has the
 cases, metrics and how to add cases.
 
 Baseline on `main` @ `2aece81` (PR #76; tier `full`, seed 1, detbench
-dataset as of `c1c7a64`;
-[`runs/docbench/main-2aece81/report.html`](runs/docbench/main-2aece81/report.html)):
+dataset as of `c1c7a64`; run `main-2aece81`, 2026-10-06, kept locally):
 
 |                                                  | `default`       | `all`           |
 | ------------------------------------------------ | --------------- | --------------- |
@@ -571,7 +573,7 @@ It has eight views:
   axes (the ref's models × 3 instructions × 5 label descriptions). Each cell shows
   done/total, a status (done, running, partial or pending) and the estimated
   remaining time.
-- **Results.** Pick a committed run, or a LIVE run whose results are scored as
+- **Results.** Pick a finished run from `runs/`, or a LIVE run whose results are scored as
   they arrive. Group by one or two dimensions: model, language, profile, label
   description, case type, error level, register, failure mode, and more.
   - Filters on every dimension.
@@ -582,7 +584,7 @@ It has eight views:
     system instruction, the label descriptions of the variant used, the ground
     truth, the parsed findings with their verdicts, the raw model output,
     latency, tokens and finish reason.
-- **Compare.** Any two runs, committed or live, on their shared (configuration,
+- **Compare.** Any two runs, finished or live, on their shared (configuration,
   case) results, overall and by language.
 - **Playground.** Talk to one bundled model to see its limits (below).
 - **Lab.** Every `npm run lab` result (`experiments/runs/`), sortable by any
@@ -832,7 +834,7 @@ label examples that leak into case texts, and schema errors.
 
 ## Outputs
 
-Each run writes `runs/<name>/`:
+Each run writes `runs/<name>/` (git-ignored, local):
 
 - `report.html`: static report, which works offline.
 - `results.jsonl`: one scored row per job, with the raw model output.
@@ -900,6 +902,6 @@ src/docbench/   document bench: document writers, cases and sweeps, the ref's fi
 src/hosted/     the connected model of the Private AI track (the transport for the ref's own client)
 experiments/    lab iteration sets, run summaries, ablation tables, LOG.md, REPORT.md, RESEARCH.md
 src/cli/        validate, split, bench, report, compare, detbench, docbench, conformance, literature, suite
-runs/           committed run outputs (runs/detbench/ for the rule-based detector, runs/docbench/ for documents, runs/literature/)
+runs/           (untracked) local run outputs (runs/detbench/ for the rule-based detector, runs/docbench/ for documents, runs/literature/)
 cache/          (untracked) model weights, materialized refs, downloaded datasets, the Presidio environment, result caches
 ```

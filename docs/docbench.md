@@ -25,7 +25,10 @@ Code: `src/docbench/` and `src/cli/docbench.ts`; planning in
 dashboard (`src/dashboard/docbench.ts`). Tests: `tests/docbench.test.ts`.
 The research behind it is section 9 of the document-upload analysis. The
 baseline on `main` @ `2aece81` and what it shows are in the README
-("Document bench"); its run is `runs/docbench/main-2aece81/`.
+("Document bench"); its run (`main-2aece81`, tier `full`, 2026-10-06, kept
+locally) extracted 98% of the placed values, with recall 67% / 83% and
+precision 94% / 95% in `default` / `all`, no leaks, and 23/23 failure files
+classified.
 
 ## Running it
 
@@ -244,7 +247,9 @@ is reported.
 
 ## Outputs
 
-`runs/docbench/<name>/`: `report.html` (tables, charts), `results.jsonl`
+`runs/docbench/<name>/` (kept locally: `runs/` is git-ignored, so a fresh
+clone has no run until you produce one, and `--compare-runs` says so):
+`report.html` (tables, charts), `results.jsonl`
 (suite rows with extracted text up to 60,000 characters), `sweeps.jsonl`
 (sweep rows without item lists), `metrics.json`, `metrics.csv` (format ×
 zone × configuration), `run.json` (ref, packages, caps, configurations,

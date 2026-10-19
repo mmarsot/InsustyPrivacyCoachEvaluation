@@ -620,7 +620,7 @@
         const { runs } = await api("/api/runs");
         const view = $("#view");
         if (!runs.length) {
-          view.innerHTML = `<div class="card"><p>No run yet. Committed runs live in <code>runs/</code>; a run in progress appears here as LIVE.</p></div>`;
+          view.innerHTML = `<div class="card"><p>No run yet. Finished runs are kept locally in <code>runs/</code> (git-ignored, so a fresh clone has none): run <code>npm run bench</code> to produce one. A run in progress appears here as LIVE.</p></div>`;
           return;
         }
         if (!runs.some((r) => r.id === state.run)) state.run = runs[0].id;
@@ -793,7 +793,7 @@
         const { runs } = await api("/api/runs");
         const view = $("#view");
         if (runs.length < 2) {
-          view.innerHTML = `<div class="card"><p>Comparing needs two runs (committed runs in <code>runs/</code> or a LIVE run).</p></div>`;
+          view.innerHTML = `<div class="card"><p>Comparing needs two runs (finished runs in the local <code>runs/</code> folder, produced by <code>npm run bench</code>, or a LIVE run).</p></div>`;
           return;
         }
         if (!runs.some((r) => r.id === state.compareA))

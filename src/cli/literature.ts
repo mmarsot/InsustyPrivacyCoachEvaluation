@@ -43,7 +43,7 @@ import { percentile } from "../score/aggregate.ts";
 import { literatureJobKey, parseLiteratureArgs } from "../run/plan.ts";
 import { loadSystem, SYSTEMS, type SystemName } from "../systems/index.ts";
 
-/** Committed literature runs, `runs/literature/<name>/`. */
+/** Literature runs, `runs/literature/<name>/` (git-ignored, local). */
 export const LITERATURE_RUNS_DIR = join(RUNS_DIR, "literature");
 const CACHE = join(CACHE_DIR, "literature");
 

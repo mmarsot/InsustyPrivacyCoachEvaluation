@@ -9,7 +9,7 @@ import { basename, join, resolve } from "node:path";
 import { RUNS_DIR } from "../paths.ts";
 import { COMPARE_METRICS, compareRows } from "../report/compare-data.ts";
 import { esc, pct, STYLE } from "../report/html.ts";
-import { readRun } from "../run/outputs.ts";
+import { missingRun, readRun } from "../run/outputs.ts";
 
 const [aDir, bDir] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 if (!aDir || !bDir) {
@@ -17,6 +17,13 @@ if (!aDir || !bDir) {
     "usage: npm run compare -- runs/<A> runs/<B> [--out file.html]",
   );
   process.exit(2);
+}
+for (const dir of [aDir, bDir]) {
+  const missing = missingRun(resolve(dir), "npm run bench");
+  if (missing) {
+    console.error(missing);
+    process.exit(2);
+  }
 }
 const outIndex = process.argv.indexOf("--out");
 const a = readRun(resolve(aDir));

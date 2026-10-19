@@ -5,8 +5,8 @@ import { CACHE_DIR, RUNS_DIR } from "../paths.ts";
 import type { DocJobResult } from "./types.ts";
 
 /**
- * Committed docbench runs, `runs/docbench/<name>/` (under `BENCH_RUNS_DIR` when
- * set).
+ * Docbench runs, `runs/docbench/<name>/` (git-ignored, local; under
+ * `BENCH_RUNS_DIR` when set).
  */
 export const DOCBENCH_RUNS_DIR = join(RUNS_DIR, "docbench");
 /** Cached docbench results, one JSONL file per extension commit. */

@@ -20,6 +20,7 @@ import { cpus, totalmem } from "node:os";
 import { join, resolve } from "node:path";
 import { resolveExtRefName, resolveExtRepo } from "../ext/ref.ts";
 import { RUNS_DIR } from "../paths.ts";
+import { missingRun } from "../run/outputs.ts";
 import { percentile } from "../score/aggregate.ts";
 import {
   detCsv,
@@ -55,7 +56,7 @@ import {
   type DetScored,
 } from "../detbench/score.ts";
 
-/** Committed detbench runs, `runs/detbench/<name>/`. */
+/** Detbench runs, `runs/detbench/<name>/` (git-ignored, local). */
 export const DETBENCH_RUNS_DIR = join(RUNS_DIR, "detbench");
 
 function fail(message: string): never {
@@ -122,12 +123,16 @@ interface RunOutput {
   summaries: DetSummary[];
 }
 
-const readRunDir = (dir: string): RunOutput => ({
-  meta: JSON.parse(readFileSync(join(dir, "run.json"), "utf8")) as DetRunMeta,
-  summaries: JSON.parse(
-    readFileSync(join(dir, "metrics.json"), "utf8"),
-  ) as DetSummary[],
-});
+const readRunDir = (dir: string): RunOutput => {
+  const missing = missingRun(dir, "npm run detbench");
+  if (missing) fail(missing);
+  return {
+    meta: JSON.parse(readFileSync(join(dir, "run.json"), "utf8")) as DetRunMeta,
+    summaries: JSON.parse(
+      readFileSync(join(dir, "metrics.json"), "utf8"),
+    ) as DetSummary[],
+  };
+};
 
 function writeCompare(a: RunOutput, b: RunOutput, out?: string): void {
   const file = out
@@ -329,7 +334,7 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
     join(dir, "results.jsonl"),
     jsonl(rows.filter((r) => r.perturbation === "none")),
   );
-  // Perturbed variants are regenerated identically from the dataset and seed, so they are not committed (.gitignore).
+  // Perturbed variants are regenerated identically from the dataset and seed.
   writeFileSync(
     join(dir, "variants.jsonl"),
     jsonl(rows.filter((r) => r.perturbation !== "none")),

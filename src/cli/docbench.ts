@@ -88,6 +88,7 @@ import {
 } from "../lab/runtime.ts";
 import { ACTIVE_RUNS_DIR, CACHE_DIR } from "../paths.ts";
 import { cacheFile, loadCache } from "../run/jobs.ts";
+import { missingRun } from "../run/outputs.ts";
 import {
   formatDuration as fmt,
   localModel,
@@ -625,6 +626,13 @@ export async function main(argv: string[]): Promise<number> {
         "usage: npm run docbench -- --compare-runs runs/docbench/<A> runs/docbench/<B> [--out file.html]",
       );
       return 2;
+    }
+    for (const dir of [a, b]) {
+      const missing = missingRun(resolve(dir), "npm run docbench");
+      if (missing) {
+        console.error(missing);
+        return 2;
+      }
     }
     const outAt = argv.indexOf("--out");
     writeCompare(

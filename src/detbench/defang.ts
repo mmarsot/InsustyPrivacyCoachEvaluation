@@ -1,5 +1,5 @@
 /**
- * Keeps the fictional secrets of the dataset and of committed outputs from
+ * Keeps the fictional secrets of the dataset and of run outputs from
  * tripping secret scanners (GitHub push protection, gitleaks...) without
  * changing what the bench reads or shows.
  *

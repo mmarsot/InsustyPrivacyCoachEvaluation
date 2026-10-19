@@ -4,11 +4,16 @@
  *   npm run report -- runs/<name>
  */
 import { resolve } from "node:path";
-import { readRun, writeRun } from "../run/outputs.ts";
+import { missingRun, readRun, writeRun } from "../run/outputs.ts";
 
 const dir = process.argv[2];
 if (!dir) {
   console.error("usage: npm run report -- runs/<name>");
+  process.exit(2);
+}
+const missing = missingRun(resolve(dir), "npm run bench");
+if (missing) {
+  console.error(missing);
   process.exit(2);
 }
 const { meta, rows } = readRun(resolve(dir));

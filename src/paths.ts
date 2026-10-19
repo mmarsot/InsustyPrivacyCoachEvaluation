@@ -1,7 +1,7 @@
 /**
  * Every path the bench reads or writes, resolved from the repository root. Only
  * `RUNS_DIR` moves (`BENCH_RUNS_DIR`); everything under `CACHE_DIR` is
- * reproducible and never committed.
+ * reproducible, and neither is committed.
  */
 import { fileURLToPath } from "node:url";
 import { join, resolve } from "node:path";
@@ -33,7 +33,11 @@ export const MODEL_CACHE_DIR = join(CACHE_DIR, "models");
 export const RESULT_CACHE_DIR = join(CACHE_DIR, "results");
 /** One JSON file per bench process in progress (pid, name, argv), for the dashboard. */
 export const ACTIVE_RUNS_DIR = join(CACHE_DIR, "active-runs");
-/** Run outputs; `BENCH_RUNS_DIR` sends them elsewhere (CI and scratch runs, so the committed runs/ stays clean). */
+/**
+ * Run outputs, kept locally and git-ignored (they copy every case's text), so
+ * a fresh clone has none; `BENCH_RUNS_DIR` sends them elsewhere (CI and
+ * scratch runs).
+ */
 export const RUNS_DIR = process.env.BENCH_RUNS_DIR
   ? resolve(process.env.BENCH_RUNS_DIR)
   : join(ROOT, "runs");

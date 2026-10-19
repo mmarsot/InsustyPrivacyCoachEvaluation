@@ -307,9 +307,11 @@ npm run detbench -- --compare-runs runs/detbench/A runs/detbench/B
 npm run detbench -- --perturbations case,linebreak --variants 5 --seed 3
 ```
 
-`runs/detbench/<name>/`: `report.html`, `results.jsonl` (base cases, one row
+`runs/detbench/<name>/` (kept locally: `runs/` is git-ignored because results
+copy the case texts, so a fresh clone has no run until you produce one, and
+`--compare-runs` says so): `report.html`, `results.jsonl` (base cases, one row
 per configuration and case; a large case keeps its detections on items and
 its first 50 false positives, without its text), `variants.jsonl` (perturbed
-rows; not committed, regenerated identically), `metrics.json`, `metrics.csv` (long format:
+rows, regenerated identically), `metrics.json`, `metrics.csv` (long format:
 config, slice, value, metric, number) and `run.json` (ref, sha, packages,
 configurations, seed, timing).
