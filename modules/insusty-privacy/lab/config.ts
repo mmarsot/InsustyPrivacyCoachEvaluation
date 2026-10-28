@@ -242,8 +242,8 @@ export const REF_CONFIG: LabConfig = {
 };
 
 /**
- * The ref's own prompt texts, read from its bundle, that `@current` and `@ref`
- * settings resolve to.
+ * The ref's own prompt texts that `@current` and `@ref` settings resolve to
+ * (chat-era refs only; empty for a ref the package loads, see `lab/cli.ts`).
  */
 export interface RefTexts {
   defaultPrompt: string;

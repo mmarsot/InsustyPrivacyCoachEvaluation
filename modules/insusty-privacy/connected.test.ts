@@ -40,11 +40,11 @@ test("the connected transport caches replies by request, prices them, marks cach
     });
     const send = async (body: string) => {
       const response = await target.fetch(url, { method: "POST", body });
-      return target.usage(await response.clone().json(), response)!;
+      return target.usage!(await response.clone().json(), response)!;
     };
     const first = await send("a");
     assert.ok(
-      Math.abs(first.usd - (model.usdPerMInput + model.usdPerMOutput)) < 1e-9,
+      Math.abs(first.usd! - (model.usdPerMInput + model.usdPerMOutput)) < 1e-9,
     );
     assert.equal(first.cached, undefined);
     const again = await send("a");

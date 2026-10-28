@@ -1,7 +1,7 @@
 /**
  * Connected models of the Private AI track: Trusted AI connections as a user
  * sets them up in the extension, run through the ref's own connected-model
- * client (`createHostedModelClient`, `modules/insusty-privacy/insusty.ts`). The ref
+ * client (its package's connected engine, `modules/insusty-privacy/insusty.ts`). The ref
  * builds every request, paces it, retries it and parses the answer; the
  * bench supplies only the transport, which adds what a measurement needs:
  *
@@ -21,7 +21,7 @@
 import { createHash } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { ConnectedTarget } from "./insusty.ts";
+import type { ConnectedTarget } from "insusty-prompt-coach/redaction";
 import { CACHE_DIR, RESULTS_DIR, kept } from "../../engine/paths.ts";
 
 /**
@@ -32,17 +32,8 @@ export interface ConnectedModel {
   /** Model id (part of every cache key). */
   id: string;
   short: string;
-  /** The extension's `TrustedConnection`. */
-  connection: {
-    provider: "bedrock" | "openai-compatible";
-    region?: string;
-    baseUrl?: string;
-    model: string;
-    displayName: string;
-    format: "auto" | "answer-cue" | "system";
-    timeLimitMs: number;
-    maxRequestsPerMinute: number | null;
-  };
+  /** The extension's `TrustedConnection`, as its package types it. */
+  connection: ConnectedTarget["connection"];
   apiKeyEnv: string;
   /** On-demand USD per 1M tokens. */
   usdPerMInput: number;

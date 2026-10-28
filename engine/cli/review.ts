@@ -29,7 +29,7 @@ import { join } from "node:path";
 import { compileDataset } from "../../datasets/insusty-custom/load.ts";
 import { CURRENT_INSTRUCTION } from "../../datasets/insusty-custom/variants.ts";
 import {
-  loadExtApi,
+  refReview,
   resolveExtRefName,
   resolveExtRepo,
 } from "../../modules/insusty-privacy/ref.ts";
@@ -84,10 +84,10 @@ if (trackAt >= 0) {
 const refArgs = benchRefArgs(argv);
 const extRepo = resolveExtRepo(refArgs.extRepo);
 const ext = await materializeModule(extRepo, resolveExtRefName(refArgs.ref));
-const api = await loadExtApi(ext.bundle);
+const review = await refReview(ext);
 let options;
 try {
-  options = parseBenchArgs(argv, api);
+  options = parseBenchArgs(argv, review);
 } catch (error) {
   fail((error as Error).message);
 }
@@ -104,23 +104,17 @@ if (!dataset) {
   fail("dataset is invalid: run `npm run validate`");
 }
 for (const m of models)
-  if (!m.hosted && !api.modelIds.includes(m.id))
+  if (!m.hosted && !review.modelIds.includes(m.id))
     console.warn(`warning: ${m.id} is not bundled by ${ext.ref}`);
 for (const mismatch of runtimeMismatches(ext))
   console.warn(`warning: ${mismatch}`);
 
-const { cases, jobsByModel } = planJobs(
-  dataset,
-  options,
-  ext.sha,
-  api.defaultPrompt,
-  api.kind === "completion",
-);
+// Package refs have no system instruction: job keys keep it empty, as before.
+const { cases, jobsByModel } = planJobs(dataset, options, ext.sha, "", true);
 if (!cases.length) fail("no case selected");
 const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
 
 console.log(`Extension ${ext.ref} @ ${ext.sha.slice(0, 10)} "${ext.subject}"`);
-console.log(`Extension review design: ${api.kind}`);
 console.log(
   `${options.set ? `Set ${options.set}, ` : ""}Tier ${tier}${tier === "quick" ? ` (${options.casesPerProfile} per profile and language)` : ""}, split ${splitLabel(options)}: ${cases.length} cases x ${labelVariants.length} label variant(s) [${labelVariants.join(",")}]`,
 );
@@ -144,7 +138,7 @@ for (const m of models.filter((x) => x.hosted)) {
   let inputTokens = 0;
   let requests = 0;
   for (const job of pendingByModel.get(m.id)!) {
-    const prefixes = api.preparedInstructions(job.systemInstruction, job.rules);
+    const prefixes = await review.prefixes(job.rules);
     const perLabel =
       prefixes.reduce((a, p) => a + p.length, 0) / Math.max(1, prefixes.length);
     requests += job.rules.length;
@@ -339,7 +333,6 @@ for (const m of models) {
 
 // ------------------------------------------------------------------ score
 const byId = new Map(cases.map((c) => [c.id, c]));
-const builtin = api.reviewCategories([]);
 const rows: Scored[] = [];
 let missing = 0;
 for (const m of models) {
@@ -372,9 +365,9 @@ for (const m of models) {
         c,
         profiles.get(c.profile)!,
         record,
-        builtin,
-        api.composeReviewInstructions(job.systemInstruction, job.rules),
-        api.kind === "completion",
+        [],
+        await review.instructions(job.rules),
+        true,
       ),
     );
   }
@@ -407,7 +400,7 @@ const meta: RunMeta = {
   },
   contract: CONTRACT_VERSION,
   datasetHash: dataset.hash,
-  runtime: `onnxruntime-web WASM (q8) in Node ${process.versions.node} via @huggingface/transformers; deterministic greedy decoding; generation budget ${api.generationBudgetMs / 1000} s per request (from the ref)${models.some((m) => m.hosted) ? `; connected models: the ref's own connected-model client (requests, pacing, retries, parsing, time limit), latency per prompt network included` : ""}`,
+  runtime: `onnxruntime-web WASM (q8) in Node ${process.versions.node} via @huggingface/transformers; deterministic greedy decoding; the ref's generation budget per request${models.some((m) => m.hosted) ? `; connected models: the ref's own connected-model client (requests, pacing, retries, parsing, time limit), latency per prompt network included` : ""}`,
   machine: `${cpus()[0]?.model ?? "cpu"} x${cpus().length}, ${(totalmem() / 2 ** 30).toFixed(1)} GiB RAM, ${process.platform}`,
   machineProfile: machineProfile(),
   node: process.versions.node,

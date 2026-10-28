@@ -2,17 +2,18 @@
  * Lab child process: loads ONE model and runs pre-rendered requests, grouped
  * by prompt prefix so each prefix is prefilled once and its KV cache reused,
  * like the extension's engine. It only generates and records raw output;
- * parsing and scoring happen in the parent with the ref's own parser, so a
- * parser or scorer change never needs a recompute.
+ * parsing and scoring happen in the parent, so a parser or scorer change
+ * never needs a recompute.
  *
- * Stop rules: the ref's `LineOutputTracker` (NONE, blank line after findings,
- * repeated line), EOS, an optional token cap, and the wall-clock deadline.
+ * Stop rules: the line protocol (`LineOutputTracker` of `protocol.ts`: NONE,
+ * blank line after findings, repeated line), EOS, an optional token cap, and
+ * the wall-clock deadline.
  *
  * Usage (spawned by modules/insusty-privacy/lab/cli.ts): node --import tsx modules/insusty-privacy/lab/worker.ts <spec.json>
  */
 import { appendFileSync, readFileSync } from "node:fs";
-import { pathToFileURL } from "node:url";
 import type { PreTrainedModel, Tensor } from "@huggingface/transformers";
+import { LineOutputTracker } from "./protocol.ts";
 
 const {
   ones,
@@ -34,7 +35,7 @@ export interface LabGen {
   /** null = the model's generation_config default (what the extension gets). */
   repetitionPenalty: number | null;
   noRepeatNgram: number | null;
-  /** Stop with the ref's line-protocol tracker (off for JSON output). */
+  /** Stop with the line-protocol tracker (off for JSON output). */
   lineStop: boolean;
   /** Stop at the first line break after some output. */
   stopAtNewline?: boolean;
@@ -67,7 +68,6 @@ export interface LabGroup {
 }
 /** The job file `modules/insusty-privacy/lab/cli.ts` writes for one model's worker. */
 export interface LabWorkerSpec {
-  bundle: string;
   model: string;
   dtype: "q8" | "q4" | "q4f16" | "fp16" | "fp32";
   resultFile: string;
@@ -213,12 +213,6 @@ async function main() {
   const spec = JSON.parse(
     readFileSync(process.argv[2] ?? "", "utf8"),
   ) as LabWorkerSpec;
-  const mod = (await import(pathToFileURL(spec.bundle).href)) as {
-    generation?: { LineOutputTracker?: new () => { feed(t: string): boolean } };
-  };
-  const Tracker = mod.generation?.LineOutputTracker;
-  if (!Tracker)
-    throw new Error("the extension ref does not export LineOutputTracker");
   const t0 = performance.now();
   const { tokenizer, model } = await loadPretrained(
     spec.model,
@@ -276,7 +270,7 @@ async function main() {
     for (const job of group.jobs) {
       const ids = [...prefixIds, ...encode(job.suffix)];
       const started = performance.now();
-      const tracker = new Tracker();
+      const tracker = new LineOutputTracker();
       let checked = 0;
       let lineDone = false;
       let deadline = false;

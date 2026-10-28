@@ -11,9 +11,12 @@
  * Requests are rendered here with the model's tokenizer only (no weights), and
  * cached by a hash of (model, dtype, rendered prompt, generation settings), so
  * two configurations that render the same prompt share results. Findings come
- * from the ref's own `validateModelOutput` (parsing + anchoring), and a
- * generation that hits the deadline yields no findings, as in the extension.
- * Summaries go to experiments/runs/<name>.json.
+ * from the lab's copy of the extension's line protocol (`protocol.ts`:
+ * parsing, anchoring, plausibility filter; `npm run parity` checks it against
+ * the ref's package), and a generation that hits the deadline yields no
+ * findings, as in the extension. The ref named by `--ref` is recorded with
+ * each summary; the lab never loads it. Summaries go to
+ * experiments/runs/<name>.json.
  */
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -24,12 +27,9 @@ import type {
   CompiledCase,
   Profile,
 } from "../../../datasets/insusty-custom/schema.ts";
-import {
-  loadExtApi,
-  materializeExtRef,
-  resolveExtRefName,
-  resolveExtRepo,
-} from "../ref.ts";
+import { resolveCommit } from "../materialize.ts";
+import { isPlausiblePassage, validateModelOutput } from "./protocol.ts";
+import { resolveExtRefName, resolveExtRepo } from "../ref.ts";
 import {
   CACHE_DIR,
   EXPERIMENTS_DIR,
@@ -136,34 +136,24 @@ if (cases.some((c) => c.split === "test") && !flag("allow-test"))
   fail("the lab never runs held-out test cases (use the dev split)");
 const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
 
-const ext = await materializeExtRef(
-  resolveExtRepo(opt("ext-repo")),
-  resolveExtRefName(opt("ref")),
-);
-const api = await loadExtApi(ext.bundle);
-const refModule = (await import(new URL(`file://${ext.bundle}`).href)) as {
-  review: Record<string, unknown>;
+const extRef = resolveExtRefName(opt("ref"));
+const ext = {
+  ref: extRef,
+  ...resolveCommit(resolveExtRepo(opt("ext-repo")), extRef),
 };
-const validateModelOutput = refModule.review.validateModelOutput as (
-  raw: unknown,
-  chunk: { text: string; offset: number },
-  offset: number,
-  categories: readonly string[],
-) => Array<{ category: string; start: number; end: number; value?: string }>;
-const descriptions = refModule.review
-  .DETERMINISTIC_LABEL_DESCRIPTIONS as Record<string, string>;
-/** The shipped plausibility filter (configs with `plausibilityFilter`), when the ref has one. */
-const refPlausible = refModule.review.isPlausiblePassage as
-  ((passage: string) => boolean) | undefined;
+/**
+ * The texts `@current` and `@ref` settings take. They came from chat-design
+ * refs (before extension PR #26), which the package cannot load, so they
+ * are empty: a configuration built on them (`ref` and its descendants)
+ * renders without them.
+ */
 const refTexts: RefTexts = {
-  defaultPrompt: api.defaultPrompt,
-  outputSchema: String(refModule.review.SLM_OUTPUT_SCHEMA),
-  labelHeader: String(refModule.review.SLM_LABEL_LIST_HEADER),
-  builtin: api
-    .reviewCategories([])
-    .map((label) => ({ label, description: descriptions[label] ?? "" })),
+  defaultPrompt: "",
+  outputSchema: "",
+  labelHeader: "",
+  builtin: [],
 };
-const builtinLabels = refTexts.builtin.map((b) => b.label);
+const builtinLabels: string[] = [];
 
 // ------------------------------------------------------------------ render
 interface Planned {
@@ -395,7 +385,6 @@ async function runWorker(
     groups.set(p.prefix, g);
   }
   const spec: LabWorkerSpec = {
-    bundle: ext.bundle,
     model: model.id,
     dtype: dtype as LabWorkerSpec["dtype"],
     resultFile: cacheFileFor(model, dtype),
@@ -531,9 +520,10 @@ function score(
         ? passagesToLines(json, part.part)
         : json;
     const relaxed = relaxedAnchor ? relaxLines(lines, p.c.text) : lines;
-    const isPlausible =
-      refPlausible &&
-      withExtraStopWords(refPlausible, part.config.extraStopWords);
+    const isPlausible = withExtraStopWords(
+      isPlausiblePassage,
+      part.config.extraStopWords,
+    );
     const shipped = part.config.plausibilityFilter
       ? plausibleLines(relaxed, isPlausible)
       : relaxed;

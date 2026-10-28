@@ -1,20 +1,24 @@
 # insusty-privacy: the extension's redaction module
 
 The system under test: InsustyPromptCoach's redaction module at any git ref
-of a local clone (`bench.local.json` `extRepo`, `INSUSTY_EXT_REPO` or
-`--ext-repo`; `main` by default), read-only. Every runner scores it through
-the redaction contract (`contract/`).
+that ships it as a package (`insusty-prompt-coach/redaction`, extension PR
+#132 and later; `main` by default). The bench installs the package from
+GitHub at the ref's commit and scores it only through the redaction contract
+(`contract/`), which the package itself implements. A local clone
+(`bench.local.json` `extRepo`, `INSUSTY_EXT_REPO` or `--ext-repo`) resolves
+ref names and diffs, read-only.
 
 ## What this folder holds
 
 | Path | What it is |
 | --- | --- |
 | `manifest.json` | contract version, inputs, the labels it produces, its configurations (read without loading the module) |
-| `module.ts` | the module adapter: materializes the ref and returns a `RedactionModule` |
+| `module.ts` | the module adapter: installs the ref's package and returns its `RedactionModule` |
 | `dataset-adapters/<dataset>.json` | one per dataset it runs: its output → that dataset's labels, missing labels listed (`modules/README.md`) |
-| `insusty.ts`, `documents.ts`, `labels.ts` | the contract adapter: the ref's rules, file check and Private AI behind `redact()`; ref category names → contract labels (`CATEGORY_ALIASES`) |
-| `materialize.ts`, `ref.ts` | the one materializer (git archive → `cache/module/<sha>/`); ref resolution and the lab's view of the ref's Private AI internals |
+| `insusty.ts` | the module adapter on the bench side: the package's `createContractModule` with what the bench injects (on-device runtime, connected transport, PDFium, measurements) |
+| `materialize.ts`, `ref.ts` | the one materializer (the package at the ref's commit → `cache/module/<sha>/`); ref resolution and `refReview` (the ref's models and the instructions its review prepares, read through the package) |
 | `runtime/transformers-loader.ts` | the Node WASM loader that mirrors the extension's `src/model-worker.ts` |
+| `runtime/scripted.ts` | a scripted on-device runtime (no weights) that records the ref's prompts and replays answers, and a traced runtime that reports each generation |
 | `connected.ts` | the transport of the connected configuration: reply cache, cost, budget |
 | `models.json` | descriptions of the local models (sizes, priors, advertised languages); the ref decides which exist |
 | `changes.ts` | extension paths → the grid rows (tracks) a change needs |
@@ -84,35 +88,50 @@ the `rules` and `rules-all` rows, the Private AI track the `smollm2-360m` row
   reference machine, anything else is `adhoc`). Compare absolute numbers only
   within one profile; CI runners are not one.
 
-## The contract adapter in short
+## The module adapter in short
 
-The bench never modifies the extension clone. One materializer
-(`modules/insusty-privacy/materialize.ts`) resolves the ref to a commit, runs `git
-archive` from the clone's object store into `cache/module/<sha>/`, installs
-the npm packages the ref's redaction path imports at the versions its
-lockfile pins, and bundles every module of that path it finds (detection,
-configuration, file reading and redaction, Private AI review, engine, model
-list, connected-model client) into one `module.mjs`. `modules/insusty-privacy/insusty.ts`
-adapts that bundle to the redaction contract, and every bench (review,
-detbench, docbench, literature) scores the ref only through its
-`redact()`:
+The bench never modifies the extension clone and never imports extension
+internals. The one materializer (`modules/insusty-privacy/materialize.ts`)
+resolves the ref to a commit in the clone, refuses a commit whose
+`package.json` does not export `./redaction` (it predates the package,
+extension PR #132: score a later ref), and installs
+`github:mmarsot/InsustyPromptCoach#<sha>` into `cache/module/<sha>/` with
+npm, whose `prepare` builds the package there (a commit GitHub does not
+have, such as an unpushed branch, is installed from the clone instead,
+`git+file://<clone>#<sha>`, which npm only reads). That install also holds the
+`@embedpdf/pdfium` version the commit's lockfile pins. Each commit gets its
+own install, so refs score side by side and the bench's own lockfile never
+changes; the extension repository is private, so git needs credentials for
+github.com (`gh auth setup-git`).
 
-- rules: the ref's `detectSensitiveData` with its `DEFAULT_CONFIG` and the
-  contract configuration applied (built-in labels, address countries);
-- documents: the ref's file check, document reader and redacted version;
-- Private AI on the device: the ref's `reviewPrompt` and `SlmEngine` (prompt
-  composition, framing, prefill, stop rules, generation budget, parsing,
-  anchoring, patterns, confidence filter) on the bench's Node loader;
-- Private AI on a connected model: the ref's own connected-model client;
-- the final merge of rule and custom-label findings follows the extension's
-  `reviewForRedaction`, which lives in its service worker: the one step
-  mirrored rather than imported.
+`modules/insusty-privacy/insusty.ts` imports the package and returns
+`createContractModule(...)`: rules, documents (file check, reader, redacted
+version), the Private AI review on the device and on a connected model, the
+merge of rule and custom-label findings and the redaction are all the ref's
+own. The bench injects only what the package takes from its host:
 
-The default ref is `main`. Pass `--ref <branch or sha>` to benchmark any
-other commit; refs from before the per-label design (PR #26) score only
-the deterministic track. The model list comes from the ref
-(`SLM_MODELS`, `DEFAULT_SLM_MODEL_ID`); `modules/insusty-privacy/models.json` only describes
-models (priors, sizes, advertised languages).
+- the on-device runtime: the Node WASM loader (below), started on first use;
+- the connected transport (`connected.ts`: reply cache, cost, budget);
+- PDFium, loaded from the ref's install;
+- what a run measures around each call (peak memory, the machine profile).
+
+Every bench (review, detbench, docbench, literature, conformance) scores the
+ref only through its `redact()`.
+
+Where the bench needs more of the ref's Private AI than `redact()` reports,
+it asks the package with a scripted on-device runtime
+(`runtime/scripted.ts`): a tokenizer that decodes back to the exact text and
+a model that answers from a script. The ref's review, engine and parsing run
+as shipped and the runtime records what reaches the model. `refReview` (in
+`ref.ts`) uses it to read the instructions the ref prepares for a label set
+(the scorer checks echoed answers against them; cost estimates measure
+them), `npm run parity` to compare the ref's requests and readings with the
+lab's, and `npm run components` to replay cached answers.
+
+Refs from before the package cannot be scored (their recorded numbers stay
+as text in the docs). The model list comes from the package's capabilities;
+`modules/insusty-privacy/models.json` only describes models (priors, sizes,
+advertised languages).
 
 Inference uses onnxruntime-web WASM in Node, which is the same runtime the
 extension uses; the bench checks its versions against the ref's lockfile.
@@ -126,13 +145,10 @@ What still needs an extension-side change before a bench-side copy can go:
 - the inference loader (`modules/insusty-privacy/runtime/transformers-loader.ts` mirrors the ref's
   browser-only `src/model-worker.ts` adapters): needs a Node-loadable
   runtime entry in the extension;
-- the rule and custom-label merge (`reviewForRedaction` in
-  `src/background/review.ts`): needs a pure, exported merge function;
-- `SUPPORTED_ADDRESS_COUNTRIES` (`src/config/config.ts`) is not exported, so
-  the `all` configuration stays FR-only instead of FR, US, CA and AU;
 - the lab's `shipped` baseline and its switches re-render the extension's
-  prompts (with no code-fence skip): they move next to the module, with exact
-  parity, when the lab moves.
+  prompts (with no code-fence skip), and the lab reads answers with its copy
+  of the ref's line protocol (`lab/protocol.ts`): the package exports
+  neither, and `npm run parity` checks both against the ref.
 
 ## The connected configuration
 
@@ -144,13 +160,14 @@ npm run docbench -- --ref main --ai default,glm47-flash-connected --budget-usd 5
 
 The Private AI track's connected model, GLM-4.7 Flash on Bedrock
 (`glm47-flash-connected`, `modules/insusty-privacy/connected.ts`), runs through the
-ref's **own** connected-model client (`createHostedModelClient`, the
-`HOSTED_CONTEXT_BUDGET` and learned-example limits), configured as a user
-would connect it (Trusted AI connection, `auto` format, the default 15 s
-time limit). The ref builds every request, paces and retries it and parses
-the answer; the bench supplies only the transport: a reply cache keyed by
-the exact request (`results/jobs/connected/`), cost from the provider's token usage,
-and the `--budget-usd` cap. Its results are marked connected, with their
+ref's **own** connected-model client (the package's connected engine, with
+its context budget, learned-example limits, pacing and time limit),
+configured as a user would connect it (Trusted AI connection, `auto`
+format, the default 15 s time limit). The ref builds every request, paces
+and retries it and parses the answer; the bench supplies only the transport
+(a `ConnectedTarget`): a reply cache keyed by the exact request
+(`results/jobs/connected/`), cost from the provider's token usage, and the
+`--budget-usd` cap. Its results are marked connected, with their
 cost. Smoke on `main` @ `95454ec` (16 prompts): F1 51.9% (P 41.2%, R
 70.0%, 6 of 8 negatives flagged), 1.9 s per prompt (p50), 40 requests for
 0.0011 USD (0.072 USD per 1,000 prompts); SmolLM2-360M on the device:
@@ -160,70 +177,45 @@ F1 33.3% (P 37.5%, R 30.0%), 3.7 s per prompt.
 
 ### Goal: test exactly what ships
 
-The bench never re-implements the review logic. For a chosen git ref of
-InsustyPromptCoach it runs that ref's own:
+The bench never re-implements the redaction. For a chosen git ref of
+InsustyPromptCoach it runs that ref's own package: its rules, its file
+check, and its Private AI review, one plain-text completion request per
+custom label (instruction, demonstrations from the label's examples, the
+`Text: …` input and `LABEL:` answer cue), its engine (prepared prefix KV
+cache, first-line stop, token cap, pinned greedy decoding, the 30 s
+generation budget), its parsing, anchoring, plausibility filter, confidence
+filter and example-derived patterns, and its merge and redaction.
 
-- `composeReviewInstructions` (system prompt + fixed output schema + label list),
-- `reviewPrompt` (chunking, `<text_to_scan>` framing, `Findings:` prefill,
-  parsing of `LABEL: passage` lines, code-side anchoring, echo rejection, dedup),
-- `SlmEngine` (chat-template framing, prepared instruction-prefix KV cache,
-  line-protocol stop rule, the 30 s generation budget, deterministic decoding),
-- `DEFAULT_SLM_PROMPT` and `SLM_MODELS`.
+Only three things come from the bench: the Transformers.js loader for Node
+(`modules/insusty-privacy/runtime/transformers-loader.ts`), the connected
+transport and the scoring.
 
-Only two things come from the bench: the Transformers.js loader for Node
-(`modules/insusty-privacy/runtime/transformers-loader.ts`) and the scoring.
-
-#### Two review designs
-
-`loadExtApi` (`modules/insusty-privacy/ref.ts`) recognizes which design a ref ships and
-exposes both through the same `runReview` / `preparedInstructions` calls:
-
-- **chat** (PR #17 line protocol, the list above): one chat request per
-  chunk with a system instruction (the bench's former `--instructions`
-  axis; such refs no longer run Private AI through the contract).
-- **completion** (refs exporting `composeLabelPrefix`, the design recommended
-  in `modules/insusty-privacy/lab/experiments/REPORT.md`): one plain-text request per custom label, built
-  from the label's description and `examples`, answered in one line; the
-  engine pins its decoding settings, which the Node loader forwards like
-  `model-worker.ts`. There is no system instruction, so the instruction axis
-  is moot, and the bench fills each rule's `examples` from the profile
-  (first three). Built-in labels are not sent to the model.
-
-### Materializing a ref without touching the clone
+### Installing a ref without touching the clone
 
 `modules/insusty-privacy/materialize.ts` is the one materializer every bench uses:
 
-1. `git -C <clone> rev-parse --verify <ref>^{commit}` gives the commit sha.
-2. `git -C <clone> archive <sha> src package.json package-lock.json | tar -x -C cache/module/<sha>/`
-   reads the files straight from the clone's object store. The clone's working
-   tree, index and branches are never touched (no checkout, no worktree, no
-   install, no build), so uncommitted edits there are irrelevant and safe.
-3. An entry re-exports every module of the redaction path the ref has
-   (detector, config, redaction, file check, document reader and model,
-   Private AI review, engine, model list, generation, connected-model framing
-   and client), each found by its area-folder path (since PR #82) or the flat
-   one before.
-4. The npm packages they import are installed at the ref's locked versions
-   (`npm ci` on a lockfile subset; network only the first time), and esbuild
-   bundles the entry into `cache/module/<sha>/module.mjs`, resolving packages
-   only from that install, with `@huggingface/transformers` external (the
-   bench supplies the runtime, below).
-5. `modules/insusty-privacy/insusty.ts` adapts the bundle to the redaction contract
-   (`contract/README.md`); the harness scores the ref only through it. The
-   lab and the playground also read the bundle's Private AI internals
-   (`loadExtApi` in `modules/insusty-privacy/ref.ts`).
+1. `git -C <clone> rev-parse --verify <ref>^{commit}` gives the commit sha,
+   and `git -C <clone> show <sha>:package.json` must export `./redaction`;
+   the clone's working tree, index and branches are never touched.
+2. `npm install` in `cache/module/<sha>/` installs
+   `github:mmarsot/InsustyPromptCoach#<sha>` (npm clones that commit,
+   installs its dev dependencies in its own cache and runs `prepare`, which
+   builds `lib/redaction/`) and `@embedpdf/pdfium` at the version the ref's
+   lockfile pins. The first install of a ref takes about 30 s and the
+   network; it is cached per sha, so switching refs is instant after that.
+3. `modules/insusty-privacy/insusty.ts` imports the package from that
+   install and returns its contract module; the harness scores the ref only
+   through it.
 
-It is cached per sha, so switching refs is instant after the first time.
-
-The default ref is `main` (the line protocol of PR #17 is merged there); pass
-`--ref <branch or sha>` or set `INSUSTY_EXT_REF` to benchmark another commit. Every result is
-cached under the commit sha, and every report shows the ref, sha and commit
-subject it measured.
+The default ref is `main`; pass `--ref <branch or sha>` or set
+`INSUSTY_EXT_REF` to benchmark another commit (from GitHub, or from the
+clone when it is not pushed). Every result is cached under the commit sha,
+and every report shows the ref, sha and commit subject it measured.
 
 The loader mirrors the adapters in the ref's `src/model-worker.ts` (that file is
-a browser worker entry point and cannot be imported). If a future ref changes
-how the worker drives Transformers.js (not the engine or review modules, which
-are imported), update `modules/insusty-privacy/runtime/transformers-loader.ts` to match.
+a browser worker entry point and is not in the package). If a future ref changes
+how the worker drives Transformers.js (not the engine or review, which run
+from the package), update `modules/insusty-privacy/runtime/transformers-loader.ts` to match.
 
 The runner warns when the `@huggingface/transformers` or `onnxruntime-web`
 version the ref's lockfile pins differs from the one installed here
@@ -252,8 +244,8 @@ parent kills a worker whose RSS exceeds `--max-rss-mb` (default 3800).
 
 ### Latency
 
-Per-case latency is measured around `reviewPrompt` after the instruction prefix
-is prepared (the extension prepares it when settings change), so it covers
-chunk prefill plus generation. Node WASM speed is close to, but not the same
+Per-case latency is the model stage of `redact()` after the instruction
+prefixes are prepared (`prepare()`, as the extension prepares them when
+settings change), so it covers chunk prefill plus generation. Node WASM speed is close to, but not the same
 as, a given user's browser: compare latencies between runs on the same
 machine, not with field numbers.

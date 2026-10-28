@@ -1,26 +1,29 @@
 /**
  * Per-component view of a bench run on a ref with the answer-confidence
  * filter and example-derived patterns (extension PR #32): replays the cached
- * model answers through the ref's own `reviewPrompt` with either part
- * switched off, then scores each variant. No model runs.
+ * model answers through the ref's own package, on a scripted on-device
+ * runtime (`runtime/scripted.ts`) that answers each request with the cached
+ * answer, with either part switched off, then scores each variant. No model
+ * runs.
  *
- *   npm run components -- <the same bench arguments, e.g. --ref ebf077f --set tune96 --models smollm2-360m>
+ *   npm run components -- <the same bench arguments, e.g. --ref main --set tune96 --models smollm2-360m>
  *
- * - filter off: the recorded `answerProbability` is withheld from the replay;
- * - patterns off: findings whose reason is a pattern match are dropped (the
- *   ref keeps a model finding over a pattern match of the same span, so what
+ * - filter off: the recorded answer confidence is withheld from the replay;
+ * - patterns off: spans the ref found with a pattern are dropped (the ref
+ *   keeps a model finding over a pattern match of the same span, so what
  *   remains is exactly the model's findings).
  * The "both on" replay must reproduce the cached findings; mismatches are counted.
  */
 import { compileDataset } from "../../../datasets/insusty-custom/load.ts";
+import { loadInsustyModule } from "../insusty.ts";
+import { materializeModule } from "../materialize.ts";
+import { refReview, resolveExtRefName, resolveExtRepo } from "../ref.ts";
+import { scriptedRuntime } from "../runtime/scripted.ts";
 import {
-  loadExtApi,
-  materializeExtRef,
-  resolveExtRefName,
-  resolveExtRepo,
-  type ModelClientLike,
-} from "../ref.ts";
-import { loadCache, type ResultRecord } from "../../../engine/jobs.ts";
+  loadCache,
+  type ResultRecord,
+  type Rule,
+} from "../../../engine/jobs.ts";
 import {
   benchRefArgs,
   parseBenchArgs,
@@ -32,28 +35,19 @@ import {
   type Scored,
 } from "../../../engine/scorers/custom-passages/score.ts";
 
-const PATTERN_REASON = "Matches the format of a label example.";
 const refArgs = benchRefArgs(process.argv.slice(2));
-const ext = await materializeExtRef(
+const ext = await materializeModule(
   resolveExtRepo(refArgs.extRepo),
   resolveExtRefName(refArgs.ref),
 );
-const api = await loadExtApi(ext.bundle);
-const options = parseBenchArgs(process.argv.slice(2), api);
+const review = await refReview(ext);
+const options = parseBenchArgs(process.argv.slice(2), review);
 const { dataset } = compileDataset({
   requireSplit: !options.allowMissingSplit,
   profiles: options.profiles,
 });
 if (!dataset) throw new Error("dataset is invalid: run `npm run validate`");
-if (api.kind !== "completion")
-  throw new Error(`${ext.ref} is not a completion-design ref`);
-const { cases, jobsByModel } = planJobs(
-  dataset,
-  options,
-  ext.sha,
-  api.defaultPrompt,
-  true,
-);
+const { cases, jobsByModel } = planJobs(dataset, options, ext.sha, "", true);
 const byId = new Map(cases.map((c) => [c.id, c]));
 const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
 
@@ -62,47 +56,62 @@ type Finding = {
   start: number;
   end: number;
   value?: string;
-  reason?: string;
+  source: string;
 };
 /**
- * Replays a result's cached answers through the ref's `runReview`, in request
- * order; `filter: false` withholds the answer probabilities, turning the
+ * Replays a result's cached answers through the ref's package, in request
+ * order; `filter: false` withholds the answer confidences, turning the
  * confidence filter off.
  */
 const replay = async (
   record: ResultRecord,
   text: string,
-  rules: Parameters<typeof api.runReview>[3],
+  rules: readonly Rule[],
   filter: boolean,
-) => {
+): Promise<Finding[]> => {
   let next = 0;
-  const client: ModelClientLike = {
-    async review() {
-      const chunk = record.chunks[next++];
-      if (!chunk)
-        throw new Error(`${record.caseId}: more requests than cached answers`);
-      const runtime =
-        chunk.runtime && !filter
-          ? { ...chunk.runtime, answerProbability: undefined }
-          : chunk.runtime;
-      return { output: chunk.output, runtime };
+  const scripted = scriptedRuntime(() => {
+    const chunk = record.chunks[next++];
+    if (!chunk)
+      throw new Error(`${record.caseId}: more requests than cached answers`);
+    const probability = chunk.runtime?.answerProbability;
+    return {
+      output: chunk.output,
+      ...(filter && probability !== undefined ? { probability } : {}),
+    };
+  });
+  const module = await loadInsustyModule(ext, {
+    device: () => Promise.resolve(scripted.runtime),
+  });
+  const out = await module.redact(
+    { kind: "text", text },
+    {
+      ...module.defaultConfig(),
+      customLabels: rules.map((r) => ({
+        label: r.label,
+        description: r.prompt,
+        examples: [...(r.examples ?? [])],
+      })),
+      privateAi: { runsOn: "device", model: record.model },
     },
-  };
-  const { findings } = await api.runReview(
-    text,
-    "",
-    client,
-    rules,
-    record.model,
-    { backend: "wasm", quantization: "auto" },
   );
+  await module.dispose?.();
   if (next !== record.chunks.length)
     throw new Error(
       `${record.caseId}: ${next} requests for ${record.chunks.length} cached answers`,
     );
-  return findings as Finding[];
+  return out.spans
+    .filter((s) => s.kind === "custom")
+    .map((s) => ({
+      category: s.label,
+      start: s.start,
+      end: s.end,
+      value: text.slice(s.start, s.end),
+      source: s.source,
+    }));
 };
-const key = (f: Finding) => `${f.category}:${f.start}:${f.end}`;
+const key = (f: Pick<Finding, "category" | "start" | "end">) =>
+  `${f.category}:${f.start}:${f.end}`;
 
 const variants = [
   "filter + patterns",
@@ -127,10 +136,7 @@ for (const [model, jobs] of jobsByModel) {
       continue;
     }
     const c = byId.get(job.caseId)!;
-    const instructions = api.composeReviewInstructions(
-      job.systemInstruction,
-      job.rules,
-    );
+    const instructions = await review.instructions(job.rules);
     const score = (findings: Finding[]) =>
       scoreResult(
         c,
@@ -157,7 +163,7 @@ for (const [model, jobs] of jobsByModel) {
     if (withFilter.map(key).join() !== record.findings.map(key).join())
       mismatches++;
     const modelOnly = (findings: Finding[]) =>
-      findings.filter((f) => f.reason !== PATTERN_REASON);
+      findings.filter((f) => f.source !== "pattern");
     rows["filter + patterns"].push(score(withFilter));
     rows["patterns only"].push(score(withoutFilter));
     rows["filter only"].push(score(modelOnly(withFilter)));

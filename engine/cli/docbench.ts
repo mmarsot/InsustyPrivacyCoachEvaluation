@@ -74,10 +74,10 @@ import type {
 import { independentViews, pdftotext } from "../scorers/documents/verify.ts";
 import type { DocWorkerSpec } from "../workers/document.ts";
 import {
-  loadExtApi,
-  materializeExtRef,
+  refReview,
   resolveExtRefName,
   resolveExtRepo,
+  type RefReview,
 } from "../../modules/insusty-privacy/ref.ts";
 import { loadInsustyModule } from "../../modules/insusty-privacy/insusty.ts";
 import { allLabelsConfig } from "../module.ts";
@@ -173,11 +173,11 @@ async function runRef(
     `Extension ${ref.ref} @ ${ref.sha.slice(0, 10)} "${ref.subject}"`,
   );
   console.log(
-    `  modules: ${Object.keys(ref.modules).join(", ")}${ref.pdfiumWasm ? "" : " (no PDFium: PDFs are not read by this ref)"}; packages ${Object.entries(
-      ref.packages,
-    )
+    `  packages ${Object.entries(ref.packages)
       .map(([k, v]) => `${k}@${v}`)
-      .join(", ")}`,
+      .join(
+        ", ",
+      )}${ref.pdfium ? "" : " (no PDFium: PDFs are not read by this ref)"}`,
   );
   console.log(
     `  suite: ${plan.suite.length} documents (${pendingSuite.length} to compute); sweeps: ${plan.sweeps.length} points (${pendingSweeps.length} to compute); configs ${o.configs.join(",")}; seed ${o.seed}`,
@@ -187,8 +187,8 @@ async function runRef(
   // Private AI track: documents read now (cheap); the model jobs run below.
   let ai:
     | {
-        ext: Awaited<ReturnType<typeof materializeExtRef>>;
-        extApi: Awaited<ReturnType<typeof loadExtApi>>;
+        ext: typeof ref;
+        review: RefReview;
         docs: Awaited<ReturnType<typeof readAiDocs>>;
         dataset: NonNullable<ReturnType<typeof compileDataset>["dataset"]>;
       }
@@ -199,11 +199,11 @@ async function runRef(
   if (o.tracks.includes("ai")) {
     const { dataset } = compileDataset({ requireSplit: true });
     if (!dataset) throw new Error("dataset is invalid: run `npm run validate`");
-    const ext = await materializeExtRef(repo, refName);
-    const extApi = await loadExtApi(ext.bundle);
+    const ext = ref;
+    const review = await refReview(ext);
     if (o.aiDefault || !aiModels.length) {
       // The ref's own default model, as a new user gets it.
-      const own = localModel(extApi.defaultModelId);
+      const own = localModel(review.defaultModelId);
       aiModels = [own, ...aiModels.filter((m) => m.id !== own.id)];
     }
     const docs = await readAiDocs(
@@ -212,9 +212,9 @@ async function runRef(
       module,
       o.seed,
     );
-    ai = { ext, extApi, docs, dataset };
+    ai = { ext, review, docs, dataset };
     for (const m of aiModels) {
-      const jobs = aiJobs(docs, dataset, ext, extApi, m.id);
+      const jobs = aiJobs(docs, dataset, ext, m.id);
       const done = loadCache(ext.sha, m.id);
       const pending = jobs.filter((j) => !done.has(j.key));
       console.log(
@@ -287,7 +287,7 @@ async function runRef(
     });
   const tmp = join(CACHE_DIR, "tmp");
   mkdirSync(tmp, { recursive: true });
-  const supported = SUPPORTED(module.refCategories);
+  const supported = SUPPORTED(module.capabilities.builtins);
   const minFree = Number(process.env.BENCH_MIN_FREE_MB ?? 1500);
   /** Largest peak RSS of this run's document workers (MB). */
   let workerPeakMb = 0;
@@ -369,7 +369,7 @@ async function runRef(
   let aiPoints: AiPoint[] = [];
   if (ai) {
     for (const m of aiModels) {
-      const jobs = aiJobs(ai.docs, ai.dataset, ai.ext, ai.extApi, m.id);
+      const jobs = aiJobs(ai.docs, ai.dataset, ai.ext, m.id);
       const pending = jobs.filter(
         (j) => !loadCache(ai.ext.sha, m.id).has(j.key),
       );
@@ -414,13 +414,13 @@ async function runRef(
       }
       aiPoints = [
         ...aiPoints,
-        ...scoreAi(
+        ...(await scoreAi(
           ai.docs,
           jobs,
           loadCache(ai.ext.sha, m.id),
           ai.dataset,
-          ai.extApi,
-        ),
+          ai.review,
+        )),
       ];
     }
   }
@@ -448,13 +448,14 @@ async function runRef(
       subject: ref.subject,
       committedAt: ref.committedAt,
     },
-    modules: Object.keys(ref.modules),
+    modules: ["insusty-prompt-coach/redaction"],
     packages: ref.packages,
     limits: Object.fromEntries(
       Object.entries(limits).filter(([k]) => k !== "fileReviewLimit"),
     ),
     fileReviewLimit: limits.fileReviewLimit ?? null,
-    fileReviewLimits: module.fileReviewLimits ?? null,
+    // The package does not export the threshold's choices (`FILE_REVIEW_LIMITS`).
+    fileReviewLimits: null,
     tier: o.tier,
     seed: o.seed,
     configs: o.configs,
@@ -481,7 +482,7 @@ async function runRef(
               : {}),
             sizes: o.aiSizes,
             tier: o.aiTier,
-            bench: { sha: ai.ext.sha, kind: ai.extApi.kind },
+            bench: { sha: ai.ext.sha, kind: "completion" },
           },
         }
       : {}),

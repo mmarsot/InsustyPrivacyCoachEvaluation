@@ -19,17 +19,18 @@ import type {
   CompiledDataset,
 } from "../datasets/insusty-custom/schema.ts";
 import {
-  loadExtApi,
-  materializeExtRef,
+  refReview,
   resolveExtRefName,
   resolveExtRepo,
-  type ExtApi,
-  type ExtRef,
+  type RefReview,
 } from "../modules/insusty-privacy/ref.ts";
 import { CONNECTED_MODELS } from "../modules/insusty-privacy/connected.ts";
 import type { LiteratureRun } from "../engine/scorers/literature/report.ts";
 import { EXPERIMENTS_DIR, MODELS_FILE, RUNS_DIR } from "../engine/paths.ts";
-import { MODULE_CACHE_DIR } from "../modules/insusty-privacy/materialize.ts";
+import {
+  materializeModule,
+  type ModuleRef,
+} from "../modules/insusty-privacy/materialize.ts";
 import {
   rulesFor,
   selectCases,
@@ -81,8 +82,8 @@ import { DEFAULT_SETTINGS } from "./playground/logic.ts";
 import { composeLabelDescription } from "../datasets/insusty-custom/variants.ts";
 
 interface LoadedExt {
-  ext: ExtRef;
-  api: ExtApi;
+  ext: ModuleRef;
+  review: RefReview;
 }
 
 interface LiveRun {
@@ -137,8 +138,8 @@ export class Dashboard {
       this.exts.set(
         id,
         (async () => {
-          const ext = await materializeExtRef(resolveExtRepo(extRepo), ref);
-          return { ext, api: await loadExtApi(ext.bundle) };
+          const ext = await materializeModule(resolveExtRepo(extRepo), ref);
+          return { ext, review: await refReview(ext) };
         })(),
       );
     try {
@@ -149,27 +150,19 @@ export class Dashboard {
     }
   }
 
-  /** Default prompt of an already-materialized commit, for committed runs. */
-  private async defaultPromptFor(sha: string): Promise<string> {
-    const bundle = join(MODULE_CACHE_DIR, sha, "module.mjs");
-    if (existsSync(bundle)) return (await loadExtApi(bundle)).defaultPrompt;
-    return (
-      (await this.ext())?.api.defaultPrompt ??
-      "(the extension's default prompt)"
-    );
-  }
-
-  private instructionsFor(api: ExtApi, job: Job): string {
-    const id = `${job.systemInstruction}\u0000${JSON.stringify(job.rules)}`;
-    let text = this.instructionsMemo.get(id);
-    if (text === undefined) {
-      text = api.composeReviewInstructions(job.systemInstruction, job.rules);
-      this.instructionsMemo.set(id, text);
+  /**
+   * Reads the instructions `review` prepares for every label set of `jobs`,
+   * so that `score` finds them (it runs synchronously).
+   */
+  private async prepareInstructions(review: RefReview, jobs: Job[]) {
+    for (const job of jobs) {
+      const id = JSON.stringify(job.rules);
+      if (!this.instructionsMemo.has(id))
+        this.instructionsMemo.set(id, await review.instructions(job.rules));
     }
-    return text;
   }
 
-  score(api: ExtApi, job: Job, record: ResultRecord): Scored {
+  score(job: Job, record: ResultRecord): Scored {
     const id = `${record.key}\u0000${record.at}`;
     let row = this.scored.get(id);
     if (!row) {
@@ -179,9 +172,9 @@ export class Dashboard {
         c,
         profile,
         record,
-        api.reviewCategories([]),
-        this.instructionsFor(api, job),
-        api.kind === "completion",
+        [],
+        this.instructionsMemo.get(JSON.stringify(job.rules)) ?? "",
+        true,
       );
       this.scored.set(id, row);
     }
@@ -208,7 +201,7 @@ export class Dashboard {
           refArgs.extRepo ?? this.options.extRepo,
         );
         if (!live.ext) throw new Error("extension clone not available");
-        const o = parseBenchArgs(run.argv, live.ext.api);
+        const o = parseBenchArgs(run.argv, live.ext.review);
         live.tier = o.tier;
         live.split = splitLabel(o);
         const { dataset } = compileDataset({
@@ -216,12 +209,10 @@ export class Dashboard {
           profiles: o.profiles,
         });
         if (!dataset) throw new Error("dataset invalid for this run's options");
-        live.plan = planJobs(
-          dataset,
-          o,
-          live.ext.ext.sha,
-          live.ext.api.defaultPrompt,
-          live.ext.api.kind === "completion",
+        live.plan = planJobs(dataset, o, live.ext.ext.sha, "", true);
+        await this.prepareInstructions(
+          live.ext.review,
+          [...live.plan.jobsByModel.values()].flat(),
         );
       } catch (error) {
         live.error = (error as Error).message;
@@ -246,14 +237,14 @@ export class Dashboard {
       };
       if (!live.plan || !live.ext)
         return { ...base, error: live.error ?? "no plan" };
-      const { ext, api } = live.ext;
+      const { ext } = live.ext;
       const jobs = new Map<string, Job>();
       for (const list of live.plan.jobsByModel.values())
         for (const j of list) jobs.set(j.key, j);
       const progress = computeProgress(
         live.plan.jobsByModel,
         (model) => readModelCache(ext.sha, model),
-        (job, record) => this.score(api, job, record).failure,
+        (job, record) => this.score(job, record).failure,
         (model) => secondsPerCase(findBenchModel(model) ?? localModel(model)),
       );
       return {
@@ -275,7 +266,7 @@ export class Dashboard {
       const cache = readModelCache(live.ext.ext.sha, model);
       for (const job of jobs) {
         const record = cache.get(job.key);
-        if (record) rows.push(this.score(live.ext.api, job, record));
+        if (record) rows.push(this.score(job, record));
       }
     }
     return rows;
@@ -313,16 +304,11 @@ export class Dashboard {
         notFound: `No result for ${caseId} with ${config} in this run.`,
       };
     const profile = this.dataset.profiles.find((p) => p.id === c.profile)!;
-    const sha = runId.startsWith("run:")
-      ? listCommittedRuns().find((r) => r.id === runId)?.sha
-      : (await this.liveRuns()).find((l) => l.id === runId)?.ext?.ext.sha;
     // Runs from before the instruction axis was removed may name another variant.
     const systemInstruction =
       row.instruction !== CURRENT_INSTRUCTION
         ? `(instruction variant "${row.instruction}", removed from the bench)`
-        : sha
-          ? await this.defaultPromptFor(sha)
-          : "(default prompt)";
+        : "(none: the ref sends one completion request per custom label)";
     const rules = LABEL_VARIANTS.some((v) => v.id === row.labelVariant)
       ? rulesFor(profile, row.labelVariant as never)
       : [];
@@ -338,7 +324,6 @@ export class Dashboard {
  */
 async function playgroundPresets(dash: Dashboard) {
   const loaded = await dash.ext();
-  const api = loaded?.api;
   return {
     ext: loaded
       ? {
@@ -349,12 +334,8 @@ async function playgroundPresets(dash: Dashboard) {
       : null,
     models: MODELS.map((m) => ({ id: m.id, short: m.short })),
     settings: DEFAULT_SETTINGS,
-    defaultPrompt: api?.defaultPrompt ?? null,
-    kind: api?.kind ?? null,
-    outputSchema: api?.outputSchema ?? null,
-    replyPrefill: api?.replyPrefill ?? null,
-    generationBudgetMs: api?.generationBudgetMs ?? null,
-    framedExample: api?.frameReviewChunk?.("<the user's prompt>") ?? null,
+    // Package refs have no system instruction: one completion request per custom label.
+    defaultPrompt: loaded ? "" : null,
     labelVariants: LABEL_VARIANTS,
     profiles: dash.dataset.profiles.map((p) => ({
       id: p.id,
@@ -429,7 +410,7 @@ async function handlePlayground(
             error:
               "extension clone not configured (needed for the review preset and engine)",
           });
-        return send(res, 200, await host.load(model.id, loaded.ext.bundle));
+        return send(res, 200, await host.load(model.id, loaded.ext.entry));
       }
       case "/api/playground/unload":
         await host.unload();

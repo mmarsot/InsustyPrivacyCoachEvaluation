@@ -75,16 +75,16 @@ time through `engine/workers/model.ts`, with the bench's memory wait.
 
 ## How a ref is run
 
-The ref is materialized read-only by the bench's one materializer
-(`modules/insusty-privacy/materialize.ts`: `git archive` into `cache/module/<sha>/`, the
-npm packages at the ref's locked versions, including `@embedpdf/pdfium`,
-`fflate` and the detector's libraries). PDFium is loaded in Node from the
-ref's own `pdfium.wasm`, as the extension's own tests do. Each document goes
+The ref's redaction package is installed at its commit by the bench's one
+materializer (`modules/insusty-privacy/materialize.ts`: `insusty-prompt-coach/redaction`
+in `cache/module/<sha>/`, with `@embedpdf/pdfium` at the version the ref's
+lockfile pins). The bench hands the package that PDFium, loaded in Node from
+its own `pdfium.wasm`, as the extension's own tests do. Each document goes
 through the module's `redact()` (the redaction contract, `contract/README.md`),
 once per configuration, and `datasets/insusty-documents/` and `engine/scorers/documents/pipeline.ts` reads the outputs
-back for scoring. Inside, `modules/insusty-privacy/documents.ts` follows the extension's
-`checkFile` and `redactedVersion` (`src/files/file-attach.ts`) step by step,
-each step timed:
+back for scoring. Inside, the package's document pipeline checks the file
+the way the extension's `checkFile` and `redactedVersion` do, each stage
+timed:
 
 1. `readFileForCheck` classifies the file by its bytes and name;
 2. `readDocument` reads a PDF, Office/OpenDocument file or zip (text,
@@ -228,8 +228,8 @@ local or connected models named after it), dev-split custom-label cases (`--ai-t
 default: dev and finance, EN; `quick`: every profile, EN and FR, one clear
 positive each; `full`: plus one look-alike negative) are put in the middle of Word documents of
 `--ai-sizes` characters of neutral filler, read by the ref's reader and
-reviewed by the model with the ref's own `reviewPrompt` through the model
-runner (the ref's shipped instruction, `desc` label descriptions). Reported
+reviewed by the model with the ref's own review through the model
+runner (its package, `desc` label descriptions and examples). Reported
 per size: recall of expected passages, false positives, review time p50 and
 max, requests; a power-law fit of review time against characters; and the
 largest document whose median review stays within 30 s, 60 s and 120 s,

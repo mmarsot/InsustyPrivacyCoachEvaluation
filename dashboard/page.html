@@ -1282,11 +1282,10 @@
       function renderReviewPreset() {
         const R = pg.review;
         const P = pg.presets;
-        const completion = P.kind === "completion";
         const rules = R.rules
           .map(
             (r, i) =>
-              `<div class="rule"><input data-rl="${i}" value="${esc(r.label)}" placeholder="LABEL"><div><textarea data-rp="${i}" rows="2" placeholder="What it should detect">${esc(r.prompt)}</textarea>${completion ? `<textarea data-rx="${i}" rows="3" placeholder="Examples, one per line (up to 3)">${esc((r.examples ?? []).join("\n"))}</textarea>` : ""}</div><button data-rm="${i}">✕</button></div>`,
+              `<div class="rule"><input data-rl="${i}" value="${esc(r.label)}" placeholder="LABEL"><div><textarea data-rp="${i}" rows="2" placeholder="What it should detect">${esc(r.prompt)}</textarea><textarea data-rx="${i}" rows="3" placeholder="Examples, one per line (up to 3)">${esc((r.examples ?? []).join("\n"))}</textarea></div><button data-rm="${i}">✕</button></div>`,
           )
           .join("");
         const example = P.examples.find((e) => e.id === R.example);
@@ -1310,18 +1309,17 @@
                 c,
                 i,
               ) => `<h3>Request ${i + 1}${result.chunks.length > 1 ? ` of ${result.chunks.length}` : ""}: ${c.promptTokens} prompt tokens · ${c.runtime ? `${c.runtime.generatedTokens} generated · finish ${esc(c.runtime.finishReason)} · prefix ${c.runtime.prefixReused ? "reused" : "prepared"}` : ""} · ${ms(c.ms)}${c.error ? ` · <span class="chip bad">${esc(c.error)}</span>` : ""}</h3>
-        <details><summary>Rendered prompt the model receives (system = instructions, user = framed text, then the reply prefill)</summary><pre>${esc(c.rendered)}</pre></details>
+        <details><summary>Prompt the model receives (the label's instructions, the framed text, then the answer cue)</summary><pre>${esc(c.rendered)}</pre></details>
         <h3>Raw completion</h3><pre>${esc(c.output || "(empty)")}</pre>`,
             )
             .join("");
           out = `<h2>Result</h2>${result.error ? `<div class="card"><span class="chip bad">review error</span> ${esc(result.error)}</div>` : ""}${result.skipped ? `<div class="card">${esc(result.skipped)}</div>` : ""}
       <h3>Accepted findings (parsed and anchored by the extension)</h3><div class="card"><table><tbody>${result.findings.map((f) => `<tr><td><code>${esc(f.category)}</code></td><td>${esc(f.value)}</td><td class="muted">${f.start}–${f.end}</td></tr>`).join("") || '<tr><td class="muted">none</td></tr>'}</tbody></table>
       <div class="text" style="margin-top:8px">${text}</div>${R.lastExpected?.length ? `<p class="muted">Dataset ground truth for this example: ${R.lastExpected.map((e) => `<code>${esc(e.label)}</code> ${esc(e.passage)}`).join(" · ")}</p>` : ""}</div>
-      ${chunks}<details><summary>Composed instructions (composeReviewInstructions)</summary><pre>${esc(result.instructions)}</pre></details>`;
+      ${chunks}<details><summary>Prepared instructions (one prefix per label and language)</summary><pre>${esc(result.instructions)}</pre></details>`;
         }
-        $("#pgBody").innerHTML = completion
-          ? `<p>Reproduces exactly what the extension at <code>${esc(P.ext?.ref ?? "?")}</code> sends: one plain-text completion request per custom label (<code>composeLabelPrefix</code>: instruction, demonstrations built from the label's first two examples in the prompt's language, a NONE demonstration), the <code>Text: …</code> input and <code>LABEL:</code> answer cue, its engine (first-line stop, token cap, pinned greedy settings, ${P.generationBudgetMs ? P.generationBudgetMs / 1000 : "?"} s budget) and its parser, plausibility filter and anchoring (<code>reviewPrompt</code>). The system instruction is not used by this design.</p>`
-          : `<p>Reproduces exactly what the extension at <code>${esc(P.ext?.ref ?? "?")}</code> sends: its <code>composeReviewInstructions</code> (system prompt, fixed output schema, label list), <code>frameReviewChunk</code> framing, <code>${esc(JSON.stringify(P.replyPrefill))}</code> reply prefill, its engine (stop rule, ${P.generationBudgetMs ? P.generationBudgetMs / 1000 : "?"} s budget, greedy) and its parser/anchoring (<code>reviewPrompt</code>).</p>`;
+        $("#pgBody").innerHTML =
+          `<p>Runs the review of the extension at <code>${esc(P.ext?.ref ?? "?")}</code> through its package on the loaded model: one plain-text completion request per custom label (instruction, demonstrations built from the label's first two examples in the prompt's language, a NONE demonstration), the <code>Text: …</code> input and <code>LABEL:</code> answer cue, its engine (first-line stop, token cap, pinned greedy settings, generation budget) and its parser, plausibility filter, patterns and anchoring. The system instruction is not used by this design.</p>`;
         $("#pgBody").innerHTML += `
   <div class="card"><div class="row">
     <label class="f">Load labels from profile<select id="rvProfile">${P.profiles.map((p) => `<option value="${p.id}" ${p.id === R.profile ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select></label>
@@ -1331,7 +1329,7 @@
   <div class="grid2"><div>
     <h3>System instruction (user-editable prompt; default = the extension's)</h3><textarea id="rvSystem" rows="3">${esc(R.systemInstruction)}</textarea>
     <h3>Custom labels</h3>${rules}<button id="rvAdd">+ label</button>
-    <p class="muted">Same constraints as the extension: LABEL matches <code>[A-Z][A-Z0-9_]{0,31}</code>, description up to 1000 characters${completion ? ", up to three examples (the first two become demonstrations). Built-in labels are left to the deterministic detector" : ". The built-in labels (API_KEY, PHONE, EMAIL, ADDRESS) are always appended"}.</p>
+    <p class="muted">Same constraints as the extension: LABEL matches <code>[A-Z][A-Z0-9_]{0,31}</code>, description up to 1000 characters, up to three examples (the first two become demonstrations). Built-in labels are left to the deterministic detector.</p>
   </div><div>
     <h3>Text to review</h3><textarea id="rvText" rows="12">${esc(R.text)}</textarea>
     ${example ? `<p class="muted">Example ${esc(example.id)} expects: ${example.expected.map((e) => `<code>${esc(e.label)}</code> ${esc(e.passage)}`).join(" · ") || "nothing (negative case)"}</p>` : ""}

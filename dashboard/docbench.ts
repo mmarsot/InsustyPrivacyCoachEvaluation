@@ -22,8 +22,8 @@ import {
   type DocRunMeta,
 } from "../engine/scorers/documents/report.ts";
 import type { DocJobResult } from "../datasets/insusty-documents/types.ts";
+import { resolveCommit } from "../modules/insusty-privacy/materialize.ts";
 import {
-  resolveCommit,
   resolveExtRefName,
   resolveExtRepo,
 } from "../modules/insusty-privacy/ref.ts";

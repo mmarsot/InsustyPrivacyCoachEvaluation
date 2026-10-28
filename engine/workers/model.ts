@@ -2,12 +2,12 @@
  * Child process that runs every pending Private AI job of ONE model, then
  * exits so the operating system reclaims the whole WASM heap before the next
  * model loads. Each job is one `redact()` call on the extension's module at
- * the ref (`modules/insusty-privacy/insusty.ts`), with the case's custom labels and
- * Private AI on:
+ * the ref (its package, `modules/insusty-privacy/insusty.ts`), with the case's
+ * custom labels and Private AI on:
  *
- * - an on-device model runs on the ref's own `reviewPrompt` and `SlmEngine`
- *   (prefix cache, stop rules, generation budget), with the bench's Node
- *   Transformers.js loader;
+ * - an on-device model runs on the ref's own review and engine (prefix
+ *   cache, stop rules, generation budget), with the bench's Node
+ *   Transformers.js loader as its runtime;
  * - a connected model (`modules/insusty-privacy/connected.ts`) runs on the ref's own
  *   connected-model client; the bench supplies the transport (reply cache,
  *   cost, budget). Its latency includes the ref's pacing and retries.
@@ -116,7 +116,7 @@ async function main() {
   const runsOn = connected ? "connected" : "device";
   if (!module.capabilities.privateAi.includes(runsOn))
     throw new Error(
-      `${spec.ref.ref} cannot run ${spec.model} through the contract (Private AI: ${module.capabilities.privateAi.join(", ") || "none"}; refs before the per-label design of PR #26 are not supported)`,
+      `${spec.ref.ref} cannot run ${spec.model} through the contract (Private AI: ${module.capabilities.privateAi.join(", ") || "none"})`,
     );
   const configFor = (job: Job): ModuleConfig => ({
     ...module.defaultConfig(),

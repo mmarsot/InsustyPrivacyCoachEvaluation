@@ -98,12 +98,13 @@ load it while a bench run is going.
   markers, plus the prefill), prompt and generated token counts, the raw
   completion with special tokens, latency, first-token time and the finish
   reason (`eos`, `max_new_tokens`, `deadline`, `context`).
-- **Extension review preset.** For completion-design refs (per-label
-  framing), each label also takes up to three examples, one per line, and the
-  panel shows the plain-text request of each label. Runs the extension ref's own `reviewPrompt`
-  through its own `SlmEngine`: `composeReviewInstructions`,
-  `frameReviewChunk` framing, the `SLM_REPLY_PREFILL` prefill, pagination, the
-  stop rule, the generation budget, parsing and anchoring. Custom labels and
+- **Extension review preset.** Each label also takes up to three examples,
+  one per line, and the panel shows the plain-text request of each label.
+  Runs the extension ref's own review through its package on the loaded
+  weights (a traced runtime records each request): the per-label
+  instructions and demonstrations, the `Text: …` input and `LABEL:` cue,
+  pagination, the stop rule, the generation budget, parsing, anchoring and
+  patterns. Custom labels and
   descriptions are editable, under the extension's constraints. You can load
   them from a dataset profile in any description variant, and pick dev-split
   example texts (the test split stays out). Each engine request shows the

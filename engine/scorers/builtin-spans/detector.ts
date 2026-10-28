@@ -3,23 +3,24 @@
  * spans from `RedactionModule.redact` on text, with Private AI off, in two
  * configurations. `default` is the module's own default configuration;
  * `all` turns every built-in label on and adds every address country the
- * module declares (`allLabelsConfig`). The extension's module is
- * materialized by `modules/insusty-privacy/materialize.ts`; any other contract
- * implementation scores the same way.
+ * module declares (`allLabelsConfig`). The extension's package reports the
+ * contract's labels itself; any other contract implementation scores the
+ * same way.
  */
-import type {
-  BuiltinLabel,
-  ModuleConfig,
-  RedactionModule,
+import {
+  BUILTIN_LABELS,
+  type BuiltinLabel,
+  type ModuleConfig,
+  type RedactionModule,
 } from "../../../contract/types.ts";
 import { allLabelsConfig } from "../../module.ts";
-import { toBuiltin } from "../../../modules/insusty-privacy/labels.ts";
 import type { DetCategory } from "../../../datasets/insusty-builtin/schema.ts";
 
-export { CATEGORY_ALIASES } from "../../../modules/insusty-privacy/labels.ts";
-/** A ref's category name as a dataset category (the contract's built-in labels), or null for one the dataset does not know. */
+/** A module's label as a dataset category (the contract's built-in labels), or null for one the dataset does not know. */
 export const mapCategory = (category: string): DetCategory | null =>
-  toBuiltin(category);
+  (BUILTIN_LABELS as readonly string[]).includes(category)
+    ? (category as DetCategory)
+    : null;
 
 /** One built-in span of the module, in the dataset's vocabulary. */
 export interface RefDetection {
@@ -46,7 +47,7 @@ export type DetConfigName = "default" | "all";
  * one call per text.
  */
 export interface DetectorApi {
-  /** The module's own category names (the extension's `CATEGORIES`), else its built-in labels. */
+  /** The module's built-in labels, as the report lists them. */
   refCategories: string[];
   /** Dataset categories this module can report. */
   supported: DetCategory[];
@@ -64,9 +65,7 @@ export interface DetectorApi {
  * Wraps a contract module as a `DetectorApi`; both configurations keep Private
  * AI off, so no model is ever loaded.
  */
-export function detectorApi(
-  module: RedactionModule & { refCategories?: string[] },
-): DetectorApi {
+export function detectorApi(module: RedactionModule): DetectorApi {
   const base = module.defaultConfig();
   const off = { runsOn: "off" as const };
   const configs: Record<DetConfigName, ModuleConfig> = {
@@ -83,7 +82,7 @@ export function detectorApi(
   );
   if (added.length) notes.push(`adds address countries ${added.join(", ")}`);
   return {
-    refCategories: module.refCategories ?? [...module.capabilities.builtins],
+    refCategories: [...module.capabilities.builtins],
     supported: [...module.capabilities.builtins] as BuiltinLabel[],
     configs,
     allConfigNote: notes.length ? notes.join("; ") : "same as default",
@@ -94,7 +93,7 @@ export function detectorApi(
           .filter((s) => s.kind === "builtin")
           .map((s) => ({
             category: s.label,
-            mapped: toBuiltin(s.label),
+            mapped: mapCategory(s.label),
             start: s.start,
             end: s.end,
             value: out.text.slice(s.start, s.end),

@@ -11,11 +11,11 @@ and `engine/cli/detbench.ts`. Tests: `datasets/insusty-builtin/insusty-builtin.t
 
 ## How a ref is run
 
-The ref is materialized read-only by the bench's one materializer
-(`modules/insusty-privacy/materialize.ts`, see [its README](../../modules/insusty-privacy/README.md)): the ref's
-`git archive` into `cache/module/<sha>/`, its npm packages at the versions its
-`package-lock.json` pins (so libphonenumber metadata and validators match what
-that commit ships), one bundle. detbench scores the built-in spans of the
+The ref's redaction package (`insusty-prompt-coach/redaction`, extension PR
+#132 and later) is installed at its commit by the bench's one materializer
+(`modules/insusty-privacy/materialize.ts`, see [its README](../../modules/insusty-privacy/README.md)); the package
+bundles the libraries that commit ships (libphonenumber metadata,
+validators...). detbench scores the built-in spans of the
 module's `redact()` on each prompt, through the redaction contract
 (`engine/scorers/builtin-spans/detector.ts`, `contract/README.md`), with Private AI off. Any other
 module with a dataset adapter for this dataset scores the same way, on the
@@ -27,7 +27,7 @@ Each ref runs with two configurations:
 | Config | What it is |
 | --- | --- |
 | `default` | the module's default configuration (the ref's `DEFAULT_CONFIG`), as a new user gets it |
-| `all` | every built-in label the module declares on, and every address country it declares (the ref's `SUPPORTED_ADDRESS_COUNTRIES` when exported; `main` does not export it, so `all` keeps its `FR`) |
+| `all` | every built-in label the module declares on, and every address country it declares (the package's capabilities: `FR`, `US`, `CA`, `AU` on `main`) |
 
 Only **selected** detections count: what gets redacted without the user
 ticking anything. A category switched off leaves its detections unselected.
@@ -40,14 +40,13 @@ Ground truth uses the upgraded names: `SECRET`, `EMAIL`, `PHONE`, `ADDRESS`,
 numbers are `COMPANY_ID`, not `NATIONAL_ID`, and a MAC address is `IP`; `IP`
 and `COMPANY_ID` are off in the upgrade's `default` configuration, so their
 items count as misses there and are scored in `all`.
-A ref's category names are mapped with `CATEGORY_ALIASES`
-(`engine/scorers/builtin-spans/detector.ts`): today's `API_KEY` is `SECRET`, and plausible
-spellings such as `IP_ADDRESS` or `IBAN` map too. A dataset category with no
-matching ref category is **not supported by this ref**: its items are left out
-of precision, recall and F1 and reported apart, with the share that another
-category happened to redact. So the same dataset scores today's `main` and
-the upgrade branch. If a ref introduces a category name the aliases do not
-know, its detections count as false positives until you add an alias.
+The package reports the contract's built-in labels itself (its contract
+adapter maps the extension's categories), so the bench maps nothing. A
+dataset category the module does not declare (`capabilities.builtins`) is
+**not supported by this ref**: its items are left out of precision, recall
+and F1 and reported apart, with the share that another category happened to
+redact. A span whose label the dataset does not know counts as a false
+positive.
 
 ## Dataset
 

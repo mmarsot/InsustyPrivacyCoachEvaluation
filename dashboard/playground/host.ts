@@ -2,14 +2,16 @@
  * Child process that holds ONE playground model. The dashboard forks it on
  * "load" and kills it on unload or model switch, so the operating system
  * reclaims the whole WASM heap (it cannot shrink inside a process).
+ * Reviews run the ref's package on the loaded weights, through a traced
+ * runtime that reports what each request sent the model.
  * Protocol: IPC messages {id, type, ...} -> {id, ok, result | error}.
  */
+import type { RedactionModule } from "../../contract/types.ts";
+import { importPackage } from "../../modules/insusty-privacy/insusty.ts";
 import {
-  loadExtApi,
-  type ExtApi,
-  type ReviewRequestLike,
-  type RuntimeSelection,
-} from "../../modules/insusty-privacy/ref.ts";
+  tracedRuntime,
+  type TracedGeneration,
+} from "../../modules/insusty-privacy/runtime/scripted.ts";
 import {
   adaptModel,
   adaptTokenizer,
@@ -25,20 +27,20 @@ import {
   normalizeReviewRequest,
   normalizeSettings,
   renderPrompt,
-  renderReviewPrompt,
-  runExtensionReview,
+  runPackageReview,
 } from "./logic.ts";
 
 type Loaded = Awaited<ReturnType<typeof loadPretrained>> & {
   modelId: string;
-  api: ExtApi;
-  engine: InstanceType<ExtApi["SlmEngine"]>;
+  /** The ref's module, its on-device runtime on these weights. */
+  module: RedactionModule;
+  /** What the traced runtime recorded during the current review. */
+  generations: TracedGeneration[];
   adapted: ReturnType<typeof adaptTokenizer>;
   contextLength: number;
   eos: number[];
 };
 let loaded: Loaded | undefined;
-const selection: RuntimeSelection = { backend: "wasm", quantization: "auto" };
 
 const reply = (
   id: number,
@@ -53,28 +55,38 @@ async function handle(msg: Record<string, unknown>): Promise<unknown> {
   if (msg.type === "load") {
     const started = performance.now();
     const modelId = String(msg.model);
-    const api = await loadExtApi(String(msg.bundle));
+    const { createContractModule } = await importPackage({
+      entry: String(msg.entry),
+    });
     const { tokenizer, model } = await loadPretrained(modelId, "q8");
     const adapted = adaptTokenizer(tokenizer);
     const adaptedModel = adaptModel(model);
+    const generations: TracedGeneration[] = [];
     // The ref's engine reuses these weights: no second copy is loaded.
-    const engine = new api.SlmEngine({
-      load: async (_model: string, device: string, dtype: string) => {
-        if (device !== "wasm" || dtype !== "q8")
-          throw new Error(
-            `The playground holds only WASM q8 weights (asked for ${device} ${dtype}).`,
-          );
-        return { tokenizer: adapted, model: adaptedModel };
+    const runtime = {
+      loader: {
+        load: async (_model: string, device: string, dtype: string) => {
+          if (device !== "wasm" || dtype !== "q8")
+            throw new Error(
+              `The playground holds only WASM q8 weights (asked for ${device} ${dtype}).`,
+            );
+          return { tokenizer: adapted, model: adaptedModel };
+        },
+        probeWebGpu: async () => ({ available: false, reason: "WASM only" }),
+        now: () => performance.now(),
       },
-      probeWebGpu: async () => ({ available: false, reason: "WASM only" }),
-      now: () => performance.now(),
+      threads: WASM_THREADS,
+    };
+    const module: RedactionModule = createContractModule({
+      device: async () =>
+        tracedRuntime(runtime, (g) => void generations.push(g)),
     });
     loaded = {
       tokenizer,
       model,
       modelId,
-      api,
-      engine,
+      module,
+      generations,
       adapted,
       contextLength: adaptedModel.contextLength,
       eos: eosIds(model),
@@ -129,18 +141,12 @@ async function handle(msg: Record<string, unknown>): Promise<unknown> {
     };
   }
   if (msg.type === "review") {
-    const request = normalizeReviewRequest(
-      msg.request,
-      loaded.api.defaultPrompt,
-    );
-    const { engine, api, modelId } = loaded;
-    return runExtensionReview(
-      api,
-      (req: ReviewRequestLike) =>
-        engine.review(modelId, selection, req, api.generationBudgetMs),
-      (req) => renderReviewPrompt(adapted, req, loaded!.api.kind),
+    const request = normalizeReviewRequest(msg.request, "");
+    return runPackageReview(
+      loaded.module,
+      loaded.generations,
       request,
-      modelId,
+      loaded.modelId,
     );
   }
   throw new Error(`unknown request ${String(msg.type)}`);

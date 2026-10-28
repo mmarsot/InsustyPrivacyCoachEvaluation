@@ -23,8 +23,10 @@ module's `redact()`, so they live here with their own dashboard view (Lab).
 - One model process at a time: it waits until `MemAvailable` covers the
   model's peak RSS plus `--min-free-mb` (1500), and kills the worker above
   `--max-rss-mb` (3500) or when the system drops below 600 MB available.
-- Parses with the ref's own `validateModelOutput` and scores with the bench
-  scorer; `--by-lang` and `--cases` print more detail.
+- Parses with its copy of the extension's line protocol (`protocol.ts`:
+  parser, anchoring, plausibility filter, line stop), since the ref's package
+  does not export it and the lab never imports extension internals; `npm run
+  parity` checks the copy against the ref. Scores with the bench scorer; `--by-lang` and `--cases` print more detail.
 - Scoring-time options, applied to cached generations without recomputing:
   `--filter basic` (plausibility filter), `request`, `dedup`, `shape`,
   `cmin0.2` / `conf0.6` (answer-confidence thresholds, for configurations
@@ -54,14 +56,26 @@ module's `redact()`, so they live here with their own dashboard view (Lab).
 ## Request parity
 
 ```bash
-npm run parity -- --set tune96     # lab requests vs the ref's own reviewPrompt requests (no model, no network)
+npm run parity -- --set tune96     # lab requests and readings vs the ref's package (no model; no network once the ref is installed)
 ```
 
-`modules/insusty-privacy/lab/request-parity.ts` runs the ref's own `reviewPrompt` with a
-recording client and checks every per-label request against what the lab's
-`shipped` configuration renders. Requests that differ only by the ref's
-code-fence skip (PR #42, not modelled by the lab yet) are counted apart; any
-other difference fails it (a CI gate of the Private AI track).
+`modules/insusty-privacy/lab/request-parity.ts` runs the ref's package on a
+scripted on-device runtime (`runtime/scripted.ts`), which records every
+prompt the ref's engine sends and answers from a script, and checks two
+things:
+
+- every per-label request (the prepared prefix, then the framed text and
+  the answer cue) against what the lab's `shipped` configuration renders.
+  Requests that differ only by the ref's code-fence skip (PR #42, not
+  modelled by the lab yet) are counted apart;
+- the ref's findings on scripted answers (plain, quoted, two at once,
+  lower-cased, list-marked passages, bare numbers, stop words, NONE) against
+  what the lab reads from the same answers with `protocol.ts`.
+
+Any other difference fails it (a CI gate of the Private AI track). The lab's
+configurations built on the ref's chat-design texts (`@current`, `@ref`:
+`ref` and its descendants) render those texts empty: they came from refs
+before extension PR #26, which the package cannot load.
 
 ## Shipped baseline and ablations
 

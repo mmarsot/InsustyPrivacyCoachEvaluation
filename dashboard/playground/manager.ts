@@ -88,7 +88,7 @@ export class PlaygroundHost {
     });
   }
 
-  async load(model: string, bundle: string): Promise<HostStatus> {
+  async load(model: string, entry: string): Promise<HostStatus> {
     if (this.status.activity)
       throw new BusyError(`busy: ${this.status.activity.kind}`);
     await this.unload();
@@ -126,7 +126,7 @@ export class PlaygroundHost {
       activity: { kind: "load", since: Date.now() },
     };
     try {
-      const info = (await this.send({ type: "load", model, bundle })) as Record<
+      const info = (await this.send({ type: "load", model, entry })) as Record<
         string,
         unknown
       >;

@@ -1,19 +1,19 @@
 /**
- * The extension ref the bench drives, and the lab's view of the ref's Private
- * AI internals (`loadExtApi`). Materialization is the one materializer of
- * `modules/insusty-privacy/materialize.ts` (one bundle per commit, read-only on the
- * clone); the harness scores refs through the redaction contract
- * (`modules/insusty-privacy/insusty.ts`). `ExtApi` stays for the prompt lab, the
- * playground and diagnostics that need the ref's prompt composition.
+ * The extension ref the bench drives, and what the bench reads of the ref's
+ * Private AI review (`refReview`), all through the ref's package
+ * (`materialize.ts` installs it, `insusty.ts` loads it): the on-device models
+ * it ships, and the instructions its review prepares for a set of labels,
+ * recovered with a scripted runtime (`runtime/scripted.ts`).
  */
 import { existsSync, readFileSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
-import { materializeModule, runtimeMismatches } from "./materialize.ts";
+import type { Rule } from "../../engine/jobs.ts";
 import { LOCAL_CONFIG_FILE, ROOT } from "../../engine/paths.ts";
-export { archiveCommit, resolveCommit } from "./materialize.ts";
+import { loadInsustyModule } from "./insusty.ts";
+import type { ModuleRef } from "./materialize.ts";
+import { scriptedRuntime } from "./runtime/scripted.ts";
 
-/** Default extension ref: `main`, which ships the line protocol since PR #17. */
+/** Default extension ref: `main`. */
 export const DEFAULT_EXT_REF = "main";
 
 interface LocalConfig {
@@ -30,6 +30,7 @@ const readLocalConfig = (): LocalConfig => {
  * Where the extension clone lives: `--ext-repo`, then `INSUSTY_EXT_REPO`, then
  * `extRepo` in the untracked `bench.local.json`, then a sibling
  * `../InsustyPromptCoach` checkout. Relative paths resolve from the bench root.
+ * The bench reads refs, commits and diffs from it; packages come from GitHub.
  */
 export function resolveExtRepo(cli?: string): string {
   const configured =
@@ -58,235 +59,54 @@ export function resolveExtRefName(cli?: string): string {
   );
 }
 
-/** A materialized ref as the lab loads it. */
-export interface ExtRef {
-  ref: string;
-  sha: string;
-  subject: string;
-  committedAt: string;
-  dir: string;
-  bundle: string;
-  /** Inference runtime packages whose bench version differs from the ref's lockfile (empty when they agree). */
-  runtimeMismatches: string[];
-}
-
-/** Resolves and materializes a ref; cached per commit sha. */
-export async function materializeExtRef(
-  repo: string,
-  ref: string,
-  log?: (line: string) => void,
-): Promise<ExtRef> {
-  const m = await materializeModule(repo, ref, log);
-  return {
-    ref,
-    sha: m.sha,
-    subject: m.subject,
-    committedAt: m.committedAt,
-    dir: m.dir,
-    bundle: m.bundle,
-    runtimeMismatches: runtimeMismatches(m),
-  };
-}
-
-/**
- * The subset of the ref's exports the bench relies on, normalized over the two
- * review designs the extension has shipped:
- *   - `chat` (PR #17 line protocol): one chat request per chunk with a system
- *     instruction, the fixed output schema and the label list;
- *   - `completion` (per-label completion framing with label examples): one
- *     plain-text request per custom label, no system instruction.
- * `runReview` and `preparedInstructions` hide the difference from callers.
- */
-export interface ExtApi {
-  kind: "chat" | "completion";
-  /** The ref's default system instruction; "" for completion refs (they have none). */
-  defaultPrompt: string;
-  generationBudgetMs: number;
+/** What the bench reads of a ref's Private AI review. */
+export interface RefReview {
+  /** The on-device models the ref ships, and the one a new user gets. */
   modelIds: string[];
-  /** The model a new user gets (`DEFAULT_SLM_MODEL_ID`, else the first bundled model). */
   defaultModelId: string;
-  /** The instruction text as one string (for display and echo detection). */
-  composeReviewInstructions(systemInstruction: string, rules: Rule[]): string;
-  /** The prefixes the engine should prepare for these settings. */
-  preparedInstructions(systemInstruction: string, rules: Rule[]): string[];
-  /** Built-in labels the model may return (none for completion refs). */
-  reviewCategories(rules: Rule[]): string[];
-  runReview(
-    text: string,
-    systemInstruction: string,
-    client: ModelClientLike,
-    rules: Rule[],
-    model: string,
-    selection: RuntimeSelection,
-    /** Completion refs: the ref's context budget in tokens (chunk size); default the ref's own. */
-    contextBudget?: number,
-  ): Promise<{ findings: FindingLike[] }>;
-  // SlmEngine constructor from src/slm-engine.ts.
-  SlmEngine: new (loader: unknown) => EngineLike;
-  /** Chat refs only (PR #17+): data framing and reply prefill. */
-  frameReviewChunk?: (text: string) => string;
-  replyPrefill?: string;
-  outputSchema?: string;
+  /** The instruction prefixes the ref's review prepares for these labels (cost estimates measure them). */
+  prefixes(rules: readonly Rule[]): Promise<string[]>;
+  /** The prefixes joined: what a scorer checks echoed answers against. */
+  instructions(rules: readonly Rule[]): Promise<string>;
 }
 
-/** A custom label as the ref's review takes it. */
-export interface Rule {
-  label: string;
-  prompt: string;
-  /** Completion refs: up to three example passages (demonstrations use the first two). */
-  examples?: string[];
-}
-/**
- * The backend and quantization a review asks the engine for; the bench always
- * runs WASM.
- */
-export interface RuntimeSelection {
-  backend: "wasm";
-  quantization: "auto" | "q8" | "q4";
-}
-/** One per-label request the ref's `reviewPrompt` hands its model client. */
-export interface ReviewRequestLike {
-  instructions: string;
-  input: string;
-  responsePrefill?: string;
-}
-/** What the ref's engine reports about one request. */
-export interface RuntimeReportLike {
-  backend: string;
-  quantization: string;
-  promptTokens: number;
-  generatedTokens: number;
-  finishReason: string;
-  prefixReused?: boolean;
-  fallbackReason?: string;
-  /** Answer confidence (lowest answer-token probability); the ref's confidence filter drops a less confident answer. */
-  answerProbability?: number;
-}
-/**
- * What the ref's `reviewPrompt` calls to get an answer: the engine on the
- * device, a connected client, or a recording fake.
- */
-export interface ModelClientLike {
-  review(
-    request: ReviewRequestLike,
-    model?: string,
-    selection?: RuntimeSelection,
-  ): Promise<{ output: unknown; runtime?: RuntimeReportLike }>;
-}
-/** A finding the ref's parser accepted: offsets into the reviewed text. */
-export interface FindingLike {
-  category: string;
-  start: number;
-  end: number;
-  value?: string;
-}
-/**
- * The ref's `SlmEngine`: `prepare` caches the instruction prefixes, `review`
- * generates within a budget in milliseconds.
- */
-export interface EngineLike {
-  prepare(
-    model: string,
-    selection: RuntimeSelection,
-    instructions: readonly string[],
-  ): Promise<unknown>;
-  review(
-    model: string,
-    selection: RuntimeSelection,
-    request: ReviewRequestLike,
-    budgetMs: number,
-  ): Promise<{ output: string; runtime: RuntimeReportLike }>;
-}
-
-/** Imports a materialized bundle and checks the exports the bench needs. */
-export async function loadExtApi(bundle: string): Promise<ExtApi> {
-  const mod = (await import(pathToFileURL(bundle).href)) as Record<
-    string,
-    Record<string, unknown>
-  >;
-  const review = mod.review ?? {};
-  const need = (value: unknown, what: string) => {
-    if (value === undefined)
-      throw new Error(`The extension ref does not export ${what}.`);
-    return value;
+/** A ref's review through its package; no model is loaded. */
+export async function refReview(ref: ModuleRef): Promise<RefReview> {
+  const listed = await loadInsustyModule(ref, {
+    device: () => Promise.resolve(scriptedRuntime().runtime),
+  });
+  const models = (listed.capabilities.models ?? []).filter(
+    (m) => m.runsOn === "device",
+  );
+  if (!models.length) throw new Error(`${ref.ref} ships no on-device model.`);
+  const memo = new Map<string, Promise<string[]>>();
+  const prepared = async (rules: readonly Rule[]) => {
+    // A fresh module per label set: the engine prepares each prefix once.
+    const scripted = scriptedRuntime();
+    const module = await loadInsustyModule(ref, {
+      device: () => Promise.resolve(scripted.runtime),
+    });
+    await module.prepare!({
+      ...module.defaultConfig(),
+      customLabels: rules.map((r) => ({
+        label: r.label,
+        description: r.prompt,
+        examples: [...(r.examples ?? [])],
+      })),
+      privateAi: { runsOn: "device" },
+    });
+    await module.dispose?.();
+    return scripted.prefixes;
   };
-  const models = need(mod.models?.SLM_MODELS, "SLM_MODELS") as ReadonlyArray<{
-    id: string;
-  }>;
-  const common = {
-    generationBudgetMs:
-      (review.SLM_GENERATION_BUDGET_MS as number | undefined) ?? 30_000,
-    modelIds: models.map((m) => m.id),
-    defaultModelId:
-      (mod.models?.DEFAULT_SLM_MODEL_ID as string | undefined) ?? models[0]!.id,
-    SlmEngine: need(mod.engine?.SlmEngine, "SlmEngine") as ExtApi["SlmEngine"],
+  const prefixes = (rules: readonly Rule[]) => {
+    const key = JSON.stringify(rules);
+    if (!memo.has(key)) memo.set(key, prepared(rules));
+    return memo.get(key)!;
   };
-  type Fn = (...args: unknown[]) => unknown;
-  if (typeof review.composeLabelPrefix === "function") {
-    const sets = need(
-      review.reviewInstructionSets,
-      "reviewInstructionSets",
-    ) as (rules: Rule[]) => string[];
-    const reviewPrompt = need(review.reviewPrompt, "reviewPrompt") as Fn;
-    // Since PR #52 a rule also carries what the label learned from reviews (`learned`); the bench runs a new
-    // user's labels, which have learned nothing. Older refs ignore the extra field.
-    const withExamples = (rules: Rule[]) =>
-      rules.map((r) => ({
-        ...r,
-        examples: r.examples ?? [],
-        learned: { examples: [], falseAlarms: [] },
-      }));
-    return {
-      ...common,
-      kind: "completion",
-      defaultPrompt: "",
-      composeReviewInstructions: (_s, rules) =>
-        sets(withExamples(rules)).join("\n\n"),
-      preparedInstructions: (_s, rules) => sets(withExamples(rules)),
-      reviewCategories: () => [],
-      runReview: (text, _s, client, rules, model, selection, contextBudget) =>
-        reviewPrompt(
-          text,
-          client,
-          withExamples(rules),
-          model,
-          selection,
-          ...(contextBudget === undefined ? [] : [contextBudget]),
-        ) as Promise<{ findings: FindingLike[] }>,
-    };
-  }
-  const compose = need(
-    review.composeReviewInstructions,
-    "composeReviewInstructions",
-  ) as ExtApi["composeReviewInstructions"];
-  const reviewPrompt = need(review.reviewPrompt, "reviewPrompt") as Fn;
   return {
-    ...common,
-    kind: "chat",
-    defaultPrompt: need(
-      mod.config?.DEFAULT_SLM_PROMPT,
-      "DEFAULT_SLM_PROMPT",
-    ) as string,
-    composeReviewInstructions: compose,
-    preparedInstructions: (s, rules) => [compose(s, rules)],
-    reviewCategories: need(
-      review.reviewCategories,
-      "reviewCategories",
-    ) as ExtApi["reviewCategories"],
-    runReview: (text, s, client, rules, model, selection) =>
-      reviewPrompt(
-        text,
-        [],
-        s,
-        client,
-        undefined,
-        undefined,
-        rules,
-        model,
-        selection,
-      ) as Promise<{ findings: FindingLike[] }>,
-    frameReviewChunk: review.frameReviewChunk as ExtApi["frameReviewChunk"],
-    replyPrefill: review.SLM_REPLY_PREFILL as string | undefined,
-    outputSchema: review.SLM_OUTPUT_SCHEMA as string | undefined,
+    modelIds: models.map((m) => m.id),
+    defaultModelId: (models.find((m) => m.default) ?? models[0]!).id,
+    prefixes,
+    instructions: async (rules) => (await prefixes(rules)).join("\n\n"),
   };
 }

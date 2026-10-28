@@ -57,7 +57,7 @@
     }
   ],
   "notes": [
-    "Read-only on the extension clone: refs are read with git archive into cache/module/<sha>/.",
+    "The ref's package (insusty-prompt-coach/redaction, extension PR #132 and later) is installed from GitHub at the ref's commit into cache/module/<sha>/; the clone is only read.",
     "Inference runs on onnxruntime-web WASM with default session options, like the extension.",
     "OCR is not wired in Node: images and scanned pages are reported as the ref reports them with OCR off."
   ]

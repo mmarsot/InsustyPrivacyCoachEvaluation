@@ -1,10 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { join } from "node:path";
-import type {
-  ReviewRequestLike,
-  Rule,
-} from "../../modules/insusty-privacy/ref.ts";
+import { fileURLToPath } from "node:url";
+import type { Rule } from "../../engine/jobs.ts";
+import { ROOT } from "../../engine/paths.ts";
+import { loadInsustyModule } from "../../modules/insusty-privacy/insusty.ts";
+import {
+  scriptedRuntime,
+  tracedRuntime,
+  type TracedGeneration,
+} from "../../modules/insusty-privacy/runtime/scripted.ts";
 import {
   chatFinishReason,
   DEFAULT_SETTINGS,
@@ -12,8 +17,7 @@ import {
   normalizeReviewRequest,
   normalizeSettings,
   renderPrompt,
-  renderReviewPrompt,
-  runExtensionReview,
+  runPackageReview,
 } from "./logic.ts";
 import { BusyError, PlaygroundHost } from "./manager.ts";
 
@@ -124,31 +128,6 @@ test("renderPrompt appends the prefill after the generation prompt", () => {
   );
 });
 
-test("renderReviewPrompt frames like the engine and counts prefix and rest separately", () => {
-  const request: ReviewRequestLike = {
-    instructions: "Find labels.",
-    input: "<text_to_scan>\nsecret\n</text_to_scan>",
-    responsePrefill: "Findings:\n",
-  };
-  const { rendered, promptTokens } = renderReviewPrompt(chatml, request);
-  assert.equal(
-    rendered,
-    "<|im_start|>system\nFind labels.<|im_end|>\n<|im_start|>user\n<text_to_scan>\nsecret\n</text_to_scan><|im_end|>\n<|im_start|>assistant\nFindings:\n",
-  );
-  const prefix =
-    "<|im_start|>system\nFind labels.<|im_end|>\n<|im_start|>user\n";
-  assert.equal(
-    promptTokens,
-    chatml.encode(prefix).length +
-      chatml.encode(rendered.slice(prefix.length)).length,
-  );
-  // Without a template: the engine's plain completion framing.
-  assert.equal(
-    renderReviewPrompt(plain, request).rendered,
-    "Find labels.\n\nInput:\n<text_to_scan>\nsecret\n</text_to_scan>\n\nFindings:\n",
-  );
-});
-
 test("chatFinishReason distinguishes eos, deadline, token cap and context", () => {
   const base = { eosIds: [2], maxNewTokens: 3, deadlineHit: false };
   assert.equal(chatFinishReason({ ...base, generated: [5, 2] }), "eos");
@@ -207,87 +186,64 @@ test("normalizeReviewRequest applies the extension's rule constraints", () => {
   );
 });
 
-test("runExtensionReview records every engine request and returns anchored findings", async () => {
-  const rules: Rule[] = [{ label: "CODENAME", prompt: "Codenames." }];
-  const api = {
-    composeReviewInstructions: (s: string, r: Rule[]) =>
-      `${s}|${r.map((x) => x.label).join(",")}`,
-    reviewCategories: (r: Rule[]) => r.map((x) => x.label),
-    // Two chunks, like a long prompt paginated by the extension.
-    runReview: async (
-      text: string,
-      _s: string,
-      client: { review(req: ReviewRequestLike): Promise<{ output: unknown }> },
-    ) => {
-      await client.review({
-        instructions: "I",
-        input: text.slice(0, 5),
-        responsePrefill: "Findings:\n",
-      });
-      await client.review({
-        instructions: "I",
-        input: text.slice(5),
-        responsePrefill: "Findings:\n",
-      });
-      return {
-        findings: [
-          {
-            category: "CODENAME",
-            start: 6,
-            end: 11,
-            value: "Orion",
-            extra: true,
-          },
-        ],
-      };
+test("runPackageReview runs the ref's review on the loaded runtime and shows each request", async () => {
+  const generations: TracedGeneration[] = [];
+  const scripted = scriptedRuntime(() => ({
+    output: " Orion\n",
+    probability: 0.9,
+  }));
+  const module = await loadInsustyModule(
+    {
+      ref: "pinned",
+      sha: "0".repeat(40),
+      subject: "",
+      committedAt: "",
+      dir: ROOT,
+      entry: fileURLToPath(
+        import.meta.resolve("insusty-prompt-coach/redaction"),
+      ),
+      packages: {},
+      runtime: {},
     },
-  };
-  const trace = await runExtensionReview(
-    api as never,
-    async (req) => ({
-      output: `CODENAME: ${req.input}`,
-      runtime: {
-        backend: "wasm",
-        quantization: "q8",
-        promptTokens: 3,
-        generatedTokens: 4,
-        finishReason: "line",
-      },
-    }),
-    (req) => ({ rendered: `R:${req.input}`, promptTokens: 1 }),
-    { systemInstruction: "S", rules, text: "Hello Orion" },
-    "m",
+    {
+      device: () =>
+        Promise.resolve(
+          tracedRuntime(scripted.runtime, (g) => void generations.push(g)),
+        ),
+    },
   );
-  assert.equal(trace.instructions, "S|CODENAME");
+  const rules: Rule[] = [
+    { label: "CODENAME", prompt: "Codenames.", examples: ["Vega", "Lyra"] },
+  ];
+  const model = module.capabilities.models!.find((m) => m.default)!.id;
+  const trace = await runPackageReview(
+    module,
+    generations,
+    { systemInstruction: "", rules, text: "Hello Orion" },
+    model,
+  );
+  assert.equal(trace.error, undefined);
   assert.deepEqual(trace.categories, ["CODENAME"]);
-  assert.equal(trace.chunks.length, 2);
-  assert.equal(trace.chunks[1]!.rendered, "R: Orion");
-  assert.equal(trace.chunks[0]!.runtime?.finishReason, "line");
+  assert.equal(trace.chunks.length, 1);
+  const [chunk] = trace.chunks;
+  assert.ok(chunk!.rendered.startsWith(trace.instructions));
+  assert.ok(chunk!.input.includes("Hello Orion"));
+  assert.ok(chunk!.input.endsWith("CODENAME:"));
+  assert.equal(chunk!.output, " Orion\n");
+  assert.equal(chunk!.runtime?.answerProbability, 0.9);
+  assert.ok(trace.instructions.includes("Codenames."));
   assert.deepEqual(trace.findings, [
     { category: "CODENAME", start: 6, end: 11, value: "Orion" },
   ]);
   assert.equal(trace.skipped, undefined);
 
-  const skipped = await runExtensionReview(
-    { ...api, runReview: async () => ({ findings: [] }) } as never,
-    async () => ({ output: "" }),
-    () => ({ rendered: "", promptTokens: 0 }),
-    { systemInstruction: "S", rules: [], text: "x" },
-    "m",
+  const skipped = await runPackageReview(
+    module,
+    generations,
+    { systemInstruction: "", rules: [], text: "x" },
+    model,
   );
   assert.match(skipped.skipped ?? "", /does not call the model/);
-
-  const failing = await runExtensionReview(
-    api as never,
-    async () => {
-      throw new Error("boom");
-    },
-    () => ({ rendered: "", promptTokens: 0 }),
-    { systemInstruction: "S", rules, text: "Hello Orion" },
-    "m",
-  );
-  assert.equal(failing.error, "boom");
-  assert.equal(failing.chunks[0]!.error, "boom");
 });
 
 test("PlaygroundHost keeps one process, rejects overlapping requests and frees it on unload", async () => {

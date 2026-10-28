@@ -47,9 +47,12 @@ npm run suite -- --since <base ref> --ref main --dry-run   # which grid rows a c
 
 Instead of `bench.local.json`, you can set `INSUSTY_EXT_REPO=<path>` or pass
 `--ext-repo <path>`; relative paths resolve from this repository's root.
-Model weights are downloaded from Hugging Face on first use into
-`cache/models/`, and published datasets into `cache/datasets/` at a pinned
-revision.
+Each extension ref is installed once, from GitHub, as the
+`insusty-prompt-coach/redaction` package at its commit, into `cache/module/`
+(the repository is private: git needs credentials for github.com, such as
+`gh auth setup-git`). Model weights are downloaded from Hugging Face on first
+use into `cache/models/`, and published datasets into `cache/datasets/` at a
+pinned revision.
 
 Run outputs stay on your machine: `results/` is git-ignored, because results
 copy the full text of every case, so a fresh clone has no runs until you

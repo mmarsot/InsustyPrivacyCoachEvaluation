@@ -17,7 +17,7 @@ import type {
 } from "../insusty-custom/schema.ts";
 import { rulesFor, jobKey, type Job } from "../../engine/jobs.ts";
 import type { ResultRecord } from "../../engine/jobs.ts";
-import type { ExtApi } from "../../modules/insusty-privacy/ref.ts";
+import type { RefReview } from "../../modules/insusty-privacy/ref.ts";
 import {
   scoreResult,
   type Scored,
@@ -165,26 +165,25 @@ export async function readAiDocs(
   return out;
 }
 
-/** Bench jobs for the model worker: the ref's shipped instruction and the `desc` label descriptions. */
+/**
+ * Bench jobs for the model worker: the `desc` label descriptions with their
+ * examples, and no system instruction (package refs have none; job keys keep
+ * it empty).
+ */
 export function aiJobs(
   docs: AiDoc[],
   dataset: CompiledDataset,
   ext: { sha: string },
-  api: ExtApi,
   model: string,
 ): Job[] {
   const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
   return docs.map((d) => {
-    const rules = rulesFor(
-      profiles.get(d.case.profile)!,
-      "desc",
-      api.kind === "completion",
-    );
+    const rules = rulesFor(profiles.get(d.case.profile)!, "desc", true);
     return {
       key: jobKey({
         extSha: ext.sha,
         model,
-        systemInstruction: api.defaultPrompt,
+        systemInstruction: "",
         rules,
         caseId: d.spec.id,
         text: d.inDoc.text,
@@ -193,7 +192,7 @@ export function aiJobs(
       model,
       instruction: "current",
       labelVariant: "desc",
-      systemInstruction: api.defaultPrompt,
+      systemInstruction: "",
       rules,
       text: d.inDoc.text,
     };
@@ -225,30 +224,30 @@ export interface AiPoint {
 }
 
 /**
- * Scores each document's cached review with the bench's scorer and the ref's
- * own parser; documents without a cached result are left out.
+ * Scores each document's cached review with the bench's scorer, echoes
+ * checked against the instructions the ref prepares; documents without a
+ * cached result are left out.
  */
-export function scoreAi(
+export async function scoreAi(
   docs: AiDoc[],
   jobs: Job[],
   records: Map<string, ResultRecord>,
   dataset: CompiledDataset,
-  api: ExtApi,
-): AiPoint[] {
+  review: Pick<RefReview, "instructions">,
+): Promise<AiPoint[]> {
   const profiles = new Map(dataset.profiles.map((p) => [p.id, p]));
-  const builtin = api.reviewCategories([]);
   const out: AiPoint[] = [];
-  docs.forEach((d, i) => {
+  for (const [i, d] of docs.entries()) {
     const job = jobs[i]!;
     const record = records.get(job.key);
-    if (!record) return;
+    if (!record) continue;
     const s: Scored = scoreResult(
       d.inDoc,
       profiles.get(d.case.profile)!,
       record,
-      builtin,
-      api.composeReviewInstructions(job.systemInstruction, job.rules),
-      api.kind === "completion",
+      [],
+      await review.instructions(job.rules),
+      true,
     );
     out.push({
       id: d.spec.id,
@@ -279,7 +278,7 @@ export function scoreAi(
         : {}),
       ...(record.error ? { error: record.error } : {}),
     });
-  });
+  }
   return out;
 }
 

@@ -36,17 +36,18 @@
   "dependencies": {
     "@huggingface/transformers": "3.8.1",
     "ajv": "^8.20.0",
-    "esbuild": "^0.25.0",
     "hyparquet": "^1.31.4",
     "tsx": "^4.19.0"
   },
   "devDependencies": {
+    "@embedpdf/pdfium": "2.15.1",
     "@eslint/js": "^9.39.5",
     "@types/node": "^22.10.0",
     "@typescript-eslint/eslint-plugin": "^8.71.2",
     "@typescript-eslint/parser": "^8.71.2",
     "eslint": "^10.13.0",
     "globals": "^15.15.0",
+    "insusty-prompt-coach": "github:mmarsot/InsustyPromptCoach#748f772fcadcab084982995b09ca57334fbf716a",
     "knip": "^5.88.1",
     "pdf-lib": "1.17.1",
     "prettier": "^3.9.10",

@@ -1,24 +1,23 @@
 /**
- * The one materializer: turns a git ref of the extension into a module the
- * bench can load, without touching the extension clone.
+ * The one materializer: turns a git ref of the extension into its redaction
+ * package, `insusty-prompt-coach/redaction`, installed for that commit
+ * alone, without touching the extension clone.
  *
- *   1. `git archive` copies the ref's `src`, `package.json` and
- *      `package-lock.json` into `cache/module/<sha>/`.
- *   2. An entry re-exports every module of the redaction path the ref has
- *      (`LAYOUT`: detection, configuration, file reading and redaction,
- *      Private AI review, on-device engine and model list, connected-model
- *      client), each found by its area-folder path or the flat pre-#82 one.
- *   3. The npm packages they import are installed at the versions the ref's
- *      package-lock pins (`npm ci` on a lockfile subset), so validators,
- *      phone metadata and PDFium are the ones that commit ships.
- *   4. esbuild bundles the entry into `module.mjs`, resolving packages only
- *      from that install. `@huggingface/transformers` stays external: the
- *      bench supplies the inference runtime and checks it against the ref's
- *      lockfile (`runtimeMismatches`).
+ *   1. The clone resolves the ref to a commit (read-only: `rev-parse`,
+ *      `show`). A commit whose `package.json` does not export
+ *      `./redaction` predates the package (extension PR #132) and is
+ *      refused.
+ *   2. npm installs `github:mmarsot/InsustyPromptCoach#<sha>` into
+ *      `cache/module/<sha>/` (its `prepare` builds the package; a commit
+ *      GitHub does not have, such as an unpushed branch, comes from
+ *      `git+file://<clone>#<sha>` instead, which npm only reads), next to
+ *      the `@embedpdf/pdfium` version the commit's lockfile pins, which the
+ *      bench supplies to the package. Each commit gets its own install, so
+ *      several refs score side by side and the bench's own lockfile never
+ *      changes.
  *
- * Everything is cached per commit sha; after the first run a ref loads
- * offline. `src/module/insusty.ts` adapts the bundle to the redaction
- * contract.
+ * Everything is cached per commit sha; after the first install a ref loads
+ * offline. `insusty.ts` turns the package into the module the bench scores.
  */
 import { execFileSync } from "node:child_process";
 import {
@@ -29,129 +28,44 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { builtinModules } from "node:module";
 import { join } from "node:path";
-import { build, type Plugin } from "esbuild";
 import { CACHE_DIR, ROOT } from "../../engine/paths.ts";
 
-/**
- * Materialized refs, one folder per commit sha: the archived sources, the
- * locked install and the bundle.
- */
+/** Installed refs, one folder per commit sha. */
 export const MODULE_CACHE_DIR = join(CACHE_DIR, "module");
 
-/** Bump when the entry or the bundle options change, so cached bundles are rebuilt. */
-const BUNDLE_VERSION = 1;
+/** The extension's package and the repository npm installs it from. */
+export const EXT_PACKAGE = "insusty-prompt-coach";
+const EXT_SOURCE = "github:mmarsot/InsustyPromptCoach";
+/** The package's one subpath, and the extension PR that added it. */
+const EXT_SUBPATH = "./redaction";
+const PACKAGE_PR = "#132";
 
-/** Packages the bench supplies instead of the ref's install (the inference runtime; see modules/insusty-privacy/README.md). */
-const BENCH_SUPPLIED = ["@huggingface/transformers"];
+/** Bump when the install changes, so cached installs are redone. */
+const INSTALL_VERSION = 2;
 
-/** Where each module of the redaction path lives: area folders since PR #82, flat `src/` before. */
-export const LAYOUT: ReadonlyArray<{
-  name: ModuleName;
-  files: string[];
-  required?: boolean;
-}> = [
-  {
-    name: "detector",
-    files: ["src/detection/detector.ts", "src/detector.ts"],
-    required: true,
-  },
-  {
-    name: "config",
-    files: ["src/config/config.ts", "src/config.ts"],
-    required: true,
-  },
-  {
-    name: "redaction",
-    files: ["src/detection/redaction.ts", "src/redaction.ts"],
-  },
-  {
-    name: "fileCheck",
-    files: ["src/files/file-check.ts", "src/file-check.ts"],
-  },
-  {
-    name: "documentReader",
-    files: ["src/files/readers/document-reader.ts", "src/document-reader.ts"],
-  },
-  {
-    name: "documentModel",
-    files: ["src/files/document-model.ts", "src/document-model.ts"],
-  },
-  {
-    name: "review",
-    files: ["src/private-ai/slm-review.ts", "src/slm-review.ts"],
-  },
-  {
-    name: "engine",
-    files: ["src/private-ai/on-device/slm-engine.ts", "src/slm-engine.ts"],
-  },
-  {
-    name: "models",
-    files: ["src/private-ai/on-device/slm-models.ts", "src/slm-models.ts"],
-  },
-  {
-    name: "generation",
-    files: [
-      "src/private-ai/on-device/slm-generation.ts",
-      "src/slm-generation.ts",
-    ],
-  },
-  {
-    name: "hostedFraming",
-    files: [
-      "src/private-ai/connected-model/hosted-framing.ts",
-      "src/hosted-framing.ts",
-    ],
-  },
-  {
-    name: "hostedClient",
-    files: [
-      "src/private-ai/connected-model/hosted-model-client.ts",
-      "src/hosted-model-client.ts",
-    ],
-  },
-];
-/** The redaction-path modules a bundle can re-export (`LAYOUT`). */
-export type ModuleName =
-  | "detector"
-  | "config"
-  | "redaction"
-  | "fileCheck"
-  | "documentReader"
-  | "documentModel"
-  | "review"
-  | "engine"
-  | "models"
-  | "generation"
-  | "hostedFraming"
-  | "hostedClient";
-
-/** A materialized ref: its commit, its bundle and what went into it. */
+/** An installed ref: its commit and its package. */
 export interface ModuleRef {
   ref: string;
   sha: string;
   subject: string;
   committedAt: string;
   dir: string;
-  /** The bundle (`module.mjs`). */
-  bundle: string;
-  /** Which `LAYOUT` modules the ref has, and the file each came from. */
-  modules: Partial<Record<ModuleName, string>>;
-  /** npm packages bundled, at the ref's locked versions. */
+  /** The package's JavaScript entry (`insusty-prompt-coach/redaction`). */
+  entry: string;
+  /** PDFium's folder (`@embedpdf/pdfium`), when the ref's lockfile pins it. */
+  pdfium?: string;
+  /** What the install holds: the package at the sha, PDFium at its locked version. */
   packages: Record<string, string>;
-  /** PDFium's WebAssembly binary from the ref's locked `@embedpdf/pdfium`, when the ref reads PDFs. */
-  pdfiumWasm?: string;
   /** Inference runtime versions the ref's lockfile pins (the bench supplies these packages). */
   runtime: Record<string, string>;
 }
-
-// ------------------------------------------------------------ git
 
 const git = (repo: string, args: string[]): string =>
   execFileSync("git", ["-C", repo, ...args], {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
+    maxBuffer: 64 * 1024 * 1024,
   }).trim();
 
 /** Resolves a ref to its commit, read-only. */
@@ -167,342 +81,149 @@ export function resolveCommit(
   };
 }
 
-/** Extracts `paths` of a commit into `dir` with `git archive` (the clone is never touched). Missing paths are skipped. */
-export function archiveCommit(
+/** A JSON file of a commit, read from the clone's object store; undefined when absent. */
+const showJson = <T>(
   repo: string,
   sha: string,
-  paths: string[],
-  dir: string,
-): void {
-  const present = paths.filter((p) => {
-    try {
-      git(repo, ["cat-file", "-e", `${sha}:${p}`]);
-      return true;
-    } catch {
-      return false;
-    }
-  });
-  const tar = execFileSync(
-    "git",
-    ["-C", repo, "archive", "--format=tar", sha, ...present],
-    { maxBuffer: 256 * 1024 * 1024 },
-  );
-  execFileSync("tar", ["-x", "-C", dir], { input: tar });
+  path: string,
+): T | undefined => {
+  try {
+    return JSON.parse(git(repo, ["show", `${sha}:${path}`])) as T;
+  } catch {
+    return undefined;
+  }
+};
+
+interface PackageJson {
+  exports?: Record<string, unknown>;
 }
 
-// ------------------------------------------------------------ locked packages
-
-interface LockEntry {
-  version?: string;
-  resolved?: string;
-  integrity?: string;
-  dependencies?: Record<string, string>;
-  optionalDependencies?: Record<string, string>;
-  dev?: boolean;
-  devOptional?: boolean;
-  optional?: boolean;
-  [key: string]: unknown;
+/** The file the package's `exports` map gives for `./redaction` under Node's `import` (conditions `import`, `node`, `default`). */
+function redactionTarget(pkg: PackageJson): string | undefined {
+  const pick = (target: unknown): string | undefined => {
+    if (typeof target === "string") return target;
+    if (!target || typeof target !== "object") return undefined;
+    for (const [condition, value] of Object.entries(target))
+      if (["import", "node", "default"].includes(condition)) {
+        const found = pick(value);
+        if (found) return found;
+      }
+    return undefined;
+  };
+  return pick(pkg.exports?.[EXT_SUBPATH]);
 }
 interface Lockfile {
-  lockfileVersion?: number;
-  packages?: Record<string, LockEntry>;
+  packages?: Record<string, { version?: string }>;
 }
+const lockedVersion = (lock: Lockfile | undefined, name: string) =>
+  lock?.packages?.[`node_modules/${name}`]?.version;
 
-const packageName = (spec: string) =>
-  spec.startsWith("@")
-    ? spec.split("/").slice(0, 2).join("/")
-    : spec.split("/")[0]!;
-/**
- * Whether an import is a Node built-in: those are neither installed nor
- * bundled.
- */
-export const isBuiltin = (spec: string) =>
-  spec.startsWith("node:") || builtinModules.includes(packageName(spec));
+/** Whether a commit's package.json lacks the `./redaction` export. */
+const withoutPackage = (pkg: PackageJson | undefined): boolean =>
+  !pkg || redactionTarget(pkg) === undefined;
 
-/**
- * The lockfile entries needed to install `names` and their dependencies,
- * following npm's nested `node_modules` resolution.
- */
-export function lockSubset(
-  lock: Lockfile,
-  names: string[],
-): Record<string, LockEntry> {
-  const all = lock.packages ?? {};
-  const out: Record<string, LockEntry> = {};
-  const resolveFrom = (from: string, dep: string): string | undefined => {
-    let base = from;
-    for (;;) {
-      const candidate = `${base ? `${base}/` : ""}node_modules/${dep}`;
-      if (all[candidate]) return candidate;
-      if (!base) return undefined;
-      const i = base.lastIndexOf("node_modules/");
-      base = i <= 0 ? "" : base.slice(0, i - 1);
-    }
-  };
-  const visit = (path: string) => {
-    if (out[path]) return;
-    const entry = all[path]!;
-    const { dev, devOptional, ...rest } = entry;
-    void dev;
-    void devOptional;
-    out[path] = rest;
-    for (const [deps, optional] of [
-      [entry.dependencies, false],
-      [entry.optionalDependencies, true],
-    ] as const)
-      for (const dep of Object.keys(deps ?? {})) {
-        const found = resolveFrom(path, dep);
-        if (found) visit(found);
-        else if (!optional)
-          throw new Error(
-            `package-lock has no entry for ${dep} (needed by ${path})`,
-          );
-      }
-  };
-  for (const name of names) {
-    const path = `node_modules/${name}`;
-    if (!all[path]) throw new Error(`package-lock has no entry for ${name}`);
-    visit(path);
-  }
-  return out;
-}
+const predates = (ref: string, sha: string) =>
+  new Error(
+    `${ref} (${sha.slice(0, 8)}) predates the redaction package (extension PR ${PACKAGE_PR}): its package.json does not export ${EXT_PACKAGE}/redaction, which is the only way the bench scores a ref. Score a later ref.`,
+  );
 
-/** Lists the bare package imports reachable from `entry`. */
-export async function importedPackages(entry: string): Promise<string[]> {
-  const found = new Set<string>();
-  const collect: Plugin = {
-    name: "collect-packages",
-    setup(b) {
-      b.onResolve({ filter: /^[^./]/ }, (args) => {
-        if (!isBuiltin(args.path)) found.add(packageName(args.path));
-        return { path: args.path, external: true };
-      });
-    },
-  };
-  await build({
-    entryPoints: [entry],
-    bundle: true,
-    write: false,
-    platform: "node",
-    format: "esm",
-    plugins: [collect],
-    logLevel: "error",
-  });
-  return [...found].sort();
-}
-
-/** Installs `names` at the versions locked by the ref into `<dir>/node_modules`. */
-export function installLocked(
-  dir: string,
-  names: string[],
-  log: (line: string) => void,
-): Record<string, string> {
-  if (!names.length) return {};
-  const depsDir = join(dir, "_deps");
-  mkdirSync(depsDir, { recursive: true });
-  const lockPath = join(dir, "package-lock.json");
-  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8")) as {
-    dependencies?: Record<string, string>;
-    devDependencies?: Record<string, string>;
-  };
-  const versions: Record<string, string> = {};
-  if (existsSync(lockPath)) {
-    const lock = JSON.parse(readFileSync(lockPath, "utf8")) as Lockfile;
-    const subset = lockSubset(lock, names);
-    for (const name of names)
-      versions[name] = subset[`node_modules/${name}`]!.version ?? "?";
-    const root = {
-      name: "module-deps",
-      version: "0.0.0",
-      dependencies: versions,
-    };
-    writeFileSync(join(depsDir, "package.json"), JSON.stringify(root, null, 2));
-    writeFileSync(
-      join(depsDir, "package-lock.json"),
-      JSON.stringify(
-        {
-          name: root.name,
-          version: root.version,
-          lockfileVersion: 3,
-          requires: true,
-          packages: { "": root, ...subset },
-        },
-        null,
-        2,
-      ),
-    );
-    log(
-      `  installing ${names.map((n) => `${n}@${versions[n]}`).join(", ")} (locked by the ref)`,
-    );
+/** Installs `dependencies` into `dir` with npm; throws with npm's error output. */
+function installInto(dir: string, dependencies: Record<string, string>) {
+  writeFileSync(
+    join(dir, "package.json"),
+    JSON.stringify(
+      {
+        name: "ext-package",
+        version: "0.0.0",
+        private: true,
+        dependencies,
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+  try {
+    // Not --ignore-scripts: npm builds the git dependency with its `prepare`.
     execFileSync(
       "npm",
-      ["ci", "--ignore-scripts", "--no-audit", "--no-fund", "--loglevel=error"],
-      { cwd: depsDir, stdio: ["ignore", "ignore", "inherit"] },
+      ["install", "--no-audit", "--no-fund", "--loglevel=error"],
+      { cwd: dir, stdio: ["ignore", "ignore", "pipe"] },
     );
-  } else {
-    for (const name of names)
-      versions[name] =
-        pkg.dependencies?.[name] ?? pkg.devDependencies?.[name] ?? "latest";
-    writeFileSync(
-      join(depsDir, "package.json"),
-      JSON.stringify(
-        { name: "module-deps", version: "0.0.0", dependencies: versions },
-        null,
-        2,
-      ),
+  } catch (error) {
+    throw new Error(
+      String((error as { stderr?: unknown }).stderr ?? error).trim(),
     );
-    log(
-      `  installing ${names.map((n) => `${n}@${versions[n]}`).join(", ")} (no package-lock in the ref: package.json ranges)`,
-    );
-    execFileSync(
-      "npm",
-      [
-        "install",
-        "--ignore-scripts",
-        "--no-audit",
-        "--no-fund",
-        "--loglevel=error",
-      ],
-      { cwd: depsDir, stdio: ["ignore", "ignore", "inherit"] },
-    );
-    for (const name of names)
-      versions[name] = (
-        JSON.parse(
-          readFileSync(
-            join(depsDir, "node_modules", name, "package.json"),
-            "utf8",
-          ),
-        ) as { version: string }
-      ).version;
   }
-  renameSync(join(depsDir, "node_modules"), join(dir, "node_modules"));
-  rmSync(depsDir, { recursive: true, force: true });
-  return versions;
 }
 
-/** An esbuild plugin that resolves bare imports only from `dir`'s own install (never the bench's), except `external` ones. */
-export const refPackagesOnly = (
-  dir: string,
-  external: readonly string[] = [],
-): Plugin => ({
-  name: "ref-packages-only",
-  setup(b) {
-    b.onResolve({ filter: /^[^./]/ }, async (args) => {
-      if (isBuiltin(args.path) || args.pluginData === "inner") return undefined;
-      if (external.includes(packageName(args.path)))
-        return { path: args.path, external: true };
-      const result = await b.resolve(args.path, {
-        resolveDir: args.resolveDir,
-        kind: args.kind,
-        pluginData: "inner",
-      });
-      if (result.errors.length) return result;
-      if (!result.path.startsWith(join(dir, "node_modules")))
-        return {
-          errors: [
-            {
-              text: `${args.path} resolved outside the ref's locked packages (${result.path})`,
-            },
-          ],
-        };
-      return result;
-    });
-  },
-});
-
-// ------------------------------------------------------------ materialize
-
-const lockedVersion = (lock: Lockfile, name: string) =>
-  lock.packages?.[`node_modules/${name}`]?.version;
-
-/** Resolves and materializes a ref; cached per commit sha. */
+/** Resolves a ref and installs its package; cached per commit sha. */
 export async function materializeModule(
   repo: string,
   ref: string,
   log: (line: string) => void = console.log,
 ): Promise<ModuleRef> {
   const { sha, subject, committedAt } = resolveCommit(repo, ref);
+  if (withoutPackage(showJson<PackageJson>(repo, sha, "package.json")))
+    throw predates(ref, sha);
+  const lock = showJson<Lockfile>(repo, sha, "package-lock.json");
+  const pdfium = lockedVersion(lock, "@embedpdf/pdfium");
+  const runtime = Object.fromEntries(
+    ["@huggingface/transformers", "onnxruntime-web"].flatMap((name) => {
+      const version = lockedVersion(lock, name);
+      return version ? [[name, version]] : [];
+    }),
+  );
   const dir = join(MODULE_CACHE_DIR, sha);
-  const metaFile = join(dir, "module.json");
+  const marker = join(dir, "installed.json");
   const fresh =
-    existsSync(metaFile) &&
-    (JSON.parse(readFileSync(metaFile, "utf8")) as { version: number })
-      .version === BUNDLE_VERSION;
+    existsSync(marker) &&
+    (JSON.parse(readFileSync(marker, "utf8")) as { version: number })
+      .version === INSTALL_VERSION;
   if (!fresh) {
-    log(`materializing the redaction module of ${ref} (${sha.slice(0, 8)})`);
     const staging = `${dir}.staging-${process.pid}`;
     rmSync(staging, { recursive: true, force: true });
     mkdirSync(staging, { recursive: true });
     try {
-      archiveCommit(
-        repo,
-        sha,
-        ["src", "package.json", "package-lock.json"],
-        staging,
-      );
-      const modules: Partial<Record<ModuleName, string>> = {};
-      for (const m of LAYOUT) {
-        const file = m.files.find((f) => existsSync(join(staging, f)));
-        if (file) modules[m.name] = file;
-      }
-      const missing = LAYOUT.filter((m) => m.required && !modules[m.name]);
-      if (missing.length)
-        throw new Error(
-          `Ref ${ref} (${sha.slice(0, 8)}) lacks ${missing.map((m) => m.files.join(" or ")).join(", ")}; the bench cannot drive it.`,
+      // GitHub first; a commit it does not have (an unpushed branch) comes from the clone, read-only.
+      const failures: string[] = [];
+      for (const source of [EXT_SOURCE, `git+file://${repo}`]) {
+        log(
+          `installing ${EXT_PACKAGE} at ${ref} (${sha.slice(0, 8)}) from ${source}`,
         );
-      const entry = join(staging, "module-entry.ts");
+        try {
+          installInto(staging, {
+            [EXT_PACKAGE]: `${source}#${sha}`,
+            ...(pdfium ? { "@embedpdf/pdfium": pdfium } : {}),
+          });
+          failures.length = 0;
+          break;
+        } catch (error) {
+          failures.push(`${source}: ${(error as Error).message}`);
+        }
+      }
+      if (failures.length)
+        throw new Error(
+          `npm could not install ${EXT_PACKAGE} at ${sha} (the GitHub repository is private: git needs credentials for github.com, such as \`gh auth setup-git\`):\n${failures.join("\n")}`,
+        );
+      const installed = JSON.parse(
+        readFileSync(
+          join(staging, "node_modules", EXT_PACKAGE, "package.json"),
+          "utf8",
+        ),
+      ) as PackageJson;
+      if (withoutPackage(installed)) throw predates(ref, sha);
       writeFileSync(
-        entry,
-        Object.entries(modules)
-          .map(([name, file]) => `export * as ${name} from "./${file}";`)
-          .join("\n") + "\n",
-      );
-      const lock = existsSync(join(staging, "package-lock.json"))
-        ? (JSON.parse(
-            readFileSync(join(staging, "package-lock.json"), "utf8"),
-          ) as Lockfile)
-        : {};
-      // PDFium is loaded by the ref's document worker, not imported by the reader (types only): install it too.
-      const extra =
-        modules.documentReader &&
-        lock.packages?.["node_modules/@embedpdf/pdfium"]
-          ? ["@embedpdf/pdfium"]
-          : [];
-      const imported = (await importedPackages(entry)).filter(
-        (p) => !BENCH_SUPPLIED.includes(p),
-      );
-      const packages = installLocked(
-        staging,
-        [...new Set([...imported, ...extra])].sort(),
-        log,
-      );
-      await build({
-        entryPoints: [entry],
-        outfile: join(staging, "module.mjs"),
-        bundle: true,
-        platform: "node",
-        format: "esm",
-        target: "node20",
-        nodePaths: [],
-        plugins: [refPackagesOnly(staging, BENCH_SUPPLIED)],
-        logLevel: "error",
-      });
-      const runtime = Object.fromEntries(
-        ["@huggingface/transformers", "onnxruntime-web"].flatMap((name) => {
-          const v = lockedVersion(lock, name);
-          return v ? [[name, v]] : [];
-        }),
-      );
-      const wasm = "node_modules/@embedpdf/pdfium/dist/pdfium.wasm";
-      writeFileSync(
-        join(staging, "module.json"),
+        marker.replace(dir, staging),
         JSON.stringify(
           {
-            version: BUNDLE_VERSION,
-            modules,
-            packages,
-            runtime,
-            pdfiumWasm: existsSync(join(staging, wasm)) ? wasm : null,
+            version: INSTALL_VERSION,
+            packages: (
+              JSON.parse(
+                readFileSync(join(staging, "package.json"), "utf8"),
+              ) as {
+                dependencies: Record<string, string>;
+              }
+            ).dependencies,
           },
           null,
           2,
@@ -515,21 +236,27 @@ export async function materializeModule(
       rmSync(staging, { recursive: true, force: true });
     }
   }
-  const meta = JSON.parse(readFileSync(metaFile, "utf8")) as Pick<
-    ModuleRef,
-    "modules" | "packages" | "runtime"
-  > & { pdfiumWasm: string | null };
+  const modules = join(dir, "node_modules");
+  const { packages } = JSON.parse(readFileSync(marker, "utf8")) as {
+    packages: Record<string, string>;
+  };
+  const packageDir = join(modules, EXT_PACKAGE);
+  const target = redactionTarget(
+    JSON.parse(
+      readFileSync(join(packageDir, "package.json"), "utf8"),
+    ) as PackageJson,
+  );
+  if (!target) throw predates(ref, sha);
   return {
     ref,
     sha,
     subject,
     committedAt,
     dir,
-    bundle: join(dir, "module.mjs"),
-    modules: meta.modules,
-    packages: meta.packages,
-    runtime: meta.runtime,
-    ...(meta.pdfiumWasm ? { pdfiumWasm: join(dir, meta.pdfiumWasm) } : {}),
+    entry: join(packageDir, target),
+    ...(pdfium ? { pdfium: join(modules, "@embedpdf", "pdfium") } : {}),
+    packages,
+    runtime,
   };
 }
 

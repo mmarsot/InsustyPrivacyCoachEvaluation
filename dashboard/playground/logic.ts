@@ -1,15 +1,16 @@
 /**
  * Pure logic of the chat playground: request validation, what the model
- * receives (rendered chat-template text), finish reasons, and the exact
- * extension review flow. No model or I/O here, so it is unit-tested with fakes.
+ * receives (rendered chat-template text), finish reasons, and the extension
+ * review flow through the ref's package. No model or I/O here, so it is
+ * tested with a scripted runtime.
  */
+import type { ModuleConfig, RedactionModule } from "../../contract/types.ts";
 import type {
-  ExtApi,
   FindingLike,
-  ReviewRequestLike,
   Rule,
   RuntimeReportLike,
-} from "../../modules/insusty-privacy/ref.ts";
+} from "../../engine/jobs.ts";
+import type { TracedGeneration } from "../../modules/insusty-privacy/runtime/scripted.ts";
 
 /** A chat turn's role. */
 export type ChatRole = "system" | "user" | "assistant";
@@ -99,10 +100,6 @@ export interface TemplateTokenizer {
     messages: ReadonlyArray<{ role: string; content: string }>,
   ): string;
 }
-/** A tokenizer that also counts tokens. */
-export interface EncodingTokenizer extends TemplateTokenizer {
-  encode(text: string): number[];
-}
 
 /** Exactly the text the model continues: chat template with the generation prompt, then the prefill. */
 export function renderPrompt(
@@ -113,45 +110,6 @@ export function renderPrompt(
   if (tokenizer.hasChatTemplate)
     return tokenizer.applyChatTemplate(messages) + prefill;
   return `${messages.map((m) => `${m.role}: ${m.content}`).join("\n")}\nassistant: ${prefill}`;
-}
-
-const CONTENT_MARKER = "\u0000PLAYGROUND_CONTENT\u0000";
-
-/**
- * The text the extension's engine feeds the model for one review request,
- * framed like `SlmEngine` (slm-generation.ts): the chat template split around
- * the user turn (system = instructions, user = framed chunk), or the plain
- * framing without a template, then the reply prefill. The engine tokenizes
- * the instruction prefix and the rest separately, so the count does too.
- */
-export function renderReviewPrompt(
-  tokenizer: EncodingTokenizer,
-  request: ReviewRequestLike,
-  framing: "chat" | "completion" = "chat",
-): { rendered: string; promptTokens: number } {
-  let prefix = `${request.instructions}\n\nInput:\n`;
-  let suffix = "\n\n";
-  // Completion refs send the instructions as the whole prefix, no template.
-  if (framing === "completion") {
-    prefix = request.instructions;
-    suffix = "";
-  } else if (tokenizer.hasChatTemplate) {
-    const templated = tokenizer.applyChatTemplate([
-      { role: "system", content: request.instructions },
-      { role: "user", content: CONTENT_MARKER },
-    ]);
-    const at = templated.indexOf(CONTENT_MARKER);
-    if (at < 0)
-      throw new Error("The chat template did not place the request content.");
-    prefix = templated.slice(0, at);
-    suffix = templated.slice(at + CONTENT_MARKER.length);
-  }
-  const rest = `${request.input}${suffix}${request.responsePrefill ?? ""}`;
-  return {
-    rendered: prefix + rest,
-    promptTokens:
-      tokenizer.encode(prefix).length + tokenizer.encode(rest).length,
-  };
 }
 
 /**
@@ -252,97 +210,90 @@ export interface ReviewChunkTrace {
   ms: number;
   error?: string;
 }
-/** A playground review traced through the ref's own `runReview`. */
+/** A playground review traced through the ref's package. */
 export interface ReviewTrace {
+  /** The prefixes the ref's review prepared (one per label and language), joined. */
   instructions: string;
   categories: string[];
   chunks: ReviewChunkTrace[];
   findings: FindingLike[];
-  /** Set when the extension skips the model (no custom label and nothing deterministic). */
+  /** Set when the extension skips the model (no custom label). */
   skipped?: string;
   error?: string;
 }
 
-type ReviewApi = Pick<
-  ExtApi,
-  "composeReviewInstructions" | "reviewCategories" | "runReview"
->;
-
 /**
- * Runs the extension's own `reviewPrompt` (chunking, framing, prefill,
- * parsing, anchoring) against a model, recording what each request sends and
- * returns. `review` performs one engine request; `render` shows its input.
+ * Runs the extension's review (the ref's package: chunking, framing, cue,
+ * engine, parsing, anchoring, patterns) on `module`, whose on-device runtime
+ * reports each generation to `generations` (`tracedRuntime`).
  */
-export async function runExtensionReview(
-  api: ReviewApi,
-  review: (
-    request: ReviewRequestLike,
-  ) => Promise<{ output: string; runtime?: RuntimeReportLike }>,
-  render: (request: ReviewRequestLike) => {
-    rendered: string;
-    promptTokens: number;
-  },
+export async function runPackageReview(
+  module: Pick<RedactionModule, "defaultConfig" | "redact">,
+  generations: TracedGeneration[],
   request: ReviewPlaygroundRequest,
   model: string,
 ): Promise<ReviewTrace> {
+  generations.length = 0;
   const trace: ReviewTrace = {
-    instructions: api.composeReviewInstructions(
-      request.systemInstruction,
-      request.rules,
-    ),
-    categories: api.reviewCategories(request.rules),
+    instructions: "",
+    categories: request.rules.map((r) => r.label),
     chunks: [],
     findings: [],
   };
-  const client = {
-    async review(req: ReviewRequestLike) {
-      const shown = render(req);
-      const started = performance.now();
-      try {
-        const result = await review(req);
-        trace.chunks.push({
-          input: req.input,
-          ...shown,
-          output: result.output,
-          ...(result.runtime ? { runtime: result.runtime } : {}),
-          ms: Math.round(performance.now() - started),
-        });
-        return {
-          output: result.output,
-          ...(result.runtime ? { runtime: result.runtime } : {}),
-        };
-      } catch (error) {
-        trace.chunks.push({
-          input: req.input,
-          ...shown,
-          output: "",
-          ms: Math.round(performance.now() - started),
-          error: (error as Error).message,
-        });
-        throw error;
-      }
-    },
+  const config: ModuleConfig = {
+    ...module.defaultConfig(),
+    customLabels: request.rules.map((r) => ({
+      label: r.label,
+      description: r.prompt,
+      examples: [...(r.examples ?? [])],
+    })),
+    privateAi: { runsOn: "device", model },
   };
   try {
-    const result = await api.runReview(
-      request.text,
-      request.systemInstruction,
-      client,
-      request.rules,
-      model,
-      { backend: "wasm", quantization: "auto" },
+    const out = await module.redact(
+      { kind: "text", text: request.text },
+      config,
     );
-    trace.findings = result.findings.map(({ category, start, end, value }) => ({
-      category,
-      start,
-      end,
-      value,
-    }));
-    if (!trace.chunks.length)
+    const requests = out.runtime.requests ?? [];
+    const backend = out.runtime.backend;
+    trace.findings = out.spans
+      .filter((s) => s.kind === "custom")
+      .map(({ label, start, end }) => ({
+        category: label,
+        start,
+        end,
+        value: request.text.slice(start, end),
+      }));
+    if (out.coverage.reason === "private_ai_unavailable")
+      trace.error = out.coverage.detail ?? "Private AI review failed";
+    trace.chunks = generations.map((g, i) => {
+      const r = requests[i];
+      return {
+        input: g.prompt.slice(g.prefix.length),
+        rendered: g.prompt,
+        promptTokens: g.promptTokens,
+        output: g.output,
+        runtime: {
+          backend: backend?.name ?? "",
+          quantization: backend?.dtype ?? "",
+          promptTokens: g.promptTokens,
+          generatedTokens: g.generatedTokens,
+          finishReason: r?.finishReason ?? "",
+          ...(r?.confidence !== undefined
+            ? { answerProbability: r.confidence }
+            : {}),
+        },
+        ms: Math.round(g.ms),
+      };
+    });
+    if (!trace.chunks.length && !trace.error)
       trace.skipped =
-        "No custom label is configured and deterministic review found nothing, so the extension does not call the model.";
+        "No custom label is configured, so the extension does not call the model.";
   } catch (error) {
     trace.error = (error as Error).message;
   }
+  trace.instructions = [...new Set(generations.map((g) => g.prefix))].join(
+    "\n\n",
+  );
   return trace;
 }

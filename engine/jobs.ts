@@ -19,11 +19,6 @@ import type {
   Profile,
   Split,
 } from "../datasets/insusty-custom/schema.ts";
-import type {
-  FindingLike,
-  Rule,
-  RuntimeReportLike,
-} from "../modules/insusty-privacy/ref.ts";
 import { RESULT_CACHE_DIR } from "./paths.ts";
 import {
   composeLabelDescription,
@@ -37,6 +32,33 @@ import {
 export const DEVICE = "wasm";
 /** Weight quantization of every local model run; part of every job key. */
 export const DTYPE = "q8";
+
+/** A custom label as a job carries it: name, description, example passages. */
+export interface Rule {
+  label: string;
+  prompt: string;
+  /** Up to three example passages (the ref's demonstrations use the first two). */
+  examples?: string[];
+}
+/** A finding of the review: offsets into the reviewed text. */
+export interface FindingLike {
+  category: string;
+  start: number;
+  end: number;
+  value?: string;
+}
+/** What one model request reported, as cached results store it. */
+export interface RuntimeReportLike {
+  backend: string;
+  quantization: string;
+  promptTokens: number;
+  generatedTokens: number;
+  finishReason: string;
+  prefixReused?: boolean;
+  fallbackReason?: string;
+  /** Answer confidence (lowest answer-token probability); the ref's confidence filter drops a less confident answer. */
+  answerProbability?: number;
+}
 
 /**
  * One case reviewed by one model with one instruction and label-description
@@ -99,8 +121,8 @@ export interface ResultRecord {
 
 /**
  * The custom-label settings a user would have. `withExamples` adds the
- * profile's example passages (the `examples` field of completion refs); chat
- * refs never receive it, so their job keys are unchanged.
+ * profile's example passages (what the ref's per-label requests take); the
+ * lab's chat-design configurations leave them out.
  */
 export const rulesFor = (
   profile: Profile,

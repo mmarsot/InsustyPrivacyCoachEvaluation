@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-import { CACHE_DIR } from "../../engine/paths.ts";
+import { fileURLToPath } from "node:url";
+import { BUILTIN_LABELS } from "../../contract/types.ts";
+import { ROOT } from "../../engine/paths.ts";
 import {
   detMetrics,
   summarizeConfig,
@@ -34,7 +34,6 @@ import {
   type RefDetection,
 } from "../../engine/scorers/builtin-spans/detector.ts";
 import { loadInsustyModule } from "../../modules/insusty-privacy/insusty.ts";
-import { lockSubset } from "../../modules/insusty-privacy/materialize.ts";
 import { PERTURBATIONS, perturbCases, valueForms } from "./perturb.ts";
 import type { DetCase, DetCaseSource } from "./schema.ts";
 import { scoreDetCase } from "../../engine/scorers/builtin-spans/score.ts";
@@ -797,40 +796,11 @@ test("generated placeholders render large deterministic tables, scored apart and
 
 // ------------------------------------------------------------ helpers
 
-test("category aliases map today's and the upgrade's names", () => {
-  assert.equal(mapCategory("API_KEY"), "SECRET");
+test("a module's labels are dataset categories only when they are contract labels", () => {
   assert.equal(mapCategory("SECRET"), "SECRET");
-  assert.equal(mapCategory("IP_ADDRESS"), "IP");
-  assert.equal(mapCategory("NATIONAL_ID"), "NATIONAL_ID");
   assert.equal(mapCategory("COMPANY_ID"), "COMPANY_ID");
+  assert.equal(mapCategory("API_KEY"), null);
   assert.equal(mapCategory("SOMETHING_NEW"), null);
-});
-
-test("lockSubset follows nested and hoisted dependencies", () => {
-  const lock = {
-    packages: {
-      "": { dependencies: { a: "^1" } },
-      "node_modules/a": {
-        version: "1.0.0",
-        dependencies: { b: "^1", c: "^2" },
-      },
-      "node_modules/a/node_modules/b": {
-        version: "1.5.0",
-        dependencies: { c: "^2" },
-      },
-      "node_modules/b": { version: "2.0.0" },
-      "node_modules/c": { version: "2.1.0", dev: true },
-      "node_modules/unrelated": { version: "9.9.9" },
-    },
-  };
-  const subset = lockSubset(lock, ["a"]);
-  assert.deepEqual(Object.keys(subset).sort(), [
-    "node_modules/a",
-    "node_modules/a/node_modules/b",
-    "node_modules/c",
-  ]);
-  assert.equal(subset["node_modules/c"]!.dev, undefined);
-  assert.throws(() => lockSubset(lock, ["missing"]));
 });
 
 test("defanging keeps values intact after JSON.parse and hides raw prefixes", () => {
@@ -847,48 +817,26 @@ test("defanging keeps values intact after JSON.parse and hides raw prefixes", ()
   assert.ok(!html.includes("sk_live_") && html.includes("&#"));
 });
 
-test("the module adapter reads an upgraded ref's categories, defaults and switched-off categories", async () => {
-  const dir = join(CACHE_DIR, "tmp", `detbench-test-${process.pid}`);
-  mkdirSync(dir, { recursive: true });
-  const bundle = join(dir, "module.mjs");
-  // A stand-in for an upgraded ref: SECRET instead of API_KEY, FINANCIAL off by default.
-  writeFileSync(
-    bundle,
-    `const CATEGORIES = ["SECRET", "PHONE", "FINANCIAL"];
-const DEFAULT_CONFIG = { categories: { SECRET: true, PHONE: true, FINANCIAL: false }, addressCountries: ["FR"] };
-const SUPPORTED_ADDRESS_COUNTRIES = ["FR", "US"];
-function detectSensitiveData(text, config) {
-  const out = [];
-  const iban = text.indexOf("FR76");
-  if (iban >= 0) out.push({ category: "FINANCIAL", start: iban, end: iban + 4, value: "FR76", source: "t", selected: config.categories.FINANCIAL });
-  return out;
-}
-export const detector = { detectSensitiveData };
-export const config = { CATEGORIES, DEFAULT_CONFIG, SUPPORTED_ADDRESS_COUNTRIES };
-`,
-  );
-  try {
-    const module = await loadInsustyModule({
-      ref: "test",
-      sha: "0".repeat(40),
-      subject: "",
-      committedAt: "",
-      dir,
-      bundle,
-      modules: {},
-      packages: {},
-      runtime: {},
-    });
-    const api = detectorApi(module);
-    assert.deepEqual(api.supported, ["SECRET", "PHONE", "FINANCIAL"]);
-    assert.match(api.allConfigNote, /turns on FINANCIAL/);
-    assert.match(api.allConfigNote, /adds address countries US/);
-    const [off] = (await api.detect("IBAN FR76 ...", "default")).detections;
-    const [on] = (await api.detect("IBAN FR76 ...", "all")).detections;
-    assert.equal(off!.selected, false);
-    assert.equal(on!.selected, true);
-    assert.equal(on!.mapped, "FINANCIAL");
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
+test("detbench reads the extension package's labels, its two configurations and selected spans", async () => {
+  const module = await loadInsustyModule({
+    ref: "pinned",
+    sha: "0".repeat(40),
+    subject: "",
+    committedAt: "",
+    dir: ROOT,
+    entry: fileURLToPath(import.meta.resolve("insusty-prompt-coach/redaction")),
+    packages: {},
+    runtime: {},
+  });
+  const api = detectorApi(module);
+  assert.deepEqual(api.supported, [...BUILTIN_LABELS]);
+  // IP and COMPANY_ID are off for a new user; `all` turns them on with every address country.
+  assert.match(api.allConfigNote, /turns on IP, COMPANY_ID/);
+  assert.match(api.allConfigNote, /adds address countries US/);
+  // An opt-in category is not even looked for while it is off.
+  const text = "Server 192.168.12.40 is down.";
+  assert.deepEqual((await api.detect(text, "default")).detections, []);
+  const [on] = (await api.detect(text, "all")).detections;
+  assert.equal(on?.selected, true);
+  assert.equal(on?.mapped, "IP");
 });

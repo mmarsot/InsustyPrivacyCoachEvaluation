@@ -166,7 +166,7 @@ difficulty, length bucket, register and error level:
 - **Latency and output length:** latency p50 and p95, and generated tokens.
 
 Findings are scored as the extension would accept them: they are the output of
-the ref's own `reviewPrompt` parser and anchoring. Language results are shown
+the ref's own parser and anchoring (its package's `redact()`). Language results are shown
 next to each model's advertised language support (SmolLM2 is English-first).
 
 ## Tiers and runtime
