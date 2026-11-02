@@ -230,6 +230,8 @@ precision / recall, share of negatives with a false finding):
 
 | Run                          | Ref                     | Cases              | F1    | P     | R     | FP rate |
 | ---------------------------- | ----------------------- | ------------------ | ----- | ----- | ----- | ------- |
+| `b12b381-test-gliner2`       | `b12b381` (PR #183), GLiNER2-PII | held-out test, 242 | 47.2% | 53.1% | 42.6% | 44.6%   |
+| `b12b381-tune96-gliner2`     | `b12b381` (PR #183), GLiNER2-PII | tune96          | 48.1% | 55.0% | 42.7% | 33.3%   |
 | `release-0.1.0-test-gliner2` | `7adec9b` (0.1.0), GLiNER2-PII | held-out test, 242 | 47.2% | 53.1% | 42.6% | 44.6%   |
 | `release-0.1.0-tune96-gliner2` | `7adec9b` (0.1.0), GLiNER2-PII | tune96          | 48.1% | 55.0% | 42.7% | 33.3%   |
 | `ext-ebf077f-tune96-smol360` | `ebf077f` (PR #32)      | tune96             | 38.2% | 55.6% | 29.1% | 21.4%   |
@@ -237,6 +239,11 @@ precision / recall, share of negatives with a false finding):
 | `ext-d42c466-tune96-smol360` | `d42c466` (PR #26)      | tune96             | 32.1% | 41.5% | 26.2% | 35.7%   |
 | `test-d42c466-smol360`       | `d42c466` (PR #26)      | held-out test, 242 | 27.4% | 32.2% | 23.9% | 44.6%   |
 | `test-dc91f36-smol360`       | `dc91f36` (chat design) | held-out test, 242 | 12.0% | 44.2% | 6.9%  | 10.9%   |
+
+At `b12b381` (version 0.1.0 plus PR #183, rule changes only) GLiNER2-PII
+returns the same findings on every held-out and tune96 prompt as at 0.1.0;
+only its speed moved (0.76 s per prompt at the median, p95 2.1 s; peak RSS
+2.9 GB; one run each, and speed depends on what else the machine runs).
 
 GLiNER2-PII on 2026-11-02 (Insusty Privacy Coach 0.1.0): English F1 44.8%
 (FP rate 53.8%), French F1 49.7% (FP rate 34.7%) on the held-out test;

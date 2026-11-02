@@ -24,10 +24,11 @@ Code: `datasets/insusty-documents/` and `engine/scorers/documents/` and `engine/
 `engine/plan.ts` (`parseDocbenchArgs`, `planDocbench`), shared with the
 dashboard (`dashboard/docbench.ts`). Tests: `datasets/insusty-documents/insusty-documents.test.ts`.
 The research behind it is section 9 of the document-upload analysis. On
-Insusty Privacy Coach 0.1.0 (`main` @ `7adec9b`, tier `full`, 2026-11-02,
-run `main-7adec9b`, kept locally) it extracted 98% of the placed values,
-with recall 68% / 88% and precision 98% / 98% in `default` / `all`, no
-leaks, and 23/23 failure files classified ("Results" below).
+`main` @ `b12b381` (version 0.1.0 plus the detection coverage update of
+PR #183; tier `full`, 2026-11-02, run `main-b12b381`, kept locally) it
+extracted 98% of the placed values, with recall 70% / 90% and precision
+98% / 98% in `default` / `all`, no leaks, and 23/23 failure files
+classified ("Results" below).
 
 ## Running it
 
@@ -293,9 +294,53 @@ view shows a document-bench run's progress.
 
 ## Results
 
-**Insusty Privacy Coach 0.1.0** on `main` @ `7adec9b` (2026-11-02; the
-release-checked `9fdfe56` plus store screenshots, same code; tier `full`,
-seed 1; run `main-7adec9b`, kept locally):
+Extension `main` @ `b12b381` (2026-11-02; version 0.1.0 plus the
+detection coverage update of PR #183; tier `full`, seed 1; run
+`main-b12b381`, kept locally):
+
+|                                                  | `default`       | `all`           |
+| ------------------------------------------------ | --------------- | --------------- |
+| Values placed / extracted by the ref             | 740 / 98%       | 740 / 98%       |
+| Recall / precision / F1                          | 70% / 98% / 82% | 90% / 98% / 94% |
+| Redacted values gone from the redacted file      | 517 / 517       | 659 / 659       |
+| Hard-negative documents with a false alarm       | 1 / 15 (3)      | 5 / 15 (7)      |
+| Failure files reported correctly / silent cleans | 23 / 23, 0      | 23 / 23, 0      |
+
+- Against 0.1.0 (below): PHONE found 41 → 53 of 73 in `default` and 56 →
+  62 in `all`, ADDRESS 54 → 60 of 64 in `all`, NATIONAL_ID 50 → 51 of 63;
+  no new false alarm, extraction unchanged.
+- Every redacted value is gone from the file the extension would attach,
+  and every file that cannot be checked (encrypted, scanned, too large...) is
+  reported as such, never as clean.
+- Extraction is complete (100%) in every Office, OpenDocument and zip
+  family; PDFs 90%, text-like files 99%.
+- Detection (`all`, share of placed values found): EMAIL 98%, IP 98%,
+  ADDRESS 94%, SECRET 94%, FINANCIAL 89%, PHONE 85%, NATIONAL_ID 81%,
+  COMPANY_ID 77%, DATE_OF_BIRTH 67%. In `default`, `IP` and `COMPANY_ID`
+  are opt-in, which explains most of the recall gap.
+- PDF redaction: 22 PDFs redacted in place, 3 through the fallback; 6 of
+  119 findings (e-mails) do not redact in place alone.
+- Speed: within 5 s up to at least 300,000 words (docx, txt), 20,000 rows
+  (xlsx, csv) and 500 slides (pptx); PDFs up to 49 pages. The
+  500-page PDF sweep point did not finish, as at 0.1.0: the worker made no
+  progress for 900 s and the runner stopped it (2.7 GB was free this time,
+  so memory pressure is not the whole story).
+
+Private AI on documents, GLiNER2-PII (the default model; Private AI suite,
+`--ai-tier smoke`: 2 documents at 4 sizes; run
+`b12b381-docbench-ai-gliner2`): review time grows linearly with size,
+about 2 s per 1,000 characters (median 1.9 s at 1,071 characters, 8.8 s at
+4,989, 40.6 s at 19,556, 91.8 s at 49,170). The largest document reviewed
+within 30 s is about 15,800 characters, within 60 s about 31,000, so a file
+at the extension's default `localAi.fileReviewLimit` (20,000 characters)
+takes about 40 s. The sample holds 3 expected items (1 found at every size,
+as at 0.1.0): too few to quote a recall. At 0.1.0 (run
+`release-0.1.0-docbench-ai-gliner2`): 2.0 s, 10.2 s, 39.0 s and 101.9 s;
+14,900 characters within 30 s, 29,200 within 60 s.
+
+Baseline, **Insusty Privacy Coach 0.1.0** on `main` @ `7adec9b`
+(2026-11-02; the release-checked `9fdfe56` plus store screenshots, same
+code; tier `full`, seed 1; run `main-7adec9b`, kept locally):
 
 |                                                  | `default`       | `all`           |
 | ------------------------------------------------ | --------------- | --------------- |
@@ -305,31 +350,9 @@ seed 1; run `main-7adec9b`, kept locally):
 | Hard-negative documents with a false alarm       | 1 / 15 (3)      | 5 / 15 (7)      |
 | Failure files reported correctly / silent cleans | 23 / 23, 0      | 23 / 23, 0      |
 
-- Every redacted value is gone from the file the extension would attach,
-  and every file that cannot be checked (encrypted, scanned, too large...) is
-  reported as such, never as clean.
-- Extraction is complete (100%) in every Office, OpenDocument and zip
-  family; PDFs 90%, text-like files 99%.
-- Detection (`all`, share of placed values found): EMAIL 98%, SECRET 94%,
-  IP 98%, FINANCIAL 89%, ADDRESS 84%, PHONE 77%, COMPANY_ID 77%,
-  NATIONAL_ID 79%, DATE_OF_BIRTH 67%. In `default`, `IP` and `COMPANY_ID`
-  are opt-in, which explains most of the recall gap.
-- PDF redaction: 22 PDFs redacted in place, 3 through the fallback; 6 of
-  117 findings (e-mails) do not redact in place alone.
-- Speed: within 5 s up to at least 300,000 words (docx, txt), 20,000 rows
-  (xlsx, csv) and 500 slides (pptx); PDFs up to 47 pages. The 500-page PDF
-  sweep point did not finish in this run (the worker stalled under memory
-  pressure from other lanes and was stopped).
-
-Private AI on documents, GLiNER2-PII (the default model; Private AI suite,
-`--ai-tier smoke`: 2 documents at 4 sizes; run
-`release-0.1.0-docbench-ai-gliner2`): review time grows linearly with size,
-about 2 s per 1,000 characters (2.0 s at 1,071 characters, 10.2 s at 4,989,
-39.0 s at 19,556, 101.9 s at 49,170). The largest document reviewed within
-30 s is about 14,900 characters, within 60 s about 29,200, so a file at the
-extension's default `localAi.fileReviewLimit` (20,000 characters) takes
-about 40 s. The sample holds 3 expected items (1 found at every size): too
-few to quote a recall.
+- Detection (`all`): ADDRESS 84%, PHONE 77%, NATIONAL_ID 79%, the others
+  as above. The 500-page PDF sweep point did not finish (the worker
+  stalled under memory pressure from other lanes and was stopped).
 
 The baselines below are earlier refs, kept for their history.
 

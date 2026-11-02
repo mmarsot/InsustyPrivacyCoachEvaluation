@@ -318,11 +318,42 @@ configurations, seed, timing).
 
 ## Results
 
-**Insusty Privacy Coach 0.1.0** on `main` @ `7adec9b` (2026-11-02; the
-release-checked `9fdfe56` plus store screenshots, same code; run
-`main-7adec9b`, kept locally), 312 base cases with 522 items (the four large
-generated cases scored apart) and 3,381 perturbed variants, against
-Presidio 2.2.364 (run `presidio-2.2.364`):
+Extension `main` @ `b12b381` (2026-11-02; version 0.1.0 plus the
+detection coverage update of PR #183; run `main-b12b381`, kept locally),
+312 base cases with 522 items (the four large generated cases scored apart)
+and 3,381 perturbed variants, against Presidio 2.2.364 (run
+`presidio-2.2.364`, not re-run):
+
+|                                                          | `default`       | `all`           | Presidio |
+| -------------------------------------------------------- | --------------- | --------------- | -------- |
+| F1 / precision / recall (overlap)                        | 88% / 97% / 80% | 96% / 96% / 97% | 63% / 52% / 79% (SECRET not scored) |
+| F1, exact span                                           | 86%             | 94%             | 55%      |
+| Items redacted, all categories                           | 79.5%           | 97.1%           | 66.7%    |
+| Items redacted in prose (386) / inside code blocks (136) | 79% / 81%       | 97% / 98%       | 70% / 58% |
+| Negative prompts with a false positive                   | 3% (3 / 88)     | 10% (9 / 88)    | 59% (52 / 88) |
+| Hard negatives flagged                                   | 8 / 502         | 19 / 502        | 110 / 502 |
+
+- Against 0.1.0 (below), only PHONE and ADDRESS moved, with no new false
+  positive or flagged decoy: PHONE recall 65% → 77% in `default` (English
+  phones 32% → 55%, numbers after a phone word) and 84% → 88% in `all`
+  (English 68% → 77%); ADDRESS recall 91% → 100% in `all` (US street lines;
+  F1 90% → 95%). Items redacted 78.5% → 79.5% (`default`), 96.2% → 97.1%
+  (`all`).
+- Per category in `all`: SECRET 99% F1 (98% recall), EMAIL 100%, FINANCIAL
+  98%, IP 99%, DATE_OF_BIRTH 96%, ADDRESS 95%, NATIONAL_ID 93%, COMPANY_ID
+  89%, PHONE 80% (precision 73%: 14 false positives). In `default`, `IP`
+  and `COMPANY_ID` are opt-in, so their 79 items count as misses, and
+  English addresses stay mostly missed (25% recall: US, CA and AU
+  addresses are opt-in).
+- The four large cases (GPU report, environment listings, a 2,000-line
+  table) have every item found and no false positive in either
+  configuration.
+- Perturbations (`all`, F1 base→perturbed): a line break inside a value
+  98%→83%, typos 96%→88%; the others move F1 by 8 points or less.
+
+Baseline, **Insusty Privacy Coach 0.1.0** on `main` @ `7adec9b`
+(2026-11-02; the release-checked `9fdfe56` plus store screenshots, same
+code; run `main-7adec9b`, kept locally), same cases and Presidio run:
 
 |                                                          | `default`       | `all`           | Presidio |
 | -------------------------------------------------------- | --------------- | --------------- | -------- |
@@ -333,16 +364,11 @@ Presidio 2.2.364 (run `presidio-2.2.364`):
 | Negative prompts with a false positive                   | 3% (3 / 88)     | 10% (9 / 88)    | 59% (52 / 88) |
 | Hard negatives flagged                                   | 8 / 502         | 19 / 502        | 110 / 502 |
 
-- Per category in `all`: SECRET 99% F1 (98% recall), EMAIL 100%, FINANCIAL
-  98%, IP 99%, DATE_OF_BIRTH 96%, NATIONAL_ID 93%, ADDRESS 90%, COMPANY_ID
-  89%, PHONE 77% (English phones 68% recall). In `default`, `IP` and
-  `COMPANY_ID` are opt-in, so their 79 items count as misses, and English
-  phones and addresses are mostly missed (32% and 25% recall).
-- The four large cases (GPU report, environment listings, a 2,000-line
-  table) have every item found and no false positive in either
-  configuration.
-- Perturbations (`all`, F1 base→perturbed): a line break inside a value
-  97%→80%, typos 96%→87%; the others move F1 by 8 points or less.
+- Per category in `all`: PHONE 77% F1 (English phones 68% recall), ADDRESS
+  90%, the others as above. In `default`, English phones and addresses
+  were mostly missed (32% and 25% recall).
+- Perturbations (`all`): a line break inside a value 97%→80%, typos
+  96%→87%.
 
 The baselines below are earlier refs, kept for their history.
 

@@ -47,81 +47,122 @@ commit and scores it through a fixed interface, so the numbers describe what
 users get. [Microsoft Presidio](https://github.com/microsoft/presidio), a
 widely used open-source PII detector, runs on the same data as a baseline.
 
-## Results: Insusty Privacy Coach 0.1.0
+## Results
 
 Measured on 2026-11-02 on the extension's `main` branch at
-[`7adec9b`](https://github.com/mmarsot/InsustyPromptCoach/commit/7adec9b8dd9610fc102b39e66eae1692ae12612b)
-(version 0.1.0: the release-checked `9fdfe56` plus updated store
-screenshots, same code), on an 8-thread, 7 GB laptop. "Default" is the
-extension as installed; "all labels" turns every built-in label on (IP
-addresses and company IDs are off by default).
+[`b12b381`](https://github.com/mmarsot/InsustyPromptCoach/commit/b12b38170e4991a4573cf34bdb04361370e70735)
+(version 0.1.0 plus the detection coverage update of
+[PR #183](https://github.com/mmarsot/InsustyPromptCoach/pull/183): labelled
+account, routing, PIN, customer, member, medical record, health plan and tax
+numbers, phone numbers after a phone word, US street lines), on an
+8-thread, 7 GB laptop. Insusty runs with every built-in label on (IP
+addresses, company IDs and the US, Canadian and Australian address formats
+are opt-in in the extension), and with Private AI for custom labels.
+Presidio 2.2.364 runs with its default recognizers, every text analysed as
+English, as it ships.
 
 **Rule-based detection and files**
 
-| Test                                           | Insusty 0.1.0, default | Insusty 0.1.0, all labels | Presidio 2.2.364             |
-| ---------------------------------------------- | ---------------------- | ------------------------- | ---------------------------- |
-| Our prompts: items redacted                    | **78.5%**              | **96.2%**                 | 66.7% (no secrets: 0 of 117) |
-| Our prompts: F1 (precision)                    | **87.0%** (97.4%)      | **95.7%** (95.6%)         | 62.8% (51.9%)                |
-| Decoys wrongly hidden (of 502)                 | **8**                  | 19                        | 110                          |
-| Secrets and API keys found (of 117)            | **115**                | **115**                   | not supported                |
-| Documents: values found / precision            | 68% / 98%              | **88% / 98%**             | reads text only              |
-| Documents: redacted values really gone         | **505 of 505**         | **653 of 653**            | –                            |
-| Files that cannot be checked, reported as such | **23 of 23**           | **23 of 23**              | –                            |
-| Nemotron-PII sample: recall / F1               | 48.9% / 65.5%          | 65.3% / 78.6%             | **79.2% / 86.6%**            |
-| Gretel finance (EN+FR): recall / F1            | 23.2% / 31.4%          | 31.1% / **38.1%**         | **61.8%** / 32.7%            |
+| Test                                           | Insusty, every label on | Presidio 2.2.364             |
+| ---------------------------------------------- | ----------------------- | ---------------------------- |
+| Our prompts: items redacted                    | **97.1%**               | 66.7% (no secrets: 0 of 117) |
+| Our prompts: F1 (precision)                    | **96.2%** (95.6%)       | 62.8% (51.9%)                |
+| Decoys wrongly hidden (of 502)                 | **19**                  | 110                          |
+| Secrets and API keys found (of 117)            | **115**                 | not supported                |
+| Documents: values found / precision            | **90% / 98%**           | reads text only              |
+| Documents: redacted values really gone         | **659 of 659**          | –                            |
+| Files that cannot be checked, reported as such | **23 of 23**            | –                            |
+| Nemotron-PII sample: recall / F1               | **81.9% / 89.7%**       | 79.2% / 86.6%                |
+| Gretel finance (EN+FR): recall / F1            | 48.5% / **52.0%**       | **61.8%** / 32.7%            |
 
 **Private AI on custom labels** (on-device model; held-out test prompts the
 model's settings were never tuned on)
 
-| Held-out test, 242 prompts (141 with something to hide)        | GLiNER2-PII, 0.1.0 default | SmolLM2-360M, previous default (Sept. 2026) |
-| -------------------------------------------------------------- | -------------------------- | ------------------------------------------- |
-| Items found (recall)                                           | **42.6%**                  | 27.0%                                       |
-| Findings that were right (precision)                           | **53.1%**                  | 43.3%                                       |
-| F1                                                             | **47.2%**                  | 33.2%                                       |
-| Prompts with nothing to hide that got a false finding (of 101) | 44.6%                      | 35.6%                                       |
-| Median time per prompt                                         | 1.1 s                      | –                                           |
+| Held-out test, 242 prompts (141 with something to hide)        | Insusty, GLiNER2-PII | Presidio      |
+| -------------------------------------------------------------- | -------------------- | ------------- |
+| Items found (recall)                                           | **42.6%**            | not supported |
+| Findings that were right (precision)                           | **53.1%**            | –             |
+| F1                                                             | **47.2%**            | –             |
+| Prompts with nothing to hide that got a false finding (of 101) | 44.6%                | –             |
+| Median time per prompt                                         | 0.8 s                | –             |
 
 GLiNER2-PII reads English and French alike (F1 44.8% in English, 49.7% in
 French). On the development prompts (96 cases) it scores recall 42.7%,
-precision 55.0%, F1 48.1%. The SmolLM2-360M column is the earlier default
-model, measured on the same 242 prompts on 2026-09-27 at extension commit
-`ebf077f`; it was not re-run for this release.
+precision 55.0%, F1 48.1%.
 
 What these numbers say, and what they do not:
 
-- On realistic prompts the extension finds and hides almost everything with
-  every label on (96%), with very few false alarms, and it is the only one of
-  the two that catches secrets: 115 of 117 API keys, tokens and passwords.
-  Presidio has no secret detector and flags 110 of the 502 decoys.
+- On realistic prompts the extension finds and hides almost everything
+  (97%), with few false alarms, and it is the only one of the two that
+  catches secrets: 115 of 117 API keys, tokens and passwords. Presidio has
+  no secret detector and flags 110 of the 502 decoys.
 - In files, every value the extension decides to redact is gone from the
   copy it sends, and no file it cannot read is passed off as checked.
-- Presidio finds more on Nemotron-PII and Gretel. Those datasets are mostly
-  US-style data (phone formats, street addresses, account and routing
-  numbers). By default the extension looks for French addresses only (US,
-  Canadian and Australian ones are opt-in), and its card rule requires a
-  valid checksum, which many synthetic card numbers fail. Street addresses
-  in these datasets are a known gap: 3% found on Nemotron even with every
-  address country on.
+- On Nemotron-PII, mostly US-style data, the extension now finds more than
+  Presidio (81.9% against 79.2%; 83.6% on the labels both can produce) with
+  higher precision (99.2% against 95.6%). On Gretel, Presidio still finds
+  more (61.8% against 48.5%), mainly street addresses, national IDs and
+  dates of birth, but three in four of its findings there count as wrong
+  (precision 22.2%, against 56.0%; Gretel leaves many real-looking values
+  unlabelled, so precision is understated for both). Card numbers that fail the checksum the
+  extension requires, and many routing numbers, are still missed.
 - TAB (court judgements) is outside the extension's scope: its identifiers
   are case numbers and people's names, which rules do not target (names
-  are a Private AI label). The extension finds 0-2.5% there, Presidio 3.3%.
-- Private AI finds about four in ten of the custom-label items in prompts it
-  has never seen, a clear step up from the previous default model (27%), and
-  it adds to the rules, never replaces them. Its false findings are the
-  price of that recall: 45% of prompts with nothing to hide get at least one.
-  With the default "Ask me each time", the extension shows what it found in
-  a review dialog before the prompt is sent, so a false finding costs a
-  click, not a leak.
+  are a Private AI label). The extension finds 2.5% there, Presidio 3.3%.
+- Private AI finds about four in ten of the custom-label items in prompts
+  it has never seen, and it adds to the rules, never replaces them. Presidio has
+  no custom labels you can describe in words: a new type takes code or
+  configuration (patterns, word lists, or an extra model). Private AI's
+  false findings are the price of its recall: 45% of prompts with nothing
+  to hide get at least one. With the default "Ask me each time",
+  the extension shows what it found in a review dialog before the prompt is
+  sent, so a false finding costs a click, not a leak.
 - Private AI results come from one machine and one run of each test set. The
-  connected-model option was not re-measured for this release. On documents
-  the bench measured speed only (about 2 s per 1,000 characters, so a
-  50,000-character file takes about 100 s); its document sample (2 files)
+  connected-model option was not re-measured. On documents the bench
+  measured speed only (about 2 s per 1,000 characters, so a
+  20,000-character file takes about 40 s); its document sample (2 files)
   is too small to quote a recall.
+
+## What each tool supports
+
+The extension at `b12b381`, against Presidio's analyzer as installed (2.2.364,
+default recognizers, English). Sources: the extension's
+[rule-based detection](https://github.com/mmarsot/InsustyPromptCoach/blob/b12b38170e4991a4573cf34bdb04361370e70735/docs/detection-and-review/rule-based-detection.md),
+[OCR](https://github.com/mmarsot/InsustyPromptCoach/blob/b12b38170e4991a4573cf34bdb04361370e70735/docs/attachments/ocr.md)
+and [span model](https://github.com/mmarsot/InsustyPromptCoach/blob/b12b38170e4991a4573cf34bdb04361370e70735/docs/private-ai/on-device/span-models.md)
+docs at `b12b381`; for Presidio, the recognizers its 2.2.364 registry loads
+for English (listed from the bench's own environment), its
+[supported entities](https://github.com/microsoft/presidio/blob/main/docs/supported_entities.md),
+[adding recognizers](https://github.com/microsoft/presidio/blob/main/docs/analyzer/adding_recognizers.md)
+and [languages](https://github.com/microsoft/presidio/blob/main/docs/analyzer/languages.md)
+pages. How each maps onto the benchmark's labels is in its module's dataset
+adapters ([`modules/`](modules/README.md)).
+
+|                                      | Insusty Privacy Coach                                                                                                                                                                                                                             | Presidio 2.2.364                                                                                                                                                                                                   |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Secrets, API keys, passwords         | About 385 provider key rules (from [Betterleaks](https://github.com/betterleaks/betterleaks)), JWTs, private keys, credentials in URLs and connection strings, passwords and tokens after a keyword, random-looking values, your own key patterns | No recognizer                                                                                                                                                                                                      |
+| E-mail addresses                     | Yes                                                                                                                                                                                                                                               | Yes                                                                                                                                                                                                                |
+| Phone numbers                        | Valid numbers for the countries you set (France by default), and US, UK and German numbers after a word such as `Phone:` or `call me at`                                                                                                          | Valid numbers for US, UK, Germany, France, Israel, India, Canada and Brazil (its `PhoneRecognizer` defaults)                                                                                                       |
+| Bank and card details                | IBANs (mod-97 checked), BICs, cards (Luhn checked); after their label: card security codes and expiry dates, bank account numbers, US routing numbers (ABA check digit), PINs                                                                     | Cards (Luhn checked), IBANs, US bank account numbers, Bitcoin addresses                                                                                                                                            |
+| National and personal IDs            | French social security numbers, US SSNs, UK National Insurance numbers; after their label: NHS, passport, driver's licence, ID card, tax, customer, member, health plan and medical record numbers (English and French labels)                    | US SSN, ITIN, passport and driver's licence, UK NHS, medical licence numbers. Other countries' packs (UK NINO, Spain, Italy, India, Australia, Germany...) are off by default or registered for their own language |
+| Company IDs                          | French SIREN, SIRET and VAT numbers (opt-in)                                                                                                                                                                                                      | None for English by default (other countries' company numbers are opt-in or registered for their own language)                                                                                                     |
+| Dates of birth                       | A date after a birth word (`born`, `DOB`, `date de naissance`...)                                                                                                                                                                                 | No birth-date type: it flags every date and time                                                                                                                                                                   |
+| Postal addresses                     | French addresses by default; US, Canadian and Australian ones and US street lines when you turn them on                                                                                                                                           | No street-address recognizer; place names (cities, countries) come from the language model's LOCATION                                                                                                              |
+| IP and MAC addresses                 | Yes (opt-in)                                                                                                                                                                                                                                      | Yes                                                                                                                                                                                                                |
+| People's names                       | Not by rules; Private AI's Name label, which a new install has                                                                                                                                                                                    | Yes (PERSON, from the language model)                                                                                                                                                                              |
+| Places, organisations, nationalities | As custom labels you add                                                                                                                                                                                                                          | Places and nationality, religious or political groups; organisations are ignored by default (too many false positives)                                                                                             |
+| Custom labels                        | Described in plain words with a few examples (client names, project codenames...), found by the on-device model or a connected model you choose, and learned from your review choices                                                             | Written as code or configuration: patterns and word lists (Python, YAML, or per request), or an extra model (GLiNER, Hugging Face, or an LLM through LangExtract) installed separately                             |
+| Documents                            | Word, Excel, PowerPoint, OpenDocument, PDF, text and zip files, including hidden sheets, notes, comments and metadata; sends a redacted copy                                                                                                      | The analyzer reads text only; separate packages handle images (`presidio-image-redactor`) and tables or JSON (`presidio-structured`); no Office or PDF reader                                                      |
+| OCR                                  | Opt-in: images and scanned PDF pages, read on the device with Tesseract (English and French language data). Not measured here                                                                                                                     | Through `presidio-image-redactor` (Tesseract, or Azure Document Intelligence). Not measured here                                                                                                                   |
+| AI model                             | GLiNER2-PII by default (GLiNER2 Multi or SmolLM2-360M can be chosen), in the browser, or a connected model you trust                                                                                                                              | spaCy's `en_core_web_sm` here; other spaCy, Stanza or transformers models can be configured                                                                                                                        |
+| Where it runs                        | In Chrome, on ChatGPT, Claude and Gemini, before the prompt is sent; nothing leaves the device unless you connect a model                                                                                                                         | A Python library or a service you host                                                                                                                                                                             |
+| Languages                            | English and French (keywords, address formats, OCR data and the default model)                                                                                                                                                                    | English by default; another language needs its own language model and recognizers                                                                                                                                  |
 
 Every number above comes from a run you can reproduce with the commands
 below and inspect case by case in the dashboard (`npm run dashboard`). The
-per-dataset READMEs ([datasets/](datasets/README.md)) have the details and
-the earlier versions' results.
+per-dataset READMEs ([datasets/](datasets/README.md)) have the details: the
+extension's default settings, every label, and the earlier versions'
+results.
 
 ## Licence
 

@@ -45,5 +45,5 @@ labels both map (the dataset's README has the scores).
 On our own prompts (insusty-builtin, rescored 2026-11-02, unchanged since
 2026-10-17): 66.7% of items redacted, F1 62.8%; 0 of 117 secrets (SECRET is
 not scored); 110 of 502 hard negatives flagged, against 8 for the extension
-(Insusty Privacy Coach 0.1.0, `main` @ `7adec9b`, `default`; 19 in `all`). About 27-32 k
+(`main` @ `b12b381`, `default`; 19 in `all`; the same at 0.1.0, `7adec9b`). About 27-32 k
 characters per second, against about 1.3 M for the extension's rules (45x).
