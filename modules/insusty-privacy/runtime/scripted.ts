@@ -40,6 +40,8 @@ export interface ScriptedRuntime {
 }
 
 type Loaded = Awaited<ReturnType<DeviceRuntime["loader"]["load"]>>;
+/** A generation runtime (SmolLM2): the kind a traced runtime reports. */
+type Generation = Extract<Loaded, { tokenizer: unknown }>;
 
 /** One generation of a traced runtime: what the model read and wrote. */
 export interface TracedGeneration {
@@ -61,7 +63,7 @@ export function tracedRuntime(
   runtime: DeviceRuntime,
   record: (generation: TracedGeneration) => void,
 ): DeviceRuntime {
-  const trace = ({ tokenizer, model }: Loaded): Loaded => ({
+  const trace = ({ tokenizer, model }: Generation): Generation => ({
     tokenizer,
     model: {
       get contextLength() {
@@ -88,7 +90,11 @@ export function tracedRuntime(
   return {
     ...runtime,
     loader: {
-      load: async (...args) => trace(await runtime.loader.load(...args)),
+      // A span model (GLiNER2) generates nothing: it passes through untraced.
+      load: async (...args) => {
+        const loaded = await runtime.loader.load(...args);
+        return "span" in loaded ? loaded : trace(loaded);
+      },
       probeWebGpu: () => runtime.loader.probeWebGpu(),
       now: () => runtime.loader.now(),
     },

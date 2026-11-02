@@ -23,12 +23,11 @@ the third track next to the review bench and detbench, and answers:
 Code: `datasets/insusty-documents/` and `engine/scorers/documents/` and `engine/cli/docbench.ts`; planning in
 `engine/plan.ts` (`parseDocbenchArgs`, `planDocbench`), shared with the
 dashboard (`dashboard/docbench.ts`). Tests: `datasets/insusty-documents/insusty-documents.test.ts`.
-The research behind it is section 9 of the document-upload analysis. The
-baseline on `main` @ `2aece81` and what it shows are in the README
-("Document bench"); its run (`main-2aece81`, tier `full`, 2026-10-06, kept
-locally) extracted 98% of the placed values, with recall 67% / 83% and
-precision 94% / 95% in `default` / `all`, no leaks, and 23/23 failure files
-classified.
+The research behind it is section 9 of the document-upload analysis. On
+Insusty Privacy Coach 0.1.0 (`main` @ `7adec9b`, tier `full`, 2026-11-02,
+run `main-7adec9b`, kept locally) it extracted 98% of the placed values,
+with recall 68% / 88% and precision 98% / 98% in `default` / `all`, no
+leaks, and 23/23 failure files classified ("Results" below).
 
 ## Running it
 
@@ -293,6 +292,46 @@ view shows a document-bench run's progress.
   the same run (`--compare`) rather than across days.
 
 ## Results
+
+**Insusty Privacy Coach 0.1.0** on `main` @ `7adec9b` (2026-11-02; the
+release-checked `9fdfe56` plus store screenshots, same code; tier `full`,
+seed 1; run `main-7adec9b`, kept locally):
+
+|                                                  | `default`       | `all`           |
+| ------------------------------------------------ | --------------- | --------------- |
+| Values placed / extracted by the ref             | 740 / 98%       | 740 / 98%       |
+| Recall / precision / F1                          | 68% / 98% / 80% | 88% / 98% / 93% |
+| Redacted values gone from the redacted file      | 505 / 505       | 653 / 653       |
+| Hard-negative documents with a false alarm       | 1 / 15 (3)      | 5 / 15 (7)      |
+| Failure files reported correctly / silent cleans | 23 / 23, 0      | 23 / 23, 0      |
+
+- Every redacted value is gone from the file the extension would attach,
+  and every file that cannot be checked (encrypted, scanned, too large...) is
+  reported as such, never as clean.
+- Extraction is complete (100%) in every Office, OpenDocument and zip
+  family; PDFs 90%, text-like files 99%.
+- Detection (`all`, share of placed values found): EMAIL 98%, SECRET 94%,
+  IP 98%, FINANCIAL 89%, ADDRESS 84%, PHONE 77%, COMPANY_ID 77%,
+  NATIONAL_ID 79%, DATE_OF_BIRTH 67%. In `default`, `IP` and `COMPANY_ID`
+  are opt-in, which explains most of the recall gap.
+- PDF redaction: 22 PDFs redacted in place, 3 through the fallback; 6 of
+  117 findings (e-mails) do not redact in place alone.
+- Speed: within 5 s up to at least 300,000 words (docx, txt), 20,000 rows
+  (xlsx, csv) and 500 slides (pptx); PDFs up to 47 pages. The 500-page PDF
+  sweep point did not finish in this run (the worker stalled under memory
+  pressure from other lanes and was stopped).
+
+Private AI on documents, GLiNER2-PII (the default model; Private AI suite,
+`--ai-tier smoke`: 2 documents at 4 sizes; run
+`release-0.1.0-docbench-ai-gliner2`): review time grows linearly with size,
+about 2 s per 1,000 characters (2.0 s at 1,071 characters, 10.2 s at 4,989,
+39.0 s at 19,556, 101.9 s at 49,170). The largest document reviewed within
+30 s is about 14,900 characters, within 60 s about 29,200, so a file at the
+extension's default `localAi.fileReviewLimit` (20,000 characters) takes
+about 40 s. The sample holds 3 expected items (1 found at every size): too
+few to quote a recall.
+
+The baselines below are earlier refs, kept for their history.
 
 Baseline on `main` @ `2aece81` (PR #76; tier `full`, seed 1, detbench
 dataset as of `c1c7a64`; run `main-2aece81`, 2026-10-06, kept locally):

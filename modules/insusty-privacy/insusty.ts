@@ -8,7 +8,9 @@
  *
  * - the on-device runtime: the Node WASM loader
  *   (`runtime/transformers-loader.ts`), or a scripted one
- *   (`runtime/scripted.ts`);
+ *   (`runtime/scripted.ts`), for generation models (SmolLM2);
+ * - what the ref's span runtime (GLiNER2) runs on
+ *   (`runtime/span-environment.ts`);
  * - the connected transport (`connected.ts`: reply cache, cost, budget);
  * - PDFium, at the version the ref's lockfile pins;
  * - what a run measures around each call: peak memory, the machine.
@@ -21,9 +23,15 @@ import type { RedactionModule } from "../../contract/types.ts";
 import { machineProfile, peakRssMb } from "../../engine/machine.ts";
 import type { ModuleRef } from "./materialize.ts";
 
-/** How Private AI runs: `device` starts the on-device runtime on first use, `connected` lists the connected models. */
+/**
+ * How Private AI runs: `device` starts the on-device generation runtime on
+ * first use, `spans` gives what span models load on (read on first use), and
+ * `connected` lists the connected models. The ref lists an on-device model
+ * only when its kind has a runtime.
+ */
 export interface InsustyOptions {
   device?: () => Promise<Redaction.DeviceRuntime>;
+  spans?: () => Promise<Redaction.SpanEnvironment>;
   connected?: Redaction.ConnectedTarget[];
 }
 
@@ -71,6 +79,7 @@ export async function loadInsustyModule(
   const module: RedactionModule = createContractModule({
     info: { version: ref.sha.slice(0, 12), sha: ref.sha },
     ...(options.device ? { device: options.device } : {}),
+    ...(options.spans ? { spans: options.spans } : {}),
     ...(options.connected ? { connected: options.connected } : {}),
     ...(ref.pdfium
       ? {

@@ -383,6 +383,7 @@ async function runRef(
           resultFile: cacheFile(ai.ext.sha, m.id),
           jobs: pending,
           ...(m.hosted ? { budgetUsd: o.budgetUsd } : {}),
+          ...(ai.review.spanModelIds.includes(m.id) ? { spanModel: true } : {}),
         };
         const specFile = join(
           tmp,

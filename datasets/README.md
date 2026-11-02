@@ -101,33 +101,47 @@ Nemotron headlines included the secrets it has no recognizer for. They are
 re-quoted below on its own labels; the extension's are unchanged (its
 adapters are the label maps it was scored with).
 
-Scores, extension `main` @ `95454ec` (2026-10-17) and Presidio (re-quoted
-2026-10-19 on its adapter's labels), machine profile `adhoc` (the 8-thread,
-7 GB bench laptop), headline recall / precision / F1:
+Scores, Insusty Privacy Coach 0.1.0: extension `main` @ `7adec9b`
+(2026-11-02; the release-checked `9fdfe56` plus store screenshots, same
+code), `default` and `all` configurations (`rules`, `rules-all`), and
+Presidio 2.2.364 (its cached outputs rescored on 2026-11-02, unchanged),
+machine profile `adhoc` (the 8-thread, 7 GB bench laptop), headline recall /
+precision / F1. Runs `release-0.1.0-literature-<dataset>`,
+`presidio-2.2.364-literature-<dataset>` and detbench `main-7adec9b`, kept
+locally:
 
 | Dataset | Extension `default` | Extension `all` | Presidio |
 | --- | --- | --- | --- |
-| TAB test (1,612 `CODE` mentions) | 0.0% / – / 0.0% (3 spans in 648k chars) | same | 3.3% / 74.7% / 6.4% |
-| Gretel EN+FR test (4,670 spans; Presidio 4,557: no `api_key`, `password`) | 23.2% / 48.4% / 31.4% | 26.3% / 50.9% / 34.7% | 61.8% / 22.2% / 32.7% (was 60.5% / 22.2% / 32.5%) |
-| Nemotron-PII sample (6,063 spans; Presidio 5,561: no `api_key`, `password`, `http_cookie`) | 48.9% / 99.4% / 65.5% | 54.0% / 99.3% / 70.0% | 79.2% / 95.6% / 86.6% (was 74.2% / 95.6% / 83.5%) |
-| Our insusty-builtin prompts (share of items redacted) | 78.5% (F1 87.0%) | 93.1% (F1 95.3%) | 66.7% (F1 62.8%; SECRET not scored, 0/117) |
+| TAB test (1,612 `CODE` mentions) | 0.0% / – / 0.0% (nothing redacted in 648k chars) | 2.5% / 100% / 4.8% | 3.3% / 74.7% / 6.4% |
+| Gretel EN+FR test (4,670 spans; Presidio 4,557: no `api_key`, `password`) | 23.2% / 48.4% / 31.4% | 31.1% / 49.2% / 38.1% | 61.8% / 22.2% / 32.7% |
+| Nemotron-PII sample (6,063 spans; Presidio 5,561: no `api_key`, `password`, `http_cookie`) | 48.9% / 99.4% / 65.5% | 65.3% / 98.8% / 78.6% | 79.2% / 95.6% / 86.6% |
+| Our insusty-builtin prompts (share of items redacted) | 78.5% (F1 87.0%) | 96.2% (F1 95.7%) | 66.7% (F1 62.8%; SECRET not scored, 0/117) |
+
+Against `main` @ `95454ec` (2026-10-17), `default` is unchanged and `all`
+gained (Gretel F1 34.7% → 38.1%, Nemotron 70.0% → 78.6%, insusty-builtin
+items redacted 93.1% → 96.2%): in `all` the ref now turns on every phone and
+address country it declares, so Nemotron's US-style phones go from 28% to
+86% recall.
 
 - **TAB is out of the product's scope by construction**: its `CODE` mentions
   are ECHR application numbers (`36110/97`), which no rule targets; its
   direct identifiers are mostly person names (custom-label territory). ER_di
   is 0.0% for both modules.
-- **Where Presidio leads** (Gretel, Nemotron): US-style phones (Nemotron
-  94% vs 28%), street addresses (its LOCATION; the extension's ADDRESS is
-  FR-only in both configurations because `main` does not export its
-  address-country list), national ids, and account and routing numbers the
-  extension does not validate as FINANCIAL (card recall 11% on Nemotron,
-  whose synthetic card numbers often fail the checksum the extension
-  requires).
-- **Where the extension leads**: secrets (Nemotron 57%, Gretel 72% typed;
+- **Where Presidio leads** (Gretel, Nemotron): street addresses (its
+  LOCATION; the extension's ADDRESS finds 3% of Nemotron's in `all`, 0% in
+  `default`), national ids, and account and routing numbers the extension
+  does not validate as FINANCIAL (card and account recall 22% on Nemotron in
+  `all`, whose synthetic card numbers often fail the checksum the extension
+  requires), and phones in `default` (Presidio 94% on Nemotron, the
+  extension 28% in `default`, 86% in `all`).
+- **Where the extension leads**: secrets (Nemotron 57%, Gretel 72%;
   Presidio has no secret recognizer, so they are outside its headline),
-  precision on its own prompts and hard negatives (insusty-builtin: 9 vs 110
-  of 502 decoys flagged), and speed: about 1.3 M characters per second vs
-  27-32 k for Presidio (45x), single process.
+  precision on its own prompts and hard negatives (insusty-builtin: 8 of 502
+  decoys flagged in `default`, 19 in `all`, against 110 for Presidio), and
+  speed: the Nemotron sample's 2.87 M characters in 2.8 s (about 1 M
+  characters per second, scoring included, single process) at `7adec9b`,
+  against 27-32 k characters per second for Presidio (measured 2026-10-17;
+  its outputs were cached this time).
 - **Caveats**: Gretel's synthetic gold leaves many real-looking e-mails and
   identifiers unlabelled, so precision there is understated for every module;
   Nemotron flags a real weakness (SECRET fires on Markdown bold labels such as

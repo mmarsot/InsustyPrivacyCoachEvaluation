@@ -305,7 +305,8 @@ async function runRef(ref: string, name?: string): Promise<RunOutput> {
   const meta: DetRunMeta = {
     name: runName,
     ext: {
-      ref,
+      // A baseline's module id (the dashboard's Grid reads the module from it), else the extension ref.
+      ref: ext.ref,
       sha: ext.sha,
       subject: ext.subject,
       committedAt: ext.committedAt,

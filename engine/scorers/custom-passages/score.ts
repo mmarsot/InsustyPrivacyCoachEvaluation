@@ -305,15 +305,19 @@ export function scoreResult(
   });
 
   const raw = record.chunks.map((ch) => ch.output).join("\n— next chunk —\n");
+  // A span model (GLiNER2) answers spans, not text: its windows have no
+  // answer format, echo or dropped line to analyze.
+  const answers = record.chunks.filter((ch) => !ch.span);
+  const spanOnly = record.chunks.length > 0 && !answers.length;
   const categories = [...custom, ...builtinLabels];
   // Completion refs answer one line after a `LABEL:` cue: analyze `LABEL: answer`.
   // Older records lack the cue; their chunks follow the profile's label order.
   const cueFor = (i: number, ch: ResultRecord["chunks"][number]) =>
     ch.prefill ??
-    (completionRef && record.chunks.length === profile.labels.length
+    (completionRef && answers.length === profile.labels.length
       ? `${profile.labels[i]!.label}:`
       : undefined);
-  const analyzed = record.chunks.map((ch, i) => {
+  const analyzed = answers.map((ch, i) => {
     const cue = cueFor(i, ch);
     if (!cue || cue.includes("\n")) return ch.output;
     const answer = ch.output.trimStart().split(/\r?\n/u)[0] ?? "";
@@ -331,24 +335,28 @@ export function scoreResult(
   const sum = (k: Exclude<keyof LineAnalysis, "format">) =>
     analyses.reduce((a, x) => a + x[k], 0);
   const formats = analyses.map((a) => a.format);
-  const format: FormatClass = !formats.length
-    ? "empty"
-    : formats.includes("invalid")
-      ? "invalid"
-      : formats.includes("partial")
-        ? "partial"
-        : formats.every((f) => f === "empty")
-          ? "empty"
-          : formats.includes("lines")
-            ? "lines"
-            : formats.includes("none")
-              ? "none"
-              : "empty";
+  const format: FormatClass = spanOnly
+    ? predicted.length
+      ? "lines"
+      : "none"
+    : !formats.length
+      ? "empty"
+      : formats.includes("invalid")
+        ? "invalid"
+        : formats.includes("partial")
+          ? "partial"
+          : formats.every((f) => f === "empty")
+            ? "empty"
+            : formats.includes("lines")
+              ? "lines"
+              : formats.includes("none")
+                ? "none"
+                : "empty";
   const timeout = record.errorKind === "deadline";
   const echo =
     format !== "lines" &&
     format !== "none" &&
-    record.chunks.some((ch) => isEcho(c.text, ch.output));
+    answers.some((ch) => isEcho(c.text, ch.output));
   const instructionEcho =
     sum("instructionEchoLines") * 2 >= Math.max(1, sum("meaningfulLines"));
   const dropped = sum("droppedLines");

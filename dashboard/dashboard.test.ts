@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type {
@@ -21,6 +21,7 @@ import {
   readCacheFile,
 } from "./data.ts";
 import { compareRows } from "../engine/compare.ts";
+import { latestResults, storedResults } from "./grid.ts";
 import type { Job, ResultRecord } from "../engine/jobs.ts";
 import { parseBenchArgs, planJobs } from "../engine/plan.ts";
 import {
@@ -363,4 +364,46 @@ test("quick tier: N cases per profile and language, stratified across the run", 
     ],
     [3, 2, 2, 2, 1],
   );
+});
+
+test("grid results: a Private AI-only document run feeds its model's cell, never the rules cells", () => {
+  const runs = mkdtempSync(join(tmpdir(), "grid-runs-"));
+  const write = (name: string, metrics: unknown, ai?: unknown) => {
+    const dir = join(runs, "docbench", name);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      join(dir, "run.json"),
+      JSON.stringify({ finishedAt: name === "suite" ? "1" : "2" }),
+    );
+    writeFileSync(join(dir, "metrics.json"), JSON.stringify(metrics));
+    if (ai) writeFileSync(join(dir, "ai.json"), JSON.stringify(ai));
+  };
+  write("suite", {
+    sha: "s",
+    overall: { positives: 3, configs: { default: { f1: 0.8 } } },
+  });
+  write(
+    "ai-only",
+    { sha: "s", overall: { positives: 0, configs: { default: { f1: null } } } },
+    {
+      summary: [
+        {
+          model: "gliner2-pii-multi-v1",
+          bySize: [
+            { expected: 3, found: 1 },
+            { expected: 3, found: 2 },
+          ],
+        },
+      ],
+    },
+  );
+  const latest = latestResults(storedResults(runs));
+  const cell = (configuration: string) =>
+    latest.find(
+      (r) =>
+        r.dataset === "insusty-documents" && r.configuration === configuration,
+    );
+  assert.equal(cell("rules")?.run, "docbench/suite");
+  assert.equal(cell("rules")?.value, 0.8);
+  assert.equal(cell("gliner2-pii")?.value, 0.5);
 });

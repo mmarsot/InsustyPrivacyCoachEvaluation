@@ -33,6 +33,7 @@ import { resolveExtRefName, resolveExtRepo } from "../ref.ts";
 import { scriptedRuntime, type ScriptedRequest } from "../runtime/scripted.ts";
 import { buildRaw, passagesToLines, plausibleLines } from "./config.ts";
 import { isPlausiblePassage, validateModelOutput } from "./protocol.ts";
+import { findLabModel } from "./models.ts";
 import { SHIPPED_CONFIG } from "./shipped.ts";
 
 const args = process.argv.slice(2);
@@ -49,6 +50,8 @@ const ext = await materializeModule(
   resolveExtRepo(opt("ext-repo")),
   resolveExtRefName(opt("ref")),
 );
+/** The lab models the generation model's prompts: SmolLM2, named, since the ref's default may be a span model (GLiNER2, extension PR #170). */
+const generationModel = findLabModel("smollm2-360m")!.id;
 const noRefTexts = {
   defaultPrompt: "",
   outputSchema: "",
@@ -86,7 +89,7 @@ for (const id of ids) {
     {
       ...module.defaultConfig(),
       customLabels: labelsOf(profile),
-      privateAi: { runsOn: "device" },
+      privateAi: { runsOn: "device", model: generationModel },
     },
   );
   const seen = recorded.requests.slice(from);
@@ -167,7 +170,7 @@ for (const c of cases.filter((x) => !FENCE.test(x.text))) {
     redactionConfigOf({
       ...module.defaultConfig(),
       customLabels: labels,
-      privateAi: { runsOn: "device" },
+      privateAi: { runsOn: "device", model: generationModel },
     }),
   );
   const review = await facade.reviewText(c.text);

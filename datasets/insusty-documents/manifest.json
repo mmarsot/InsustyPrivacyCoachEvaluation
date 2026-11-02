@@ -6,8 +6,8 @@
     "note": "Generated deterministically from insusty-builtin values and a seed (nothing binary is committed): Word, Excel, PowerPoint, OpenDocument, PDF, text and zip files, size sweeps, and insusty-custom cases inside Word documents for Private AI."
   },
   "licence": {
-    "spdx": "UNLICENSED",
-    "note": "Written or generated in this repository; every value is fictional.",
+    "spdx": "CC-BY-NC-4.0",
+    "note": "Written or generated in this repository; every value is fictional. CC BY-NC 4.0 (LICENSES/CC-BY-NC-4.0.txt): free for non-commercial use with attribution; the generators are code, under the repository's PolyForm Noncommercial 1.0.0.",
     "commercialResults": true
   },
   "languages": ["en", "fr"],

@@ -64,23 +64,43 @@ export interface RefReview {
   /** The on-device models the ref ships, and the one a new user gets. */
   modelIds: string[];
   defaultModelId: string;
-  /** The instruction prefixes the ref's review prepares for these labels (cost estimates measure them). */
+  /** The span models (GLiNER2) among them: they read no instructions and generate nothing. */
+  spanModelIds: string[];
+  /**
+   * The instruction prefixes the ref's review prepares for these labels on
+   * its generation model (SmolLM2; cost estimates measure them); none when
+   * the ref ships no generation model.
+   */
   prefixes(rules: readonly Rule[]): Promise<string[]>;
   /** The prefixes joined: what a scorer checks echoed answers against. */
   instructions(rules: readonly Rule[]): Promise<string>;
 }
 
+/** Span models listed, never loaded: listing them needs only that the kind has a runtime. */
+const unloadedSpans = () =>
+  Promise.reject(new Error("refReview loads no span model."));
+
 /** A ref's review through its package; no model is loaded. */
 export async function refReview(ref: ModuleRef): Promise<RefReview> {
-  const listed = await loadInsustyModule(ref, {
-    device: () => Promise.resolve(scriptedRuntime().runtime),
-  });
-  const models = (listed.capabilities.models ?? []).filter(
-    (m) => m.runsOn === "device",
-  );
+  const deviceModels = async (withSpans: boolean) =>
+    (
+      (
+        await loadInsustyModule(ref, {
+          device: () => Promise.resolve(scriptedRuntime().runtime),
+          ...(withSpans ? { spans: unloadedSpans } : {}),
+        })
+      ).capabilities.models ?? []
+    ).filter((m) => m.runsOn === "device");
+  const models = await deviceModels(true);
   if (!models.length) throw new Error(`${ref.ref} ships no on-device model.`);
+  // The package lists span models only when given their runtime.
+  const generationIds = new Set((await deviceModels(false)).map((m) => m.id));
+  const generation =
+    models.find((m) => m.default && generationIds.has(m.id)) ??
+    models.find((m) => generationIds.has(m.id));
   const memo = new Map<string, Promise<string[]>>();
   const prepared = async (rules: readonly Rule[]) => {
+    if (!generation) return [];
     // A fresh module per label set: the engine prepares each prefix once.
     const scripted = scriptedRuntime();
     const module = await loadInsustyModule(ref, {
@@ -93,7 +113,7 @@ export async function refReview(ref: ModuleRef): Promise<RefReview> {
         description: r.prompt,
         examples: [...(r.examples ?? [])],
       })),
-      privateAi: { runsOn: "device" },
+      privateAi: { runsOn: "device", model: generation.id },
     });
     await module.dispose?.();
     return scripted.prefixes;
@@ -106,6 +126,9 @@ export async function refReview(ref: ModuleRef): Promise<RefReview> {
   return {
     modelIds: models.map((m) => m.id),
     defaultModelId: (models.find((m) => m.default) ?? models[0]!).id,
+    spanModelIds: models
+      .filter((m) => !generationIds.has(m.id))
+      .map((m) => m.id),
     prefixes,
     instructions: async (rules) => (await prefixes(rules)).join("\n\n"),
   };

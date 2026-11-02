@@ -87,6 +87,12 @@ export interface ChunkRecord {
   error?: string;
   /** The assistant prefill of the request (completion refs: the `LABEL:` answer cue). */
   prefill?: string;
+  /**
+   * A span model's window (GLiNER2): it answers scored spans, not text, so
+   * `output` is the ref's summary of the window (`N spans, count C`) and the
+   * scorer reads no answer format from it.
+   */
+  span?: true;
   /** Connected models: token usage and cost (`ms` is the request's wall time). */
   usage?: {
     inputTokens: number;

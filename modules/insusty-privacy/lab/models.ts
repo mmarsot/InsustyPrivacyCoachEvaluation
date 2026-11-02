@@ -12,8 +12,16 @@ export interface LabModel {
   secondsPerCase: number;
 }
 
-/** Measured in this repository (modules/insusty-privacy/README.md). */
-const BUNDLED_PEAK: Record<string, number> = { "smollm2-360m": 1900 };
+/**
+ * Measured peaks: SmolLM2 in this repository (modules/insusty-privacy/README.md);
+ * GLiNER2-PII as the extension measured it in Node on onnxruntime-web WASM
+ * (2.9 GB, its `docs/private-ai/on-device/span-models.md`; the bench's first
+ * runs passed 2.6 GB within seconds of loading).
+ */
+const BUNDLED_PEAK: Record<string, number> = {
+  "gliner2-pii": 2900,
+  "smollm2-360m": 1900,
+};
 
 /**
  * The models the lab can run, q8 like the bench. Unmeasured models assume a

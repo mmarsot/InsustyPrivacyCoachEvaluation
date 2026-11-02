@@ -134,9 +134,36 @@ export function storedResults(runsDir = RUNS_DIR): CellResult[] {
     const run = readJson<{ finishedAt?: string }>(join(dir, "run.json"));
     const metrics = readJson<{
       sha?: string;
-      overall?: { configs?: Record<string, { f1: number | null }> };
+      overall?: {
+        positives?: number;
+        configs?: Record<string, { f1: number | null }>;
+      };
     }>(join(dir, "metrics.json"));
     if (!run || !metrics?.overall?.configs) continue;
+    // Private AI on documents (`--tracks ai`): recall over every size, per model.
+    const ai = readJson<{
+      summary?: Array<{
+        model: string;
+        bySize: Array<{ expected: number; found: number }>;
+      }>;
+    }>(join(dir, "ai.json"));
+    for (const m of ai?.summary ?? []) {
+      const expected = m.bySize.reduce((a, x) => a + x.expected, 0);
+      push({
+        module: "insusty-privacy",
+        configuration: configurationOfModel("insusty-privacy", m.model),
+        dataset: "insusty-documents",
+        run: `docbench/${name}`,
+        metric: "Recall (Private AI)",
+        value: expected
+          ? m.bySize.reduce((a, x) => a + x.found, 0) / expected
+          : null,
+        sha: metrics.sha,
+        finishedAt: run.finishedAt ?? "",
+      });
+    }
+    // A run without the document suite (Private AI only) has no rules result.
+    if (!metrics.overall.positives) continue;
     for (const [config, m] of Object.entries(metrics.overall.configs))
       push({
         module: "insusty-privacy",

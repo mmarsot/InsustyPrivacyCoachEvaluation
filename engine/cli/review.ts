@@ -233,6 +233,7 @@ for (const m of models) {
     resultFile: cacheFile(ext.sha, m.id),
     jobs: pending,
     ...(m.hosted ? { budgetUsd: options.budgetUsd } : {}),
+    ...(review.spanModelIds.includes(m.id) ? { spanModel: true } : {}),
   };
   const specFile = join(tmpDir, `jobs-${process.pid}-${m.short}.json`);
   writeFileSync(specFile, JSON.stringify(spec));

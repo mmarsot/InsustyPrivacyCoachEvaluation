@@ -59,6 +59,12 @@ export interface ModuleRef {
   packages: Record<string, string>;
   /** Inference runtime versions the ref's lockfile pins (the bench supplies these packages). */
   runtime: Record<string, string>;
+  /**
+   * Where the ref's build downloads its span models (GLiNER2) from:
+   * `DEFAULT_MODEL_HOST` in its `scripts/bundle-options.mjs`; absent before
+   * span models (extension PR #170).
+   */
+  modelHost?: string;
 }
 
 const git = (repo: string, args: string[]): string =>
@@ -93,6 +99,19 @@ const showJson = <T>(
     return undefined;
   }
 };
+
+/** The span-model host a commit's build defaults to (`DEFAULT_MODEL_HOST`), read as text. */
+export function defaultModelHost(
+  repo: string,
+  sha: string,
+): string | undefined {
+  try {
+    const options = git(repo, ["show", `${sha}:scripts/bundle-options.mjs`]);
+    return /DEFAULT_MODEL_HOST\s*=\s*"([^"]+)"/.exec(options)?.[1];
+  } catch {
+    return undefined;
+  }
+}
 
 interface PackageJson {
   exports?: Record<string, unknown>;
@@ -173,6 +192,7 @@ export async function materializeModule(
       return version ? [[name, version]] : [];
     }),
   );
+  const modelHost = defaultModelHost(repo, sha);
   const dir = join(MODULE_CACHE_DIR, sha);
   const marker = join(dir, "installed.json");
   const fresh =
@@ -257,6 +277,7 @@ export async function materializeModule(
     ...(pdfium ? { pdfium: join(modules, "@embedpdf", "pdfium") } : {}),
     packages,
     runtime,
+    ...(modelHost ? { modelHost } : {}),
   };
 }
 

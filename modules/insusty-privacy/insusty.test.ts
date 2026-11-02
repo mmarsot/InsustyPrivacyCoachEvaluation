@@ -14,7 +14,11 @@ import { fileURLToPath } from "node:url";
 import type { ModuleConfig } from "../../contract/types.ts";
 import { CACHE_DIR, ROOT } from "../../engine/paths.ts";
 import { loadInsustyModule } from "./insusty.ts";
-import { materializeModule, type ModuleRef } from "./materialize.ts";
+import {
+  defaultModelHost,
+  materializeModule,
+  type ModuleRef,
+} from "./materialize.ts";
 import { refReview } from "./ref.ts";
 import { scriptedRuntime, tracedRuntime } from "./runtime/scripted.ts";
 
@@ -40,13 +44,16 @@ const PROJECT = {
 };
 const TEXT =
   "Mail anna.keller@example.org about Project Orca before the launch.";
+/** The generation model the scripted runtime stands in for (the ref's default is a span model). */
+const SMOLLM2 = "onnx-community/SmolLM2-360M-Instruct-ONNX";
+
 const withPrivateAi = (
   base: ModuleConfig,
   runsOn: "device" | "connected",
 ): ModuleConfig => ({
   ...base,
   customLabels: [PROJECT],
-  privateAi: { runsOn },
+  privateAi: runsOn === "device" ? { runsOn, model: SMOLLM2 } : { runsOn },
 });
 
 test("the materializer refuses a commit whose package.json has no redaction export, before installing anything", async () => {
@@ -67,6 +74,34 @@ test("the materializer refuses a commit whose package.json has no redaction expo
       materializeModule(repo, "HEAD", () => undefined),
       /predates the redaction package \(extension PR #132\).*Score a later ref/s,
     );
+  } finally {
+    rmSync(repo, { recursive: true, force: true });
+  }
+});
+
+test("the materializer reads the span-model host a commit's build defaults to", () => {
+  const repo = join(CACHE_DIR, "tmp", `ext-host-test-${process.pid}`);
+  rmSync(repo, { recursive: true, force: true });
+  mkdirSync(join(repo, "scripts"), { recursive: true });
+  const git = (...args: string[]) =>
+    execFileSync("git", ["-C", repo, ...args], { encoding: "utf8" }).trim();
+  try {
+    git("init", "-q");
+    writeFileSync(join(repo, "README.md"), "no build options yet\n");
+    git("add", "README.md");
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "old");
+    const before = git("rev-parse", "HEAD");
+    writeFileSync(
+      join(repo, "scripts", "bundle-options.mjs"),
+      'export const DEFAULT_MODEL_HOST =\n  "https://models.example.org/resolve/abc/";\n',
+    );
+    git("add", "scripts/bundle-options.mjs");
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "host");
+    assert.equal(
+      defaultModelHost(repo, git("rev-parse", "HEAD")),
+      "https://models.example.org/resolve/abc/",
+    );
+    assert.equal(defaultModelHost(repo, before), undefined);
   } finally {
     rmSync(repo, { recursive: true, force: true });
   }
@@ -133,6 +168,9 @@ test("Private AI on the device: the ref's review on a scripted runtime, its prom
 test("refReview lists the ref's models and the instructions it prepares for a label set", async () => {
   const review = await refReview(pinned);
   assert.ok(review.modelIds.includes(review.defaultModelId));
+  // The pinned ref's default is a span model (GLiNER2, extension PR #170): listed, never loaded.
+  assert.ok(review.spanModelIds.includes(review.defaultModelId));
+  assert.ok(review.modelIds.some((id) => !review.spanModelIds.includes(id)));
   const rules = [
     {
       label: PROJECT.label,

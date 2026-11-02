@@ -186,7 +186,7 @@ The runner prints its plan and a time estimate before it starts
 this machine, or the priors in `modules/insusty-privacy/models.json`. Estimates on the 8-vCPU,
 7 GB laptop this was built on:
 
-- **Default quick run** (32 cases × SmolLM2-360M, the model `main` ships, × 1
+- **Default quick run** (32 cases × SmolLM2-360M, the default before extension PR #170, × 1
   variant): about 3 min from cached timings.
 - **Quick with 3 cases per profile:** about 45 min.
 - **Quick with 10 cases per profile and 2 variants:** about 3 h.
@@ -222,19 +222,27 @@ Useful flags:
 
 ## Results so far
 
-The bench keeps two models: SmolLM2-360M on the device (the model the
-extension ships) and GLM-4.7 Flash connected. Older models and their runs
-were deleted on 2026-10-17 to start fresh. SmolLM2-360M runs, all on
-2026-09-27 and kept locally (passage-level overlap F1 / precision / recall,
-share of negatives with a false finding):
+The bench keeps three models: GLiNER2-PII on the device (the extension's
+default since PR #170), SmolLM2-360M on the device (the default before) and
+GLM-4.7 Flash connected. Older models and their runs were deleted on
+2026-10-17 to start fresh. Runs kept locally (passage-level overlap F1 /
+precision / recall, share of negatives with a false finding):
 
 | Run                          | Ref                     | Cases              | F1    | P     | R     | FP rate |
 | ---------------------------- | ----------------------- | ------------------ | ----- | ----- | ----- | ------- |
+| `release-0.1.0-test-gliner2` | `7adec9b` (0.1.0), GLiNER2-PII | held-out test, 242 | 47.2% | 53.1% | 42.6% | 44.6%   |
+| `release-0.1.0-tune96-gliner2` | `7adec9b` (0.1.0), GLiNER2-PII | tune96          | 48.1% | 55.0% | 42.7% | 33.3%   |
 | `ext-ebf077f-tune96-smol360` | `ebf077f` (PR #32)      | tune96             | 38.2% | 55.6% | 29.1% | 21.4%   |
 | `ext-ebf077f-test-smol360`   | `ebf077f` (PR #32)      | held-out test, 242 | 33.2% | 43.3% | 27.0% | 35.6%   |
 | `ext-d42c466-tune96-smol360` | `d42c466` (PR #26)      | tune96             | 32.1% | 41.5% | 26.2% | 35.7%   |
 | `test-d42c466-smol360`       | `d42c466` (PR #26)      | held-out test, 242 | 27.4% | 32.2% | 23.9% | 44.6%   |
 | `test-dc91f36-smol360`       | `dc91f36` (chat design) | held-out test, 242 | 12.0% | 44.2% | 6.9%  | 10.9%   |
+
+GLiNER2-PII on 2026-11-02 (Insusty Privacy Coach 0.1.0): English F1 44.8%
+(FP rate 53.8%), French F1 49.7% (FP rate 34.7%) on the held-out test;
+exact-span F1 39.5%; 1.1 s per prompt at the median (p95 2.6 s); peak RSS
+2.9 GB. Smoke (16 prompts): F1 52.2% (P 46.2%, R 60.0%). The
+other rows of the table are SmolLM2-360M, all on 2026-09-27.
 
 The smoke tier on `main` and the connected model are in
 [insusty-privacy's README](../../modules/insusty-privacy/README.md#the-connected-configuration)

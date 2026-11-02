@@ -4,7 +4,7 @@
   "private": true,
   "description": "Offline benchmark (dataset + runner + report) for the InsustyPromptCoach local AI review.",
   "type": "module",
-  "license": "UNLICENSED",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "engines": {
     "node": ">=20"
   },
@@ -37,6 +37,7 @@
     "@huggingface/transformers": "3.8.1",
     "ajv": "^8.20.0",
     "hyparquet": "^1.31.4",
+    "onnxruntime-node": "npm:onnxruntime-web@1.22.0-dev.20250409-89f8206ba4",
     "tsx": "^4.19.0"
   },
   "devDependencies": {
@@ -47,7 +48,7 @@
     "@typescript-eslint/parser": "^8.71.2",
     "eslint": "^10.13.0",
     "globals": "^15.15.0",
-    "insusty-prompt-coach": "github:mmarsot/InsustyPromptCoach#748f772fcadcab084982995b09ca57334fbf716a",
+    "insusty-prompt-coach": "github:mmarsot/InsustyPromptCoach#9fdfe569933413f52a390975031d9dcac202ad7b",
     "knip": "^5.88.1",
     "pdf-lib": "1.17.1",
     "prettier": "^3.9.10",

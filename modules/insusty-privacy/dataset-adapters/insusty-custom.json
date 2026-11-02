@@ -1,7 +1,7 @@
 {
   "dataset": "insusty-custom",
   "datasetContract": "1.0.0",
-  "configurations": ["smollm2-360m", "glm47-flash-connected"],
+  "configurations": ["gliner2-pii", "smollm2-360m", "glm47-flash-connected"],
   "labels": "per-case",
   "options": {
     "labelVariants": ["desc", "desc_ex1", "desc_ex3", "ex3", "ex_counter"]

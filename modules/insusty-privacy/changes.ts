@@ -7,7 +7,8 @@
  * - **deterministic**: the `rules` and `rules-all` rows × insusty-builtin,
  *   insusty-documents (suite and sweeps), tab, gretel and nemotron, plus
  *   contract conformance (and the presidio row on `--full`);
- * - **private-ai**: the `smollm2-360m` row (and `glm47-flash-connected` with
+ * - **private-ai**: the row of the ref's default on-device model,
+ *   `gliner2-pii` since extension PR #170 (and `glm47-flash-connected` with
  *   `--connected`: it is paid) × insusty-custom and insusty-documents' Private
  *   AI suite, plus request parity with the lab's shipped baseline.
  *
@@ -20,7 +21,7 @@ export type Track = "deterministic" | "private-ai";
 /** The insusty-privacy configurations (grid rows) each track reruns. */
 export const TRACK_CONFIGURATIONS: Record<Track, string[]> = {
   deterministic: ["rules", "rules-all"],
-  "private-ai": ["smollm2-360m", "glm47-flash-connected"],
+  "private-ai": ["gliner2-pii", "glm47-flash-connected"],
 };
 
 /** Which tracks a changed extension path needs, and why. */

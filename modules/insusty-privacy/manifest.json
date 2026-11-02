@@ -38,8 +38,16 @@
       "privateAi": "off"
     },
     {
+      "id": "gliner2-pii",
+      "title": "Rules + Private AI on the device (GLiNER2-PII, the default model)",
+      "builtins": "default",
+      "privateAi": "device",
+      "model": "gliner2-pii-multi-v1",
+      "peakRssMb": 2900
+    },
+    {
       "id": "smollm2-360m",
-      "title": "Rules + Private AI on the device (SmolLM2-360M, the shipped model)",
+      "title": "Rules + Private AI on the device (SmolLM2-360M, offered as an alternative)",
       "builtins": "default",
       "privateAi": "device",
       "model": "onnx-community/SmolLM2-360M-Instruct-ONNX",

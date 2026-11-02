@@ -130,6 +130,26 @@ test("a correct finding scores exact and overlap", () => {
   assert.equal(m.overlap.precision, 1);
 });
 
+test("a span model's windows are not answers: no format failure, findings still scored", () => {
+  const spans = (findings: ResultRecord["findings"]): ResultRecord => ({
+    ...record("", findings),
+    chunks: [{ output: "1 spans, count 1", ms: 5, span: true }],
+  });
+  const found = scoreResult(
+    baseCase,
+    profile,
+    spans([{ category: "PRODUCT", start: 17, end: 23, value: "Orwell" }]),
+    builtin,
+  );
+  assert.equal(found.failure, "ok");
+  assert.equal(found.compliant, true);
+  assert.equal(found.expected[0]!.overlap, true);
+  const missed = scoreResult(baseCase, profile, spans([]), builtin);
+  assert.equal(missed.failure, "ok");
+  assert.equal(missed.format, "none");
+  assert.equal(missed.detected, false);
+});
+
 test("failure modes", () => {
   assert.equal(
     scoreResult(baseCase, profile, record(`Prompt: ${text}`), builtin).failure,

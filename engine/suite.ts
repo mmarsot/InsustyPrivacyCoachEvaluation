@@ -10,7 +10,8 @@
  *   regression here.
  * - **private-ai**: request parity with the lab's shipped baseline (no model,
  *   no network; CI fails on a difference), then the custom-label review
- *   suites on the shipped on-device model (SmolLM2) and the connected model
+ *   suites on the ref's default on-device model (GLiNER2-PII since extension
+ *   PR #170; SmolLM2 before) and the connected model
  *   (GLM-4.7 Flash, only with `--connected`: it is paid), and Private AI on
  *   documents. CI runs its smoke tier on Private AI changes, without failing
  *   on score deltas.

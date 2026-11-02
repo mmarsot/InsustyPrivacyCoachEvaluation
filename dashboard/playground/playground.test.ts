@@ -215,7 +215,10 @@ test("runPackageReview runs the ref's review on the loaded runtime and shows eac
   const rules: Rule[] = [
     { label: "CODENAME", prompt: "Codenames.", examples: ["Vega", "Lyra"] },
   ];
-  const model = module.capabilities.models!.find((m) => m.default)!.id;
+  // A generation model: the scripted runtime has no span model.
+  const model = module.capabilities.models!.find(
+    (m) => m.runsOn === "device",
+  )!.id;
   const trace = await runPackageReview(
     module,
     generations,

@@ -1,12 +1,41 @@
 {
-  "$comment": "The local model the bench runs: InsustyPromptCoach's shipped SmolLM2-360M. Which models a ref ships, and its default, come from the ref (SLM_MODELS, DEFAULT_SLM_MODEL_ID); this file only describes them (sizes, priors, advertised languages). Sizes are the q8 ('model_quantized.onnx') files the extension loads on WASM, read from the Hugging Face API on 2026-09-26.",
+  "$comment": "The local models the bench runs: InsustyPromptCoach's default on-device model, GLiNER2-PII (a span model, since extension PR #170), and SmolLM2-360M (a generation model, still offered). Which models a ref ships, and its default, come from the ref (SLM_MODELS, DEFAULT_SLM_MODEL_ID); this file only describes them (sizes, priors, advertised languages). SmolLM2's size is the q8 ('model_quantized.onnx') file the extension loads on WASM, read from the Hugging Face API on 2026-09-26; GLiNER2-PII's is the download the ref's catalog states (its export on Insusty's model repository, every file pinned by hash), read on 2026-11-02.",
   "backend": {
     "device": "wasm",
     "dtype": "q8",
-    "runtime": "onnxruntime-web (WASM) through @huggingface/transformers, the same runtime the extension ships",
+    "runtime": "onnxruntime-web (WASM): through @huggingface/transformers for SmolLM2, through the ref's own span runtime for GLiNER2, as the extension ships them",
     "numThreads": "min(4, CPU count), like src/model-worker.ts"
   },
   "models": [
+    {
+      "id": "gliner2-pii-multi-v1",
+      "short": "gliner2-pii",
+      "extensionLabel": "GLiNER2 PII (307M)",
+      "parameters": "307M",
+      "architecture": "GLiNER2 span extractor (DeBERTa-v3 encoder, span and count heads)",
+      "contextLength": 512,
+      "dtype": "q8",
+      "weightsFile": "encoder.onnx, head.onnx (Insusty/on-device-models export)",
+      "weightsBytes": 446053793,
+      "hfRevision": "1cb4166094dc58fa8d836429f060d6c95f62b495",
+      "baseModel": "fastino/gliner2-privacy-filter-PII-multi",
+      "languages": {
+        "advertised": [
+          "en",
+          "fr",
+          "es",
+          "de",
+          "it",
+          "pt",
+          "nl"
+        ],
+        "fr": "advertised",
+        "summary": "Multilingual: the card metadata lists en, fr, es, de, it, pt and nl. The extension scores French names with a lower threshold (0.7 vs 0.8).",
+        "source": "https://huggingface.co/fastino/gliner2-privacy-filter-PII-multi"
+      },
+      "priorSecondsPerCase": 2,
+      "priorLoadSeconds": 10
+    },
     {
       "id": "onnx-community/SmolLM2-360M-Instruct-ONNX",
       "short": "smollm2-360m",

@@ -17,7 +17,8 @@ ref names and diffs, read-only.
 | `dataset-adapters/<dataset>.json` | one per dataset it runs: its output → that dataset's labels, missing labels listed (`modules/README.md`) |
 | `insusty.ts` | the module adapter on the bench side: the package's `createContractModule` with what the bench injects (on-device runtime, connected transport, PDFium, measurements) |
 | `materialize.ts`, `ref.ts` | the one materializer (the package at the ref's commit → `cache/module/<sha>/`); ref resolution and `refReview` (the ref's models and the instructions its review prepares, read through the package) |
-| `runtime/transformers-loader.ts` | the Node WASM loader that mirrors the extension's `src/model-worker.ts` |
+| `runtime/transformers-loader.ts` | the Node WASM loader that mirrors the extension's `src/model-worker.ts` (generation models: SmolLM2) |
+| `runtime/span-environment.ts` | what the ref's own span runtime (GLiNER2) runs on in Node: onnxruntime-web WASM, the tokenizer, the ref's model host, a disk cache of hash-checked files (`cache/models/spans/`) |
 | `runtime/scripted.ts` | a scripted on-device runtime (no weights) that records the ref's prompts and replays answers, and a traced runtime that reports each generation |
 | `connected.ts` | the transport of the connected configuration: reply cache, cost, budget |
 | `models.json` | descriptions of the local models (sizes, priors, advertised languages); the ref decides which exist |
@@ -34,7 +35,8 @@ Local and connected models are configurations of this module, not modules:
 | --- | --- |
 | `rules` | the ref's rules with its default settings, Private AI off |
 | `rules-all` | every built-in label on (and every address country the ref declares), Private AI off |
-| `smollm2-360m` | the rules plus Private AI on the device: SmolLM2-360M, the model the extension ships (~1.9 GB peak while loading) |
+| `gliner2-pii` | the rules plus Private AI on the device: GLiNER2-PII (307M), the extension's default on-device model since PR #170, a span model run by the ref's own span runtime (~2.9 GB peak in Node WASM, the extension's own measurement; the memory guard waits for 4.4 GB free) |
+| `smollm2-360m` | the rules plus Private AI on the device: SmolLM2-360M, a generation model the extension still offers (the default before PR #170; ~1.9 GB peak while loading) |
 | `glm47-flash-connected` | the rules plus Private AI on a connected model: GLM-4.7 Flash on Bedrock (paid; `AWS_BEARER_TOKEN_BEDROCK`; `--budget-usd`, default 5) |
 
 A new local model is a new `device` configuration plus its `models.json`
@@ -47,7 +49,7 @@ are cached by model id.
 
 | Dataset | Adapter | Runs with |
 | --- | --- | --- |
-| insusty-custom | `labels: "per-case"`: each profile's custom labels go to Private AI; option `labelVariants` | `smollm2-360m`, `glm47-flash-connected` |
+| insusty-custom | `labels: "per-case"`: each profile's custom labels go to Private AI; option `labelVariants` | `gliner2-pii`, `smollm2-360m`, `glm47-flash-connected` |
 | insusty-builtin | the 9 built-in labels, one to one | every configuration (Private AI ones repeat `rules`) |
 | insusty-documents | the 9 built-in labels, plus per-case custom labels for its Private AI suite | every configuration |
 | tab, gretel, nemotron | the label maps it was scored with before the modules/datasets layout (1 of 8, 16 of 29, 17 of 55 labels answered with built-in spans; names and organisations are custom targets, outside the headline) | `rules`, `rules-all` |
@@ -57,8 +59,9 @@ are cached by model id.
 `npm run suite` runs the tracks a change to the extension needs, from
 `git diff --name-only <base>...<ref>` in the clone (read-only; the rules are
 in `changes.ts`). A track is a slice of the grid: the deterministic track is
-the `rules` and `rules-all` rows, the Private AI track the `smollm2-360m` row
-(and `glm47-flash-connected` with `--connected`).
+the `rules` and `rules-all` rows, the Private AI track the row of the ref's
+default on-device model, `gliner2-pii` (and `glm47-flash-connected` with
+`--connected`).
 
 | Change in the extension                                                                                                                   | Tracks             |
 | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
@@ -72,8 +75,9 @@ the `rules` and `rules-all` rows, the Private AI track the `smollm2-360m` row
 - **Deterministic track**: contract conformance, detbench, docbench, and the
   literature adapters (with the Presidio baseline on `--full`).
 - **Private AI track**: request parity with the lab's shipped baseline
-  (`npm run parity`, no model, no network), the review suites on the ref's
-  shipped on-device model (SmolLM2-360M), and Private AI on documents. The
+  (`npm run parity`, no model, no network; it checks SmolLM2's prompts, the
+  only generation model), the review suites on the ref's default on-device
+  model (GLiNER2-PII), and Private AI on documents. The
   connected model (GLM-4.7 Flash, paid) runs only with `--connected`.
 - **CI** (`--ci --since <base>`): the gates compare the head ref with the
   base on the same dataset and fail on a deterministic or document
@@ -110,7 +114,9 @@ version), the Private AI review on the device and on a connected model, the
 merge of rule and custom-label findings and the redaction are all the ref's
 own. The bench injects only what the package takes from its host:
 
-- the on-device runtime: the Node WASM loader (below), started on first use;
+- the on-device runtime: the Node WASM loader (below) for generation
+  models, started on first use, and for span models what the ref's span
+  runtime loads on (`runtime/span-environment.ts`);
 - the connected transport (`connected.ts`: reply cache, cost, budget);
 - PDFium, loaded from the ref's install;
 - what a run measures around each call (peak memory, the machine profile).
@@ -241,6 +247,25 @@ filled). To keep this bounded, each
 model runs in its own child process (the OS reclaims the whole WASM heap
 before the next model loads, and models never load in parallel), and the
 parent kills a worker whose RSS exceeds `--max-rss-mb` (default 3800).
+
+### Span models (GLiNER2)
+
+Since extension PR #170 the default on-device model is GLiNER2-PII, a span
+model: one encoder pass per window of words scores candidate spans for every
+label, so it generates no text. The ref's package runs it itself
+(`createContractModule({ spans })`): it downloads the export from the model
+host its build pins (`DEFAULT_MODEL_HOST` in the ref's
+`scripts/bundle-options.mjs`, read by the materializer; `INSUSTY_MODEL_HOST`
+overrides it, as for an extension build), proves every file against the
+hashes its catalog pins, builds the onnxruntime-web sessions and applies its
+own parameters (threshold, French threshold, windows, count gate, label
+descriptions with examples). The bench supplies only
+`runtime/span-environment.ts`: onnxruntime-web (the same instance
+Transformers.js loads, WASM, `min(4, CPU count)` threads), Transformers.js's
+`DebertaV2Tokenizer`, Node's `fetch` and SHA-256, and a disk cache of the
+proven files (`cache/models/spans/`, about 450 MB). A span model's request
+traces carry no prompt or answer text, so the scorer's format and echo
+checks do not apply to it.
 
 ### Latency
 

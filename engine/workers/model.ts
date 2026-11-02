@@ -7,7 +7,9 @@
  *
  * - an on-device model runs on the ref's own review and engine (prefix
  *   cache, stop rules, generation budget), with the bench's Node
- *   Transformers.js loader as its runtime;
+ *   Transformers.js loader as its runtime; a span model (GLiNER2) on the
+ *   ref's own span runtime over the bench's onnxruntime-web, tokenizer and
+ *   model-file cache (`runtime/span-environment.ts`);
  * - a connected model (`modules/insusty-privacy/connected.ts`) runs on the ref's own
  *   connected-model client; the bench supplies the transport (reply cache,
  *   cost, budget). Its latency includes the ref's pacing and retries.
@@ -46,6 +48,8 @@ export interface WorkerSpec {
   jobs: Job[];
   /** Connected models: USD the whole hosted evaluation may spend (cached spend included). */
   budgetUsd?: number;
+  /** A span model (GLiNER2, `RefReview.spanModelIds`): its request traces are windows, not answers. */
+  spanModel?: boolean;
 }
 
 /**
@@ -110,6 +114,12 @@ async function main() {
               threads: WASM_THREADS,
               dispose: disposeModels,
             };
+          },
+          spans: async () => {
+            const { nodeSpanEnvironment, spanRuntimeVersion } =
+              await import("../../modules/insusty-privacy/runtime/span-environment.ts");
+            transformers = spanRuntimeVersion;
+            return nodeSpanEnvironment(spec.ref.modelHost);
           },
         }),
   });
@@ -212,6 +222,7 @@ async function main() {
             },
             ms: Math.round(r.ms),
             ...(r.label !== undefined ? { prefill: `${r.label}:` } : {}),
+            ...(spec.spanModel ? { span: true as const } : {}),
             ...(connected
               ? {
                   usage: {
