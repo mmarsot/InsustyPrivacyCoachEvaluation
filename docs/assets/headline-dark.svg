@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="496" viewBox="0 0 860 496" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif">
+<title id="t">Insusty Privacy Coach against Presidio, rule-based detection</title>
+<desc id="d">Our prompts: items redacted: Insusty 97.1%, Presidio 66.7%; Our prompts: F1: Insusty 96.2%, Presidio 62.8%; Our prompts: precision: Insusty 95.6%, Presidio 51.9%; Secrets and API keys found: Insusty 115 of 117, Presidio not supported; Nemotron-PII sample: recall: Insusty 81.9%, Presidio 79.2%; Nemotron-PII sample: F1: Insusty 89.7%, Presidio 86.6%; Gretel finance (EN+FR): recall: Insusty 48.5%, Presidio 61.8%; Gretel finance (EN+FR): F1: Insusty 52.0%, Presidio 32.7%. Measured 2026-11-02 · extension main @ b12b381 · Presidio 2.2.364.</desc>
+<rect x="1" y="1" width="858" height="494" rx="18" fill="#3A1834" stroke="#4A1F42" stroke-width="2"/>
+<text x="28" y="42" font-size="20" font-weight="700" fill="#FFFFFF">Rule-based detection: Insusty vs Presidio</text>
+<text x="28" y="66" font-size="13" fill="#C9A9A0">Higher is better · Measured 2026-11-02 · extension main @ b12b381 · Presidio 2.2.364</text>
+<rect x="272" y="80" width="12" height="12" rx="3" fill="#FF6B4A"/>
+<text x="290" y="90.5" font-size="13" fill="#FFE3D6">Insusty, every label on</text>
+<rect x="482.20000000000005" y="80" width="12" height="12" rx="3" fill="#8A6F84"/>
+<text x="500.20000000000005" y="90.5" font-size="13" fill="#FFE3D6">Presidio 2.2.364</text>
+<line x1="272" y1="98" x2="272" y2="464" stroke="#4A1F42" stroke-width="1"/>
+<text x="272" y="480" font-size="11" fill="#C9A9A0" text-anchor="middle">0%</text>
+<line x1="502" y1="98" x2="502" y2="464" stroke="#4A1F42" stroke-width="1"/>
+<text x="502" y="480" font-size="11" fill="#C9A9A0" text-anchor="middle">50%</text>
+<line x1="732" y1="98" x2="732" y2="464" stroke="#4A1F42" stroke-width="1"/>
+<text x="732" y="480" font-size="11" fill="#C9A9A0" text-anchor="middle">100%</text>
+<text x="28" y="123" font-size="13.5" fill="#FFE3D6">Our prompts: items redacted</text>
+<rect x="272" y="104" width="446.7" height="13" rx="3" fill="#FF6B4A"/>
+<text x="726.7" y="115" font-size="12" font-weight="700" fill="#FFE3D6">97.1%</text>
+<rect x="272" y="121" width="306.8" height="13" rx="3" fill="#8A6F84"/>
+<text x="586.8" y="132" font-size="12" fill="#FFE3D6">66.7%</text>
+<text x="28" y="169" font-size="13.5" fill="#FFE3D6">Our prompts: F1</text>
+<rect x="272" y="150" width="442.5" height="13" rx="3" fill="#FF6B4A"/>
+<text x="722.5" y="161" font-size="12" font-weight="700" fill="#FFE3D6">96.2%</text>
+<rect x="272" y="167" width="288.9" height="13" rx="3" fill="#8A6F84"/>
+<text x="568.9" y="178" font-size="12" fill="#FFE3D6">62.8%</text>
+<text x="28" y="215" font-size="13.5" fill="#FFE3D6">Our prompts: precision</text>
+<rect x="272" y="196" width="439.8" height="13" rx="3" fill="#FF6B4A"/>
+<text x="719.8" y="207" font-size="12" font-weight="700" fill="#FFE3D6">95.6%</text>
+<rect x="272" y="213" width="238.7" height="13" rx="3" fill="#8A6F84"/>
+<text x="518.7" y="224" font-size="12" fill="#FFE3D6">51.9%</text>
+<text x="28" y="261" font-size="13.5" fill="#FFE3D6">Secrets and API keys found</text>
+<rect x="272" y="242" width="452.1" height="13" rx="3" fill="#FF6B4A"/>
+<text x="732.1" y="253" font-size="12" font-weight="700" fill="#FFE3D6">115 of 117</text>
+<text x="280" y="270" font-size="12" fill="#C9A9A0" font-style="italic">not supported</text>
+<text x="28" y="307" font-size="13.5" fill="#FFE3D6">Nemotron-PII sample: recall</text>
+<rect x="272" y="288" width="376.7" height="13" rx="3" fill="#FF6B4A"/>
+<text x="656.7" y="299" font-size="12" font-weight="700" fill="#FFE3D6">81.9%</text>
+<rect x="272" y="305" width="364.3" height="13" rx="3" fill="#8A6F84"/>
+<text x="644.3" y="316" font-size="12" fill="#FFE3D6">79.2%</text>
+<text x="28" y="353" font-size="13.5" fill="#FFE3D6">Nemotron-PII sample: F1</text>
+<rect x="272" y="334" width="412.6" height="13" rx="3" fill="#FF6B4A"/>
+<text x="692.6" y="345" font-size="12" font-weight="700" fill="#FFE3D6">89.7%</text>
+<rect x="272" y="351" width="398.4" height="13" rx="3" fill="#8A6F84"/>
+<text x="678.4" y="362" font-size="12" fill="#FFE3D6">86.6%</text>
+<text x="28" y="399" font-size="13.5" fill="#FFE3D6">Gretel finance (EN+FR): recall</text>
+<rect x="272" y="380" width="223.1" height="13" rx="3" fill="#FF6B4A"/>
+<text x="503.1" y="391" font-size="12" fill="#FFE3D6">48.5%</text>
+<rect x="272" y="397" width="284.3" height="13" rx="3" fill="#8A6F84"/>
+<text x="564.3" y="408" font-size="12" font-weight="700" fill="#FFE3D6">61.8%</text>
+<text x="28" y="445" font-size="13.5" fill="#FFE3D6">Gretel finance (EN+FR): F1</text>
+<rect x="272" y="426" width="239.2" height="13" rx="3" fill="#FF6B4A"/>
+<text x="519.2" y="437" font-size="12" font-weight="700" fill="#FFE3D6">52.0%</text>
+<rect x="272" y="443" width="150.4" height="13" rx="3" fill="#8A6F84"/>
+<text x="430.4" y="454" font-size="12" fill="#FFE3D6">32.7%</text>
+</svg>

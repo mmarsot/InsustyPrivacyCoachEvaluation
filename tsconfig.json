@@ -12,5 +12,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["contract", "modules", "datasets", "engine", "dashboard"]
+  "include": ["contract", "modules", "datasets", "engine", "dashboard", "docs"]
 }

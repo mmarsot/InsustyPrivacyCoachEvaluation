@@ -10,6 +10,7 @@
     "modules/*/module.ts",
     "modules/insusty-privacy/lab/worker.ts",
     "modules/insusty-privacy/lab/browser/run.ts",
+    "docs/readme-chart.ts",
     "**/*.test.ts"
   ],
   "project": [
@@ -17,7 +18,8 @@
     "modules/**/*.{ts,mjs}",
     "datasets/**/*.ts",
     "engine/**/*.ts",
-    "dashboard/**/*.{ts,mjs}"
+    "dashboard/**/*.{ts,mjs}",
+    "docs/**/*.ts"
   ],
   "ignoreExportsUsedInFile": true
 }

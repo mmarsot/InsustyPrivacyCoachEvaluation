@@ -1,7 +1,29 @@
-# InsustyReviewBench
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner-dark.png">
+    <img alt="InsustyReviewBench by Insusty: the open benchmark for Insusty Privacy Coach" src="docs/assets/banner-light.png" width="100%">
+  </picture>
+</p>
 
-**How well does Insusty Privacy Coach keep your secrets out of AI chatbots?**
-This repository measures it, openly and repeatably.
+<h3 align="center">
+  How well does Insusty Privacy Coach keep your secrets out of AI chatbots?<br>
+  This repository measures it, openly and repeatably.
+</h3>
+
+<p align="center">
+  <a href="LICENSE"><img alt="Code licence: PolyForm Noncommercial 1.0.0" src="https://img.shields.io/badge/code-PolyForm%20Noncommercial%201.0.0-4A1F42"></a>
+  <a href="LICENSES/CC-BY-NC-4.0.txt"><img alt="Data and docs licence: CC BY-NC 4.0" src="https://img.shields.io/badge/data%20%26%20docs-CC%20BY--NC%204.0-4A1F42"></a>
+  <a href="datasets/README.md"><img alt="6 datasets" src="https://img.shields.io/badge/datasets-6-C23F26"></a>
+  <a href="modules/README.md"><img alt="2 modules: Insusty Privacy Coach and Presidio" src="https://img.shields.io/badge/modules-Insusty%20%C2%B7%20Presidio-C23F26"></a>
+  <a href="#results"><img alt="Latest results: 2026-11-02" src="https://img.shields.io/badge/latest%20results-2026--11--02-B8720E"></a>
+</p>
+
+<p align="center">
+  <a href="#results"><b>Results</b></a> ·
+  <a href="datasets/README.md"><b>Datasets</b></a> ·
+  <a href="#quick-start"><b>How to run</b></a> ·
+  <a href="https://github.com/mmarsot/InsustyPromptCoach"><b>Insusty Privacy Coach</b></a>
+</p>
 
 [Insusty Privacy Coach](https://github.com/mmarsot/InsustyPromptCoach) is a
 Chrome extension that checks what you send to ChatGPT, Claude and Gemini and
@@ -9,6 +31,105 @@ removes secrets and personal details before they leave your browser. The
 checks run on your own computer. This benchmark is a separate project that
 puts those checks to the test, with test data where every name, number and
 key is made up.
+
+## Results
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/headline-dark.svg">
+    <img alt="Bar chart, rule-based detection, Insusty against Presidio 2.2.364. Our prompts: items redacted 97.1% against 66.7%, F1 96.2% against 62.8%, precision 95.6% against 51.9%. Secrets and API keys found: 115 of 117 against not supported. Nemotron-PII sample: recall 81.9% against 79.2%, F1 89.7% against 86.6%. Gretel finance: recall 48.5% against 61.8%, F1 52.0% against 32.7%." src="docs/assets/headline-light.svg" width="100%">
+  </picture>
+</p>
+
+Recall, precision and F1 are explained under
+[What it measures](#what-it-measures).
+
+**Rule-based detection and files**
+
+| Test                                           | Insusty, every label on |             Presidio 2.2.364 |
+| ---------------------------------------------- | ----------------------: | ---------------------------: |
+| Our prompts: items redacted                    |               **97.1%** | 66.7% (no secrets: 0 of 117) |
+| Our prompts: F1 (precision)                    |       **96.2%** (95.6%) |                62.8% (51.9%) |
+| Decoys wrongly hidden (of 502)                 |                  **19** |                          110 |
+| Secrets and API keys found (of 117)            |                 **115** |                not supported |
+| Documents: values found / precision            |           **90% / 98%** |              reads text only |
+| Documents: redacted values really gone         |          **659 of 659** |                            – |
+| Files that cannot be checked, reported as such |            **23 of 23** |                            – |
+| Nemotron-PII sample: recall / F1               |       **81.9% / 89.7%** |                79.2% / 86.6% |
+| Gretel finance (EN+FR): recall / F1            |       48.5% / **52.0%** |            **61.8%** / 32.7% |
+
+> [!NOTE]
+> Measured on 2026-11-02 on the extension's `main` branch at
+> [`b12b381`](https://github.com/mmarsot/InsustyPromptCoach/commit/b12b38170e4991a4573cf34bdb04361370e70735)
+> (version 0.1.0 plus the detection coverage update of
+> [PR #183](https://github.com/mmarsot/InsustyPromptCoach/pull/183): labelled
+> account, routing, PIN, customer, member, medical record, health plan and tax
+> numbers, phone numbers after a phone word, US street lines), on an
+> 8-thread, 7 GB laptop. Insusty runs with every built-in label on (IP
+> addresses, company IDs and the US, Canadian and Australian address formats
+> are opt-in in the extension), and with Private AI for custom labels.
+> Presidio 2.2.364 runs with its default recognizers, every text analysed as
+> English, as it ships.
+
+**Private AI on custom labels** (on-device model; held-out test prompts the
+model's settings were never tuned on)
+
+| Held-out test, 242 prompts (141 with something to hide)        | Insusty, GLiNER2-PII |      Presidio |
+| -------------------------------------------------------------- | -------------------: | ------------: |
+| Items found (recall)                                           |            **42.6%** | not supported |
+| Findings that were right (precision)                           |            **53.1%** |             – |
+| F1                                                             |            **47.2%** |             – |
+| Prompts with nothing to hide that got a false finding (of 101) |                44.6% |             – |
+| Median time per prompt                                         |                0.8 s |             – |
+
+GLiNER2-PII reads English and French alike (F1 44.8% in English, 49.7% in
+French). On the development prompts (96 cases) it scores recall 42.7%,
+precision 55.0%, F1 48.1%.
+
+What these numbers say, and what they do not:
+
+- On realistic prompts the extension finds and hides almost everything
+  (97%), with few false alarms, and it is the only one of the two that
+  catches secrets: 115 of 117 API keys, tokens and passwords. Presidio has
+  no secret detector and flags 110 of the 502 decoys.
+- In files, every value the extension decides to redact is gone from the
+  copy it sends, and no file it cannot read is passed off as checked.
+- On Nemotron-PII, mostly US-style data, the extension now finds more than
+  Presidio (81.9% against 79.2%; 83.6% on the labels both can produce) with
+  higher precision (99.2% against 95.6%). On Gretel, Presidio still finds
+  more (61.8% against 48.5%), mainly street addresses, national IDs and
+  dates of birth, but three in four of its findings there count as wrong
+  (precision 22.2%, against 56.0%; Gretel leaves many real-looking values
+  unlabelled, so precision is understated for both). Card numbers that fail the checksum the
+  extension requires, and many routing numbers, are still missed.
+- TAB (court judgements) is outside the extension's scope: its identifiers
+  are case numbers and people's names, which rules do not target (names
+  are a Private AI label). The extension finds 2.5% there, Presidio 3.3%.
+- Private AI finds about four in ten of the custom-label items in prompts
+  it has never seen, and it adds to the rules, never replaces them. Presidio has
+  no custom labels you can describe in words: a new type takes code or
+  configuration (patterns, word lists, or an extra model). Private AI's
+  false findings are the price of its recall: 45% of prompts with nothing
+  to hide get at least one.
+
+> [!TIP]
+> With the default "Ask me each time", the extension shows what it found in
+> a review dialog before the prompt is sent, so a false finding costs a
+> click, not a leak.
+
+> [!IMPORTANT]
+> Private AI results come from one machine and one run of each test set. The
+> connected-model option was not re-measured. On documents the bench
+> measured speed only (about 2 s per 1,000 characters, so a
+> 20,000-character file takes about 40 s); its document sample (2 files)
+> is too small to quote a recall.
+
+Every number above comes from a run you can reproduce with the commands
+below and inspect case by case in the dashboard (`npm run dashboard`). The
+per-dataset READMEs ([datasets/](datasets/README.md)) have the details: the
+extension's default settings, every label, and the earlier versions'
+results. The chart is drawn from the numbers above by `npm run readme:chart`
+([`docs/readme-chart.ts`](docs/readme-chart.ts)).
 
 ## What it measures
 
@@ -47,86 +168,35 @@ commit and scores it through a fixed interface, so the numbers describe what
 users get. [Microsoft Presidio](https://github.com/microsoft/presidio), a
 widely used open-source PII detector, runs on the same data as a baseline.
 
-## Results
-
-Measured on 2026-11-02 on the extension's `main` branch at
-[`b12b381`](https://github.com/mmarsot/InsustyPromptCoach/commit/b12b38170e4991a4573cf34bdb04361370e70735)
-(version 0.1.0 plus the detection coverage update of
-[PR #183](https://github.com/mmarsot/InsustyPromptCoach/pull/183): labelled
-account, routing, PIN, customer, member, medical record, health plan and tax
-numbers, phone numbers after a phone word, US street lines), on an
-8-thread, 7 GB laptop. Insusty runs with every built-in label on (IP
-addresses, company IDs and the US, Canadian and Australian address formats
-are opt-in in the extension), and with Private AI for custom labels.
-Presidio 2.2.364 runs with its default recognizers, every text analysed as
-English, as it ships.
-
-**Rule-based detection and files**
-
-| Test                                           | Insusty, every label on | Presidio 2.2.364             |
-| ---------------------------------------------- | ----------------------- | ---------------------------- |
-| Our prompts: items redacted                    | **97.1%**               | 66.7% (no secrets: 0 of 117) |
-| Our prompts: F1 (precision)                    | **96.2%** (95.6%)       | 62.8% (51.9%)                |
-| Decoys wrongly hidden (of 502)                 | **19**                  | 110                          |
-| Secrets and API keys found (of 117)            | **115**                 | not supported                |
-| Documents: values found / precision            | **90% / 98%**           | reads text only              |
-| Documents: redacted values really gone         | **659 of 659**          | –                            |
-| Files that cannot be checked, reported as such | **23 of 23**            | –                            |
-| Nemotron-PII sample: recall / F1               | **81.9% / 89.7%**       | 79.2% / 86.6%                |
-| Gretel finance (EN+FR): recall / F1            | 48.5% / **52.0%**       | **61.8%** / 32.7%            |
-
-**Private AI on custom labels** (on-device model; held-out test prompts the
-model's settings were never tuned on)
-
-| Held-out test, 242 prompts (141 with something to hide)        | Insusty, GLiNER2-PII | Presidio      |
-| -------------------------------------------------------------- | -------------------- | ------------- |
-| Items found (recall)                                           | **42.6%**            | not supported |
-| Findings that were right (precision)                           | **53.1%**            | –             |
-| F1                                                             | **47.2%**            | –             |
-| Prompts with nothing to hide that got a false finding (of 101) | 44.6%                | –             |
-| Median time per prompt                                         | 0.8 s                | –             |
-
-GLiNER2-PII reads English and French alike (F1 44.8% in English, 49.7% in
-French). On the development prompts (96 cases) it scores recall 42.7%,
-precision 55.0%, F1 48.1%.
-
-What these numbers say, and what they do not:
-
-- On realistic prompts the extension finds and hides almost everything
-  (97%), with few false alarms, and it is the only one of the two that
-  catches secrets: 115 of 117 API keys, tokens and passwords. Presidio has
-  no secret detector and flags 110 of the 502 decoys.
-- In files, every value the extension decides to redact is gone from the
-  copy it sends, and no file it cannot read is passed off as checked.
-- On Nemotron-PII, mostly US-style data, the extension now finds more than
-  Presidio (81.9% against 79.2%; 83.6% on the labels both can produce) with
-  higher precision (99.2% against 95.6%). On Gretel, Presidio still finds
-  more (61.8% against 48.5%), mainly street addresses, national IDs and
-  dates of birth, but three in four of its findings there count as wrong
-  (precision 22.2%, against 56.0%; Gretel leaves many real-looking values
-  unlabelled, so precision is understated for both). Card numbers that fail the checksum the
-  extension requires, and many routing numbers, are still missed.
-- TAB (court judgements) is outside the extension's scope: its identifiers
-  are case numbers and people's names, which rules do not target (names
-  are a Private AI label). The extension finds 2.5% there, Presidio 3.3%.
-- Private AI finds about four in ten of the custom-label items in prompts
-  it has never seen, and it adds to the rules, never replaces them. Presidio has
-  no custom labels you can describe in words: a new type takes code or
-  configuration (patterns, word lists, or an extra model). Private AI's
-  false findings are the price of its recall: 45% of prompts with nothing
-  to hide get at least one. With the default "Ask me each time",
-  the extension shows what it found in a review dialog before the prompt is
-  sent, so a false finding costs a click, not a leak.
-- Private AI results come from one machine and one run of each test set. The
-  connected-model option was not re-measured. On documents the bench
-  measured speed only (about 2 s per 1,000 characters, so a
-  20,000-character file takes about 40 s); its document sample (2 files)
-  is too small to quote a recall.
-
 ## What each tool supports
 
-The extension at `b12b381`, against Presidio's analyzer as installed (2.2.364,
-default recognizers, English). Sources: the extension's
+The extension at `b12b381` against Presidio's analyzer as installed (2.2.364,
+default recognizers, English), at a glance: ✓ supported, ✗ not supported.
+
+|                                      | Insusty Privacy Coach                              | Presidio 2.2.364                         |
+| ------------------------------------ | :------------------------------------------------- | :--------------------------------------- |
+| Secrets, API keys, passwords         | ✓ about 385 provider key rules and more            | ✗ no recognizer                          |
+| E-mail addresses                     | ✓                                                  | ✓                                        |
+| Phone numbers                        | ✓                                                  | ✓                                        |
+| Bank and card details                | ✓                                                  | ✓                                        |
+| National and personal IDs            | ✓                                                  | ✓                                        |
+| Company IDs                          | ✓ French, opt-in                                   | ✗ none for English by default            |
+| Dates of birth                       | ✓                                                  | ✗ flags every date and time              |
+| Postal addresses                     | ✓ French; US, Canadian, Australian opt-in          | ✗ place names only                       |
+| IP and MAC addresses                 | ✓ opt-in                                           | ✓                                        |
+| People's names                       | ✓ Private AI's Name label                          | ✓                                        |
+| Places, organisations, nationalities | ✓ as custom labels you add                         | ✓ places and groups; organisations off   |
+| Custom labels                        | ✓ described in plain words                         | ✓ written as code or configuration       |
+| Documents (Office, PDF, zip)         | ✓ sends a redacted copy                            | ✗ the analyzer reads text only           |
+| OCR (not measured here)              | ✓ opt-in, on the device                            | ✓ through `presidio-image-redactor`      |
+| AI model                             | ✓ GLiNER2-PII in the browser, or a connected model | ✓ spaCy's `en_core_web_sm` here          |
+| Checks prompts in the browser        | ✓ on ChatGPT, Claude and Gemini                    | ✗ a Python library or a service you host |
+| Languages                            | English and French                                 | English by default                       |
+
+<details>
+<summary><b>The full comparison, row by row, with its sources</b></summary>
+
+Sources: the extension's
 [rule-based detection](https://github.com/mmarsot/InsustyPromptCoach/blob/b12b38170e4991a4573cf34bdb04361370e70735/docs/detection-and-review/rule-based-detection.md),
 [OCR](https://github.com/mmarsot/InsustyPromptCoach/blob/b12b38170e4991a4573cf34bdb04361370e70735/docs/attachments/ocr.md)
 and [span model](https://github.com/mmarsot/InsustyPromptCoach/blob/b12b38170e4991a4573cf34bdb04361370e70735/docs/private-ai/on-device/span-models.md)
@@ -158,11 +228,7 @@ adapters ([`modules/`](modules/README.md)).
 | Where it runs                        | In Chrome, on ChatGPT, Claude and Gemini, before the prompt is sent; nothing leaves the device unless you connect a model                                                                                                                         | A Python library or a service you host                                                                                                                                                                             |
 | Languages                            | English and French (keywords, address formats, OCR data and the default model)                                                                                                                                                                    | English by default; another language needs its own language model and recognizers                                                                                                                                  |
 
-Every number above comes from a run you can reproduce with the commands
-below and inspect case by case in the dashboard (`npm run dashboard`). The
-per-dataset READMEs ([datasets/](datasets/README.md)) have the details: the
-extension's default settings, every label, and the earlier versions'
-results.
+</details>
 
 ## Licence
 
@@ -257,6 +323,7 @@ from `runs/` and the old cache folders ([engine/README.md](engine/README.md)).
 | know what a module takes and returns                                         | [contract/README.md](contract/README.md)                                                                                                                   |
 | run a cell, find results, or use the other commands                          | [engine/README.md](engine/README.md)                                                                                                                       |
 | use the dashboard and the chat playground                                    | [dashboard/README.md](dashboard/README.md)                                                                                                                 |
+| redraw the README's chart or banner after new results                        | [docs/assets/README.md](docs/assets/README.md)                                                                                                             |
 
 ### Repository layout
 
@@ -273,6 +340,7 @@ datasets/            what modules are scored on: one folder per dataset (manifes
   tab/ gretel/ nemotron/   published datasets, pinned and licence-checked; ai4privacy/ listed, blocked on its licence
 engine/              registry (the grid), router, planner, workers, memory guards, scorers, gates, CLIs
 dashboard/           Modules, Datasets, Grid (Run), Live, Results, Compare, Documents, Literature, Lab, Playground
+docs/                the detbench guide, the README's chart script (readme-chart.ts) and assets/ (banner, logo, chart)
 results/             local, git-ignored: run folders and the costly job caches
 cache/               local, git-ignored, cheap to rebuild: module builds, model weights, dataset downloads, scratch
 ```
