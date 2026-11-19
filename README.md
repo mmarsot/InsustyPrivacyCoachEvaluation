@@ -22,7 +22,8 @@
   <a href="#results"><b>Results</b></a> ·
   <a href="datasets/README.md"><b>Datasets</b></a> ·
   <a href="#quick-start"><b>How to run</b></a> ·
-  <a href="https://github.com/mmarsot/InsustyPromptCoach"><b>Insusty Privacy Coach</b></a>
+  <a href="https://github.com/mmarsot/InsustyPromptCoach"><b>Insusty Privacy Coach</b></a> ·
+  <a href="https://chromewebstore.google.com/detail/insusty-privacy-coach/agifmckknghpkmdopklihblgpmbheagi"><b>Chrome Web Store</b></a>
 </p>
 
 [Insusty Privacy Coach](https://github.com/mmarsot/InsustyPromptCoach) is a
@@ -30,7 +31,8 @@ Chrome extension that checks what you send to ChatGPT, Claude and Gemini and
 removes secrets and personal details before they leave your browser. The
 checks run on your own computer. This benchmark is a separate project that
 puts those checks to the test, with test data where every name, number and
-key is made up.
+key is made up. Install it from the
+[Chrome Web Store](https://chromewebstore.google.com/detail/insusty-privacy-coach/agifmckknghpkmdopklihblgpmbheagi).
 
 ## Results
 
